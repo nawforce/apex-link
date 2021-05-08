@@ -8,6 +8,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
 
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -82,4 +83,5 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(!org.issues.hasMessages)
     }
   }
+   */
 }

@@ -28,7 +28,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Name, Org, ServerOps, TypeIdentifier}
+import com.nawforce.common.api.{ Org, ServerOps}
 import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -36,6 +36,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class ComponentTest extends AnyFunSuite with BeforeAndAfter {
+  /*
 
   before {
     ServerOps.setAutoFlush(false)
@@ -215,6 +216,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       assert(!org.issues.hasMessages)
     }
   }
+
+   */
 
 
 }

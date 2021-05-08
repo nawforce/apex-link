@@ -28,12 +28,12 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.{Modifier, ModifierOps}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BlockDeclaration, _}
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
@@ -52,7 +52,7 @@ case object AFTER_DELETE extends TriggerCase(name = "after delete")
 case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
 
 final case class TriggerDeclaration(source: Source,
-                                    pkg: PackageImpl,
+                                    module: Module,
                                     nameId: Id,
                                     objectNameId: Id,
                                     typeName: TypeName,
@@ -66,7 +66,7 @@ final case class TriggerDeclaration(source: Source,
   override lazy val sourceHash: Int = source.hash
   override val paths: Array[PathLike] = Array(path)
 
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+  override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = TRIGGER_NATURE
@@ -101,21 +101,21 @@ final case class TriggerDeclaration(source: Source,
 
       tdOpt match {
         case Left(error) =>
-          if (!pkg.isGhostedType(objectTypeName))
+          if (!module.isGhostedType(objectTypeName))
             OrgImpl.log(error.asIssue(objectNameId.location))
         case Right(_) =>
           val triggerContext = context
             .getTypeFor(TypeNames.trigger(objectTypeName), Some(this))
             .getOrElse(throw new NoSuchElementException)
-          val tc = TriggerContext(pkg, triggerContext)
-          pkg.upsertMetadata(tc)
+          val tc = TriggerContext(module, triggerContext)
+          module.upsertMetadata(tc)
 
           try {
             val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
             blockContext.addVar(Names.Trigger, tc)
             block.verify(blockContext)
           } finally {
-            pkg.removeMetadata(tc)
+            module.removeMetadata(tc)
           }
       }
 
@@ -168,29 +168,29 @@ final case class TriggerDeclaration(source: Source,
 object TriggerDeclaration {
   private val prefix: TypeName = TypeName(Name("__sfdc_trigger"))
 
-  def create(pkg: PackageImpl, path: PathLike, data: SourceData): Option[TriggerDeclaration] = {
+  def create(module: Module, path: PathLike, data: SourceData): Option[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
     parser.parseTrigger() match {
       case Left(issues) =>
         issues.foreach(OrgImpl.log)
         None
       case Right(cu) =>
-        Some(TriggerDeclaration.construct(parser, pkg, path, cu))
+        Some(TriggerDeclaration.construct(parser, module, path, cu))
     }
   }
 
   def construct(parser: CodeParser,
-                pkg: PackageImpl,
+                module: Module,
                 path: PathLike,
                 trigger: TriggerUnitContext): TriggerDeclaration = {
     CST.sourceContext.withValue(Some(parser.source)) {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
       new TriggerDeclaration(parser.source,
-                             pkg,
+                             module,
                              ids.head,
                              ids(1),
-                             constructTypeName(pkg.namespace, ids.head.name),
+                             constructTypeName(module.namespace, ids.head.name),
                              cases,
                              Block.constructLazy(parser, trigger.block(), isTrigger = true))
     }
@@ -227,8 +227,8 @@ object TriggerDeclaration {
   }
 }
 
-final case class TriggerContext(pkg: PackageImpl, baseType: TypeDeclaration)
-    extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeName(Names.Trigger)) {
+final case class TriggerContext(module: Module, baseType: TypeDeclaration)
+    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(Names.Trigger)) {
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     baseType.findField(name, staticContext)

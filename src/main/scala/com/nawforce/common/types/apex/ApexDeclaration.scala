@@ -34,7 +34,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 
@@ -111,7 +111,7 @@ trait ApexFieldLike extends FieldDeclaration {
 trait ApexDeclaration extends TypeDeclaration with DependentType {
   val path: PathLike
   val sourceHash: Int
-  val pkg: PackageImpl
+  val module: Module
   val nameLocation: PathLocation
 
   // Get summary of this type
@@ -134,7 +134,7 @@ trait ApexTriggerDeclaration extends ApexDeclaration
 trait ApexClassDeclaration extends ApexDeclaration {
   val path: PathLike
   val sourceHash: Int
-  val pkg: PackageImpl
+  val module: Module
   val nameLocation: PathLocation
   val localFields: Array[ApexFieldLike]
   val localMethods: Array[MethodDeclaration]
@@ -146,11 +146,11 @@ trait ApexClassDeclaration extends ApexDeclaration {
   def propagateAllDependencies(): Unit
 
   override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => pkg.getTypeFor(sc, this))
+    superClass.flatMap(sc => module.getTypeFor(sc, this))
   }
 
   override def interfaceDeclarations: Array[TypeDeclaration] = {
-    interfaces.flatMap(i => pkg.getTypeFor(i, this))
+    interfaces.flatMap(i => module.getTypeFor(i, this))
   }
 
   override def isComplete: Boolean = {

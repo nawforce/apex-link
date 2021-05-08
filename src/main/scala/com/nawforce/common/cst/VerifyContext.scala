@@ -32,7 +32,7 @@ import com.nawforce.common.finding.{TypeError, TypeResolver}
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.common.names.{EncodedName, Name, TypeName}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.common.types.other._
@@ -42,8 +42,8 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
-  /* Package for current outer type */
-  def pkg: PackageImpl
+  /* Module for current outer type */
+  def module: Module
 
   /* Get type declaration of 'this', option as not set in trigger */
   def thisType: Option[TypeDeclaration]
@@ -67,12 +67,12 @@ trait VerifyContext {
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
   def missingType(location: PathLocation, typeName: TypeName): Unit = {
-    if (!pkg.isGhostedType(typeName) && !suppressWarnings)
+    if (!module.isGhostedType(typeName) && !suppressWarnings)
       OrgImpl.log(IssueOps.noTypeDeclaration(location, typeName))
   }
 
   def missingIdentifier(location: PathLocation, typeName: TypeName, name: Name): Unit = {
-    if (!pkg.isGhostedType(EncodedName(name).asTypeName) && !suppressWarnings)
+    if (!module.isGhostedType(EncodedName(name).asTypeName) && !suppressWarnings)
       OrgImpl.log(IssueOps.noVariableOrType(location, name, typeName))
   }
 
@@ -147,7 +147,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
 
   override def parent(): Option[VerifyContext] = parentContext
 
-  override def pkg: PackageImpl = typeDeclaration.pkg
+  override def module: Module = typeDeclaration.module
 
   override def thisType: Option[TypeDeclaration] = Some(typeDeclaration)
 
@@ -156,7 +156,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
   override def getTypeFor(typeName: TypeName,
                           from: Option[TypeDeclaration],
                           excludeSObjects: Boolean = false): Either[TypeError, TypeDeclaration] = {
-    typeResolver.find(typeName, from, thisType.flatMap(_.packageDeclaration), excludeSObjects)
+    typeResolver.find(typeName, from, thisType.flatMap(_.moduleDeclaration), excludeSObjects)
   }
 
   override def suppressWarnings: Boolean =
@@ -178,7 +178,7 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageImpl = parentContext.pkg
+  override def module: Module = parentContext.module
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -208,7 +208,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageImpl = parentContext.pkg
+  override def module: Module = parentContext.module
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -246,7 +246,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     if (td.isEmpty)
       missingType(location, typeName)
 
-    vars.put(name, td.getOrElse(pkg.any()))
+    vars.put(name, td.getOrElse(module.any()))
   }
 
   def isStatic: Boolean
@@ -274,7 +274,7 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
-  override def pkg: PackageImpl = parentContext.pkg
+  override def module: Module = parentContext.module
 
   override def thisType: Option[TypeDeclaration] = parentContext.thisType
 
@@ -298,6 +298,6 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
   def isVar(name: Name): Option[TypeDeclaration] = parentContext.getVar(name)
 
   def defaultNamespace(name: Name): Name = {
-    EncodedName(name).defaultNamespace(pkg.namespace).fullName
+    EncodedName(name).defaultNamespace(module.namespace).fullName
   }
 }

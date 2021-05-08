@@ -48,10 +48,10 @@ object APIError {
   }
 }
 
-case class AddPackageResult(error: Option[APIError], namespaces: Array[String])
+case class OpenResult(error: Option[APIError], namespaces: Array[String])
 
-object AddPackageResult {
-  implicit val rw: RW[AddPackageResult] = macroRW
+object OpenResult {
+  implicit val rw: RW[OpenResult] = macroRW
 }
 
 case class GetIssuesResult(issues: Array[Issue])
@@ -101,8 +101,8 @@ trait OrgAPI {
   @api.JSONRPCMethod(name = "reset")
   def reset(): Future[Unit]
 
-  @api.JSONRPCMethod(name = "addPackage")
-  def addPackage(directory: String): Future[AddPackageResult]
+  @api.JSONRPCMethod(name = "open")
+  def open(directory: String): Future[OpenResult]
 
   @api.JSONRPCMethod(name = "getIssues")
   def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult]
@@ -124,5 +124,5 @@ trait OrgAPI {
 }
 
 object OrgAPI {
-  def apply(quiet: Boolean): OrgAPI = new OrgAPIImpl(quiet)
+  def apply(): OrgAPI = new OrgAPIImpl()
 }

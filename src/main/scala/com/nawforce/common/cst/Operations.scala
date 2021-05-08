@@ -37,7 +37,7 @@ trait AssignableSupport {
     if (fromType.typeName == TypeNames.Null ||
         (fromType.typeName == toType) ||
         (toType == TypeNames.InternalObject) ||
-        context.pkg.isGhostedType(toType)) {
+        context.module.isGhostedType(toType)) {
       true
     } else if (fromType.typeName.isRecordSet) {
       isRecordSetAssignable(toType, context)

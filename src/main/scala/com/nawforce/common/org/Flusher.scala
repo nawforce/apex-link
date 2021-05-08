@@ -42,8 +42,8 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
   protected val lock = new ReentrantLock(true)
   protected val refreshQueue = new mutable.Queue[RefreshRequest]()
 
-  def isFlushed: Boolean = {
-    lock.synchronized { refreshQueue.isEmpty }
+  def isDirty: Boolean = {
+    lock.synchronized { refreshQueue.nonEmpty }
   }
 
   def queue(request: RefreshRequest): Unit = {
@@ -55,7 +55,7 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
   def refreshAndFlush(): Boolean = {
     OrgImpl.current.withValue(org) {
       lock.synchronized {
-        val packages = org.orderedPackages
+        val packages = org.packages
 
         val refreshed = packages
           .map(pkg => {

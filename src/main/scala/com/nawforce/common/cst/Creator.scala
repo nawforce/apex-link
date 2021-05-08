@@ -32,7 +32,6 @@ import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.common.diagnostics.PathLocation
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
@@ -136,10 +135,10 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
       creating.typeDeclarationOpt
         .map(_.isFieldConstructed)
         .getOrElse({
-            context.pkg.isGhostedType(createdName.typeName) && EncodedName(
-              createdName.typeName.name).ext.exists(ClassCreatorRest.isFieldConstructedExt)
+          context.module.isGhostedType(createdName.typeName) && EncodedName(
+            createdName.typeName.name).ext.exists(ClassCreatorRest.isFieldConstructedExt)
 
-          })
+        })
 
     if (isFieldConstructed && creating.typeDeclarationOpt.isEmpty) {
       validateFieldConstructorArgumentsGhosted(createdName.typeName, input, arguments, context)
@@ -259,14 +258,14 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     val keyType = context.getTypeAndAddDependency(enclosedTypes.get._1, context.thisType)
     if (keyType.isLeft) {
-      if (!context.pkg.isGhostedType(enclosedTypes.get._1))
+      if (!context.module.isGhostedType(enclosedTypes.get._1))
         OrgImpl.log(keyType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
       return ExprContext.empty
     }
 
     val valueType = context.getTypeAndAddDependency(enclosedTypes.get._2, context.thisType)
     if (valueType.isLeft) {
-      if (!context.pkg.isGhostedType(enclosedTypes.get._2))
+      if (!context.module.isGhostedType(enclosedTypes.get._2))
         OrgImpl.log(valueType.swap.getOrElse(throw new NoSuchElementException).asIssue(location))
       return ExprContext.empty
     }
@@ -326,7 +325,7 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
 
     context.getTypeAndAddDependency(enclosedType.get, context.thisType) match {
       case Left(error) =>
-        if (!context.pkg.isGhostedType(enclosedType.get))
+        if (!context.module.isGhostedType(enclosedType.get))
           OrgImpl.log(error.asIssue(location))
         return ExprContext.empty
       case Right(_) =>

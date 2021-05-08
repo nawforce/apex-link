@@ -36,14 +36,10 @@ import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.common.names.{DotName, Names, TypeNames, _}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.{Module, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
-import com.nawforce.common.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
@@ -58,7 +54,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
   override lazy val paths: Array[PathLike] = PathLike.emptyPaths
-  override lazy val packageDeclaration: Option[PackageImpl] = None
+  override lazy val moduleDeclaration: Option[Module] = None
 
   override lazy val name: Name = typeName.name
   override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)

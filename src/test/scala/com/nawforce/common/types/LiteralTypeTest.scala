@@ -28,9 +28,8 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.ParserHelper
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.cst.{CST, Literal}
-import com.nawforce.common.names.{Names, TypeNames}
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.core.{DependencyHolder, TypeDeclaration}
 import com.nawforce.runtime.parsers.{Source, SourceData}

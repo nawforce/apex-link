@@ -35,6 +35,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class SampleViewTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
 
   before {
@@ -123,4 +124,6 @@ class SampleViewTest extends AnyFunSuite with BeforeAndAfter {
   test("Affiliations") {
     sample("samples/SalesforceFoundation/Affiliations/src")
   }
+
+   */
 }

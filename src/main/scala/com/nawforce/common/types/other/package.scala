@@ -1,7 +1,7 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.documents._
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.types.core.DependentType
 
@@ -12,12 +12,12 @@ package object other {
   }
 
   object Other {
-    def apply(dt: UpdatableMetadata, pkg: PackageImpl): OtherTypeDeclaration = {
+    def apply(dt: UpdatableMetadata, module: Module): OtherTypeDeclaration = {
       dt match {
-        case _: LabelsDocument    => LabelDeclaration(pkg)
-        case _: PageDocument      => PageDeclaration(pkg)
-        case _: ComponentDocument => ComponentDeclaration(pkg)
-        case _: FlowDocument      => InterviewDeclaration(pkg)
+        case _: LabelsDocument    => LabelDeclaration(module)
+        case _: PageDocument      => PageDeclaration(module)
+        case _: ComponentDocument => ComponentDeclaration(module)
+        case _: FlowDocument      => InterviewDeclaration(module)
       }
     }
   }

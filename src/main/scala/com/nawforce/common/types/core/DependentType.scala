@@ -30,7 +30,7 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.memory.SkinnySet
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 
 import scala.collection.mutable
 
@@ -41,13 +41,13 @@ import scala.collection.mutable
 trait DependentType extends TypeDeclaration {
 
   /** The owning package, this is needed to disambiguate but restricts where DependentType can be used currently. */
-  val pkg: PackageImpl
+  val module: Module
 
   /** TypeId for this type */
-  lazy val typeId: TypeId = TypeId(pkg, typeName)
+  lazy val typeId: TypeId = TypeId(module, typeName)
 
   /** TypeId for outer type (might be self) */
-  lazy val outerTypeId: TypeId = outerTypeName.map(TypeId(pkg, _)).getOrElse(typeId)
+  lazy val outerTypeId: TypeId = outerTypeName.map(TypeId(module, _)).getOrElse(typeId)
 
   /** Current set of holders from this TypeDeclaration */
   private var typeDependencyHolders: SkinnySet[TypeId] = _
@@ -82,10 +82,10 @@ trait DependentType extends TypeDeclaration {
   }
 
   private def getOutermostDeclaration(typeId: TypeId): Option[DependentType] = {
-    TypeResolver(typeId.typeName, typeId.pkg, excludeSObjects = false) match {
+    TypeResolver(typeId.typeName, typeId.module, excludeSObjects = false) match {
       case Right(td: DependentType) =>
         td.outerTypeName
-          .map(ot => getOutermostDeclaration(TypeId(typeId.pkg, ot)))
+          .map(ot => getOutermostDeclaration(TypeId(typeId.module, ot)))
           .getOrElse(Some(td))
       case Right(_) => None
       case Left(_)  => None

@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.{IssueOps, PathLocation}
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
@@ -42,10 +42,10 @@ trait ExprContext {
   def isDefined: Boolean
 
   def typeDeclarationOpt: Option[TypeDeclaration]
-  def packageDeclarationOpt: Option[PackageImpl]
+  def moduleDeclarationOpt: Option[Module]
 
   def typeDeclaration: TypeDeclaration = typeDeclarationOpt.get
-  def packageDeclaration: PackageImpl = packageDeclarationOpt.get
+  def moduleDeclaration: Module = moduleDeclarationOpt.get
   def typeName: TypeName = typeDeclarationOpt.get.typeName
 }
 
@@ -55,8 +55,8 @@ case class TypeExprContext(isStatic: Option[Boolean], declaration: Option[TypeDe
     declaration.nonEmpty && !declaration.exists(_.isInstanceOf[AnyDeclaration])
 
   override def typeDeclarationOpt: Option[TypeDeclaration] = declaration
-  override def packageDeclarationOpt: Option[PackageImpl] =
-    typeDeclarationOpt.flatMap(_.packageDeclaration)
+  override def moduleDeclarationOpt: Option[Module] =
+    typeDeclarationOpt.flatMap(_.moduleDeclaration)
 }
 
 object ExprContext {
@@ -106,7 +106,7 @@ final case class DotExpression(expression: Expression,
     if (target.isRight) {
       expression match {
         case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
-          if (findField(primary.id.name, input.typeDeclaration, context.pkg, None).isEmpty) {
+          if (findField(primary.id.name, input.typeDeclaration, context.module, None).isEmpty) {
             val td = context
               .getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true)
               .toOption
@@ -121,7 +121,8 @@ final case class DotExpression(expression: Expression,
     val inter = expression.verify(input, context)
     if (inter.isDefined) {
       if (inter.isStatic.contains(true) && safeNavigation) {
-        context.logError(location, "Safe navigation operator (?.) can not be used on static references")
+        context.logError(location,
+                         "Safe navigation operator (?.) can not be used on static references")
         ExprContext.empty
       } else if (target.isLeft)
         verifyWithId(inter, context)
@@ -137,8 +138,8 @@ final case class DotExpression(expression: Expression,
   }
 
   private def isNamespace(name: Name, td: TypeDeclaration): Boolean = {
-    if (td.packageDeclaration.nonEmpty)
-      td.packageDeclaration.get.namespaces.contains(name)
+    if (td.moduleDeclaration.nonEmpty)
+      td.moduleDeclaration.get.pkg.namespaces.contains(name)
     else
       PlatformTypeDeclaration.namespaces.contains(name)
   }
@@ -150,7 +151,7 @@ final case class DotExpression(expression: Expression,
       case inputType: TypeDeclaration =>
         val name = target.swap.getOrElse(throw new NoSuchElementException).name
         val field: Option[FieldDeclaration] =
-          findField(name, inputType, context.pkg, input.isStatic)
+          findField(name, inputType, context.module, input.isStatic)
         if (field.nonEmpty) {
           context.addDependency(field.get)
           val target = context.getTypeAndAddDependency(field.get.typeName, Some(inputType)).toOption
@@ -172,19 +173,11 @@ final case class DotExpression(expression: Expression,
 
         if (inputType.isComplete) {
           if (inputType.isSObject) {
-            if (!context.pkg.isGhostedFieldName(name)) {
-              context.log(
-                IssueOps.unknownFieldOnSObject(
-                  location,
-                  name,
-                  inputType.typeName))
+            if (!context.module.isGhostedFieldName(name)) {
+              context.log(IssueOps.unknownFieldOnSObject(location, name, inputType.typeName))
             }
           } else {
-          context.log(
-            IssueOps.unknownFieldOrType(
-              location,
-              name,
-              inputType.typeName))
+            context.log(IssueOps.unknownFieldOrType(location, name, inputType.typeName))
           }
         }
         ExprContext.empty
@@ -208,10 +201,10 @@ final case class DotExpression(expression: Expression,
 
   private def findField(name: Name,
                         td: TypeDeclaration,
-                        pkg: PackageImpl,
+                        module: Module,
                         staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
-    val namespaceName = encodedName.defaultNamespace(pkg.namespace)
+    val namespaceName = encodedName.defaultNamespace(module.namespace)
     td.findField(namespaceName.fullName, staticContext)
       .orElse({
         if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
@@ -277,7 +270,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expres
         val methods = callee.findMethod(id.name, argTypes, staticContext, context)
         methods.foreach(context.addDependency)
         if (methods.isEmpty) {
-          if (callee.isComplete && argTypes.forall(!context.pkg.isGhostedType(_))) {
+          if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
             if (argTypes.isEmpty)
               context.logError(
                 location,
@@ -289,7 +282,7 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expres
                   s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
           }
           ExprContext.empty
-        } else if (methods.head.typeName != TypeNames.Void && !context.pkg.isGhostedType(
+        } else if (methods.head.typeName != TypeNames.Void && !context.module.isGhostedType(
                      methods.head.typeName)) {
           val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
           td match {

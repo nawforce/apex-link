@@ -32,9 +32,14 @@ import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{EncodedName, Name, Names, TypeName, TypeNames}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.common.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.common.types.schema
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
@@ -42,9 +47,9 @@ import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethod
 import scala.collection.mutable
 
 /* Support for Schema.* handling in Apex */
-class SchemaManager(pkg: PackageImpl) extends PlatformTypes.PlatformTypeObserver {
-  val sobjectTypes: SchemaSObjectType = SchemaSObjectType(pkg)
-  val relatedLists: RelatedLists = new RelatedLists(pkg)
+class SchemaManager(module: Module) extends PlatformTypes.PlatformTypeObserver {
+  val sobjectTypes: SchemaSObjectType = SchemaSObjectType(module)
+  val relatedLists: RelatedLists = new RelatedLists(module)
 
   PlatformTypes.addLoadingObserver(this)
 
@@ -56,7 +61,7 @@ class SchemaManager(pkg: PackageImpl) extends PlatformTypes.PlatformTypeObserver
 }
 
 /* Relationship field tracker, handles finding related lists */
-class RelatedLists(pkg: PackageImpl) {
+class RelatedLists(module: Module) {
   private val relationshipFields = mutable
     .Map[TypeName, Seq[(CustomFieldDeclaration, Name, PathLocation)]]() withDefaultValue Seq()
 
@@ -66,7 +71,7 @@ class RelatedLists(pkg: PackageImpl) {
           holdingFieldName: Name,
           holdingSObject: TypeName,
           location: PathLocation): Unit = {
-    val encodedName = EncodedName(relationshipName).defaultNamespace(pkg.namespace).fullName
+    val encodedName = EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
     val field = CustomFieldDeclaration(encodedName, TypeNames.recordSetOf(holdingSObject), None)
     relationshipFields.put(sObject,
                            (field, holdingFieldName, location) +: relationshipFields(sObject))
@@ -79,8 +84,8 @@ class RelatedLists(pkg: PackageImpl) {
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
     sobjects.foreach(sobject => {
-      val td = TypeResolver(sobject, pkg, excludeSObjects = false).toOption
-      if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
+      val td = TypeResolver(sobject, module, excludeSObjects = false).toOption
+      if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(sobject)) {
         relationshipFields(sobject).foreach(field => {
           OrgImpl.logError(field._3,
                            s"Lookup object $sobject does not exist for field '${field._2}'")
@@ -98,9 +103,9 @@ class RelatedLists(pkg: PackageImpl) {
     // Wrap any objects with lookups relationships so they are visible
     changedObjects.foreach(td => {
       // TODO: Provide paths
-      pkg.upsertMetadata(
+      module.upsertMetadata(
         schema.SObjectDeclaration(PathLike.emptyPaths,
-                                  pkg,
+                                  module,
                                   td.typeName,
                                   CustomObjectNature,
                                   Name.emptyNames,
@@ -112,14 +117,14 @@ class RelatedLists(pkg: PackageImpl) {
 
   /* Find for a relationship field on an SObject*/
   def findField(sobjectType: TypeName, name: Name): Option[FieldDeclaration] = {
-    val encodedName = EncodedName(name).defaultNamespace(pkg.namespace).fullName
+    val encodedName = EncodedName(name).defaultNamespace(module.namespace).fullName
     relationshipFields(sobjectType)
       .find(field => field._1.name == encodedName)
       .map(_._1)
       .orElse({
-        pkg.basePackages
-          .flatMap(basePkg => {
-            basePkg.schema().relatedLists.findField(sobjectType, encodedName)
+        module.baseModules
+          .flatMap(baseModule => {
+            baseModule.schema().relatedLists.findField(sobjectType, encodedName)
           })
           .headOption
       })
@@ -127,8 +132,8 @@ class RelatedLists(pkg: PackageImpl) {
 }
 
 /* Schema.SObjectType implementation */
-final case class SchemaSObjectType(pkg: PackageImpl)
-    extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.SObjectType) {
+final case class SchemaSObjectType(module: Module)
+    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
@@ -143,7 +148,7 @@ final case class SchemaSObjectType(pkg: PackageImpl)
       return None
 
     val typeName = EncodedName(name).asTypeName
-    if (pkg.isGhostedType(typeName)) {
+    if (module.isGhostedType(typeName)) {
       return Some(createSObjectDescribeField(name, typeName))
     }
 
@@ -151,7 +156,7 @@ final case class SchemaSObjectType(pkg: PackageImpl)
       .get(name)
       .orElse({
         /* If not yet present check if we should create and cache */
-        val td = TypeResolver(TypeName(name), pkg, excludeSObjects = false).toOption
+        val td = TypeResolver(TypeName(name), module, excludeSObjects = false).toOption
         if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
               superClass.typeName == TypeNames.SObject)) {
           Some(createSObjectDescribeField(name, td.get.typeName))
@@ -188,22 +193,22 @@ final case class SchemaSObjectType(pkg: PackageImpl)
   def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
     if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
       sobjectTypeDeclarationsCreated.add(sobjectName)
-      val fields = SObjectFields(sobjectName, pkg)
-      val typeFields = SObjectTypeFields(sobjectName, pkg)
-      pkg.upsertMetadata(typeFields)
-      pkg.upsertMetadata(fields)
-      pkg.upsertMetadata(SObjectTypeImpl(sobjectName, fields, pkg))
-      pkg.upsertMetadata(SObjectTypeFieldSets(sobjectName, pkg))
-      pkg.upsertMetadata(SObjectFieldRowCause(sobjectName, pkg))
+      val fields = SObjectFields(sobjectName, module)
+      val typeFields = SObjectTypeFields(sobjectName, module)
+      module.upsertMetadata(typeFields)
+      module.upsertMetadata(fields)
+      module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
+      module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
+      module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
     }
   }
 }
 
 // TODO: Provide paths
-final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, pkg: PackageImpl)
+final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val fieldField = CustomFieldDeclaration(
@@ -237,14 +242,14 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
 }
 
 // TODO: Provide paths
-final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
+final case class SObjectTypeFields(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields
           .map(field =>
@@ -264,7 +269,7 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
       .orElse(ghostedSobjectFields.get(name))
       .orElse({
         val typeName = EncodedName(name).asTypeName
-        if (pkg.isGhostedType(typeName)) {
+        if (module.isGhostedType(typeName)) {
           ghostedSobjectFields
             .put(name, CustomFieldDeclaration(name, TypeNames.DescribeFieldResult, None))
         }
@@ -293,10 +298,10 @@ final case class SObjectTypeFields(sobjectName: Name, pkg: PackageImpl)
 }
 
 // TODO: Provide paths
-final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
+final case class SObjectFields(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   // Extend SObjectField for when used as return type for lookup SObjectField
@@ -306,7 +311,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     val shareTypeName = if (typeName.isShare) Some(typeName) else None
-    TypeResolver(TypeName(sobjectName), pkg, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName))).toMap
       case _ => Map()
@@ -332,7 +337,7 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
       .orElse(ghostedSobjectFields.get(name))
       .orElse({
         val typeName = EncodedName(name).asTypeName
-        if (pkg.isGhostedType(typeName)) {
+        if (module.isGhostedType(typeName)) {
           ghostedSobjectFields.put(name, CustomFieldDeclaration(name, TypeNames.SObjectField, None))
         }
         ghostedSobjectFields.get(name)
@@ -348,15 +353,15 @@ final case class SObjectFields(sobjectName: Name, pkg: PackageImpl)
 }
 
 // TODO: Provide paths
-final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
+final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     val typeName = TypeName(sobjectName)
-    TypeResolver(typeName, pkg, excludeSObjects = false).toOption match {
+    TypeResolver(typeName, module, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.FieldSet, None)))
@@ -377,10 +382,10 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
   }
 }
 
-final case class SObjectFieldRowCause(sobjectName: Name, pkg: PackageImpl)
+final case class SObjectFieldRowCause(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeNames.sObjectFieldRowCause$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sharingReasonFields: Map[Name, FieldDeclaration] = {
@@ -391,7 +396,7 @@ final case class SObjectFieldRowCause(sobjectName: Name, pkg: PackageImpl)
       else
         Name(sobjectName.toString().replaceFirst("Share$", ""))
     val typeName = TypeName(sobjectTarget)
-    TypeResolver(typeName, pkg, excludeSObjects = false).toOption match {
+    TypeResolver(typeName, module, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.sharingReason
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.String, None)))

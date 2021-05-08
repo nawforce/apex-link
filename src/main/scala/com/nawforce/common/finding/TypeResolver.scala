@@ -28,7 +28,7 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.names.TypeName
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 
@@ -47,15 +47,15 @@ class TypeResolver {
   private lazy val typeCache = mutable.Map[(TypeName, TypeDeclaration), Option[TypeDeclaration]]()
 
   /** Search for a Package, Dependent Package or Platform Type */
-  def find(typeName: TypeName, pkg: PackageImpl, excludeSObjects: Boolean): TypeResponse = {
-    pkg.getType(typeName, None, excludeSObjects)
+  def find(typeName: TypeName, pkg: Module, excludeSObjects: Boolean): TypeResponse = {
+    pkg.findType(typeName, None, excludeSObjects)
   }
 
   /** Search for TypeDeclaration Local, Package, Dependent Package or Platform Type */
   def find(typeName: TypeName, from: TypeDeclaration, excludeSObjects: Boolean): TypeResponse = {
-    val pkg = from.packageDeclaration
-    if (pkg.nonEmpty) {
-      getPackageTypeFor(pkg.get, typeName, from) match {
+    val module = from.moduleDeclaration
+    if (module.nonEmpty) {
+      getModuleTypeFor(module.get, typeName, from) match {
         case Some(td) => Right(td)
         case None     => Left(MissingType(typeName))
       }
@@ -67,11 +67,11 @@ class TypeResolver {
   /** Search is selected based on what information is provided */
   def find(typeName: TypeName,
            from: Option[TypeDeclaration],
-           pkg: Option[PackageImpl],
+           pkg: Option[Module],
            excludeSObjects: Boolean): TypeResponse = {
     if (from.nonEmpty) {
       // Allow override of platform types in packages to support Schema.SObjectType handling
-      if (from.get.packageDeclaration.isEmpty && pkg.nonEmpty) {
+      if (from.get.moduleDeclaration.isEmpty && pkg.nonEmpty) {
         val tr = find(typeName, pkg.get, excludeSObjects)
         if (tr.isRight)
           return tr
@@ -83,11 +83,11 @@ class TypeResolver {
       PlatformTypes.get(typeName, None, excludeSObjects)
   }
 
-  private def getPackageTypeFor(pkg: PackageImpl,
-                                typeName: TypeName,
-                                from: TypeDeclaration): Option[TypeDeclaration] = {
+  private def getModuleTypeFor(module: Module,
+                               typeName: TypeName,
+                               from: TypeDeclaration): Option[TypeDeclaration] = {
     typeCache.getOrElseUpdate((typeName, from), {
-      val td = pkg.getTypeFor(typeName, from)
+      val td = module.getTypeFor(typeName, from)
       typeCache.put((typeName, from), td)
       td
     })
@@ -97,7 +97,7 @@ class TypeResolver {
 object TypeResolver {
   type TypeResponse = Either[TypeError, TypeDeclaration]
 
-  def apply(typeName: TypeName, pkg: PackageImpl, excludeSObjects: Boolean): TypeResponse = {
+  def apply(typeName: TypeName, pkg: Module, excludeSObjects: Boolean): TypeResponse = {
     new TypeResolver().find(typeName, pkg, excludeSObjects)
   }
 
@@ -107,7 +107,7 @@ object TypeResolver {
 
   def apply(typeName: TypeName,
             from: Option[TypeDeclaration],
-            pkg: Option[PackageImpl],
+            pkg: Option[Module],
             excludeSObjects: Boolean): TypeResponse = {
     new TypeResolver().find(typeName, from, pkg, excludeSObjects)
   }

@@ -35,7 +35,7 @@ import scala.collection.mutable
 /** Transitive dependency helper */
 class TransitiveCollector(org: Org) {
   private val packagesByNamespace =
-    org.getPackages.map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
+    org.getPackages().map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
 
   def count(id: TypeIdentifier): Int = {
     transitives(id).length

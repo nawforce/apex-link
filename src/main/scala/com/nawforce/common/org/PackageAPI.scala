@@ -27,19 +27,15 @@
  */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{ServerOps, TypeSummary, ViewInfo}
-import com.nawforce.common.diagnostics.LocalLogger
+import com.nawforce.common.api.{Package, ServerOps, TypeSummary, ViewInfo}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{TypeIdentifier, TypeName}
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.stream._
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypeException
 import com.nawforce.runtime.SourceBlob
-import com.nawforce.runtime.parsers.SourceData
 import upickle.default._
 
 import scala.collection.mutable
@@ -58,10 +54,13 @@ trait PackageAPI extends Package {
   }
 
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
-    (TypeResolver(typeName, this, excludeSObjects = false) match {
-      case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
-      case _                          => None
-    }).orNull
+    orderedModules.headOption
+      .flatMap(module =>
+        TypeResolver(typeName, module, excludeSObjects = false) match {
+          case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
+          case _                          => None
+      })
+      .orNull
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {
@@ -69,26 +68,34 @@ trait PackageAPI extends Package {
   }
 
   private[nawforce] def getTypeOfPathInternal(path: PathLike): Option[TypeId] = {
-    MetadataDocument(path) match {
-      // Page handling is weird, they are modeled as static fields
-      case Some(pd: PageDocument) =>
-        val typeName = pd.typeName(namespace)
-        pages.fields.find(_.name == pd.name).map(_ => { TypeId(this, typeName) }).orElse(None)
-      case Some(md: MetadataDocument) =>
-        types.get(md.typeName(namespace)) match {
-          case Some(td: TypeDeclaration) if td.paths.contains(path) =>
-            Some(TypeId(this, td.typeName))
-          case _ => None
-        }
-      case _ => None
-    }
+    orderedModules.headOption.flatMap(module => {
+      MetadataDocument(path) match {
+        // Page handling is weird, they are modeled as static fields
+        case Some(pd: PageDocument) =>
+          val typeName = pd.typeName(namespace)
+          module.pages.fields
+            .find(_.name == pd.name)
+            .map(_ => { TypeId(module, typeName) })
+            .orElse(None)
+        case Some(md: MetadataDocument) =>
+          module.types.get(md.typeName(namespace)) match {
+            case Some(td: TypeDeclaration) if td.paths.contains(path) =>
+              Some(TypeId(module, td.typeName))
+            case _ => None
+          }
+        case _ => None
+      }
+    })
   }
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.namespace == namespace) {
-      types
-        .get(typeId.typeName)
-        .map(td => td.paths.map(_.toString))
+      orderedModules.headOption
+        .flatMap(module => {
+          module.types
+            .get(typeId.typeName)
+            .map(td => td.paths.map(_.toString))
+        })
         .getOrElse(Array())
     } else {
       Array()
@@ -102,6 +109,23 @@ trait PackageAPI extends Package {
         .orNull
     } else {
       null
+    }
+  }
+
+  private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
+    try {
+      orderedModules.headOption.flatMap(module => {
+        module.types
+          .get(typeName)
+          .flatMap {
+            case ad: ApexDeclaration => Some(ad)
+            case _                   => None
+          }
+      })
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        None
     }
   }
 
@@ -133,6 +157,23 @@ trait PackageAPI extends Package {
     }
   }
 
+  private def getDependentType(typeName: TypeName): Option[DependentType] = {
+    try {
+      orderedModules.headOption.flatMap(module => {
+        module.types
+          .get(typeName)
+          .flatMap {
+            case dt: DependentType => Some(dt)
+            case _                 => None
+          }
+      })
+    } catch {
+      case ex: PlatformTypeException =>
+        ServerOps.debug(ServerOps.Trace, ex.getMessage)
+        None
+    }
+  }
+
   override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
@@ -148,13 +189,17 @@ trait PackageAPI extends Package {
   }
 
   private[nawforce] def refresh(path: PathLike, contents: Option[SourceBlob]): Unit = {
-    org.queueRefresh(RefreshRequest(this, path, contents))
+    org.queueMetadataRefresh(RefreshRequest(this, path, contents))
   }
 
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
   private def refreshInternal(path: PathLike,
                               contents: Option[SourceBlob]): (TypeId, Set[TypeId]) = {
+    // TODO
+    throw new IllegalArgumentException("TODO")
+
+    /*
     checkPathInPackageOrThrow(path)
     val dt = getUpdateableDocumentTypeOrThrow(path)
     val sourceOpt = resolveSource(path, contents)
@@ -187,11 +232,13 @@ trait PackageAPI extends Package {
     newType.foreach(_.validate())
 
     (typeId, holders.toSet)
+   */
   }
 
   /* Revalidate a set of types. A side effect of re-validation is that summary types are replaced by full types as
    * they are needed to re-establish the dependency graph. This is not done recursively as the full type should
    * be of the exact same shape as the summary it replaces. */
+  /*
   private def reValidate(references: Set[TypeId]): Unit = {
     references.foreach(typeId => {
       typeId.pkg.packageType(typeId.typeName).foreach {
@@ -202,7 +249,7 @@ trait PackageAPI extends Package {
           ref.validate()
       }
     })
-  }
+  }*/
 
   override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
     getViewOfType(PathFactory(path), Option(contents))
@@ -220,6 +267,11 @@ trait PackageAPI extends Package {
   }
 
   private def getViewOfTypeInternal(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
+
+    // TODO
+    throw new IllegalArgumentException("TODO")
+
+    /*
     checkPathInPackageOrThrow(path)
     val dt = getUpdateableDocumentTypeOrThrow(path)
     val source = getPathSourceOrThrow(path, contents)
@@ -229,9 +281,11 @@ trait PackageAPI extends Package {
       return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
 
     createTypeInIsolation(dt, source)
+   */
   }
 
   // Run validation over the TypeDeclaration without mutating package types or dependencies
+  /*
   private def validateInIsolation(td: ApexFullDeclaration): Unit = {
     val originalTd = types.get(td.typeName)
     try {
@@ -240,36 +294,6 @@ trait PackageAPI extends Package {
     } finally {
       types.remove(td.typeName)
       originalTd.foreach(types.put(td.typeName, _))
-    }
-  }
-
-  private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
-    try {
-      types
-        .get(typeName)
-        .flatMap {
-          case ad: ApexDeclaration => Some(ad)
-          case _                   => None
-        }
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage)
-        None
-    }
-  }
-
-  private def getDependentType(typeName: TypeName): Option[DependentType] = {
-    try {
-      types
-        .get(typeName)
-        .flatMap {
-          case dt: DependentType => Some(dt)
-          case _                 => None
-        }
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage)
-        None
     }
   }
 
@@ -378,18 +402,22 @@ trait PackageAPI extends Package {
     org.packagesByNamespace.values
       .flatMap(p => p.getTypeOfPathInternal(path))
       .headOption
-  }
+  }*/
 
   /** Flush all types to the passed cache */
   def flush(pc: ParsedCache): Unit = {
     val context = packageContext
-    types.values.foreach({
-      case ad: ApexClassDeclaration => ad.flush(pc, context)
-      case _                        => ()
+    modules.foreach(module => {
+      module.types.values.foreach({
+        case ad: ApexClassDeclaration => ad.flush(pc, context)
+        case _                        => ()
+      })
     })
   }
 
   def refreshBatched(refreshRequests: Seq[RefreshRequest]): Boolean = {
+    true
+    /* TODO
     val requests = refreshRequests.map(r => (r.path, r)).toMap
     if (requests.isEmpty)
       return false
@@ -432,5 +460,6 @@ trait PackageAPI extends Package {
     // Finally batched invalidation
     reValidate(references.toSet)
     true
+   */
   }
 }

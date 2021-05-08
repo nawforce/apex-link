@@ -31,7 +31,7 @@ import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{EncodedName, _}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.FieldDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
@@ -61,7 +61,7 @@ object CustomFieldDeclaration {
 
   def parseField(elem: XMLElementLike,
                  path: PathLike,
-                 pkg: PackageImpl,
+                 module: Module,
                  sObjectType: TypeName,
                  sObjectNature: SObjectNature): Seq[CustomFieldDeclaration] = {
 
@@ -69,7 +69,7 @@ object CustomFieldDeclaration {
     if (!rawName.endsWith("__c"))
       return Seq()
 
-    val name = Name(pkg.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
+    val name = Name(module.namespace.map(ns => s"${ns.value}__$rawName").getOrElse(rawName))
     val rawTypeOption = elem.getOptionalSingleChildAsString("type").map(_.trim)
 
     if (rawTypeOption.isEmpty && sObjectNature == PlatformObjectNature && EncodedName(name).ext.isEmpty) {
@@ -116,12 +116,12 @@ object CustomFieldDeclaration {
     if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
       val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
       val relName = Name(elem.getSingleChildAsString("relationshipName").trim + "__r")
-      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(pkg.namespace).fullName,
+      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(module.namespace).fullName,
                                  Nil,
                                  Some(TypeNames.Schema))
       idTarget = Some(refTypeName)
 
-      pkg
+      module
         .schema()
         .relatedLists
         .add(refTypeName,

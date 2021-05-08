@@ -39,9 +39,9 @@ object Check {
   final val STATUS_ISSUES: Int = 4
 
   def usage(name: String) =
-    s"Usage: $name [-json] [-verbose] [-zombie] [-depends] <[namespace=]directory>..."
+    s"Usage: $name [-json] [-verbose] [-zombie] [-depends] <directory>"
 
-  def main(name: String, args: Array[String], inputOrg: Org): Int = {
+  def main(name: String, args: Array[String]): Int = {
     val flags = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
 
     val json = args.contains("-json")
@@ -59,10 +59,18 @@ object Check {
       return STATUS_ARGS
     }
 
-    try {
-      val org = if (inputOrg != null) inputOrg else Org.newOrg()
-      OrgLoader.load(args.filterNot(flags.contains), org)
+    val dirs = args.filterNot(flags.contains)
+    if (dirs.isEmpty) {
+      System.err.println(s"No workspace directory argument provided.")
+      return STATUS_ARGS
+    }
+    if (dirs.length > 1) {
+      System.err.println(s"Multiple arguments provided, expected workspace directory, '${dirs.mkString(", ")}'}")
+      return STATUS_ARGS
+    }
 
+    try {
+      val org = Org.newOrg(dirs.head)
       if (depends) {
         if (json) {
           writeDependenciesAsJSON(org)

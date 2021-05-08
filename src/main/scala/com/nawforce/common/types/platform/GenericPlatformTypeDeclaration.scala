@@ -146,8 +146,8 @@ object GenericPlatformTypeDeclaration {
     // Make sure params are resolvable first
     val params =
       typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
-    val pkg = from.flatMap(_.packageDeclaration)
-    val failedParams = params.find(_._2.isLeft).filterNot(p => pkg.exists(_.isGhostedType(p._1)))
+    val module = from.flatMap(_.moduleDeclaration)
+    val failedParams = params.find(_._2.isLeft).filterNot(p => module.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {
       return Left(MissingType(failedParams.get._1))
     }

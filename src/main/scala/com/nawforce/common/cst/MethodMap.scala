@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, PathLocation}
 import com.nawforce.common.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.common.names.{Names, _}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.common.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.synthetic.CustomMethodDeclaration
@@ -54,7 +54,7 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
     if (exactMatches.nonEmpty)
       return Array(exactMatches.head)
 
-    val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.pkg, params))
+    val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.nonEmpty)
       return Array(erasedMatches.head)
 
@@ -117,7 +117,7 @@ object MethodMap {
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE) {
       workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
-      checkInterfaces(td.packageDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
+      checkInterfaces(td.moduleDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
     new MethodMap(workingMap.toMap, errors.toList)
@@ -151,19 +151,19 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(pkg: Option[PackageImpl], location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterfaces(module: Option[Module], location: Option[PathLocation], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
-        checkInterface(pkg, location, isAbstract, workingMap, i, errors)
+        checkInterface(module, location, isAbstract, workingMap, i, errors)
       case _ => ()
     })
   }
 
-  private def checkInterface(pkg: Option[PackageImpl], location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterface(module: Option[Module], location: Option[PathLocation], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
-      checkInterfaces(pkg, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
+      checkInterfaces(module, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods
       .filterNot(_.isStatic)
@@ -173,12 +173,12 @@ object MethodMap {
 
       var matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty)
-        matched = methods.find(m => m.hasSameErasedParameters(pkg, method))
+        matched = methods.find(m => m.hasSameErasedParameters(module, method))
 
       if (matched.isEmpty) {
         lazy val hasGhostedMethods =
-          methods.exists(method => pkg.exists(_.isGhostedType(method.typeName)) ||
-          methods.exists(method => pkg.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
+          methods.exists(method => module.exists(_.isGhostedType(method.typeName)) ||
+          methods.exists(method => module.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
 
         if (!isAbstract && !hasGhostedMethods)
           location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,

@@ -28,140 +28,50 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{IssueLog, PathLocation}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeFinder
-import com.nawforce.common.finding.TypeResolver.TypeResponse
-import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
-import com.nawforce.common.sfdx.WorkspaceConfig
-import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
-import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
-import com.nawforce.common.types.other.{InterviewDeclaration, _}
-import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
-import com.nawforce.common.types.schema.SchemaManager
-import com.nawforce.common.workspace.Workspace
+import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.common.types.other._
+import com.nawforce.common.types.platform.PlatformTypeDeclaration
 
 import scala.collection.mutable
 
-class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[PackageImpl])
-    extends PackageDeploy
-    with PackageAPI
-    with TypeFinder {
+class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
+    extends PackageAPI {
 
-  val namespace: Option[Name] = config.namespace
+  /** Modules used in this package, mutable just to aid Module construction with back link to package. */
+  private[nawforce] val modules = new mutable.ArrayBuffer[Module]()
 
-  var labels: LabelDeclaration = LabelDeclaration(this)
-  var pages: PageDeclaration = PageDeclaration(this)
-  var interviews: InterviewDeclaration = InterviewDeclaration(this)
-  var components: ComponentDeclaration = ComponentDeclaration(this)
-
-  protected val types: mutable.Map[TypeName, TypeDeclaration] =
-    mutable.Map[TypeName, TypeDeclaration]()
-  protected val workspace = new Workspace(config)
-
-  private val schemaManager = new SchemaManager(this)
-  private val anyDeclaration = AnyDeclaration(this)
-
-  initTypes()
-  deployFromWorkspace()
-
-  private def initTypes(): Unit = {
-    upsertMetadata(anyDeclaration)
-    upsertMetadata(schemaManager.sobjectTypes)
-    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
-    upsertMetadata(labels)
-    upsertMetadata(labels, Some(TypeName(labels.name)))
-    upsertMetadata(pages)
-    upsertMetadata(interviews)
-    upsertMetadata(components)
+  /** Add a new module to the package, modules must be added in 'deploy order' */
+  private[nawforce] def add(module: Module): Unit = {
+    modules.append(module)
   }
 
-  def isGhosted: Boolean = config.paths.isEmpty
-  def hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
-  def any(): AnyDeclaration = anyDeclaration
-  def schema(): SchemaManager = schemaManager
+  /** Package modules in reverse deploy order, note ghost packages have no modules. */
+  lazy val orderedModules: Seq[Module] = modules.reverse.toSeq
 
-  /* Base (dependent packages for this package), unmanaged is treated as dependent on everything */
-  def basePackages: Seq[PackageImpl] = {
-    // Override for unmanaged package to allow to be immutable
-    if (namespace.isEmpty)
-      OrgImpl.current.value.packagesByNamespace.values.filter(_.namespace.nonEmpty).toSeq
-    else
-      bases
-  }
+  /** Is this a ghost package, aka it has no modules. */
+  lazy val isGhosted: Boolean = modules.isEmpty
 
-  /* Transitive Bases (dependent packages for this package & its dependents) */
-  def transitiveBasePackages: Set[PackageImpl] = {
-    namespace
-      .map(_ => bases.toSet ++ bases.flatMap(_.transitiveBasePackages))
-      .getOrElse(basePackages.toSet)
-  }
+  /** Is this or any base package of this a ghost package. */
+  lazy val hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
 
-  /* Summary of package context containing namespace & base package namespace information */
+  /** Labels defined in the package. */
+  lazy val labels: Option[LabelDeclaration] = orderedModules.headOption.map(_.labels)
+
+  /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {
-    val basePackages = transitiveBasePackages
-    PackageContext(namespace.map(_.value),
-                   basePackages
-                     .filter(_.isGhosted)
-                     .map(_.namespace.map(_.value).getOrElse(""))
-                     .toArray
-                     .sorted,
-                   basePackages
-                     .filterNot(_.isGhosted)
-                     .map(_.namespace.map(_.value).getOrElse(""))
-                     .toArray
-                     .sorted,
-    )
+    val ghostedPackages = basePackages
+      .groupBy(_.isGhosted)
+      .map(kv => (kv._1, kv._2.map(_.namespace.map(_.value).getOrElse("")).sorted.toArray))
+    PackageContext(namespace.map(_.value), ghostedPackages(true), ghostedPackages(false))
   }
 
-  /* Set of namespaces used by this package and its base packages */
+  /** Set of namespaces used by this package and its base packages. */
   lazy val namespaces: Set[Name] = {
-    config.namespace.toSet ++
+    namespace.toSet ++
       basePackages.flatMap(_.namespaces) ++
       PlatformTypeDeclaration.namespaces
-  }
-
-  /* Iterator over available types */
-  def getTypes: Iterable[TypeDeclaration] = {
-    types.values
-  }
-
-  /* All available types */
-  def getApexTypeIdentifiers: Set[String] = {
-    types.values.collect { case ad: ApexDeclaration => ad }.map(_.typeName.toString()).toSet
-  }
-
-  /* Search for a specific outer or inner type */
-  def packageType(typeName: TypeName): Option[TypeDeclaration] = {
-    types
-      .get(typeName)
-      .orElse(
-        typeName.outer
-          .flatMap(types.get)
-          .flatMap(_.nestedTypes.find(_.typeName == typeName)))
-  }
-
-  def replaceType(typeName: TypeName, typeDeclaration: Option[TypeDeclaration]): Unit = {
-    if (typeDeclaration.nonEmpty) {
-      val td = typeDeclaration.get
-      types.put(typeName, td)
-
-      // Handle special cases
-      typeName match {
-        case TypeNames.Label =>
-          labels = td.asInstanceOf[LabelDeclaration]
-          types.put(TypeName(labels.name), labels)
-        case TypeNames.Page      => pages = td.asInstanceOf[PageDeclaration]
-        case TypeNames.Interview => interviews = td.asInstanceOf[InterviewDeclaration]
-        case TypeNames.Component => components = td.asInstanceOf[ComponentDeclaration]
-        case _                   => ()
-      }
-
-    } else {
-      types.remove(typeName)
-    }
   }
 
   /* Check if a type is ghosted in this package */
@@ -175,119 +85,24 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
     }
   }
 
-  /* Check if a file name is ghosted in this package */
+  /** Check if a field name is ghosted in this package. */
   def isGhostedFieldName(name: Name): Boolean = {
     EncodedName(name).namespace match {
-      case None => false
+      case None     => false
       case Some(ns) => basePackages.filter(_.isGhosted).exists(_.namespace.contains(ns))
     }
   }
 
-  /* Find a document location for the type */
-  def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
-    packageType(typeName) match {
-      case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
-      case _                         => None
-    }
+  /** Check all summary types have propagated their dependencies. */
+  def propagateAllDependencies(): Unit = {
+    modules.foreach(_.propagateAllDependencies())
   }
 
-  // Upsert some metadata to the package
-  def upsertMetadata(td: TypeDeclaration, altTypeName: Option[TypeName] = None): Unit = {
-    types.put(altTypeName.getOrElse(td.typeName), td)
-  }
-
-  // Remove some metadata from the package
-  // Future: Support component & flow removal
-  def removeMetadata(td: TypeDeclaration): Unit = {
-    types.remove(td.typeName)
-  }
-
-  /** Obtain log with unused metadata warnings */
-  def reportUnused(): IssueLog = {
-    new UnusedLog(types.values)
-  }
-
-  /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
-   * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
-   * only useful if *you* know local searching is not required.
-   */
-  def getType(typeName: TypeName,
-              from: Option[TypeDeclaration],
-              excludeSObjects: Boolean = false): TypeResponse = {
-
-    if (!excludeSObjects) {
-      var td = getPackageType(typeName).map(Right(_))
-      if (td.nonEmpty)
-        return td.get
-
-      if (namespace.nonEmpty) {
-        td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
-        if (td.nonEmpty)
-          return td.get
-      }
-    }
-
-    // From may be used to locate type variable types so must be accurate even for a platform type request
-    PlatformTypes.get(typeName, from, excludeSObjects)
-  }
-
-  // Add dependencies for Apex types to a map
-  def populateDependencies(dependencies: java.util.Map[String, Array[String]]): Unit = {
-    types.values.foreach {
-      case td: ApexClassDeclaration =>
-        val depends = mutable.Set[TypeId]()
-        td.collectDependenciesByTypeName(depends)
-        depends.remove(td.typeId)
-        if (depends.nonEmpty)
-          dependencies.put(td.typeName.toString, depends.map(_.typeName.toString).toArray)
-      case _ => ()
-    }
-  }
-
-  private def getPackageType(typeName: TypeName,
-                             inPackage: Boolean = true): Option[TypeDeclaration] = {
-    var declaration = findType(typeName)
-    if (declaration.nonEmpty) {
-      if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
-        return declaration
-      else
-        return None
-    }
-
-    if (typeName.outer.nonEmpty) {
-      declaration = getPackageType(typeName.outer.get, inPackage = inPackage)
-        .flatMap(_.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
-      if (declaration.nonEmpty)
-        return declaration
-    }
-
-    declaration = getDependentPackageType(typeName)
-    if (declaration.nonEmpty)
-      return declaration
-
-    None
-  }
-
-  private def findType(typeName: TypeName): Option[TypeDeclaration] = {
-    var declaration = types.get(typeName)
-    if (declaration.nonEmpty)
-      return declaration
-
-    declaration = types.get(typeName.withTail(TypeNames.Schema))
-    if (declaration.nonEmpty)
-      return declaration
-
-    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(
-          TypeNames.Schema))) {
-      val encName = EncodedName(typeName.name).defaultNamespace(namespace)
-      if (encName.ext.nonEmpty) {
-        return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))
-      }
-    }
-    None
-  }
-
-  private def getDependentPackageType(typeName: TypeName): Option[TypeDeclaration] = {
-    basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
+  /** Find a type in this package.
+    * TODO: This should be correct but its rather a brute force approach, conflict detection might give a way to
+    * improve how this is done.
+    */
+  def getPackageType(typeName: TypeName): Option[TypeDeclaration] = {
+    modules.view.flatMap(_.findModuleType(typeName)).headOption
   }
 }

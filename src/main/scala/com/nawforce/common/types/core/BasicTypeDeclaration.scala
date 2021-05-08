@@ -30,13 +30,13 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.modifiers.{Modifier, ModifierOps}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.PathLike
 
-class BasicTypeDeclaration(val paths: Array[PathLike], pkg: PackageImpl, val typeName: TypeName)
+class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeName: TypeName)
     extends TypeDeclaration {
 
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+  override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
@@ -56,7 +56,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], pkg: PackageImpl, val typ
   override def validate(): Unit = {}
 }
 
-class InnerBasicTypeDeclaration(_paths: Array[PathLike], _pkg: PackageImpl, _typeName: TypeName)
-    extends BasicTypeDeclaration(_paths, _pkg, _typeName) {
+class InnerBasicTypeDeclaration(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
+    extends BasicTypeDeclaration(_paths, _module, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }

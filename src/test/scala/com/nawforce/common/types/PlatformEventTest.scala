@@ -36,6 +36,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
 
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -100,4 +101,6 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
             "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n")
     }
   }
+
+   */
 }

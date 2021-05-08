@@ -132,7 +132,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = TypeResolver(TypeName(id.name), context.pkg, excludeSObjects = false)
+    val absTd = TypeResolver(TypeName(id.name), context.module, excludeSObjects = false)
     if (absTd.isRight) {
       context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
       return ExprContext(isStatic = Some(true), absTd.getOrElse(throw new NoSuchElementException))
@@ -146,7 +146,7 @@ final case class IdPrimary(id: Id) extends Primary {
                         td: TypeDeclaration,
                         staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     val encodedName = EncodedName(name)
-    val namespaceName = encodedName.defaultNamespace(td.packageDeclaration.flatMap(_.namespace))
+    val namespaceName = encodedName.defaultNamespace(td.moduleDeclaration.flatMap(_.namespace))
     td.findField(namespaceName.fullName, staticContext)
       .orElse({
         if (encodedName != namespaceName)
@@ -181,14 +181,14 @@ final case class SOQL(query: QueryContext) extends Primary {
       expr.verify(input, context)
     })
 
-    ExprContext(isStatic = Some(false), context.pkg.any())
+    ExprContext(isStatic = Some(false), context.module.any())
   }
 }
 
 final case class SOSL(query: SoslLiteralContext) extends Primary {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    ExprContext(isStatic = Some(false), context.pkg.any())
+    ExprContext(isStatic = Some(false), context.module.any())
   }
 }
 

@@ -37,6 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -796,4 +797,5 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
             PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
+   */
 }

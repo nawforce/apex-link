@@ -30,8 +30,8 @@ package com.nawforce.common.types
 
 import com.nawforce.common.api._
 import com.nawforce.common.memory.InternCache
-import com.nawforce.common.names.Names
-import com.nawforce.common.names.TypeIdentifier
+import com.nawforce.common.names.{Names, TypeIdentifier}
+import com.nawforce.common.names.TypeNames._
 
 package object apex {
 

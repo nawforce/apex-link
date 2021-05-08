@@ -38,6 +38,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class SummaryTest extends AnyFunSuite with BeforeAndAfter {
+  /* TODO
   private val defaultPath = PathFactory("Dummy.cls")
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = _
@@ -529,4 +530,6 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
                     Array(),
                     Array()))
   }
+
+   */
 }

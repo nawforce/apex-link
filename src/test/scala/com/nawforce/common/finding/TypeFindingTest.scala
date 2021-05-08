@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Name, Org, ServerOps, TypeName}
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.names.{DotName, Names, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
@@ -39,7 +39,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite with BeforeAndAfter {
-
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -193,4 +193,5 @@ class TypeFindingTest extends AnyFunSuite with BeforeAndAfter {
       assert(getType("NS", "Dummy.Inner", org) != null)
     }
   }
+   */
 }

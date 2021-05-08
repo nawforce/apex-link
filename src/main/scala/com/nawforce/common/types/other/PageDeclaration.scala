@@ -29,8 +29,8 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.names.{Name, TypeName, TypeNames, _}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream.{PackageStream, PageEvent}
 import com.nawforce.common.types.core.{
@@ -44,7 +44,7 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(pkg: PackageImpl, path: PathLike, name: Name) extends FieldDeclaration {
+case class Page(module: Module, path: PathLike, name: Name) extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -53,10 +53,10 @@ case class Page(pkg: PackageImpl, path: PathLike, name: Name) extends FieldDecla
 }
 
 object Page {
-  def apply(pkg: PackageImpl, event: PageEvent): Page = {
+  def apply(module: Module, event: PageEvent): Page = {
     val path = PathFactory(event.sourceInfo.path)
     val document = MetadataDocument(path)
-    new Page(pkg, path, document.get.name)
+    new Page(module, path, document.get.name)
   }
 }
 
@@ -64,45 +64,45 @@ object Page {
   * base packages via the `namespace__name` format.
   */
 final case class PageDeclaration(sources: Array[SourceInfo],
-                                 override val pkg: PackageImpl,
+                                 override val module: Module,
                                  pages: Array[Page])
-    extends BasicTypeDeclaration(pages.map(p => p.path).distinct, pkg, TypeNames.Page)
+    extends BasicTypeDeclaration(pages.map(p => p.path).distinct, module, TypeNames.Page)
     with DependentType
     with OtherTypeDeclaration {
 
   // Propagate dependencies to base packages
-  pkg.basePackages.foreach(_.pages.addTypeDependencyHolder(typeId))
+  module.baseModules.foreach(_.pages.addTypeDependencyHolder(typeId))
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
-  override val isComplete: Boolean = !pkg.hasGhosted
+  override val isComplete: Boolean = !module.pkg.hasGhosted
   override val fields: Array[FieldDeclaration] = pages.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
-    val newPages = pages ++ stream.pages.map(pe => Page(pkg, pe))
+    val newPages = pages ++ stream.pages.map(pe => Page(module, pe))
     val sourceInfo = stream.pages.map(_.sourceInfo).distinct.toArray
-    new PageDeclaration(sourceInfo, pkg, newPages)
+    new PageDeclaration(sourceInfo, module, newPages)
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
-    pkg.basePackages.foreach(bp => dependsOn.add(bp.pages.typeId))
+    module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
   }
 }
 
 object PageDeclaration {
-  def apply(pkg: PackageImpl): PageDeclaration = {
-    new PageDeclaration(Array(), pkg, collectBasePages(pkg))
+  def apply(module: Module): PageDeclaration = {
+    new PageDeclaration(Array(), module, collectBasePages(module))
   }
 
-  private def collectBasePages(pkg: PackageImpl): Array[Page] = {
-    pkg.transitiveBasePackages.toArray.flatMap(basePkg => {
-      val ns = basePkg.namespace.get
-      basePkg.pages.pages.map(page => {
+  private def collectBasePages(module: Module): Array[Page] = {
+    module.transitiveBaseModules.toArray.flatMap(baseModule => {
+      val ns = baseModule.namespace.get
+      baseModule.pages.pages.map(page => {
         if (page.name.contains("__"))
           page
         else
-          Page(pkg, page.path, Name(s"${ns}__${page.name}"))
+          Page(module, page.path, Name(s"${ns}__${page.name}"))
       })
     })
   }

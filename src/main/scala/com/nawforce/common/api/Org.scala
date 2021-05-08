@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.api
 
-import com.nawforce.common.diagnostics.Issue
-import com.nawforce.common.diagnostics.PathLocation
+import com.nawforce.common.diagnostics.{Issue, PathLocation}
 import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.path.PathFactory
+import com.nawforce.common.workspace.Workspace
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
   *
@@ -53,7 +54,7 @@ import com.nawforce.common.org.OrgImpl
 trait Org {
 
   /** Get array of current packages. */
-  def getPackages: Array[Package]
+  def getPackages(): Array[Package]
 
   /** Create a new package in the org from MDAPI format metadata.
     *
@@ -62,18 +63,22 @@ trait Org {
     * basePackages array should contain any packages that this package depends on. References to metadata not
     * included in basePackage is not possible.
     **/
+  /* TODO Delete me
   def newMDAPIPackage(namespace: String,
                       directories: Array[String],
                       basePackages: Array[Package]): Package
+   */
 
   /** Create a new package in the org from SFDX format metadata.
     *
     * The metadata directory must contain a well formed sfdx-project.json file. The package namespace & package
-    * directories to use are read from that sfdx-project.json file. If a .forceignore file is present in the
+    * directories to use are read from the sfdx-project.json file. If a .forceignore file is present in the
     * metadata directory it will be honoured. Any dependent packages that are also required can be specified
     * in the "plugins" section of sfdx-project.json under in a "dependencies" array.
     **/
+  /* TODO Delete me
   def newSFDXPackage(directory: String): Package
+   */
 
   /** Force syncing of org metadata to the cache when not using automatic flushing (see ServerOps).
     *
@@ -88,7 +93,7 @@ trait Org {
     * flush() or via the automatic flushing mechanism. You can use this function to determine if the queue of changes
     * to be processed is empty.
     */
-  def isFlushed(): Boolean
+  def isDirty(): Boolean
 
   /** Get current issue log.
     *
@@ -121,8 +126,11 @@ trait Org {
 object Org {
 
   /** Create a new empty Org to which you can add packages for code analysis. */
-  def newOrg(): Org = {
-    new OrgImpl()
+  def newOrg(path: String): Org = {
+    val ws = Workspace(PathFactory(path))
+    val org = new OrgImpl(ws.value)
+    ws.issues.foreach(org.issues.add)
+    org
   }
 }
 

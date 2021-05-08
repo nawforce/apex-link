@@ -37,6 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   private var defaultOrg: OrgImpl = _
   private var root: PathLike = _
 
@@ -192,4 +193,5 @@ class GhostPackageTest extends AnyFunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.dependencies().isEmpty)
   }
+   */
 }

@@ -103,17 +103,17 @@ trait DependencyHolder extends Dependent {
         case _: Label => None
 
         case i: Interview =>
-          val id = i.pkg.interviews
+          val id = i.module.interviews
           Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
         case pd: PageDeclaration =>
           Some(TypeDependentSummary(pd.typeId.asTypeIdentifier, pd.sourceHash))
         case page: Page =>
-          val id = page.pkg.pages
+          val id = page.module.pages
           Some(FieldDependentSummary(id.typeId.asTypeIdentifier, page.name.value))
 
         case c: Component =>
-          val id = c.pkg.components
+          val id = c.module.components
           Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
       }

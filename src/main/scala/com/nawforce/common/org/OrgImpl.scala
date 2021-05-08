@@ -33,15 +33,12 @@ import java.util.jar.JarFile
 
 import com.nawforce.common.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssueLog, LoggerOps, PathLocation}
+import com.nawforce.common.diagnostics._
 import com.nawforce.common.documents._
-import com.nawforce.common.memory.IdentityBox
-import com.nawforce.common.names.{DotName, Names, _}
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig, WorkspaceConfig}
+import com.nawforce.common.names.{DotName, _}
+import com.nawforce.common.path.PathFactory
+import com.nawforce.common.workspace.{ModuleLayer, Workspace}
 
-import scala.collection.immutable.ArraySeq.ofRef
-import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
 import scala.util.hashing.MurmurHash3
 
@@ -49,16 +46,65 @@ import scala.util.hashing.MurmurHash3
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class OrgImpl() extends Org {
+class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
-  /** Parsed data cache */
+  val workspace: Workspace = initWorkspace.getOrElse(new Workspace(Seq()))
+
+  val packages: Seq[PackageImpl] = {
+
+    // Fold over layers to create packages - with any package(namespace) dependencies linked to each package
+    // The workspace layers form a deploy ordering, so each is dependent on all previously created
+    val packagesAndModules =
+      workspace.layers.foldLeft(Seq[(PackageImpl, Seq[ModuleLayer])]())((acc, pkgLayer) => {
+        val pkg = new PackageImpl(this, pkgLayer.namespace, acc.map(_._1))
+        acc :+ (pkg, pkgLayer.layers)
+      })
+
+    // Fold over leaf layers to create modules of each package with dependency links, assumes everything is in deploy
+    // order so dependent layers have been created before being referenced
+    packagesAndModules.foldLeft(Map[ModuleLayer, Module]())((acc, packageAndDependent) => {
+      val pkg = packageAndDependent._1
+      val dependents = packageAndDependent._2
+      acc ++ dependents.map(layer => {
+        val issuesAndIndex = workspace.indexes(layer)
+        issuesAndIndex.issues.foreach(issues.add)
+        val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
+        pkg.add(module)
+        layer -> module
+      })
+    })
+    val packages = packagesAndModules.map(_._1)
+
+    // If no unmanaged, create it
+    val unmanaged =
+      if (packages.last.namespace.nonEmpty)
+        Seq(new PackageImpl(this, None, packages))
+      else
+        Seq.empty
+
+    // Finally return just the created packages
+    packages ++ unmanaged
+  }
+
+  /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
+  var unmanaged: PackageImpl = packages.last
+
+  /** Lookup of available packages from the namespace (which must be unique). */
+  val packagesByNamespace: Map[Option[Name], PackageImpl] =
+    packages.map(p => (p.namespace, p)).toMap
+
+  /** Issues log for all packages in org. This is managed independently as errors may be raised against files
+    * for which there is no natural type representation. */
+  private[nawforce] val issues = new IssueLog
+
+  /** Parsed Apex data cache, the cache holds summary information about Apex types to speed startup */
   private[nawforce] val parsedCache =
     ParsedCache.create(MurmurHash3.stringHash(OrgImpl.implementationBuild)) match {
       case Right(pc) => Some(pc)
       case Left(err) => LoggerOps.error(err); None
     }
 
-  /** Is this Org using auto-flushing */
+  /** Is this Org using auto-flushing of the parsedCache */
   private val autoFlush = ServerOps.getAutoFlush
   ServerOps.debug(
     ServerOps.Trace,
@@ -68,145 +114,10 @@ class OrgImpl() extends Org {
   private val flusher =
     if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
 
-  /**
-    * Map of Package namespace to Package. This contains all known Packages, each Package maintains it's own
-    * list of dependent Package so that we can enforce boundaries between unrelated Packages.
-    * Future: This only supports 1GP model, work needed for 2GP handling
-    */
-  private[nawforce] var packagesByNamespace: Map[Option[Name], PackageImpl] = Map()
+  def getPackages(): Array[Package] = packages.toArray[Package]
 
-  /**
-    * Issues log for all packages in org. This managed independently as errors may be raised against files
-    * for which there is no natural type representation. Use issuesAsJSON to access */
-  private[nawforce] val issues = new IssueLog
-
-  /**
-    * The default unmanaged package for the Org. This is created empty but can be added to or replaced with
-    * another package. The unmanaged package is unique in not having any namespace and it automatically depends
-    * on every other package installed in the Org.
-    */
-  var unmanaged: PackageImpl = {
-    OrgImpl.current.withValue(this) {
-      val pkg = new PackageImpl(this, new MDAPIWorkspaceConfig(None, Seq()), Seq())
-      packagesByNamespace = Map(None -> pkg)
-      pkg
-    }
-  }
-
-  /**
-    * Packages in bottom-up ordering.
-    */
-  def orderedPackages: Seq[PackageImpl] = {
-    val ordered = new ArrayBuffer[PackageImpl]()
-    var unassigned = packagesByNamespace.values.map(new IdentityBox(_)).toList
-
-    while (unassigned.nonEmpty) {
-      val available = unassigned.filter(_.value.basePackages.forall(ordered.contains))
-      available.foreach(b => ordered.append(b.value))
-      unassigned = unassigned.filterNot(available.contains)
-    }
-    ordered.toSeq
-  }
-
-  /** Current package list for Org */
-  override def getPackages: Array[Package] = packagesByNamespace.values.toArray
-
-  /** Find a specific package */
-  def getPackage(namespace: Option[Name]): Option[PackageImpl] = {
-    packagesByNamespace.get(namespace)
-  }
-
-  /** Create a MDAPI format package */
-  override def newMDAPIPackage(namespace: String,
-                               directories: Array[String],
-                               basePackages: Array[Package]): Package = {
-    newMDAPIPackageInternal(Names.safeApply(namespace),
-                            new ofRef(directories).map(PathFactory(_)),
-                            new ofRef(basePackages))
-  }
-
-  private[nawforce] def newMDAPIPackageInternal(namespace: Option[Name],
-                                                directories: Seq[PathLike],
-                                                basePackages: Seq[Package]): PackageImpl = {
-    addPackage(new MDAPIWorkspaceConfig(namespace, getDirectoryPaths(directories)),
-               collectPackages(basePackages))
-  }
-
-  /** Create a SFDX format package */
-  override def newSFDXPackage(directory: String): Package = {
-    newSFDXPackageInternal(PathFactory(directory))
-  }
-
-  /** Create a SFDX format package */
-  private[nawforce] def newSFDXPackageInternal(directory: PathLike): PackageImpl = {
-    val path = getDirectoryPaths(Seq(directory)).head
-    SFDXProject(path) match {
-      case Left(err) =>
-        throw new IllegalArgumentException(err)
-      case Right(project) =>
-        addPackage(new SFDXWorkspaceConfig(path, project), resolveDependentProjects(project))
-    }
-  }
-
-  /** Find or create dependent packages for a project */
-  private def resolveDependentProjects(project: SFDXProject): Seq[PackageImpl] = {
-    project.dependencies.map(pkg => {
-      packagesByNamespace.getOrElse(Some(pkg.namespace), {
-        if (pkg.path.isEmpty || !pkg.path.get.join("sfdx-project.json").exists)
-          newMDAPIPackageInternal(Some(pkg.namespace), pkg.path.toSeq, Seq())
-        else
-          newSFDXPackageInternal(pkg.path.get)
-      })
-    })
-  }
-
-  /** Check paths are directories */
-  private def getDirectoryPaths(paths: Seq[PathLike]): Seq[PathLike] = {
-    val missing = paths.filterNot(_.isDirectory)
-    if (missing.nonEmpty)
-      throw new IllegalArgumentException(s"Workspace '${missing.head}' is not a directory")
-    paths
-  }
-
-  /** Collect as PackageImpl checking they are for correct Org as we go */
-  private def collectPackages(basePackages: Seq[Package]): Seq[PackageImpl] = {
-    basePackages.map(pkg => {
-      val pkgImpl = pkg.asInstanceOf[PackageImpl]
-      if (pkgImpl.org != this)
-        throw new IllegalArgumentException(
-          s"Base package '${pkgImpl.namespace.getOrElse("")}' was created for use in a different org")
-      pkgImpl
-    })
-  }
-
-  /** Create a Package over a Workspace */
-  private[nawforce] def addPackage(config: WorkspaceConfig,
-                                   basePackages: Seq[PackageImpl]): PackageImpl = {
-
-    val ns = config.namespace
-    if (ns.nonEmpty) {
-      if (packagesByNamespace.contains(ns))
-        throw new IllegalArgumentException(s"A package using namespace '$ns' already exists")
-    } else if (!unmanaged.isGhosted) {
-      throw new IllegalArgumentException(
-        "An \"unmanaged\" package using an empty namespace already exists")
-    }
-
-    OrgImpl.current.withValue(this) {
-      val pkg = new PackageImpl(this, config, basePackages)
-      if (pkg.namespace.isEmpty) {
-        unmanaged = pkg
-      }
-      packagesByNamespace = packagesByNamespace + (pkg.namespace -> pkg)
-      if (autoFlush)
-        flusher.refreshAndFlush()
-      pkg
-    }
-  }
-
-  def isFlushed(): Boolean = {
-    flusher.isFlushed
-  }
+  /** Check to see if cache has been flushed */
+  override def isDirty(): Boolean = flusher.isDirty
 
   /** Write dirty metadata to the cache, only works for manual flush orgs */
   def flush(): Boolean = {
@@ -216,8 +127,8 @@ class OrgImpl() extends Org {
       false
   }
 
-  /** Queue a refresh request */
-  def queueRefresh(request: RefreshRequest): Unit = {
+  /** Queue a metadata refresh request */
+  def queueMetadataRefresh(request: RefreshRequest): Unit = {
     flusher.queue(request)
   }
 
@@ -241,7 +152,7 @@ class OrgImpl() extends Org {
         propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
           Option(pkg.getTypeOfPath(path))
-            .flatMap(typeId => pkg.packageType(typeId.typeName))
+            .flatMap(typeId => pkg.getPackageType(typeId.typeName))
             .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
         })
       }
@@ -253,9 +164,11 @@ class OrgImpl() extends Org {
     if (options.includeZombies) {
       propagateAllDependencies()
       val allIssues = IssueLog(issues)
-      packagesByNamespace.values.foreach(pkg => {
-        allIssues.merge(pkg.reportUnused())
-      })
+      packages
+        .filterNot(_.isGhosted)
+        .foreach(pkg => {
+          allIssues.merge(pkg.orderedModules.head.reportUnused())
+        })
       allIssues
     } else {
       issues
@@ -264,7 +177,7 @@ class OrgImpl() extends Org {
 
   private def propagateAllDependencies(): Unit = {
     // This is lazy evaluated in classes so safe to call again
-    packagesByNamespace.values.foreach(pkg => {
+    packages.foreach(pkg => {
       pkg.propagateAllDependencies()
     })
   }
@@ -273,7 +186,9 @@ class OrgImpl() extends Org {
   override def getDependencies: java.util.Map[String, Array[String]] = {
     OrgImpl.current.withValue(this) {
       val dependencies = new util.HashMap[String, Array[String]]()
-      packagesByNamespace.values.foreach(_.populateDependencies(dependencies))
+      packages
+        .filterNot(_.isGhosted)
+        .foreach(_.orderedModules.head.populateDependencies(dependencies))
       dependencies
     }
   }
@@ -296,12 +211,14 @@ class OrgImpl() extends Org {
         })
 
     // Package lookup
-    namespace.foreach(n =>
-      loc = packagesByNamespace.get(Some(n)).flatMap(_.getTypeLocation(typeName)))
+    namespace.foreach(
+      n =>
+        loc =
+          packagesByNamespace.get(Some(n)).flatMap(_.orderedModules.head.getTypeLocation(typeName)))
 
     // Otherwise try unmanaged
     if (loc.isEmpty) {
-      loc = unmanaged.getTypeLocation(typeName)
+      loc = unmanaged.orderedModules.head.getTypeLocation(typeName)
     }
 
     loc.orNull

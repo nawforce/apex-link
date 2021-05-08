@@ -44,7 +44,7 @@ case class DependencyNode(id: TypeIdentifier,
 class DownWalker(org: Org) {
 
   private val packagesByNamespace =
-    org.getPackages.map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
+    org.getPackages().map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
 
   private val transitiveCollector = new TransitiveCollector(org)
 

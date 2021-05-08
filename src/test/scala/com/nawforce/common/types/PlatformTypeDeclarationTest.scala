@@ -27,10 +27,9 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{Names, TypeNames}
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.common.types.platform.PlatformTypeDeclaration
 import org.scalatest.funsuite.AnyFunSuite

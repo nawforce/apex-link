@@ -29,7 +29,7 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream.{ComponentEvent, PackageStream}
 import com.nawforce.common.types.core._
@@ -40,13 +40,13 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** An individual component being represented as a nested type. */
-final case class Component(pkg: PackageImpl,
+final case class Component(module: Module,
                            location: Option[PathLike],
                            componentName: Name,
                            attributes: Option[Array[Name]])
     extends InnerBasicTypeDeclaration(
       location.toArray,
-      pkg,
+      module,
       TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
@@ -65,10 +65,10 @@ final case class Component(pkg: PackageImpl,
 }
 
 object Component {
-  def apply(pkg: PackageImpl, event: ComponentEvent): Component = {
+  def apply(module: Module, event: ComponentEvent): Component = {
     val path = PathFactory(event.sourceInfo.path)
     val document = MetadataDocument(path)
-    new Component(pkg, Some(path), document.get.name, Some(event.attributes))
+    new Component(module, Some(path), document.get.name, Some(event.attributes))
   }
 
   val emptyComponents: Array[Component] = Array()
@@ -76,10 +76,10 @@ object Component {
 
 /** Component namespace handler */
 final case class ComponentDeclaration(sources: Seq[SourceInfo],
-                                      pkg: PackageImpl,
+                                      module: Module,
                                       components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
-    extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.Component)
+    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
     with DependentType
     with OtherTypeDeclaration {
 
@@ -89,7 +89,7 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo],
     (components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)).toArray
 
   // This is the optional Component.namespace implementation
-  private var namespaceDeclaration = pkg.namespace.map(ns => new NamespaceDeclaration(ns))
+  private var namespaceDeclaration = module.namespace.map(ns => new NamespaceDeclaration(ns))
 
   // This is the Component.c implementation
   private var cDeclaration = new NamespaceDeclaration(Names.c)
@@ -105,24 +105,24 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo],
                              nestedComponents: Array[TypeDeclaration] =
                                TypeDeclaration.emptyTypeDeclarations)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                        pkg,
+                                        module,
                                         TypeName(name, Nil, Some(TypeNames.Component))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 
     def merge(stream: PackageStream): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
                                nestedComponents ++
-                                 stream.components.map(ce => Component(pkg, ce)))
+                                 stream.components.map(ce => Component(module, ce)))
     }
   }
 
   /** Create new components from merging those in the provided stream */
   def merge(stream: PackageStream): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
-      stream.components.map(ce => Component(pkg, ce))
+      stream.components.map(ce => Component(module, ce))
     val sourceInfo = stream.components.map(_.sourceInfo).distinct
     val componentDeclaration =
-      new ComponentDeclaration(sourceInfo, pkg, components, nestedComponents)
+      new ComponentDeclaration(sourceInfo, module, components, nestedComponents)
     componentDeclaration.namespaceDeclaration.foreach(td =>
       componentDeclaration.namespaceDeclaration = Some(td.merge(stream)))
     componentDeclaration.cDeclaration = componentDeclaration.cDeclaration.merge(stream)
@@ -139,13 +139,11 @@ trait NestedComponents extends TypeDeclaration {
 /** Component.ns implementation for exposing components from dependent packages. As the exposed components are
   * owned elsewhere there is no need to set a controller here.
   */
-final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentDeclaration)
+final class PackageComponents(module: Module, componentDeclaration: ComponentDeclaration)
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
-      TypeName(componentDeclaration.packageDeclaration.get.namespace.get,
-               Nil,
-               Some(TypeNames.Component)))
+      module,
+      TypeName(componentDeclaration.module.pkg.namespace.get, Nil, Some(TypeNames.Component)))
     with NestedComponents {
 
   override val componentTypeId: Option[TypeId] = Some(componentDeclaration.typeId)
@@ -157,10 +155,10 @@ final class PackageComponents(pkg: PackageImpl, componentDeclaration: ComponentD
   override def nestedTypes: Array[TypeDeclaration] = componentDeclaration.nestedTypes
 }
 
-final class GhostedComponents(pkg: PackageImpl, ghostedPackage: PackageImpl)
+final class GhostedComponents(module: Module, ghostedPackage: Module)
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
+      module,
       TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
     with NestedComponents {
 
@@ -176,17 +174,17 @@ final class GhostedComponents(pkg: PackageImpl, ghostedPackage: PackageImpl)
 object ComponentDeclaration {
   val standardTypes = Seq(PlatformTypes.apexComponent, PlatformTypes.chatterComponent)
 
-  def apply(pkg: PackageImpl): ComponentDeclaration = {
-    new ComponentDeclaration(Seq(), pkg, standardTypes, collectBaseComponents(pkg))
+  def apply(module: Module): ComponentDeclaration = {
+    new ComponentDeclaration(Seq(), module, standardTypes, collectBaseComponents(module))
   }
 
-  private def collectBaseComponents(pkg: PackageImpl): Seq[NestedComponents] = {
-    pkg.transitiveBasePackages
-      .map(basePkg => {
-        if (basePkg.isGhosted) {
-          new GhostedComponents(pkg, basePkg)
+  private def collectBaseComponents(module: Module): Seq[NestedComponents] = {
+    module.transitiveBaseModules
+      .map(baseModule => {
+        if (baseModule.pkg.isGhosted) {
+          new GhostedComponents(module, baseModule)
         } else {
-          new PackageComponents(pkg, basePkg.components)
+          new PackageComponents(module, baseModule.components)
         }
       })
       .toSeq

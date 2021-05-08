@@ -37,6 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class TriggerTest extends AnyFunSuite with BeforeAndAfter {
 
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -119,5 +120,5 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
         assert(!org.issues.hasMessages)
     }
   }
-
+*/
 }

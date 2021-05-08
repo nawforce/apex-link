@@ -45,8 +45,8 @@ trait APIRequest {
   def process(org: OrgQueue): Unit
 }
 
-class OrgQueue(quiet: Boolean) { self =>
-  val org: Org = Org.newOrg()
+class OrgQueue(quiet: Boolean, path: String) { self =>
+  val org: Org = Org.newOrg(path)
   var packages: List[Package] = Nil
 
   private val queue = new LinkedBlockingQueue[APIRequest]()
@@ -58,7 +58,7 @@ class OrgQueue(quiet: Boolean) { self =>
       while (true) {
         val request = queue.take()
 
-        while (!org.isFlushed()) Thread.sleep(50)
+        while (org.isDirty()) Thread.sleep(50)
 
         request.process(self)
       }
@@ -78,24 +78,22 @@ class OrgQueue(quiet: Boolean) { self =>
   }
 }
 
-case class AddPackageRequest(directory: String, promise: Promise[AddPackageResult])
-    extends APIRequest {
+case class OpenRequest(promise: Promise[OpenResult]) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(try {
-      val pkg = queue.org.newSFDXPackage(directory)
-      queue.packages = pkg :: queue.packages
-      AddPackageResult(None, pkg.getNamespaces(withDependents = true))
+      val namespaces = queue.org.getPackages().flatMap(_.getNamespaces(false))
+      OpenResult(None, namespaces)
     } catch {
-      case ex: IllegalArgumentException => AddPackageResult(Some(APIError(ex.getMessage)), Array())
-      case ex: Throwable                => AddPackageResult(Some(APIError(ex)), Array())
+      case ex: IllegalArgumentException => OpenResult(Some(APIError(ex.getMessage)), Array())
+      case ex: Throwable                => OpenResult(Some(APIError(ex)), Array())
     })
   }
 }
 
-object AddPackageRequest {
-  def apply(queue: OrgQueue, directory: String): Future[AddPackageResult] = {
-    val promise = Promise[AddPackageResult]()
-    queue.add(new AddPackageRequest(directory, promise))
+object OpenRequest {
+  def apply(queue: OrgQueue): Future[OpenResult] = {
+    val promise = Promise[OpenResult]()
+    queue.add(new OpenRequest(promise))
     promise.future
   }
 }
@@ -138,7 +136,9 @@ case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends A
     val buffer = new mutable.HashSet[String]()
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      orgImpl.packagesByNamespace.values.foreach(pkg => buffer.addAll(pkg.getApexTypeIdentifiers))
+      orgImpl.packages
+        .filterNot(_.isGhosted)
+        .foreach(pkg => buffer.addAll(pkg.orderedModules.head.getApexTypeIdentifiers))
       promise.success(GetTypeIdentifiersResult(buffer.toArray.sorted))
     }
   }
@@ -248,24 +248,29 @@ object IdentifierForPath {
 }
 
 object OrgQueue {
-  private var _instance: OrgQueue = _
+  private var _instance: Option[OrgQueue] = None
 
-  def instance(quiet: Boolean): OrgQueue = {
+  def open(quiet: Boolean, path: String): OrgQueue = {
     synchronized {
-      if (_instance == null)
-        _instance = new OrgQueue(quiet)
-      _instance
+      _instance = Some(new OrgQueue(quiet, path))
+      _instance.get
+    }
+  }
+
+  def instance(): OrgQueue = {
+    synchronized {
+      _instance.get
     }
   }
 
   def reset(): Unit = {
     synchronized {
-      _instance = null
+      _instance = None
     }
   }
 }
 
-class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
+class OrgAPIImpl extends OrgAPI {
   override def identifier(): Future[String] = {
     Future(classOf[OrgAPIImpl].getProtectionDomain.getCodeSource.getLocation.getPath)
   }
@@ -274,32 +279,33 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     Future(OrgQueue.reset())
   }
 
-  override def addPackage(directory: String): Future[AddPackageResult] = {
-    AddPackageRequest(OrgQueue.instance(quiet), directory)
+  override def open(directory: String): Future[OpenResult] = {
+    OrgQueue.open(quiet = true, directory)
+    OpenRequest(OrgQueue.instance())
   }
 
   override def getIssues(includeWarnings: Boolean,
                          includeZombies: Boolean): Future[GetIssuesResult] = {
-    GetIssues(OrgQueue.instance(quiet), includeWarnings, includeZombies)
+    GetIssues(OrgQueue.instance(), includeWarnings, includeZombies)
   }
 
   override def refresh(path: String, contents: Option[String]): Future[Unit] = {
-    Future(OrgQueue.instance(quiet).refresh(path, contents))
+    Future(OrgQueue.instance().refresh(path, contents))
   }
 
   override def typeIdentifiers(): Future[GetTypeIdentifiersResult] = {
-    TypeIdentifiers(OrgQueue.instance(quiet))
+    TypeIdentifiers(OrgQueue.instance())
   }
 
   override def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult] = {
-    DependencyGraphRequest(OrgQueue.instance(quiet), path, depth)
+    DependencyGraphRequest(OrgQueue.instance(), path, depth)
   }
 
   override def identifierLocation(identifier: String): Future[IdentifierLocationResult] = {
-    IdentifierLocation(OrgQueue.instance(quiet), identifier)
+    IdentifierLocation(OrgQueue.instance(), identifier)
   }
 
   override def identifierForPath(path: String): Future[Option[String]] = {
-    IdentifierForPath(OrgQueue.instance(quiet), path)
+    IdentifierForPath(OrgQueue.instance(), path)
   }
 }

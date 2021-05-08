@@ -27,31 +27,20 @@
  */
 package com.nawforce.common.org
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.nawforce.common.api.ServerOps
-import com.nawforce.common.diagnostics.{Issue, LocalLogger, MISSING_CATEGORY}
-import com.nawforce.common.documents._
 import com.nawforce.common.names._
 import com.nawforce.common.stream.PackageStream
-import com.nawforce.common.types.apex.{ApexClassDeclaration, FullDeclaration, SummaryApex, TriggerDeclaration}
-import com.nawforce.common.types.schema.SObjectDeclaration
-import com.nawforce.common.workspace.Workspace
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
-import scala.collection.mutable
-import scala.collection.parallel.CollectionConverters._
-import scala.jdk.CollectionConverters._
-
-trait PackageDeploy {
-  this: PackageImpl =>
+trait ModuleDeploy {
+  this: Module =>
 
   private val epoch = System.currentTimeMillis()
 
   def deployFromWorkspace(): Unit = {
-    val startingTypes = types.size
-    val stream = PackageStream(new LocalLogger(org.issues), namespace, workspace)
+    val startingTypes = typeCount
+    val stream = PackageStream(namespace, index)
 
     labels = labels.merge(stream)
     upsertMetadata(labels)
@@ -66,22 +55,25 @@ trait PackageDeploy {
     components = components.merge(stream)
     upsertMetadata(components)
 
+    /* TODO
     loadCustomObjects(workspace)
     loadClasses(workspace)
     loadTriggers(workspace)
+    */
 
     CodeParser.clearCaches()
     Environment.gc()
 
-    if (types.size > startingTypes) {
+    if (typeCount > startingTypes) {
       val total = System.currentTimeMillis() - epoch
-      val avg = total / types.size
+      val avg = total / typeCount
       ServerOps.debug(ServerOps.Trace,
-                      s"Package(${namespace.map(_.value).getOrElse("")}) loaded ${types.size}" +
+                      s"Module($toString) loaded $typeCount" +
                         s" types in ${total / 1000} seconds, average $avg ms/type")
     }
   }
 
+  /* TODO
   private def loadCustomObjects(workspace: Workspace): Unit = {
     val docs = workspace.getByExtension(Name("object"))
     ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
@@ -194,13 +186,5 @@ trait PackageDeploy {
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
     }
-  }
-
-  /** Check all summary types have propagated their dependencies */
-  def propagateAllDependencies(): Unit = {
-    types.values.foreach({
-      case ad: ApexClassDeclaration => ad.propagateAllDependencies()
-      case _                        => ()
-    })
-  }
+  }*/
 }

@@ -38,6 +38,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
 
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -74,4 +75,6 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
         assert(!org.issues.hasMessages)
     }
   }
+
+   */
 }

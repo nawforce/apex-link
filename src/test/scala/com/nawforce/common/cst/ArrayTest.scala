@@ -27,8 +27,9 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.ApexClassDocument
+import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
@@ -39,6 +40,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ArrayTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   private val defaultPath = PathFactory("Dummy.cls")
   private val defaultDoc = ApexClassDocument(defaultPath, Name("Dummy"))
   private var defaultOrg: OrgImpl = _
@@ -83,4 +85,5 @@ class ArrayTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   // TODO: Complete testing
+   */
 }

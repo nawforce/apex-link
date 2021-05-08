@@ -32,14 +32,14 @@ import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.TypeNames
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.{Nature, TypeDeclaration}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved
- * against the package!
+ * against the module!
  */
-final case class RelativeTypeName(pkg: PackageImpl,
+final case class RelativeTypeName(module: Module,
                                   outerTypeName: TypeName,
                                   relativeTypeName: TypeName) {
 
@@ -50,7 +50,7 @@ final case class RelativeTypeName(pkg: PackageImpl,
         context.addDependency(td)
       case _ =>
         context.missingType(location, relativeTypeName)
-        context.addVar(name, pkg.any())
+        context.addVar(name, module.any())
     }
   }
 
@@ -65,11 +65,11 @@ final case class RelativeTypeName(pkg: PackageImpl,
 
   // TypeRequest for the relative type, None if not required
   def typeRequest: Option[TypeResponse] = {
-    if (relativeTypeName != TypeNames.Void && !pkg.isGhostedType(relativeTypeName)) {
+    if (relativeTypeName != TypeNames.Void && !module.isGhostedType(relativeTypeName)) {
 
       // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
       if (relativeTypeName.outer.nonEmpty) {
-        TypeResolver(relativeTypeName, pkg, excludeSObjects = false) match {
+        TypeResolver(relativeTypeName, module, excludeSObjects = false) match {
           case Right(td) => Some(Right(td))
           case Left(_) =>
             Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
@@ -86,7 +86,7 @@ final case class RelativeTypeName(pkg: PackageImpl,
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private def outerTypeDeclaration: TypeDeclaration = {
-    TypeResolver(outerTypeName, pkg, excludeSObjects = false)
+    TypeResolver(outerTypeName, module, excludeSObjects = false)
       .getOrElse(throw new NoSuchElementException)
   }
 }

@@ -36,6 +36,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class BatchingTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -71,5 +72,5 @@ class BatchingTest extends AnyFunSuite with BeforeAndAfter {
           .getMessages("/Dummy.cls")
           .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
     }
-  }
+  }*/
 }

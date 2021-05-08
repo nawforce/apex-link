@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Name, ServerOps, TypeName}
+import com.nawforce.common.api.{ServerOps}
 import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
@@ -37,6 +37,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
+  /* TODO
   private var defaultOrg: OrgImpl = _
   private var root: PathLike = _
 
@@ -177,4 +178,5 @@ class IdDependencyTest extends AnyFunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
+   */
 }

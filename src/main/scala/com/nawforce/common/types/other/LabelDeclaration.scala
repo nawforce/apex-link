@@ -27,14 +27,13 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.names._
 import com.nawforce.common.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.names.TypeNames
-import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.stream.PackageStream
+import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.types.core._
 
 import scala.collection.mutable
@@ -60,10 +59,10 @@ object Label {
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(sources: Array[SourceInfo],
-                             override val pkg: PackageImpl,
+                             override val module: Module,
                              labels: Array[Label],
                              nestedLabels: Array[NestedLabels])
-    extends BasicTypeDeclaration(sources.map(s => PathFactory(s.path)), pkg, TypeNames.Label)
+    extends BasicTypeDeclaration(sources.map(s => PathFactory(s.path)), module, TypeNames.Label)
     with DependentType
     with OtherTypeDeclaration {
 
@@ -78,11 +77,11 @@ final class LabelDeclaration(sources: Array[SourceInfo],
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
-    val outerTypeId = TypeId(pkg, typeName)
+    val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ stream.labels.map(le =>
       Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
     val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct.toArray
-    new LabelDeclaration(sourceInfo, pkg, newLabels, nestedLabels)
+    new LabelDeclaration(sourceInfo, module, newLabels, nestedLabels)
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
@@ -115,11 +114,11 @@ trait NestedLabels extends TypeDeclaration {
   * this. As the exposed labels are owned elsewhere (by the passed LabelDeclaration) there is no need to set a
   * controller here.
   */
-private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDeclaration)
+private final class PackageLabels(module: Module, labelDeclaration: LabelDeclaration)
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
-      pkg,
-      TypeName(labelDeclaration.packageDeclaration.get.namespace.get, Nil, Some(TypeNames.Label)))
+      module,
+      TypeName(labelDeclaration.module.namespace.get, Nil, Some(TypeNames.Label)))
     with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
@@ -137,9 +136,9 @@ private final class PackageLabels(pkg: PackageImpl, labelDeclaration: LabelDecla
 }
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
-final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
+final class GhostedLabels(module: Module, ghostedNamespace: Name)
     extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                      pkg,
+                                      module,
                                       TypeName(ghostedNamespace, Nil, Some(TypeNames.Label)))
     with NestedLabels {
 
@@ -159,18 +158,18 @@ final class GhostedLabels(pkg: PackageImpl, ghostedNamespace: Name)
 object LabelDeclaration {
 
   /** Construct System.Label for a package. */
-  def apply(pkg: PackageImpl): LabelDeclaration = {
-    new LabelDeclaration(Array(), pkg, Array(), createPackageLabels(pkg))
+  def apply(module: Module): LabelDeclaration = {
+    new LabelDeclaration(Array(), module, Array(), createPackageLabels(module))
   }
 
   // Create labels declarations for each base package
-  private def createPackageLabels(pkg: PackageImpl): Array[NestedLabels] = {
-    pkg.transitiveBasePackages
+  private def createPackageLabels(module: Module): Array[NestedLabels] = {
+    module.basePackages
       .map(basePkg => {
         if (basePkg.isGhosted) {
-          new GhostedLabels(pkg, basePkg.namespace.get)
+          new GhostedLabels(module, basePkg.namespace.get)
         } else {
-          new PackageLabels(pkg, basePkg.labels)
+          new PackageLabels(module, basePkg.labels.get)
         }
       })
       .toArray

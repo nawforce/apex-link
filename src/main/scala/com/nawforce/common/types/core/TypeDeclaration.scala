@@ -29,13 +29,12 @@ package com.nawforce.common.types.core
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.IssueOps
-import com.nawforce.common.diagnostics.Location
+import com.nawforce.common.diagnostics.{IssueOps, Location}
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.TypeNames._
 import com.nawforce.common.names.{Names, TypeNames, _}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
@@ -197,11 +196,11 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasSameErasedParameters(pkg: Option[PackageImpl], other: MethodDeclaration): Boolean = {
-    hasErasedParameters(pkg, other.parameters.map(_.typeName))
+  def hasSameErasedParameters(module: Option[Module], other: MethodDeclaration): Boolean = {
+    hasErasedParameters(module, other.parameters.map(_.typeName))
   }
 
-  private def hasErasedParameters(pkg: Option[PackageImpl], params: Array[TypeName]): Boolean = {
+  private def hasErasedParameters(module: Option[Module], params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       // Future: This is very messy, we need to know the general rules
       parameters
@@ -211,9 +210,9 @@ trait MethodDeclaration extends DependencyHolder {
             (z._1.typeName == z._2) ||
               (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
               (z._2.isSObjectList && z._1.typeName.isList && isSObject(
-                pkg,
+                module,
                 z._1.typeName.params.head)) ||
-              (z._1.typeName == TypeNames.SObject && isSObject(pkg, z._2)) ||
+              (z._1.typeName == TypeNames.SObject && isSObject(module, z._2)) ||
               (z._1.typeName.isList && z._1.typeName.params.head == TypeNames.String &&
                 z._2.isList && z._2.params.head == TypeNames.IdType))
     } else {
@@ -221,14 +220,14 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  private def isSObject(pkg: Option[PackageImpl], typeName: TypeName): Boolean = {
-    TypeResolver(typeName, None, pkg, excludeSObjects = false) match {
+  private def isSObject(module: Option[Module], typeName: TypeName): Boolean = {
+    TypeResolver(typeName, None, module, excludeSObjects = false) match {
       case Right(td) => td.isSObject
       case Left(_)   => false
     }
   }
 
-  def hasCallErasedParameters(pkg: PackageImpl, params: Array[TypeName]): Boolean = {
+  def hasCallErasedParameters(module: Module, params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       parameters
         .zip(params)
@@ -236,9 +235,9 @@ trait MethodDeclaration extends DependencyHolder {
           z =>
             z._1.typeName == z._2 ||
               (z._1.typeName.equalsIgnoreParams(z._2) &&
-                (TypeResolver(z._1.typeName, None, Some(pkg), excludeSObjects = false) match {
+                (TypeResolver(z._1.typeName, None, Some(module), excludeSObjects = false) match {
                   case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
-                    TypeResolver(z._2, None, Some(pkg), excludeSObjects = false) match {
+                    TypeResolver(z._2, None, Some(module), excludeSObjects = false) match {
                       case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
                       case _                                                                 => false
                     }
@@ -281,7 +280,7 @@ trait AbstractTypeDeclaration {
 
 trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val paths: Array[PathLike]
-  val packageDeclaration: Option[PackageImpl]
+  val moduleDeclaration: Option[Module]
 
   val name: Name
   val typeName: TypeName
@@ -393,10 +392,10 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   def findLocalType(localName: TypeName): Option[TypeDeclaration] = {
-    if (packageDeclaration.isEmpty)
+    if (moduleDeclaration.isEmpty)
       PlatformTypes.get(localName.withTail(typeName), Some(this)).toOption
     else
-      packageDeclaration.get.getLocalTypeFor(localName, this)
+      moduleDeclaration.get.getLocalTypeFor(localName, this)
   }
 
   def validateFieldConstructorArguments(input: ExprContext,
@@ -415,7 +414,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
         var field: Option[FieldDeclaration] = None
 
-        if (context.pkg.namespace.nonEmpty) {
+        if (context.module.namespace.nonEmpty) {
           field = findField(context.defaultNamespace(id.name), staticContext = Some(false))
         }
 
@@ -423,7 +422,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
           field = findField(id.name, staticContext = Some(false))
 
         if (field.isEmpty) {
-          if (!context.pkg.isGhostedFieldName(id.name))
+          if (!context.module.isGhostedFieldName(id.name))
             context.log(IssueOps.unknownFieldOnSObject(id.location, id.name, typeName))
           None
         } else {

@@ -28,18 +28,13 @@
 package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.cst._
+import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.Monitor
-import com.nawforce.common.modifiers.{
-  ABSTRACT_MODIFIER,
-  ApexModifiers,
-  ModifierResults,
-  VIRTUAL_MODIFIER
-}
+import com.nawforce.common.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.common.names.{TypeNames, _}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex
 import com.nawforce.common.types.core._
@@ -52,7 +47,7 @@ import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class FullDeclaration(val source: Source,
-                               val pkg: PackageImpl,
+                               val module: Module,
                                override val typeName: TypeName,
                                override val outerTypeName: Option[TypeName],
                                val id: Id,
@@ -67,7 +62,7 @@ abstract class FullDeclaration(val source: Source,
   lazy val sourceHash: Int = source.hash
   override val path: PathLike = source.path
   override val paths: Array[PathLike] = Array(path)
-  override val packageDeclaration: Option[PackageImpl] = Some(pkg)
+  override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
 
   override val idLocation: Option[PathLocation] = Some(id.location)
@@ -120,7 +115,7 @@ abstract class FullDeclaration(val source: Source,
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
-      val diagnostics = pkg.org.issues.getDiagnostics(location.path).toArray
+      val diagnostics = module.pkg.org.issues.getDiagnostics(location.path).toArray
       pc.upsert(source.asUTF8,
                 writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)),
                 context)
@@ -152,7 +147,7 @@ abstract class FullDeclaration(val source: Source,
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
     if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(
-          s"${id.name}.${MetadataDocument.clsExt}")) {
+          s"${id.name}.cls")) {
       context.logError(id.location,
                        s"Type name '${id.name}' does not match file name '${path.basename}'")
     }
@@ -185,7 +180,7 @@ abstract class FullDeclaration(val source: Source,
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
-        if (!context.pkg.isGhostedType(interface))
+        if (!context.module.isGhostedType(interface))
           context.missingType(id.location, interface)
       } else if (td.get.nature != INTERFACE_NATURE)
         OrgImpl.logError(id.location, s"Type '${interface.toString}' must be an interface")
@@ -205,13 +200,13 @@ abstract class FullDeclaration(val source: Source,
       case ad: ApexClassDeclaration =>
         dependsOn.add(ad.outerTypeId)
       case _: Label =>
-        dependsOn.add(TypeId(pkg, TypeNames.Label))
+        dependsOn.add(TypeId(module, TypeNames.Label))
       case _: Interview =>
-        dependsOn.add(TypeId(pkg, TypeNames.Interview))
+        dependsOn.add(TypeId(module, TypeNames.Interview))
       case _: Page =>
-        dependsOn.add(TypeId(pkg, TypeNames.Page))
+        dependsOn.add(TypeId(module, TypeNames.Page))
       case _: Component =>
-        dependsOn.add(TypeId(pkg, TypeNames.Component))
+        dependsOn.add(TypeId(module, TypeNames.Component))
       case _ => ()
     }
   }
@@ -247,7 +242,7 @@ abstract class FullDeclaration(val source: Source,
 }
 
 object FullDeclaration {
-  def create(pkg: PackageImpl,
+  def create(module: Module,
              doc: ApexClassDocument,
              data: SourceData): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
@@ -256,17 +251,17 @@ object FullDeclaration {
         issues.foreach(OrgImpl.log)
         None
       case Right(cu) =>
-        Some(CompilationUnit.construct(parser, pkg, doc.name, cu).typeDeclaration)
+        Some(CompilationUnit.construct(parser, module, doc.name, cu).typeDeclaration)
     }
   }
 
   def construct(parser: CodeParser,
-                pkg: PackageImpl,
+                module: Module,
                 name: Name,
                 typeDecl: TypeDeclarationContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
-    val thisType = TypeName(name).withNamespace(pkg.namespace)
+    val thisType = TypeName(name).withNamespace(module.namespace)
 
     val cst = CodeParser
       .toScala(typeDecl.classDeclaration())
@@ -274,7 +269,7 @@ object FullDeclaration {
         cd =>
           ClassDeclaration.construct(
             parser,
-            pkg,
+            module,
             thisType,
             None,
             ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
@@ -286,7 +281,7 @@ object FullDeclaration {
             id =>
               InterfaceDeclaration.construct(
                 parser,
-                pkg,
+                module,
                 thisType,
                 None,
                 ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
@@ -298,7 +293,7 @@ object FullDeclaration {
             ed =>
               EnumDeclaration.construct(
                 parser,
-                pkg,
+                module,
                 thisType,
                 None,
                 ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),

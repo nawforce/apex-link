@@ -31,6 +31,6 @@ import com.nawforce.common.cmds.Check
 
 object ApexLink {
   def main(args: Array[String]): Unit = {
-    System.exit(Check.main("ApexLink", args, inputOrg = null))
+    System.exit(Check.main("ApexLink", args))
   }
 }

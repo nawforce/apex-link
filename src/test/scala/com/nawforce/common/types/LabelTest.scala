@@ -37,6 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class LabelTest extends AnyFunSuite with BeforeAndAfter {
 
+  /*
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -522,4 +523,5 @@ class LabelTest extends AnyFunSuite with BeforeAndAfter {
         assert(pkg1.getDependencyHolders(label1Type).sameElements(Array(label2Type)))
     }
   }
+   */
 }

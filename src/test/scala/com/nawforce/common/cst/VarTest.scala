@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, ServerOps}
+import com.nawforce.common.api.{ ServerOps}
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
@@ -38,6 +38,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class VarTest extends AnyFunSuite with BeforeAndAfter {
+  /*
   private val defaultPath = PathFactory("Dummy.cls").toString
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = _
@@ -113,4 +114,6 @@ class VarTest extends AnyFunSuite with BeforeAndAfter {
       defaultOrg.issues.getMessages(defaultPath).startsWith(
         "Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
   }
+
+   */
 }

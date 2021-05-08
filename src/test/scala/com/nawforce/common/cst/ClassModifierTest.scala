@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{Name, ServerOps}
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.modifiers._
+import com.nawforce.common.names.Name
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.types.apex.FullDeclaration
@@ -40,6 +41,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   private val defaultPath = PathFactory("Dummy.cls").toString
   private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
   private var defaultOrg: OrgImpl = _
@@ -292,4 +294,6 @@ class ClassModifierTest extends AnyFunSuite with BeforeAndAfter {
       defaultOrg.issues.getMessages(defaultPath) ==
         "Error: line 1 at 51-55: abstract methods are virtual methods\n")
   }
+
+   */
 }

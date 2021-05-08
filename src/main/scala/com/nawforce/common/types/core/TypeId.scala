@@ -29,25 +29,28 @@
 package com.nawforce.common.types.core
 
 import com.nawforce.common.names.{TypeIdentifier, TypeName}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.org.Module
 
-case class TypeId(pkg: PackageImpl, typeName: TypeName) {
+case class TypeId(module: Module, typeName: TypeName) {
   def asTypeIdentifier: TypeIdentifier = {
-    TypeIdentifier(pkg.namespace, typeName)
+    TypeIdentifier(module.pkg.namespace, typeName)
   }
 
   override def toString: String = asTypeIdentifier.toString
 }
 
 object TypeId {
-  def apply(pkg: PackageImpl, typeIdentifier: TypeIdentifier): Option[TypeId] = {
+  def apply(module: Module, typeIdentifier: TypeIdentifier): Option[TypeId] = {
+    // Quick test if module is the right one
     val typeName = typeIdentifier.typeName
-    if (typeIdentifier.namespace == pkg.namespace)
-      return Some(new TypeId(pkg, typeName))
+    if (typeIdentifier.namespace == module.namespace)
+      return Some(new TypeId(module, typeName))
 
-    pkg.org
-      .getPackage(typeIdentifier.namespace)
-      .map(pkg => TypeId(pkg, typeName))
+    // Fallback to searching for the right module
+    module.pkg.org.packagesByNamespace
+      .get(typeIdentifier.namespace)
+      .flatMap(pkg => pkg.orderedModules.find(_.findModuleType(typeName).nonEmpty))
+      .map(module => TypeId(module, typeName))
       .orElse({
         assert(false)
         None

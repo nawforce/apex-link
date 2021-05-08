@@ -27,20 +27,20 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.TypeName
-import com.nawforce.common.names.{DotName, _}
-import com.nawforce.common.org.PackageImpl
+import com.nawforce.common.names.{DotName, TypeName, _}
+import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.TypeDeclaration
 
-/** Helper that implements local type searching, extracted out as logic is a bit involved */
+/** Helper that implements local type searching, extracted out as logic is a bit involved. */
 trait TypeFinder {
-  this: PackageImpl =>
+  this: Module =>
 
-  /** Find a type relative to a starting type with a local or global name*/
+  /** Find a type relative to a starting type from a local or global name. */
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    getLocalTypeFor(typeName, from).orElse(this.getType(typeName, Some(from)).toOption)
+    getLocalTypeFor(typeName, from).orElse(this.findType(typeName, Some(from)).toOption)
   }
 
+  /** Find a type relative to a starting type assuming a local name. */
   def getLocalTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
     // Only non-generics can be locally defined, currently
     if (typeName.params.isEmpty)
@@ -103,7 +103,7 @@ trait TypeFinder {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = this.getType(from.outerTypeName.get, Some(from))
+      val outerType = this.findType(from.outerTypeName.get, Some(from))
       if (outerType.isRight) {
         if (dotName.names.head == outerType.getOrElse(throw new NoSuchElementException).name)
           outerType.toOption

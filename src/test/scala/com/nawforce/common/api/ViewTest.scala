@@ -37,6 +37,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ViewTest extends AnyFunSuite with BeforeAndAfter {
 
+  /* TODO
   before {
     ServerOps.setAutoFlush(false)
   }
@@ -394,4 +395,5 @@ class ViewTest extends AnyFunSuite with BeforeAndAfter {
           .toSet == Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
     }
   }
+   */
 }
