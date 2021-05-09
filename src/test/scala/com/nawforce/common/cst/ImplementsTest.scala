@@ -27,49 +27,14 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{ServerOps}
-import com.nawforce.common.documents.{ApexClassDocument, MetadataDocument}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.TypeDeclaration
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
-
-  /* TODO
-  private var defaultOrg: OrgImpl = _
-  private var root: PathLike = _
-
-  def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
-    FileSystemHelper.run(classes) { root: PathLike =>
-      this.root = root
-      OrgImpl.current.withValue(defaultOrg) {
-        defaultOrg.unmanaged.deployClasses(
-          classes
-            .map(p => MetadataDocument(root.join(p._1)).get.asInstanceOf[ApexClassDocument])
-            .toSeq)
-        defaultOrg.unmanaged.findTypes(
-          classes.keys.map(k => TypeName(Name(k.replaceAll("\\.cls$", "")))).toSeq)
-      }
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-    root = null
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class ImplementsTest extends AnyFunSuite with CSTTestHelper {
 
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Missing: line 1 at 13-18: No type declaration found for 'A'\n")
   }
 
@@ -78,7 +43,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
       Map("Dummy.cls" -> "global class Dummy implements A, B {}",
           "A.cls" -> "public interface A {}"))
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Missing: line 1 at 13-18: No type declaration found for 'B'\n")
   }
 
@@ -86,7 +51,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclarations(
       Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public class A {}"))
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
@@ -94,7 +59,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclarations(
       Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public enum A {}"))
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Error: line 1 at 13-18: Type 'A' must be an interface\n")
   }
 
@@ -102,7 +67,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclarations(
       Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public class A {}"))
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
@@ -110,7 +75,7 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
     typeDeclarations(
       Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public enum A {}"))
     assert(
-      defaultOrg.issues.getMessages("/Dummy.cls") ==
+      dummyIssues ==
         "Error: line 1 at 17-22: Type 'A' must be an interface\n")
   }
 
@@ -124,7 +89,6 @@ class ImplementsTest extends AnyFunSuite with BeforeAndAfter {
           |   void finish(Database.BatchableContext param1) {}
           | }
           |""".stripMargin))
-    assert(defaultOrg.issues.getMessages(root.join("Dummy.cls").toString) == "")
+    assert(dummyIssues == "")
   }
-   */
 }

@@ -27,58 +27,25 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
-      defaultOrg.unmanaged.upsertMetadata(td)
-      td.validate()
-      td
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class SuppressWarningsTest extends AnyFunSuite with CSTTestHelper {
 
   test("Suppress disabled") {
-    typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; {b = a[null].b;}}}")
-    assert(
-      defaultOrg.issues
-        .getMessages(defaultPath) == "Error: line 1 at 66-70: Array indexes must be Integers, found 'null'\n")
+    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; {b = a[null].b;}}}")
+    assert(dummyIssues == "Error: line 1 at 66-70: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Outer Suppress") {
     typeDeclaration(
       "@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Inner Suppress") {
     typeDeclaration(
       "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   // TODO: This should work
@@ -89,5 +56,4 @@ class SuppressWarningsTest extends AnyFunSuite with BeforeAndAfter {
     assert(!defaultOrg.issues.hasMessages)
   }*/
 
-   */
 }

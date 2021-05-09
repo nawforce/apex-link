@@ -27,106 +27,80 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.modifiers._
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
+import com.nawforce.common.names.Name
 import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class PropertyTest extends AnyFunSuite with BeforeAndAfter {
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
+class PropertyTest extends AnyFunSuite with CSTTestHelper {
 
-  def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
-      if (td.isEmpty) {
-        defaultOrg.dumpIssues()
-      } else {
-        td.head.validate()
-        td.head.fields
-      }
-      assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.head
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
+  override def typeDeclaration(clsText: String): TypeDeclaration = {
+    val td = super.typeDeclaration(clsText)
+    withOrg(_ -> td.fields)
+    td
   }
 
   test("Empty class has no properties") {
     assert(typeDeclaration("public class Dummy {}").fields.isEmpty)
+    assert(!hasIssues)
   }
 
   test("Property visible") {
     val property = typeDeclaration("public class Dummy {String foo{get; set;} }").fields.head
     assert(property.name == Name("foo"))
+    assert(!hasIssues)
   }
 
   test("Multiple properties visible") {
     val fields =
       typeDeclaration("public class Dummy {String foo{get; set;} Integer bar{get; set;}}").fields
     assert(fields.map(_.name).toSet == Set(Name("foo"), Name("bar")))
+    assert(!hasIssues)
   }
 
   test("Duplicate property reports error on duplicate") {
-    val fields = typeDeclaration("public class Dummy {String foo{get; set;} String foo{get; set;}}",
-                                 hasMessages = true).fields
+    val fields =
+      typeDeclaration("public class Dummy {String foo{get; set;} String foo{get; set;}}").fields
     assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 49-52: Duplicate field/property: 'foo'\n")
   }
 
   test("Property without blocks") {
     val property =
-      typeDeclaration("public class Dummy {String foo{} }", hasMessages = true).fields.head
+      typeDeclaration("public class Dummy {String foo{} }").fields.head
     assert(property.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual set") {
     val property =
-      typeDeclaration("public class Dummy {String foo{set; set;} }", hasMessages = true).fields.head
+      typeDeclaration("public class Dummy {String foo{set; set;} }").fields.head
     assert(property.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("Property with dual get & a set") {
-    val property = typeDeclaration("public class Dummy {String foo{get; set; get;} }",
-                                   hasMessages = true).fields.head
+    val property = typeDeclaration("public class Dummy {String foo{get; set; get;} }").fields.head
     assert(property.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n")
   }
 
   test("More than one duplicate property reports error on duplicates") {
     val fields = typeDeclaration(
-      "public class Dummy {String foo{get; set;} Integer foo{get; set;} String foo{get; set;}}",
-      hasMessages = true).fields
+      "public class Dummy {String foo{get; set;} Integer foo{get; set;} String foo{get; set;}}").fields
     assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 50-53: Duplicate field/property: 'foo'\nError: line 1 at 72-75: Duplicate field/property: 'foo'\n")
   }
 
@@ -135,6 +109,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Private property access") {
@@ -142,6 +117,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Protected property access") {
@@ -150,6 +126,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PROTECTED_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Public property access") {
@@ -157,16 +134,16 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Global property access") {
-    val property = typeDeclaration("public class Dummy {global String foo{get; set;}}",
-                                   hasMessages = true).fields.head
+    val property = typeDeclaration("public class Dummy {global String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 34-37: Enclosing class must be declared global to use global or webservice modifiers\n")
   }
 
@@ -175,6 +152,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Global property access with get modifier in global class") {
@@ -183,16 +161,17 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
+    assert(!hasIssues)
   }
 
   test("Webservice property access") {
-    val property = typeDeclaration("public class Dummy {webservice String foo{get; set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {webservice String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 38-41: Enclosing class must be declared global to use global or webservice modifiers\n")
   }
 
@@ -202,6 +181,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
+    assert(!hasIssues)
   }
 
   test("Webservice property access in global class") {
@@ -210,6 +190,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Property setter lower visibility") {
@@ -218,16 +199,17 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
+    assert(!hasIssues)
   }
 
   test("Property setter higher visibility") {
-    val property = typeDeclaration("public class Dummy {private String foo{get; public set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {private String foo{get; public set;}}").fields.head
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 28-56: Setter visibility must be same or less than property\n")
   }
 
@@ -237,16 +219,17 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
+    assert(!hasIssues)
   }
 
   test("Property getter higher visibility") {
-    val property = typeDeclaration("public class Dummy {private String foo{public get; set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {private String foo{public get; set;}}").fields.head
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PUBLIC_MODIFIER)
     assert(property.writeAccess == PRIVATE_MODIFIER)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 28-56: Getter visibility must be same or less than property\n")
   }
 
@@ -255,6 +238,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Final property") {
@@ -262,6 +246,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, FINAL_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Many modifiers property") {
@@ -274,27 +259,28 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
                                             STATIC_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Duplicate modifiers property") {
-    val property = typeDeclaration("public class Dummy {protected protected String foo{get; set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {protected protected String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(PROTECTED_MODIFIER))
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 47-50: Modifier 'protected' is used more than once\n")
   }
 
   test("Mixed access property") {
-    val property = typeDeclaration("public class Dummy {global webservice String foo{get; set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {global webservice String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 45-48: Enclosing class must be declared global to use global or webservice modifiers\n")
   }
 
@@ -304,6 +290,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Deprecated property") {
@@ -312,6 +299,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("InvocableVariable property") {
@@ -320,6 +308,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("TestVisible property") {
@@ -328,6 +317,7 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("SuppressWarnings property") {
@@ -336,30 +326,28 @@ class PropertyTest extends AnyFunSuite with BeforeAndAfter {
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
+    assert(!hasIssues)
   }
 
   test("Bad annotation property") {
-    val property = typeDeclaration("public class Dummy {@TestSetup String foo{get; set;}}",
-                                   hasMessages = true).fields.head
+    val property =
+      typeDeclaration("public class Dummy {@TestSetup String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-30: Annotation '@TestSetup' is not supported on fields\n")
   }
 
   test("Duplicate annotation property") {
     val property =
-      typeDeclaration("public class Dummy {@TestVisible @TestVisible String foo{get; set;}}",
-                      hasMessages = true).fields.head
+      typeDeclaration("public class Dummy {@TestVisible @TestVisible String foo{get; set;}}").fields.head
     assert(property.modifiers sameElements Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
   }
-
-   */
 }

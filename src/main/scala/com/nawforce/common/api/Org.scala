@@ -29,7 +29,7 @@ package com.nawforce.common.api
 
 import com.nawforce.common.diagnostics.{Issue, PathLocation}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.workspace.Workspace
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
@@ -127,11 +127,17 @@ object Org {
 
   /** Create a new empty Org to which you can add packages for code analysis. */
   def newOrg(path: String): Org = {
-    val ws = Workspace(PathFactory(path))
+    newOrg(PathFactory(path))
+  }
+
+  /** Create a new empty Org to which you can add packages for code analysis. */
+  def newOrg(path: PathLike): Org = {
+    val ws = Workspace(path)
     val org = new OrgImpl(ws.value)
     ws.issues.foreach(org.issues.add)
     org
   }
+
 }
 
 /** Options available when retrieving File specific issues. */

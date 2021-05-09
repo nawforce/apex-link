@@ -27,63 +27,24 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.ServerOps
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.names.Name
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class ArrayTest extends AnyFunSuite with BeforeAndAfter {
-
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls")
-  private val defaultDoc = ApexClassDocument(defaultPath, Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
-      defaultOrg.unmanaged.upsertMetadata(td)
-      td.validate()
-      td
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class ArrayTest extends AnyFunSuite with CSTTestHelper {
 
   test("Non-Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  b = a[null].b;}}")
-    assert(
-      defaultOrg.issues
-        .getMessages(defaultPath.toString) == "Error: line 1 at 54-58: Array indexes must be Integers, found 'null'\n")
+    assert(dummyIssues == "Error: line 1 at 54-58: Array indexes must be Integers, found 'null'\n")
   }
 
   test("Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a; b = a[0].b;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(dummyIssues.isEmpty)
   }
 
   test("Assignment") {
     typeDeclaration("public class Dummy {{String[] a; a=new String[]{'a'}; }}")
-    assert(!defaultOrg.issues.hasMessages)
-  }
-
-  test("Assignment (not matching)") {
-    typeDeclaration("public class Dummy {{List<Object> a; a=new String[]{'a'}; }}")
+    assert(dummyIssues.isEmpty)
   }
 
   // TODO: Complete testing
-   */
 }

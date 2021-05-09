@@ -27,52 +27,20 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.modifiers._
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.names.Name
 import org.scalatest.funsuite.AnyFunSuite
 
-class FieldTest extends AnyFunSuite with BeforeAndAfter {
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String, hasMessages: Boolean = false): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
-      if (td.isEmpty) {
-        defaultOrg.dumpIssues()
-      } else {
-        td.head.validate()
-        td.head.fields
-      }
-      assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.head
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class FieldTest extends AnyFunSuite with CSTTestHelper {
 
   test("Empty class has no fields") {
     assert(typeDeclaration("public class Dummy {}").fields.isEmpty)
+    assert(!hasIssues)
   }
 
   test("Field visible") {
     val field = typeDeclaration("public class Dummy {String foo;}").fields.head
+    assert(!hasIssues)
     assert(field.name == Name("foo"))
     assert(field.readAccess == PRIVATE_MODIFIER)
     assert(field.writeAccess == PRIVATE_MODIFIER)
@@ -80,27 +48,31 @@ class FieldTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Multiple fields visible") {
     val fields = typeDeclaration("public class Dummy {String foo; Integer bar;}").fields
+    assert(!hasIssues)
     assert(fields.map(_.name).toSet == Set(Name("foo"), Name("bar")))
   }
 
   test("Duplicate field reports error on duplicate") {
-    val fields =
-      typeDeclaration("public class Dummy {String foo; String foo;}", hasMessages = true).fields
+    val td = typeDeclaration("public class Dummy {String foo; String foo;}")
+    val fields = withOrg { _ =>
+      td.fields
+    }
     assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 39-42: Duplicate field/property: 'foo'\n")
   }
 
   test("More than one duplicate field reports error on duplicates") {
-    val fields = typeDeclaration("public class Dummy {String foo; Integer foo; String foo;}",
-                                 hasMessages = true).fields
+    val td = typeDeclaration("public class Dummy {String foo; Integer foo; String foo;}")
+    val fields = withOrg { _ =>
+      td.fields
+    }
     assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 40-43: Duplicate field/property: 'foo'\nError: line 1 at 52-55: Duplicate field/property: 'foo'\n")
   }
-   */
 }

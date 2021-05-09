@@ -41,7 +41,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
   override val modifiers: Array[Modifier] = ModifierOps.emptyModifiers
-  override val isComplete: Boolean = true
+  override lazy val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
   override val interfaces: Array[TypeName] = TypeName.emptyTypeNames

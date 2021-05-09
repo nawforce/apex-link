@@ -27,93 +27,61 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class VarTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String): Option[TypeDeclaration] = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText))
-      td.foreach(td => {
-        defaultOrg.unmanaged.upsertMetadata(td)
-        td.validate()
-      })
-      td
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class VarTest extends AnyFunSuite with CSTTestHelper {
 
   test("Duplicate local var") {
     typeDeclaration("public class Dummy { void func() {String a; String a;}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 51-52: Duplicate variable 'a'\n")
   }
 
   test("Duplicate local var, same declaration") {
     typeDeclaration("public class Dummy { void func() {String a, a;}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 44-45: Duplicate variable 'a'\n")
   }
 
   test("Duplicate local var, nested") {
     typeDeclaration("public class Dummy { void func() {String a; while (true) {String a;}}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 65-66: Duplicate variable 'a'\n")
   }
 
   test("Duplicate for vars") {
-    typeDeclaration("public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}")
-    assert(!defaultOrg.issues.hasMessages)
+    typeDeclaration(
+      "public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}")
+    assert(!hasIssues)
   }
 
   test("Shadow local var") {
     typeDeclaration("public class Dummy { String a; void func() {String a;}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath).startsWith(
+      dummyIssues.startsWith(
         "Warning: line 1 at 44-52: Local variable is hiding class field 'a', see"))
   }
 
   test("Shadow local var, inner class") {
     typeDeclaration("public class Dummy { class Dummy2 {String a; void func() {String a;}}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath).startsWith(
+      dummyIssues.startsWith(
         "Warning: line 1 at 58-66: Local variable is hiding class field 'a', see"))
   }
 
   test("Shadow local var, not extending") {
     typeDeclaration("public class Dummy {String a; class Dummy2 { void func() {String a;}}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Shadow local var, extending") {
-    typeDeclaration("public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}")
+    typeDeclaration(
+      "public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath).startsWith(
+      dummyIssues.startsWith(
         "Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
   }
-
-   */
 }

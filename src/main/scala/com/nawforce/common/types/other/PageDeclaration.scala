@@ -75,7 +75,7 @@ final case class PageDeclaration(sources: Array[SourceInfo],
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
-  override val isComplete: Boolean = !module.pkg.hasGhosted
+  override lazy val isComplete: Boolean = !module.pkg.hasGhosted
   override val fields: Array[FieldDeclaration] = pages.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new pages from merging those in the provided stream */
@@ -96,14 +96,17 @@ object PageDeclaration {
   }
 
   private def collectBasePages(module: Module): Array[Page] = {
-    module.transitiveBaseModules.toArray.flatMap(baseModule => {
-      val ns = baseModule.namespace.get
-      baseModule.pages.pages.map(page => {
-        if (page.name.contains("__"))
-          page
-        else
-          Page(module, page.path, Name(s"${ns}__${page.name}"))
+    module.basePackages
+      .flatMap(basePkg => {
+        val ns = basePkg.namespace.get
+        basePkg.pages.map(_.pages.map(page => {
+          if (page.name.contains("__"))
+            page
+          else
+            Page(module, page.path, Name(s"${ns}__${page.name}"))
+        }))
       })
-    })
+      .flatten
+      .toArray
   }
 }

@@ -29,7 +29,7 @@ package com.nawforce.common.types.other
 
 import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
-import com.nawforce.common.org.Module
+import com.nawforce.common.org.{Module, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream.{ComponentEvent, PackageStream}
 import com.nawforce.common.types.core._
@@ -155,7 +155,7 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
   override def nestedTypes: Array[TypeDeclaration] = componentDeclaration.nestedTypes
 }
 
-final class GhostedComponents(module: Module, ghostedPackage: Module)
+final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
@@ -167,7 +167,7 @@ final class GhostedComponents(module: Module, ghostedPackage: Module)
   override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
-    Some(Component(ghostedPackage, None, name, None))
+    Some(Component(module, None, name, None))
   }
 }
 
@@ -179,14 +179,13 @@ object ComponentDeclaration {
   }
 
   private def collectBaseComponents(module: Module): Seq[NestedComponents] = {
-    module.transitiveBaseModules
-      .map(baseModule => {
-        if (baseModule.pkg.isGhosted) {
-          new GhostedComponents(module, baseModule)
+    module.basePackages
+      .map(basePkg => {
+        if (basePkg.isGhosted) {
+          new GhostedComponents(module, basePkg)
         } else {
-          new PackageComponents(module, baseModule.components)
+          new PackageComponents(module, basePkg.components.get)
         }
       })
-      .toSeq
   }
 }

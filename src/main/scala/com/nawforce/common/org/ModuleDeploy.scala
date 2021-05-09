@@ -27,21 +27,47 @@
  */
 package com.nawforce.common.org
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.nawforce.common.api.ServerOps
+import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
+import com.nawforce.common.documents._
 import com.nawforce.common.names._
 import com.nawforce.common.stream.PackageStream
+import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
+import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
+import com.nawforce.common.types.schema.SObjectDeclaration
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
+
+import scala.collection.mutable
+import scala.collection.parallel.CollectionConverters._
+import scala.jdk.CollectionConverters._
 
 trait ModuleDeploy {
   this: Module =>
 
   private val epoch = System.currentTimeMillis()
 
-  def deployFromWorkspace(): Unit = {
+  def deploy(): Unit = {
     val startingTypes = typeCount
     val stream = PackageStream(namespace, index)
 
+    labels = LabelDeclaration(this)
+    pages =  PageDeclaration(this)
+    interviews = InterviewDeclaration(this)
+    components = ComponentDeclaration(this)
+
+    upsertMetadata(anyDeclaration)
+    upsertMetadata(schemaManager.sobjectTypes)
+    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
+    upsertMetadata(labels)
+    upsertMetadata(labels, Some(TypeName(labels.name)))
+    upsertMetadata(pages)
+    upsertMetadata(interviews)
+    upsertMetadata(components)
+
+    // TODO: Convert to load via stream events
     labels = labels.merge(stream)
     upsertMetadata(labels)
     upsertMetadata(labels, Some(TypeName(labels.name)))
@@ -55,11 +81,9 @@ trait ModuleDeploy {
     components = components.merge(stream)
     upsertMetadata(components)
 
-    /* TODO
-    loadCustomObjects(workspace)
-    loadClasses(workspace)
-    loadTriggers(workspace)
-    */
+    loadCustomObjects()
+    loadClasses()
+    loadTriggers()
 
     CodeParser.clearCaches()
     Environment.gc()
@@ -73,9 +97,8 @@ trait ModuleDeploy {
     }
   }
 
-  /* TODO
-  private def loadCustomObjects(workspace: Workspace): Unit = {
-    val docs = workspace.getByExtension(Name("object"))
+  private def loadCustomObjects(): Unit = {
+    val docs = index.get(SObjectNature)
     ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: SObjectDocument =>
@@ -94,17 +117,18 @@ trait ModuleDeploy {
     }
   }
 
-  private def loadClasses(workspace: Workspace): Unit = {
-    val pcOpt = org.parsedCache
-    val docs =
-      workspace.getByExtensionIterable(Name("cls")).collect { case ad: ApexClassDocument => ad }
+  private def loadClasses(): Unit = {
+    val pcOpt = pkg.org.parsedCache
+    val docs = index.get(ClassNature).collect { case ad: ApexClassDocument => ad }.toSeq
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
       // Load summary docs that have valid dependents
       if (pcOpt.nonEmpty) {
         val validSummaryDocs = new mutable.HashMap[TypeName, SummaryApex]()
-        docs.grouped(500).foreach(grp => loadClassesFromCache(grp.toArray, pcOpt.get, validSummaryDocs))
+        docs
+          .grouped(500)
+          .foreach(grp => loadClassesFromCache(grp.toArray, pcOpt.get, validSummaryDocs))
 
         // Multi-pass removal of those with invalid dependencies to counter resolving cyclic links
         var invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
@@ -123,7 +147,7 @@ trait ModuleDeploy {
         validSummaryDocs.foreach(pair => {
           val summary: SummaryApex = pair._2
           val path = summary.declaration.path.toString
-          summary.diagnostics.foreach(diagnostic => org.issues.add(Issue(path, diagnostic)))
+          summary.diagnostics.foreach(diagnostic => pkg.org.issues.add(Issue(path, diagnostic)))
         })
 
       }
@@ -144,7 +168,8 @@ trait ModuleDeploy {
             upsertMetadata(td)
             (td, data.getOrElse(throw new NoSuchElementException))
           })
-        }).toSeq
+        })
+        .toSeq
 
       // Validate the full types
       fullTypes.foreach(_._1.validate())
@@ -154,7 +179,7 @@ trait ModuleDeploy {
   private def loadClassesFromCache(docs: Array[MetadataDocument],
                                    pc: ParsedCache,
                                    accum: mutable.Map[TypeName, SummaryApex]): Unit = {
-    val pkgContext = packageContext
+    val pkgContext = pkg.packageContext
     val localAccum = new ConcurrentHashMap[TypeName, SummaryApex]()
     docs.par.foreach(doc => {
       val data = doc.path.readBytes()
@@ -165,15 +190,18 @@ trait ModuleDeploy {
       }
     })
 
-    localAccum.entrySet().asScala.foreach(kv => {
-      accum.put(kv.getKey, kv.getValue)
-      upsertMetadata(kv.getValue.declaration)
-    })
+    localAccum
+      .entrySet()
+      .asScala
+      .foreach(kv => {
+        accum.put(kv.getKey, kv.getValue)
+        upsertMetadata(kv.getValue.declaration)
+      })
 
   }
 
-  private def loadTriggers(workspace: Workspace): Unit = {
-    val docs = workspace.getByExtension(Name("trigger"))
+  private def loadTriggers(): Unit = {
+    val docs = index.get(TriggerNature).toSeq
     ServerOps.debugTime(s"Parsed ${docs.size} triggers", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: ApexTriggerDocument =>
@@ -186,5 +214,5 @@ trait ModuleDeploy {
       tds.foreach(upsertMetadata(_))
       tds.foreach(_.validate())
     }
-  }*/
+  }
 }

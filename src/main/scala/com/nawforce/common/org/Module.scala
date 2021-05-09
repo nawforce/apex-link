@@ -51,29 +51,20 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
 
-  var labels: LabelDeclaration = LabelDeclaration(this)
-  var pages: PageDeclaration = PageDeclaration(this)
-  var interviews: InterviewDeclaration = InterviewDeclaration(this)
-  var components: ComponentDeclaration = ComponentDeclaration(this)
-
   private[nawforce] val types = mutable.Map[TypeName, TypeDeclaration]()
-  private val schemaManager = new SchemaManager(this)
-  private val anyDeclaration = AnyDeclaration(this)
+  private[nawforce] val schemaManager = new SchemaManager(this)
+  private[nawforce] val anyDeclaration = AnyDeclaration(this)
+
+  var labels: LabelDeclaration = _
+  var pages: PageDeclaration = _
+  var interviews: InterviewDeclaration = _
+  var components: ComponentDeclaration = _
 
   def typeCount: Int = types.size
 
   initTypes()
-  deployFromWorkspace()
 
   private def initTypes(): Unit = {
-    upsertMetadata(anyDeclaration)
-    upsertMetadata(schemaManager.sobjectTypes)
-    upsertMetadata(schemaManager.sobjectTypes, Some(TypeName(schemaManager.sobjectTypes.name)))
-    upsertMetadata(labels)
-    upsertMetadata(labels, Some(TypeName(labels.name)))
-    upsertMetadata(pages)
-    upsertMetadata(interviews)
-    upsertMetadata(components)
   }
 
   def any(): AnyDeclaration = anyDeclaration

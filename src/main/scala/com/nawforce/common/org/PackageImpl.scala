@@ -39,32 +39,52 @@ import scala.collection.mutable
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
     extends PackageAPI {
 
-  /** Modules used in this package, mutable just to aid Module construction with back link to package. */
-  private[nawforce] val modules = new mutable.ArrayBuffer[Module]()
+  /** Modules used in this package, this will be null during construction. */
+  var modules: Array[Module] = _
 
-  /** Add a new module to the package, modules must be added in 'deploy order' */
+  /** Modules in construction phase. */
+  private var moduleBuilder = new mutable.ArrayBuffer[Module]()
+
+  /** Add a new module to the package, modules must be added in 'deploy order'. Once freezeModules is called no new
+    * modules can be added. */
   private[nawforce] def add(module: Module): Unit = {
-    modules.append(module)
+    assert(moduleBuilder != null)
+    moduleBuilder.append(module)
+  }
+
+  /** Freeze the object post construction. */
+  private[nawforce] def freeze(): Unit = {
+    assert(modules == null)
+    modules = moduleBuilder.toArray
+    moduleBuilder = null
+
+    modules.foreach(_.deploy())
   }
 
   /** Package modules in reverse deploy order, note ghost packages have no modules. */
   lazy val orderedModules: Seq[Module] = modules.reverse.toSeq
 
   /** Is this a ghost package, aka it has no modules. */
-  lazy val isGhosted: Boolean = modules.isEmpty
+  lazy val isGhosted: Boolean = {
+    modules.isEmpty
+  }
 
   /** Is this or any base package of this a ghost package. */
   lazy val hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
 
-  /** Labels defined in the package. */
   lazy val labels: Option[LabelDeclaration] = orderedModules.headOption.map(_.labels)
+  lazy val interviews: Option[InterviewDeclaration] = orderedModules.headOption.map(_.interviews)
+  lazy val pages: Option[PageDeclaration] = orderedModules.headOption.map(_.pages)
+  lazy val components: Option[ComponentDeclaration] = orderedModules.headOption.map(_.components)
 
   /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {
     val ghostedPackages = basePackages
       .groupBy(_.isGhosted)
       .map(kv => (kv._1, kv._2.map(_.namespace.map(_.value).getOrElse("")).sorted.toArray))
-    PackageContext(namespace.map(_.value), ghostedPackages(true), ghostedPackages(false))
+    PackageContext(namespace.map(_.value),
+                   ghostedPackages.getOrElse(true, Array.empty),
+                   ghostedPackages.getOrElse(false, Array.empty))
   }
 
   /** Set of namespaces used by this package and its base packages. */

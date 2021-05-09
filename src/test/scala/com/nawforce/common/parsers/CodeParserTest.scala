@@ -38,17 +38,12 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
 
-  /*
   before {
     ServerOps.setAutoFlush(false)
   }
 
   after {
     ServerOps.setAutoFlush(true)
-  }
-
-  private def addPackage(org: OrgImpl, path: PathLike): Package = {
-    org.addPackage(new MDAPIWorkspaceConfig(None, Seq(path)), Seq())
   }
 
   test("Good class") {
@@ -70,11 +65,8 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   test("UTF-8 class") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        addPackage(org, root)
+        val org = Org.newOrg(root).asInstanceOf[OrgImpl]
         assert(!org.issues.hasMessages)
     }
   }
-
-   */
 }

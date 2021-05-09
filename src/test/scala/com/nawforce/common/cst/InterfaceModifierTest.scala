@@ -27,85 +27,47 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
 import com.nawforce.common.modifiers._
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
-      defaultOrg.unmanaged.upsertMetadata(td)
-      td.validate()
-      td
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
-
-  def typeDeclarationInner(clsText: String): TypeDeclaration = {
-    typeDeclaration(clsText)
-      .asInstanceOf[ClassDeclaration]
-      .bodyDeclarations
-      .head
-      .asInstanceOf[TypeDeclaration]
-  }
+class InterfaceModifierTest extends AnyFunSuite with CSTTestHelper {
 
   test("Global outer") {
     assert(
       typeDeclaration("global interface Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Public outer") {
     assert(
       typeDeclaration("public interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Public outer (mixed case)") {
     assert(
       typeDeclaration("puBlIc interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Protected outer") {
     assert(typeDeclaration("protected interface Dummy {}").modifiers.isEmpty)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 0-9: Modifier 'protected' is not supported on interfaces\n")
   }
 
   test("Private outer") {
     assert(typeDeclaration("private interface Dummy {}").modifiers.isEmpty)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 18-23: Private modifier is not allowed on outer interfaces\n")
   }
 
   test("No modifier class") {
     assert(typeDeclaration("interface Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 10-15: Outer interfaces must be declared either 'global' or 'public'\n")
   }
 
@@ -114,32 +76,32 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
       typeDeclaration("global static interface Dummy {}").modifiers sameElements Array(
         GLOBAL_MODIFIER))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 7-13: Modifier 'static' is not supported on interfaces\n")
   }
 
   test("Deprecated annotation") {
     val modifiers = typeDeclaration("@Deprecated public interface Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER, DEPRECATED_ANNOTATION))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Deprecated annotation (mixed case)") {
     val modifiers = typeDeclaration("@DeprecAted public interface Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER, DEPRECATED_ANNOTATION))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("TestVisible annotation") {
     val modifiers = typeDeclaration("@TestVisible public interface Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER, TEST_VISIBLE_ANNOTATION))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("SuppressWarnings annotation") {
     val modifiers = typeDeclaration("@SuppressWarnings public interface Dummy {}").modifiers
     assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("SuppressWarnings & TestVisible annotation class") {
@@ -149,14 +111,14 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
       modifiers.toSet == Set(PUBLIC_MODIFIER,
                              SUPPRESS_WARNINGS_ANNOTATION,
                              TEST_VISIBLE_ANNOTATION))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Global inner") {
     assert(
       typeDeclarationInner("global class Dummy {global interface Inner{}}").modifiers sameElements Array(
         GLOBAL_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Global inner of public outer") {
@@ -164,7 +126,7 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
       typeDeclarationInner("public class Dummy {global interface Inner{}}").modifiers sameElements Array(
         GLOBAL_MODIFIER))
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 37-42: Enclosing class must be declared global to use global or webservice modifiers\n")
   }
 
@@ -172,14 +134,14 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
     assert(
       typeDeclarationInner("public class Dummy {public interface Inner{}}").modifiers sameElements Array(
         PUBLIC_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Protected inner") {
     assert(
       typeDeclarationInner("public class Dummy {protected interface Inner{}}").modifiers.isEmpty)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-29: Modifier 'protected' is not supported on interfaces\n")
   }
 
@@ -187,34 +149,32 @@ class InterfaceModifierTest extends AnyFunSuite with BeforeAndAfter {
     assert(
       typeDeclarationInner("public class Dummy {private interface Inner{}}").modifiers sameElements Array(
         PRIVATE_MODIFIER))
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("No modifier inner") {
     assert(typeDeclarationInner("public class Dummy {class Inner{}}").modifiers.isEmpty)
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Illegal modifier inner") {
     assert(typeDeclarationInner("global class Dummy {static interface Inner{}}").modifiers.isEmpty)
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 20-26: Modifier 'static' is not supported on interfaces\n")
   }
 
   test("Illegal method modifier") {
     typeDeclaration("global interface Dummy {public void foo();}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 36-39: Modifier 'public' is not supported on interface methods\n")
+      dummyIssues ==
+        "Error: line 1 at 24-30: Modifier 'public' is not supported on interface methods\n")
   }
 
   test("Illegal method annotation") {
     typeDeclaration("global interface Dummy {@isTest void foo();}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 37-40: Modifier '@IsTest' is not supported on interface methods\n")
+      dummyIssues ==
+        "Error: line 1 at 24-31: Annotation '@isTest' is not supported on interface methods\n")
   }
-
-   */
 }

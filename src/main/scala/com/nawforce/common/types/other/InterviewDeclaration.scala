@@ -30,7 +30,7 @@ package com.nawforce.common.types.other
 import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.common.names.{Name, TypeName, TypeNames}
-import com.nawforce.common.org.Module
+import com.nawforce.common.org.{Module, PackageImpl}
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream.{FlowEvent, PackageStream}
 import com.nawforce.common.types.core._
@@ -133,9 +133,7 @@ final class PackageInterviews(module: Module, interviewDeclaration: InterviewDec
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
-      TypeName(interviewDeclaration.module.pkg.namespace.get,
-               Nil,
-               Some(TypeNames.Interview)))
+      TypeName(interviewDeclaration.module.pkg.namespace.get, Nil, Some(TypeNames.Interview)))
     with NestedInterviews {
 
   override val interviewTypeId: Option[TypeId] = Some(interviewDeclaration.typeId)
@@ -148,7 +146,7 @@ final class PackageInterviews(module: Module, interviewDeclaration: InterviewDec
 }
 
 /** Flow.Interview.ns implementation for ghosted packages. This simulates the existence of any flow you ask for. */
-final class GhostedInterviews(module: Module, ghostedPackage: Module)
+final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
@@ -160,7 +158,7 @@ final class GhostedInterviews(module: Module, ghostedPackage: Module)
   override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
-    Some(Interview(ghostedPackage, None, name))
+    Some(Interview(module, None, name))
   }
 }
 
@@ -170,14 +168,13 @@ object InterviewDeclaration {
   }
 
   private def collectBaseInterviews(module: Module): Seq[NestedInterviews] = {
-    module.transitiveBaseModules
-      .map(baseModule => {
-        if (baseModule.pkg.isGhosted) {
-          new GhostedInterviews(module, baseModule)
+    module.basePackages
+      .map(basePkg => {
+        if (basePkg.isGhosted) {
+          new GhostedInterviews(module, basePkg)
         } else {
-          new PackageInterviews(module, baseModule.interviews)
+          new PackageInterviews(module, basePkg.interviews.get)
         }
       })
-      .toSeq
   }
 }

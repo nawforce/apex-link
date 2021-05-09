@@ -28,59 +28,18 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api._
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.names.{DotName, TypeNames}
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.{FullDeclaration, TriggerDeclaration}
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.diagnostics.Location
+import com.nawforce.common.names.{DotName, Name, TypeIdentifier, TypeName, TypeNames}
 import org.scalatest.funsuite.AnyFunSuite
 
-class SummaryTest extends AnyFunSuite with BeforeAndAfter {
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls")
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
+class SummaryTest extends AnyFunSuite with CSTTestHelper {
+
   private val dummyTypeName = DotName("Dummy").asTypeName()
   private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)
   private val objectTypeName = DotName("Internal.Object$").asTypeName()
   private val interfaceTypeName = DotName("Internal.Interface$").asTypeName()
   private val rawIntegerTypeName = DotName("Integer").asTypeName()
   private val rawStringTypeName = DotName("String").asTypeName()
-
-  def classSummary(text: String, hasMessages: Boolean = false): TypeSummary = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(text))
-      td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
-      td.foreach(_.validate())
-      if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
-        defaultOrg.dumpIssues()
-      assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.head.summary
-    }
-  }
-
-  def triggerSummary(text: String, hasMessages: Boolean = false): TypeSummary = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = TriggerDeclaration.create(defaultOrg.unmanaged, defaultPath, SourceData(text))
-      td.foreach(defaultOrg.unmanaged.upsertMetadata(_))
-      td.foreach(_.validate())
-      if (td.isEmpty || defaultOrg.issues.hasMessages != hasMessages)
-        defaultOrg.dumpIssues()
-      assert(defaultOrg.issues.hasMessages == hasMessages)
-      td.head.summary
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
 
   test("Public outer class") {
     assert(
@@ -401,37 +360,37 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Interfaces with methods") {
-    assert(
-      classSummary("public interface Dummy {public String foo(String a); void bar(); }",
-                   hasMessages = true) ==
-        TypeSummary(-403162503,
-                    Some(Location(1, 17, 1, 22)),
-                    "Dummy",
-                    dummyTypeName,
-                    "interface",
-                    Array("public"),
-                    None,
-                    Array(interfaceTypeName),
-                    Array(),
-                    Array(),
-                    Array(),
-                    Array(
-                      MethodSummary(Some(Location(1, 58, 1, 61)),
-                                    "bar",
-                                    Array(),
-                                    TypeNames.Void,
-                                    Array(),
-                                    hasBlock = false,
-                                    Array()),
-                      MethodSummary(Some(Location(1, 38, 1, 41)),
-                                    "foo",
-                                    Array("public"),
-                                    TypeNames.String,
-                                    Array(ParameterSummary("a", TypeNames.String)),
-                                    hasBlock = false,
-                                    Array())),
-                    Array(),
-                    Array()))
+    val expected = TypeSummary(-875397803,
+                               Some(Location(1, 17, 1, 22)),
+                               "Dummy",
+                               dummyTypeName,
+                               "interface",
+                               Array("public"),
+                               None,
+                               Array(interfaceTypeName),
+                               Array(),
+                               Array(),
+                               Array(),
+                               Array(
+                                 MethodSummary(Some(Location(1, 51, 1, 54)),
+                                               "bar",
+                                               Array(),
+                                               TypeNames.Void,
+                                               Array(),
+                                               hasBlock = false,
+                                               Array()),
+                                 MethodSummary(Some(Location(1, 31, 1, 34)),
+                                               "foo",
+                                               Array(),
+                                               TypeNames.String,
+                                               Array(ParameterSummary("a", TypeNames.String)),
+                                               hasBlock = false,
+                                               Array())),
+                               Array(),
+                               Array())
+
+    val actual = classSummary("public interface Dummy {String foo(String a); void bar(); }")
+    assert(expected == actual)
   }
 
   test("Enum with values") {
@@ -512,11 +471,11 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Empty trigger") {
-    val name = "__sfdc_trigger/Foo"
+    val name = "__sfdc_trigger/Dummy"
     assert(
-      triggerSummary("trigger Foo on Account(before insert) {}") ==
+      triggerSummary("trigger Dummy on Account(before insert) {}") ==
         TypeSummary(0,
-                    Some(Location(1, 8, 1, 11)),
+                    Some(Location(1, 8, 1, 13)),
                     name,
                     DotName(name).asTypeName(),
                     "trigger",
@@ -530,6 +489,4 @@ class SummaryTest extends AnyFunSuite with BeforeAndAfter {
                     Array(),
                     Array()))
   }
-
-   */
 }

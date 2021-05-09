@@ -50,49 +50,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   val workspace: Workspace = initWorkspace.getOrElse(new Workspace(Seq()))
 
-  val packages: Seq[PackageImpl] = {
-
-    // Fold over layers to create packages - with any package(namespace) dependencies linked to each package
-    // The workspace layers form a deploy ordering, so each is dependent on all previously created
-    val packagesAndModules =
-      workspace.layers.foldLeft(Seq[(PackageImpl, Seq[ModuleLayer])]())((acc, pkgLayer) => {
-        val pkg = new PackageImpl(this, pkgLayer.namespace, acc.map(_._1))
-        acc :+ (pkg, pkgLayer.layers)
-      })
-
-    // Fold over leaf layers to create modules of each package with dependency links, assumes everything is in deploy
-    // order so dependent layers have been created before being referenced
-    packagesAndModules.foldLeft(Map[ModuleLayer, Module]())((acc, packageAndDependent) => {
-      val pkg = packageAndDependent._1
-      val dependents = packageAndDependent._2
-      acc ++ dependents.map(layer => {
-        val issuesAndIndex = workspace.indexes(layer)
-        issuesAndIndex.issues.foreach(issues.add)
-        val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
-        pkg.add(module)
-        layer -> module
-      })
-    })
-    val packages = packagesAndModules.map(_._1)
-
-    // If no unmanaged, create it
-    val unmanaged =
-      if (packages.last.namespace.nonEmpty)
-        Seq(new PackageImpl(this, None, packages))
-      else
-        Seq.empty
-
-    // Finally return just the created packages
-    packages ++ unmanaged
-  }
-
-  /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
-  var unmanaged: PackageImpl = packages.last
-
-  /** Lookup of available packages from the namespace (which must be unique). */
-  val packagesByNamespace: Map[Option[Name], PackageImpl] =
-    packages.map(p => (p.namespace, p)).toMap
-
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
     * for which there is no natural type representation. */
   private[nawforce] val issues = new IssueLog
@@ -103,6 +60,53 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       case Right(pc) => Some(pc)
       case Left(err) => LoggerOps.error(err); None
     }
+
+  val packages: Seq[PackageImpl] = {
+    OrgImpl.current.withValue(this) {
+
+      // Fold over layers to create packages - with any package(namespace) dependencies linked to each package
+      // The workspace layers form a deploy ordering, so each is dependent on all previously created
+      val packagesAndModules =
+        workspace.layers.foldLeft(Seq[(PackageImpl, Seq[ModuleLayer])]())((acc, pkgLayer) => {
+          val pkg = new PackageImpl(this, pkgLayer.namespace, acc.map(_._1))
+          acc :+ (pkg, pkgLayer.layers)
+        })
+
+      // Fold over leaf layers to create modules of each package with dependency links, assumes everything is in deploy
+      // order so dependent layers have been created before being referenced
+      packagesAndModules.foldLeft(Map[ModuleLayer, Module]())((acc, packageAndDependent) => {
+        val pkg = packageAndDependent._1
+        val dependents = packageAndDependent._2
+        acc ++ dependents.map(layer => {
+          val issuesAndIndex = workspace.indexes(layer)
+          issuesAndIndex.issues.foreach(issues.add)
+          val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
+          pkg.add(module)
+          layer -> module
+        })
+      })
+      val packages = packagesAndModules.map(_._1)
+
+      // If no unmanaged, create it
+      val unmanaged =
+        if (packages.isEmpty || packages.lastOption.exists(_.namespace.nonEmpty))
+          Seq(new PackageImpl(this, None, packages))
+        else
+          Seq.empty
+
+      // Finally, freeze everything
+      val all = packages ++ unmanaged
+      all.foreach(_.freeze())
+      all
+    }
+  }
+
+  /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
+  var unmanaged: PackageImpl = packages.last
+
+  /** Lookup of available packages from the namespace (which must be unique). */
+  val packagesByNamespace: Map[Option[Name], PackageImpl] =
+    packages.map(p => (p.namespace, p)).toMap
 
   /** Is this Org using auto-flushing of the parsedCache */
   private val autoFlush = ServerOps.getAutoFlush

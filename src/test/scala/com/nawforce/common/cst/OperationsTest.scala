@@ -27,157 +27,126 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.api.{ ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class OperationsTest extends AnyFunSuite with BeforeAndAfter {
-  /* TODO
-  private val defaultPath = PathFactory("Dummy.cls").toString
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private var defaultOrg: OrgImpl = _
-
-  def typeDeclaration(clsText: String): TypeDeclaration = {
-    OrgImpl.current.withValue(defaultOrg) {
-      val td = FullDeclaration.create(defaultOrg.unmanaged, defaultDoc, SourceData(clsText)).head
-      defaultOrg.unmanaged.upsertMetadata(td)
-      td.validate()
-      td
-    }
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-    defaultOrg = new OrgImpl
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class OperationsTest extends AnyFunSuite with CSTTestHelper {
 
   test("String prefix bug on SObject") {
     typeDeclaration("public class Dummy {{Object a;  String b = '' + + a;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Date addition") {
     typeDeclaration("public class Dummy {{Date a;  Date b = a + 1;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Date subtraction") {
     typeDeclaration("public class Dummy {{Date a;  Date b = a - 12l;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Datetime addition") {
     typeDeclaration("public class Dummy {{Datetime a;  Datetime b = a + 1;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Datetime subtraction") {
     typeDeclaration("public class Dummy {{Datetime a;  Datetime b = a - 12l;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Time addition") {
     typeDeclaration("public class Dummy {{Time a;  Time b = a + 1;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Time subtraction") {
     typeDeclaration("public class Dummy {{Time a;  Time b = a - 12l;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("List assignment to Object") {
     typeDeclaration("public class Dummy {{Object a; a = new List<String>{''}; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("sObject List to Specific Object List") {
     typeDeclaration("public class Dummy {{List<Account> a; a = new List<sObject>(); }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Alternative not equal") {
     typeDeclaration("public class Dummy {{Boolean a; a = 1 <> 2; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Split comparator") {
     typeDeclaration("public class Dummy {{Boolean a; a = 1 < = 2; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Integer to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a = a & 2; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Long to Integer") {
     typeDeclaration("public class Dummy {{Long a; a = a | 2; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Boolean to Boolean") {
     typeDeclaration("public class Dummy {{Boolean a; a = a ^ false; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Assigment Integer to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a ^= a; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Assigment Integer to Long") {
     typeDeclaration("public class Dummy {{Long a; a &= 2; }}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Bitwise Assigment Long to Integer") {
     typeDeclaration("public class Dummy {{Integer a; a |= 22l; }}")
     assert(
-      defaultOrg.issues.getMessages(defaultPath) ==
+      dummyIssues ==
         "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
   }
 
   test("Bitwise Shift in Array Index") {
     typeDeclaration("public class Dummy {{List<String> a; Integer b; String c = a[b << 2];}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("String concat assignment") {
     typeDeclaration("public class Dummy {{String a; a += 12;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Enum value assignment") {
     typeDeclaration("public class Dummy {enum MyEnum{A} {MyEnum a; a = Dummy.MyEnum.A;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Nested ternary") {
     typeDeclaration("public class Dummy {{ String a; a = (1==0) ? 'a' : (1==-1) ? null : 'b';}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Ternary common base") {
     typeDeclaration(
       "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object c = 2>0 ? a : b;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
 
   test("Ternary SObjectType") {
     typeDeclaration(
       "public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}")
-    assert(!defaultOrg.issues.hasMessages)
+    assert(!hasIssues)
   }
-   */
 }
