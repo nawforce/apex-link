@@ -29,9 +29,10 @@ package com.nawforce.common.cst
 
 import java.util.NoSuchElementException
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class SwitchTest extends AnyFunSuite with CSTTestHelper {
+class SwitchTest extends AnyFunSuite with TestHelper {
 
   test("Empty switch") {
     try {

@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class ExtendsTest extends AnyFunSuite with CSTTestHelper {
+class ExtendsTest extends AnyFunSuite with TestHelper {
 
   test("Duplicate inner type names") {
     assert(typeDeclarations(

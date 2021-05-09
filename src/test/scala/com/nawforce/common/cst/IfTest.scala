@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class IfTest extends AnyFunSuite with CSTTestHelper {
+class IfTest extends AnyFunSuite with TestHelper {
 
   test("Block bug") {
     typeDeclaration("public class Dummy {{ if (false) String a = ''; else a =''; }}")

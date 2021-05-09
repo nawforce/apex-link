@@ -27,12 +27,12 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.FileSystemHelper
+import com.nawforce.common.{TestHelper, FileSystemHelper}
 import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
-class DependencyTest extends AnyFunSuite with CSTTestHelper {
+class DependencyTest extends AnyFunSuite with TestHelper {
 
   test("Empty class has no imports") {
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy {}"))

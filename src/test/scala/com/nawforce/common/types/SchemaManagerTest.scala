@@ -1,22 +1,10 @@
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class SchemaManagerTest extends AnyFunSuite with BeforeAndAfter {
-
-  /*
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class SchemaManagerTest extends AnyFunSuite with TestHelper {
 
   def customObject(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
@@ -41,8 +29,7 @@ class SchemaManagerTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -52,21 +39,24 @@ class SchemaManagerTest extends AnyFunSuite with BeforeAndAfter {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
 
   test("Ghosted custom object visible") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }")) {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
+          |}""".stripMargin,
+        "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val ghosted = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-        org.newMDAPIPackageInternal(None, Seq(root), Seq(ghosted))
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
-   */
 }

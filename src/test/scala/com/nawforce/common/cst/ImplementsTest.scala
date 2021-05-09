@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class ImplementsTest extends AnyFunSuite with CSTTestHelper {
+class ImplementsTest extends AnyFunSuite with TestHelper {
 
   test("Missing class interface") {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)

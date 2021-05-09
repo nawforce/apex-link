@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class SuppressWarningsTest extends AnyFunSuite with CSTTestHelper {
+class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Suppress disabled") {
     typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; {b = a[null].b;}}}")

@@ -27,31 +27,18 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{ Org, ServerOps}
-import com.nawforce.common.names.TypeNames
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.names.{Name, TypeIdentifier, TypeNames}
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class InterviewTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class InterviewTest extends AnyFunSuite with TestHelper {
 
   test("Interview createInterview") {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = Flow.Interview.createInterview('', new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -60,8 +47,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("Test.flow" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -70,8 +56,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("Test.flow-meta.xml" -> "",
           "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -79,8 +64,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
   test("Missing flow") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         // TODO: This should be a missing issue
         assert(
           org.issues.getMessages("/Dummy.cls") ==
@@ -94,8 +78,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
         "Test.flow-meta.xml" -> "",
         "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -103,11 +86,15 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
   test("Create flow (namespaced)") {
     FileSystemHelper.run(
       Map(
-        "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }")) {
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg",
+            |"packageDirectories": [{"path": "pkg"}]
+            |}""".stripMargin,
+        "pkg/Test.flow-meta.xml" -> "",
+        "pkg/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -118,34 +105,44 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
         "Test.flow-meta.xml" -> "",
         "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (ghosted)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }")) {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg",
+          |"packageDirectories": [{"path": "pkg"}],
+          |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
+          |}""".stripMargin,
+        "pkg/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
 
   test("Create flow (packaged)") {
     FileSystemHelper.run(
-      Map("pkg1/Test.flow-meta.xml" -> "",
-          "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/Test.flow-meta.xml" -> "",
+        "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-        val pkg2 =
-          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
 
+        val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
+        val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
         val interviewType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Interview)
         val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
         assert(
@@ -168,8 +165,7 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
+        val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.cls") ==
             "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
@@ -182,11 +178,8 @@ class InterviewTest extends AnyFunSuite with BeforeAndAfter {
         "Test.flow-meta.xml" -> "",
         "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
-
-   */
 }

@@ -27,12 +27,13 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import com.nawforce.common.api._
 import com.nawforce.common.diagnostics.Location
 import com.nawforce.common.names.{DotName, Name, TypeIdentifier, TypeName, TypeNames}
 import org.scalatest.funsuite.AnyFunSuite
 
-class SummaryTest extends AnyFunSuite with CSTTestHelper {
+class SummaryTest extends AnyFunSuite with TestHelper {
 
   private val dummyTypeName = DotName("Dummy").asTypeName()
   private val dummyTypeId = TypeIdentifier.fromJava(null, dummyTypeName)

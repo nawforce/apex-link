@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class ArrayTest extends AnyFunSuite with CSTTestHelper {
+class ArrayTest extends AnyFunSuite with TestHelper {
 
   test("Non-Integer index") {
     typeDeclaration("public class Dummy {Integer b; {List<Dummy> a;  b = a[null].b;}}")

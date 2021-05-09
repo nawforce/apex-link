@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class CreationTest extends AnyFunSuite with CSTTestHelper {
+class CreationTest extends AnyFunSuite with TestHelper {
 
   test("Basic new") {
     typeDeclaration("public class Dummy {{Object a = new Address();}}")

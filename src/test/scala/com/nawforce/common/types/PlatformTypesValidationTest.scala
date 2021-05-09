@@ -82,10 +82,10 @@ class PlatformTypesValidationTest extends AnyFunSuite {
     // name & typeName are valid
     assert(typeDeclaration.name.toString == className.lastName.toString)
     className.toString match {
-      case "Internal.Object$" => assert(typeDeclaration.typeName.toString == "Object")
+      case "Internal.Object$"    => assert(typeDeclaration.typeName.toString == "Object")
       case "Internal.Interface$" => assert(typeDeclaration.typeName.toString == "Object")
-      case "Internal.Null$"   => assert(typeDeclaration.typeName.toString == "null")
-      case "Internal.Any$"    => assert(typeDeclaration.typeName.toString == "any")
+      case "Internal.Null$"      => assert(typeDeclaration.typeName.toString == "null")
+      case "Internal.Any$"       => assert(typeDeclaration.typeName.toString == "any")
       case "Internal.SObjectFieldRowCause$" =>
         assert(typeDeclaration.typeName.toString == "SObjectField")
       case _ => assert(typeDeclaration.typeName.toString == className.toString)
@@ -111,7 +111,9 @@ class PlatformTypesValidationTest extends AnyFunSuite {
     if (typeDeclaration.outer.isEmpty) {
       assert(typeDeclaration.modifiers.contains(PUBLIC_MODIFIER))
       if (typeDeclaration.nature == CLASS_NATURE)
-        assert(typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER) || typeDeclaration.modifiers.contains(ABSTRACT_MODIFIER))
+        assert(
+          typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER) || typeDeclaration.modifiers
+            .contains(ABSTRACT_MODIFIER))
     }
 
     // Nested classes

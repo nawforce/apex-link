@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class OperationsTest extends AnyFunSuite with CSTTestHelper {
+class OperationsTest extends AnyFunSuite with TestHelper {
 
   test("String prefix bug on SObject") {
     typeDeclaration("public class Dummy {{Object a;  String b = '' + + a;}}")

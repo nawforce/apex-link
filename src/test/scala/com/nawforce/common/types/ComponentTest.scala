@@ -27,29 +27,16 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{ Org, ServerOps}
-import com.nawforce.common.names.TypeNames
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.names.{Name, TypeIdentifier, TypeNames}
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class ComponentTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class ComponentTest extends AnyFunSuite with TestHelper {
 
   test("Missing root element") {
     FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(org.issues.getMessages("/Test.component") ==
         "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n")
     }
@@ -57,8 +44,7 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Bad root element") {
     FileSystemHelper.run(Map("Test.component" -> "<foo/>")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(
         org.issues.getMessages("/Test.component") ==
           "Error: line 1 at 0-11: Root element must be 'apex:component'\n")
@@ -69,17 +55,15 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component.Test;} }")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 
   test("Missing component") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Component.Test;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         // TODO: This should be a missing issue
         assert(
           org.issues.getMessages("/Dummy.cls") ==
@@ -92,9 +76,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
@@ -103,20 +86,25 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
   test("Create component (namespaced)") {
     FileSystemHelper.run(
-      Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg",
+          |"packageDirectories": [{"path": "pkg"}],
+          |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
+          |}""".stripMargin,
+        "pkg/Test.component" -> "<apex:component/>",
+        "pkg/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
@@ -125,35 +113,44 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
       Map("Test.component" -> "<apex:component/>",
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
   test("Create component (ghosted)") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg",
+            |"packageDirectories": [{"path": "pkg"}],
+            |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
+            |}""".stripMargin,
+        "pkg/Dummy.cls" -> "public class Dummy { {Component c = new Component.ghosted.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
-        org.newMDAPIPackageInternal(Some(Name("pkg")), Seq(root), Seq(pkg1))
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
   test("Create component (packaged)") {
     FileSystemHelper.run(
       Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
         "pkg1/Test.component" -> "<apex:component/>",
         "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-        val pkg2 =
-          org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
-        assert(!org.issues.hasMessages)
+        val org = createOrg(root)
+        assert(!hasIssues)
 
+        val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
+        val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
         val componentType1 = TypeIdentifier.fromJava(Name("pkg1"), TypeNames.Component)
         val componentType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Component)
         assert(
@@ -188,9 +185,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
           |  }
           |}
           |""".stripMargin)) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 
@@ -211,13 +207,8 @@ class ComponentTest extends AnyFunSuite with BeforeAndAfter {
             |  }
             |}
             |""".stripMargin)) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
-
-   */
-
-
 }

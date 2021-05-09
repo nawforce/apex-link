@@ -1,6 +1,5 @@
-package com.nawforce.common.cst
+package com.nawforce.common
 
-import com.nawforce.common.FileSystemHelper
 import com.nawforce.common.api.{Org, ServerOps, TypeSummary}
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
@@ -8,7 +7,7 @@ import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.{ApexFullDeclaration, FullDeclaration}
 import com.nawforce.common.types.core.TypeDeclaration
 
-trait CSTTestHelper {
+trait TestHelper {
 
   private var defaultOrg: OrgImpl = _
 

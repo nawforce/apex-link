@@ -1,8 +1,9 @@
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class SafeNavigationTest extends AnyFunSuite with CSTTestHelper {
+class SafeNavigationTest extends AnyFunSuite with TestHelper {
 
   test("Field Reference") {
     typeDeclaration("public class Dummy {String a; { String b = this?.a; }}")

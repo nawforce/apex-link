@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class MethodShadowTest extends AnyFunSuite with CSTTestHelper {
+class MethodShadowTest extends AnyFunSuite with TestHelper {
 
   def testMethods(classes: Map[String, String], error: String): Unit = {
     typeDeclarations(classes)

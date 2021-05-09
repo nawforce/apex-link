@@ -28,29 +28,16 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class TriggerTest extends AnyFunSuite with BeforeAndAfter {
-
-  /*
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class TriggerTest extends AnyFunSuite with TestHelper {
 
   test("Empty trigger") {
     FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) { }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -58,8 +45,7 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
   test("Bad object errors") {
     FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Stupid (before insert) { }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.trigger") ==
             "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
@@ -71,8 +57,7 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
       Map(
         "Stupid__c.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"><fullName>Stupid</fullName></CustomObject>",
         "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
     }
   }
@@ -81,8 +66,7 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("Dummy.trigger" -> "trigger Dummy on Account (before insert, before insert) { }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.trigger") ==
             "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
@@ -93,8 +77,7 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) {Object a = this;}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -106,19 +89,17 @@ class TriggerTest extends AnyFunSuite with BeforeAndAfter {
           |  for(Account a: Trigger.New)
           |     System.debug(a.Id);
           |}""".stripMargin)) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
     }
   }
 
   test("Static var in trigger") {
-    FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) {public static String a='';}")) {
+    FileSystemHelper.run(Map(
+      "Dummy.trigger" -> "trigger Dummy on Account (before insert) {public static String a='';}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
-*/
 }

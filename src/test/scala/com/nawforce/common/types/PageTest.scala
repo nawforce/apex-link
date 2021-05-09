@@ -27,31 +27,18 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class PageTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class PageTest extends AnyFunSuite with TestHelper {
 
   test("Valid page") {
     FileSystemHelper.run(
       Map("TestPage.page" -> "",
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -61,8 +48,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       Map("TestPage.page" -> "",
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -72,8 +58,7 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
       Map("TestPage.page" -> "",
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.cls") ==
             "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
@@ -82,26 +67,35 @@ class PageTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Base package page") {
     FileSystemHelper.run(
-      Map("pkg1/TestPage.page" -> "",
-          "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/TestPage.page" -> "",
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(root.join("pkg1")), Seq())
-        org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
 
   test("Ghost package page") {
     FileSystemHelper.run(
-      Map("pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
+          |}""".stripMargin,
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg1 = org.newMDAPIPackageInternal(Some(Name("pkg1")), Seq(), Seq())
-        org.newMDAPIPackageInternal(Some(Name("pkg2")), Seq(root.join("pkg2")), Seq(pkg1))
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
 
-   */
 }

@@ -27,10 +27,11 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import com.nawforce.common.names.Name
 import org.scalatest.funsuite.AnyFunSuite
 
-class IdDependencyTest extends AnyFunSuite with CSTTestHelper {
+class IdDependencyTest extends AnyFunSuite with TestHelper {
 
   test("Local func does not create dependencies") {
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy {void func() {func();} }"))

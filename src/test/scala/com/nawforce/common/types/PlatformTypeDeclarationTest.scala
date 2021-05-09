@@ -233,7 +233,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
               "getState",
               "getStateCode",
               "getStreet"))
-    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
+    assert(
+      methods
+        .filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
     assert(
       methods
         .filter(_.name.toString == "getCity")
@@ -276,7 +278,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
                                                       "getTypeName",
                                                       "initCause",
                                                       "setMessage"))
-    assert(methods.filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
+    assert(
+      methods
+        .filter(_.modifiers sameElements Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
   }
 
   test("Generic class") {
@@ -338,7 +342,8 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
 
     assert(
       td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-        "public virtual System.Iterator<System.List<System.String>> iterator()").sorted.mkString("\n"))
+        "public virtual System.Iterator<System.List<System.String>> iterator()").sorted
+        .mkString("\n"))
   }
 
   test("Non-generic type") {

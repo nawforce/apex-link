@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import org.scalatest.funsuite.AnyFunSuite
 
-class VarTest extends AnyFunSuite with CSTTestHelper {
+class VarTest extends AnyFunSuite with TestHelper {
 
   test("Duplicate local var") {
     typeDeclaration("public class Dummy { void func() {String a; String a;}}")

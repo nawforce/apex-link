@@ -27,23 +27,11 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
-
-  /*
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class PlatformEventTest extends AnyFunSuite with TestHelper {
 
   def platformEvent(label: String, fields: Seq[(String, String, Option[String])]): String = {
     val fieldMetadata = fields.map(field => {
@@ -72,8 +60,7 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
       Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -83,8 +70,7 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
       Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
     }
   }
@@ -94,13 +80,10 @@ class PlatformEventTest extends AnyFunSuite with BeforeAndAfter {
       Map("Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.cls") ==
             "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n")
     }
   }
-
-   */
 }

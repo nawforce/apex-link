@@ -27,10 +27,11 @@
  */
 package com.nawforce.common.cst
 
+import com.nawforce.common.TestHelper
 import com.nawforce.common.modifiers._
 import org.scalatest.funsuite.AnyFunSuite
 
-class ClassModifierTest extends AnyFunSuite with CSTTestHelper {
+class ClassModifierTest extends AnyFunSuite with TestHelper {
 
   test("Global outer") {
     assert(typeDeclaration("global class Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))

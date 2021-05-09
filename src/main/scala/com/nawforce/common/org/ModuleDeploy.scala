@@ -53,6 +53,8 @@ trait ModuleDeploy {
     val startingTypes = typeCount
     val stream = PackageStream(namespace, index)
 
+    stream.issues.foreach(e => e.issues.foreach(OrgImpl.log))
+
     labels = LabelDeclaration(this)
     pages =  PageDeclaration(this)
     interviews = InterviewDeclaration(this)
@@ -98,7 +100,7 @@ trait ModuleDeploy {
   }
 
   private def loadCustomObjects(): Unit = {
-    val docs = index.get(SObjectNature)
+    val docs = index.get(SObjectNature).toSeq
     ServerOps.debugTime(s"Parsed ${docs.size} objects", docs.nonEmpty) {
       val tds = docs.flatMap {
         case docType: SObjectDocument =>
