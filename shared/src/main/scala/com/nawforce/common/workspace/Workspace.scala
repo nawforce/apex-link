@@ -82,7 +82,7 @@ object Workspace {
 
   def apply(path: PathLike, logger: IssueLogger): Option[Workspace] = {
     if (!path.exists || !path.isDirectory) {
-      logger.logError(path, Location.empty, "No directory at $path")
+      logger.logError(path, Location.empty, s"No directory at $path")
       None
     }
 

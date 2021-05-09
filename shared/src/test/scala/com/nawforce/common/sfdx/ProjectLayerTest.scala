@@ -300,8 +300,9 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
 
   test("Single packageDirectory with external SFDX package") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           |  "packageDirectories": [
           |    { "package": "first", "versionNumber": "1.2.3.4", "path": "foo"}
           |  ],
@@ -320,8 +321,6 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
             |  ]
             |}
             |""".stripMargin,
-
-
       )) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(logger.issues.isEmpty)
@@ -331,14 +330,13 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       val dir2 = root.join("pkg").join("bar")
       project.get.layers(logger) should matchPattern {
         case List(NamespaceLayer(Some(Name("pkg")), List(ModuleLayer(path2, Seq()))),
-        NamespaceLayer(None, List(ModuleLayer(path1, List()))))
-          if path1 == dir1 && path2 == dir2 =>
+                  NamespaceLayer(None, List(ModuleLayer(path1, List()))))
+            if path1 == dir1 && path2 == dir2 =>
       }
 
       assert(logger.issues.isEmpty)
     }
   }
-
 
   test("Single packageDirectory with dual external package") {
     FileSystemHelper.run(
