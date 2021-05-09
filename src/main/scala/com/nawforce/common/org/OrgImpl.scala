@@ -156,7 +156,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
           Option(pkg.getTypeOfPath(path))
-            .flatMap(typeId => pkg.getPackageType(typeId.typeName))
+            .flatMap(typeId => pkg.modules.head.findModuleType(typeId.typeName))
             .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
         })
       }

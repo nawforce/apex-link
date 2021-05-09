@@ -64,8 +64,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   initTypes()
 
-  private def initTypes(): Unit = {
-  }
+  private def initTypes(): Unit = {}
 
   def any(): AnyDeclaration = anyDeclaration
   def schema(): SchemaManager = schemaManager
@@ -170,40 +169,18 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
-   * only useful if you know local searching is not required.
-   */
+   * only useful if you know local searching is not required. */
   def findType(typeName: TypeName,
                from: Option[TypeDeclaration],
                excludeSObjects: Boolean = false): TypeResponse = {
 
-    // Find locally, or fallback to a package search
-    def getPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {
-      var declaration = findModuleType(typeName)
-      if (declaration.nonEmpty) {
-        if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
-          return declaration
-        else
-          return None
-      }
-
-      if (typeName.outer.nonEmpty) {
-        declaration = getPackageType(typeName.outer.get, inPackage = inPackage)
-          .flatMap(_.findNestedType(typeName.name).filter(td =>
-            td.isExternallyVisible || inPackage))
-        if (declaration.nonEmpty)
-          return declaration
-      }
-
-      basePackages.view.flatMap(pkg => pkg.getPackageType(typeName)).headOption
-    }
-
     if (!excludeSObjects) {
-      var td = getPackageType(typeName).map(Right(_))
+      var td = findPackageType(typeName).map(Right(_))
       if (td.nonEmpty)
         return td.get
 
       if (namespace.nonEmpty) {
-        td = getPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+        td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
         if (td.nonEmpty)
           return td.get
       }
@@ -213,7 +190,30 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     PlatformTypes.get(typeName, from, excludeSObjects)
   }
 
-  /** Find a type in this module. */
+  // Find locally, or fallback to a searching base packages
+  def findPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {
+    var declaration = findModuleType(typeName)
+    if (declaration.nonEmpty) {
+      if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
+        return declaration
+      else
+        return None
+    }
+
+    if (typeName.outer.nonEmpty) {
+      declaration = findPackageType(typeName.outer.get, inPackage = inPackage)
+        .flatMap(_.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
+      if (declaration.nonEmpty)
+        return declaration
+    }
+
+    basePackages.view
+      .flatMap(pkg =>
+        pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
+      .headOption
+  }
+
+  /** Find a type just in this module. */
   def findModuleType(typeName: TypeName): Option[TypeDeclaration] = {
     var declaration = types.get(typeName)
     if (declaration.nonEmpty)
@@ -230,6 +230,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))
       }
     }
-    baseModules.reverse.view.flatMap(_.findModuleType(typeName)).headOption
+    None
   }
 }

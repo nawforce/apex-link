@@ -107,8 +107,8 @@ object TypeResolver {
 
   def apply(typeName: TypeName,
             from: Option[TypeDeclaration],
-            pkg: Option[Module],
+            module: Option[Module],
             excludeSObjects: Boolean): TypeResponse = {
-    new TypeResolver().find(typeName, from, pkg, excludeSObjects)
+    new TypeResolver().find(typeName, from, module, excludeSObjects)
   }
 }

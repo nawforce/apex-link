@@ -27,171 +27,164 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.api.{Org, ServerOps}
-import com.nawforce.common.documents.ApexClassDocument
-import com.nawforce.common.names.{DotName, Names, _}
-import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.types.apex.FullDeclaration
-import com.nawforce.common.types.core.TypeDeclaration
-import com.nawforce.runtime.parsers.SourceData
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.names.{Names, _}
+import com.nawforce.common.path.PathLike
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class TypeFindingTest extends AnyFunSuite with BeforeAndAfter {
-  /*
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
-
-  private val defaultOrg: OrgImpl = new OrgImpl
-  private val defaultDoc = ApexClassDocument(PathFactory("Dummy.cls"), Name("Dummy"))
-  private val unmanaged: PackageImpl = defaultOrg.unmanaged
-
-  private def getType(namespace: String,
-                      dotName: String,
-                      org: OrgImpl = defaultOrg): TypeDeclaration = {
-    val ns = Names.safeApply(namespace)
-    val dn = DotName(dotName)
-    val pkgOpt = org.packagesByNamespace.get(ns)
-    pkgOpt
-      .flatMap(pkg => TypeResolver(dn.asTypeName(), pkg, excludeSObjects = false).toOption)
-      .orNull
-  }
+class TypeFindingTest extends AnyFunSuite with TestHelper {
 
   test("Bad type not") {
-    OrgImpl.current.withValue(defaultOrg) {
-      assert(unmanaged.getType(TypeName(Name("Hello")), None).toOption.isEmpty)
-    }
+    withEmptyOrg(org => {
+      assert(org.unmanaged.modules.head.findType(TypeName(Name("Hello")), None).toOption.isEmpty)
+    })
   }
 
   test("Platform type") {
-    OrgImpl.current.withValue(defaultOrg) {
+    withEmptyOrg(org => {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
-      assert(unmanaged.getType(TypeName(Name("String")), None).toOption.get.typeName == typeName)
-    }
+      assert(
+        org.unmanaged.modules.head
+          .findType(TypeName(Name("String")), None)
+          .toOption
+          .get
+          .typeName == typeName)
+    })
   }
 
   test("Platform type (wrong case)") {
-    OrgImpl.current.withValue(defaultOrg) {
+    withEmptyOrg(org => {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
-      assert(unmanaged.getType(TypeName(Name("STRING")), None).toOption.get.typeName == typeName)
-    }
+      assert(
+        org.unmanaged.modules.head
+          .findType(TypeName(Name("STRING")), None)
+          .toOption
+          .get
+          .typeName == typeName)
+    })
   }
 
   test("Custom Outer type") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(org) {
-      val td =
-        FullDeclaration.create(org.unmanaged, defaultDoc, SourceData("public class Dummy {}")).head
-      org.unmanaged.upsertMetadata(td)
+    val td = typeDeclaration("public class Dummy {}")
+    assert(!hasIssues)
+    withOrg(org => {
       assert(
-        org.unmanaged.getType(TypeName(Name("Dummy")), None).toOption.get.typeName == td.typeName)
-    }
-  }
-
-  test("Custom Outer type (Wrong Case)") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration
-        .create(defaultOrg.unmanaged, defaultDoc, SourceData("public class Dummy {}"))
-        .head
-      org.unmanaged.upsertMetadata(td)
-      assert(
-        org.unmanaged.getType(TypeName(Name("dummy")), None).toOption.get.typeName == td.typeName)
-    }
-  }
-
-  test("Custom Inner type") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration
-        .create(defaultOrg.unmanaged, defaultDoc, SourceData("public class Dummy {class Inner {}}"))
-        .head
-      org.unmanaged.upsertMetadata(td)
-      val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
-      assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
-    }
-  }
-
-  test("Custom Inner type (Wrong case)") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration
-        .create(defaultOrg.unmanaged, defaultDoc, SourceData("public class Dummy {class Inner {}}"))
-        .head
-      org.unmanaged.upsertMetadata(td)
-      val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
-      assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
-    }
-  }
-
-  test("Custom Outer type with namespace") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultDoc, SourceData("global class Dummy {}")).head
-      pkg.upsertMetadata(td)
-      assert(
-        org.unmanaged
-          .getType(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS")))), None)
+        org.unmanaged.modules.head
+          .findType(TypeName(Name("Dummy")), None)
           .toOption
           .get
           .typeName == td.typeName)
-      assert(org.unmanaged.getType(TypeName(Name("Dummy")), None).toOption.isEmpty)
-    }
+    })
   }
 
-  test("Custom Outer type with namespace not visible") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration.create(pkg, defaultDoc, SourceData("public class Dummy {}")).head
-      pkg.upsertMetadata(td)
-      assert(getType("", "NS.Dummy", org) == null)
-      assert(getType("", "Dummy", org) == null)
-      assert(getType("NS", "NS.Dummy", org) != null)
-      assert(getType("NS", "Dummy", org) != null)
-    }
-  }
-
-  test("Custom Inner type with namespace") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration
-        .create(pkg, defaultDoc, SourceData("global class Dummy {class Inner {}}"))
-        .head
-      pkg.upsertMetadata(td)
-      val innerTypeName =
-        TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("NS"))))))
-      assert(org.unmanaged.getType(innerTypeName, None).toOption.get.typeName == innerTypeName)
+  test("Custom Outer type (Wrong Case)") {
+    val td = typeDeclaration("public class Dummy {}")
+    assert(!hasIssues)
+    withOrg(org => {
       assert(
-        org.unmanaged
-          .getType(TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy")))), None)
+        org.unmanaged.modules.head
+          .findType(TypeName(Name("duMmy")), None)
           .toOption
-          .isEmpty)
+          .get
+          .typeName == td.typeName)
+    })
+  }
+
+  test("Custom Inner type") {
+    val td = typeDeclaration("public class Dummy {class Inner {}}")
+    assert(!hasIssues)
+    withOrg(org => {
+      val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
+      assert(
+        org.unmanaged.modules.head
+          .findType(innerTypeName, None)
+          .toOption
+          .get
+          .typeName == innerTypeName)
+    })
+  }
+
+  test("Custom Inner type (Wrong case)") {
+    val td = typeDeclaration("public class Dummy {class Inner {}}")
+    assert(!hasIssues)
+    withOrg(org => {
+      val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
+      assert(
+        org.unmanaged.modules.head
+          .findType(innerTypeName, None)
+          .toOption
+          .get
+          .typeName == innerTypeName)
+    })
+  }
+
+  test("Custom Outer type visible outside package") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/Dummy.cls" -> "global class Dummy {}",
+        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy value;}}",
+      )) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 
-  test("Custom Inner type with namespace not visible") {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val pkg = org.newMDAPIPackage("NS", Array(), Array()).asInstanceOf[PackageImpl]
-    OrgImpl.current.withValue(org) {
-      val td = FullDeclaration
-        .create(pkg, defaultDoc, SourceData("public class Dummy {class Inner {}}"))
-        .head
-      pkg.upsertMetadata(td)
-
-      assert(getType("", "NS.Dummy.Inner", org) == null)
-      assert(getType("", "Dummy.Inner", org) == null)
-      assert(getType("NS", "NS.Dummy.Inner", org) != null)
-      assert(getType("NS", "Dummy.Inner", org) != null)
+  test("Custom Outer type not visible outside package") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/Dummy.cls" -> "public class Dummy {}",
+        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy value;}}",
+      )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues
+        .getMessages("/pkg2/Use.cls") == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
     }
   }
-   */
+
+  test("Custom Inner type visible outside package") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/Dummy.cls" -> "global class Dummy {class Inner {}}",
+        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy.Inner value;}}",
+      )) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+    }
+  }
+
+  test("Custom Inner type not visible outside package") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg2",
+            |"packageDirectories": [{"path": "pkg2"}],
+            |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+            |}""".stripMargin,
+        "pkg1/Dummy.cls" -> "public class Dummy {class Inner {}}",
+        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy.Inner value;}}",
+      )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues
+        .getMessages("/pkg2/Use.cls") == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
+    }
+  }
 }

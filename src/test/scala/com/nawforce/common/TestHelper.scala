@@ -16,9 +16,27 @@ trait TestHelper {
     defaultOrg
   }
 
+  def emptyOrg(): OrgImpl = {
+    try {
+      ServerOps.setAutoFlush(false)
+      FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
+        createOrg(root)
+      }
+    } finally {
+      ServerOps.setAutoFlush(true)
+    }
+  }
+
   def withOrg[T](op: OrgImpl => T): T = {
     OrgImpl.current.withValue(defaultOrg) {
       op(defaultOrg)
+    }
+  }
+
+  def withEmptyOrg[T](op: OrgImpl => T): T = {
+    val org = emptyOrg()
+    OrgImpl.current.withValue(org) {
+      op(org)
     }
   }
 

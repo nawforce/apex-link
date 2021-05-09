@@ -30,7 +30,6 @@ package com.nawforce.common.org
 
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
-import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypeDeclaration
 
@@ -116,13 +115,5 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
   /** Check all summary types have propagated their dependencies. */
   def propagateAllDependencies(): Unit = {
     modules.foreach(_.propagateAllDependencies())
-  }
-
-  /** Find a type in this package.
-    * TODO: This should be correct but its rather a brute force approach, conflict detection might give a way to
-    * improve how this is done.
-    */
-  def getPackageType(typeName: TypeName): Option[TypeDeclaration] = {
-    modules.view.flatMap(_.findModuleType(typeName)).headOption
   }
 }
