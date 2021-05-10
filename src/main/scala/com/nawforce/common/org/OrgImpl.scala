@@ -61,6 +61,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       case Left(err) => LoggerOps.error(err); None
     }
 
+  /** Lookup of available packages from the namespace (which must be unique), populated when packages created */
+  var packagesByNamespace: Map[Option[Name], PackageImpl] = _
+
   val packages: Seq[PackageImpl] = {
     OrgImpl.current.withValue(this) {
 
@@ -71,6 +74,8 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
           val pkg = new PackageImpl(this, pkgLayer.namespace, acc.map(_._1))
           acc :+ (pkg, pkgLayer.layers)
         })
+
+      packagesByNamespace = packagesAndModules.map(p => (p._1.namespace, p._1)).toMap
 
       // Fold over leaf layers to create modules of each package with dependency links, assumes everything is in deploy
       // order so dependent layers have been created before being referenced
@@ -103,10 +108,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
   var unmanaged: PackageImpl = packages.last
-
-  /** Lookup of available packages from the namespace (which must be unique). */
-  val packagesByNamespace: Map[Option[Name], PackageImpl] =
-    packages.map(p => (p.namespace, p)).toMap
 
   /** Is this Org using auto-flushing of the parsedCache */
   private val autoFlush = ServerOps.getAutoFlush

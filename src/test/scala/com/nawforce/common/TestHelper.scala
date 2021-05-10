@@ -98,6 +98,11 @@ trait TestHelper {
     packagedType(Some(namespace), typeName)
   }
 
+  def packagedCustomType(namespace: String, name: String): Option[TypeDeclaration] = {
+    packagedType(Some(Name(namespace)), TypeName(Name(name), Seq(), Some(TypeName(Name(namespace)))))
+  }
+
+
   def hasIssues: Boolean = defaultOrg.issues.hasMessages
 
   def dummyIssues: String = defaultOrg.issues.getMessages("/Dummy.cls")

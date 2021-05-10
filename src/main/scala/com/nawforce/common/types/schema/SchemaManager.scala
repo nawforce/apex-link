@@ -111,7 +111,7 @@ class RelatedLists(module: Module) {
                                   Name.emptyNames,
                                   Name.emptyNames,
                                   td.fields,
-                                  isComplete = true))
+                                  _isComplete = true))
     })
   }
 

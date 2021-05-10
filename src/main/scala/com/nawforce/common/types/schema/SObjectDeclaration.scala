@@ -56,8 +56,10 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     fieldSets: Array[Name],
                                     sharingReason: Array[Name],
                                     baseFields: Array[FieldDeclaration],
-                                    override val isComplete: Boolean)
+                                    _isComplete: Boolean)
     extends BasicTypeDeclaration(_paths, module, _typeName) {
+
+  override lazy val isComplete: Boolean = _isComplete
 
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
 
@@ -254,7 +256,7 @@ object SObjectDeclaration {
                              sobjectDetails.fieldSets.toArray,
                              Name.emptyNames,
                              fields,
-                             isComplete = true) +:
+                             _isComplete = true) +:
         supportObjects
 
     allObjects.foreach(module.schema().sobjectTypes.add)
@@ -390,7 +392,7 @@ object SObjectDeclaration {
                        Array(),
                        sharingReasons,
                        customObjectFields(sobjectDetails) ++ shareFields,
-                       isComplete = true)
+                       _isComplete = true)
   }
 
   private lazy val shareFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -411,7 +413,7 @@ object SObjectDeclaration {
                        Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(sobjectDetails) ++ feedFields,
-                       isComplete = true)
+                       _isComplete = true)
   }
 
   private lazy val feedFields = PlatformTypes.sObjectType.fields ++ Seq(
@@ -443,7 +445,7 @@ object SObjectDeclaration {
                        Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(sobjectDetails) ++ historyFields,
-                       isComplete = true)
+                       _isComplete = true)
   }
 
   private lazy val historyFields = PlatformTypes.sObjectType.fields ++ Seq(

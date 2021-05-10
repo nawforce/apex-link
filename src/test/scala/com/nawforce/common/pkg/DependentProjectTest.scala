@@ -1,21 +1,10 @@
-package com.nawforce.common.api
+package com.nawforce.common.pkg
 
-import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
-
-  /*
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
+class DependentProjectTest extends AnyFunSuite with TestHelper {
 
   test("Ghosted dependent") {
     FileSystemHelper.run(
@@ -31,9 +20,8 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
           |}""".stripMargin,
         "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newSFDXPackageInternal(root)
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
@@ -52,9 +40,8 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
         "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
         "pkg1/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newSFDXPackageInternal(root)
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
 
@@ -78,10 +65,8 @@ class DependentProjectTest extends AnyFunSuite with BeforeAndAfter {
           |}""".stripMargin,
         "pkg1/metadata/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newSFDXPackageInternal(root)
-        assert(!org.issues.hasMessages)
+        createOrg(root)
+        assert(!hasIssues)
     }
   }
-   */
 }
