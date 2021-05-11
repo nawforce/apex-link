@@ -25,70 +25,26 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.common.api
+package com.nawforce.common.pkg
 
-import com.nawforce.common.FileSystemHelper
+import com.nawforce.common.api.ServerOps
+import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.org.OrgImpl
+import com.nawforce.common.names.Name
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.SummaryDeclaration
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
-class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
-
-  /* TODO
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
-  }
-
-  test("Duplicate unmanaged (MDAPI)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(), Seq())
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
-      assert(!org.issues.hasMessages)
-      try {
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
-        assert(false)
-      } catch {
-        case ex: IllegalArgumentException =>
-          assert(
-            ex.getMessage == "An \"unmanaged\" package using an empty namespace already exists")
-      }
-    }
-  }
-
-  test("Duplicate unmanaged (SFDX)") {
-    FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"packageDirectories\" : [{ \"namespace\": \"\", \"path\": \"classes\"}]}",
-          "classes/Dummy.cls" -> "public class Dummy {}",
-      )) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newSFDXPackageInternal(root)
-      assert(!org.issues.hasMessages)
-      try {
-        org.newSFDXPackageInternal(root)
-        assert(false)
-      } catch {
-        case ex: IllegalArgumentException =>
-          assert(
-            ex.getMessage == "An \"unmanaged\" package using an empty namespace already exists")
-      }
-    }
-  }
+class PackageAPITest extends AnyFunSuite with TestHelper {
 
   test("type of path") {
     FileSystemHelper.run(
       Map("classes/Dummy.cls" -> "public class Dummy {}",
           "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         assert(pkg.getTypeOfPath(null) == null)
@@ -113,11 +69,17 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("type of path with namespace") {
     FileSystemHelper.run(
-      Map("classes/Dummy.cls" -> "public class Dummy {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "pkg"}]
+          |}""".stripMargin,
+        "pkg/classes/Dummy.cls" -> "public class Dummy {}",
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.packagesByNamespace(Some(Name("test")))
         assert(!org.issues.hasMessages)
 
         assert(pkg.getTypeOfPath(null) == null)
@@ -125,7 +87,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
         assert(
           pkg
-            .getTypeOfPathInternal(root.join("classes").join("Dummy.cls"))
+            .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
             .get
             .toString == "test.Dummy (test)")
         assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
@@ -134,7 +96,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
         assert(
           pkg
-            .getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+            .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
             .get
             .toString == "__sfdc_trigger/test/Foo (test)")
         assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
@@ -148,8 +110,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       Map("classes/Dummy.cls" -> "public class Dummy {}",
           "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val dummyType =
@@ -169,32 +131,44 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("path of type with namespace") {
     FileSystemHelper.run(
-      Map("classes/Dummy.cls" -> "public class Dummy {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "pkg"}]
+          |}""".stripMargin,
+        "pkg/classes/Dummy.cls" -> "public class Dummy {}",
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.packagesByNamespace(Some(Name("test")))
         assert(!org.issues.hasMessages)
 
         val dummyType =
-          pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
+          pkg
+            .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+            .get
+            .asTypeIdentifier
         val fooType =
-          pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
+          pkg
+            .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
+            .get
+            .asTypeIdentifier
 
         assert(pkg.getPathsOfType(null).isEmpty)
 
         assert(dummyType.toString == "test.Dummy (test)")
-        assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
+        assert(pkg.getPathsOfType(dummyType).sameElements(Array("/pkg/classes/Dummy.cls")))
 
         assert(fooType.toString == "__sfdc_trigger/test/Foo (test)")
-        assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
+        assert(pkg.getPathsOfType(fooType).sameElements(Array("/pkg/triggers/Foo.trigger")))
     }
   }
 
   test("summary of type") {
     FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
+      val pkg = org.unmanaged
       assert(!org.issues.hasMessages)
 
       val typeLike =
@@ -209,47 +183,70 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("summary of type with namespace") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+        |"namespace": "test",
+        |"packageDirectories": [{"path": "pkg"}]
+        |}""".stripMargin,
+        "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.packagesByNamespace(Some(Name("test")))
+      assert(!org.issues.hasMessages)
 
-        val typeLike =
-          pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
-        val summary = pkg.getSummaryOfType(typeLike)
+      val typeLike =
+        pkg
+          .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+          .get
+          .asTypeIdentifier
+      val summary = pkg.getSummaryOfType(typeLike)
 
-        assert(summary.name == "Dummy")
-        assert(summary.typeName.toString == "test.Dummy")
-        assert(summary.idRange.contains(Location(1, 21, 1, 26)))
-        assert(summary.modifiers sameElements Array("@IsTest", "public"))
+      assert(summary.name == "Dummy")
+      assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.idRange.contains(Location(1, 21, 1, 26)))
+      assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
 
   test("summary of type with namespace (cached)") {
     ParsedCache.clear()
+    ServerOps.setAutoFlush(false)
 
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
-        org.flush()
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "pkg"}]
+          |}""".stripMargin,
+        "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+      org.flush()
 
-        val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg2 = org2.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org2.issues.hasMessages)
+      val org2 = createOrg(root)
+      val pkg2 = org2.packagesByNamespace(Some(Name("test")))
+      assert(!org2.issues.hasMessages)
 
-        val typeLike =
-          pkg2.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
-        val summary = pkg2.getSummaryOfType(typeLike)
+      val typeLike =
+        pkg2
+          .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+          .get
+          .asTypeIdentifier
+      val summary = pkg2.getSummaryOfType(typeLike)
 
-        assert(
-          pkg2.getType(typeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
-        assert(summary.name == "Dummy")
-        assert(summary.typeName.toString == "test.Dummy")
-        assert(summary.idRange.contains(Location(1, 21, 1, 26)))
-        assert(summary.modifiers sameElements Array("@IsTest", "public"))
+      assert(
+        pkg2.orderedModules.head
+          .findModuleType(typeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
+      assert(summary.name == "Dummy")
+      assert(summary.typeName.toString == "test.Dummy")
+      assert(summary.idRange.contains(Location(1, 21, 1, 26)))
+      assert(summary.modifiers sameElements Array("@IsTest", "public"))
+
+      ServerOps.setAutoFlush(true)
     }
   }
 
@@ -257,29 +254,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(
       Map("triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
-        assert(!org.issues.hasMessages)
-
-        val typeLike = pkg
-          .getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger"))
-          .get
-          .asTypeIdentifier
-        val summary = pkg.getSummaryOfType(typeLike)
-
-        assert(summary.name == "__sfdc_trigger/test/Dummy")
-        assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
-        assert(summary.idRange.contains(Location(1, 8, 1, 13)))
-        assert(summary.modifiers.isEmpty)
-    }
-  }
-
-  test("summary of trigger with namespace") {
-    FileSystemHelper.run(
-      Map("triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val typeLike = pkg
@@ -295,10 +271,37 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("summary of trigger with namespace") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "test",
+            |"packageDirectories": [{"path": "pkg"}]
+            |}""".stripMargin,
+        "pkg/triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.packagesByNamespace(Some(Name("test")))
+        assert(!org.issues.hasMessages)
+
+        val typeLike = pkg
+          .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Dummy.trigger"))
+          .get
+          .asTypeIdentifier
+        val summary = pkg.getSummaryOfType(typeLike)
+
+        assert(summary.name == "__sfdc_trigger/test/Dummy")
+        assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
+        assert(summary.idRange.contains(Location(1, 8, 1, 13)))
+        assert(summary.modifiers.isEmpty)
+    }
+  }
+
   test("No dependencies") {
     FileSystemHelper.run(Map("classes/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
+      val pkg = org.unmanaged
       assert(!org.issues.hasMessages)
 
       val fooTypeLike =
@@ -312,8 +315,9 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ParsedCache.clear()
     FileSystemHelper.run(files) { root: PathLike => // Basic non-cached test
     {
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      ServerOps.setAutoFlush(false)
+      val org = createOrg(root)
+      val pkg = org.unmanaged
       assert(!org.issues.hasMessages)
 
       val fooTypeLike =
@@ -337,13 +341,15 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
           .getDependencies(barTypeLike, outerInheritanceOnly = false)
           .sameElements(Array(fooTypeLike)))
       assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+
       org.flush()
+      ServerOps.setAutoFlush(true)
     }
 
     // Extended cache test
     {
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
+      val pkg = org.unmanaged
       assert(!org.issues.hasMessages)
 
       val fooTypeLike =
@@ -352,9 +358,15 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
       assert(
-        pkg.getType(fooTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg.orderedModules.head
+          .findModuleType(fooTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
       assert(
-        pkg.getType(barTypeLike.typeName, None).toOption.exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg.orderedModules.head
+          .findModuleType(barTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
 
       assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
@@ -560,11 +572,18 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("Unmanaged to Managed Dependency") {
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-          "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(None, Seq(root.join("pkg2")), Seq(pkg1))
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+          |}""".stripMargin,
+        "pkg1/Foo.cls" -> "global virtual class Foo {}",
+        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
+      val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
       assert(!org.issues.hasMessages)
 
       val fooTypeLike =
@@ -581,17 +600,23 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ParsedCache.clear()
 
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-          "pkg2/Bar.cls" -> "public class Bar extends test.Foo {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root.join("pkg1")), Seq())
-      org.newMDAPIPackageInternal(None, Seq(root.join("pkg2")), Seq(pkg1))
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+          |}""".stripMargin,
+        "pkg1/Foo.cls" -> "global virtual class Foo {}",
+        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+      ServerOps.setAutoFlush(false)
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
       org.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.newMDAPIPackageInternal(Some(Name("test")), Seq(root.join("pkg1")), Seq())
-      val pkg22 = org2.newMDAPIPackageInternal(None, Seq(root.join("pkg2")), Seq(pkg21))
+      val org2 = createOrg(root)
+      val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
+      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
       assert(!org2.issues.hasMessages)
 
       val fooTypeLike =
@@ -600,28 +625,36 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(
-        pkg21
-          .getType(fooTypeLike.typeName, None)
-          .toOption
-          .exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg21.orderedModules.head
+          .findModuleType(fooTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
       assert(
-        pkg22
-          .getType(barTypeLike.typeName, None)
-          .toOption
-          .exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg22.orderedModules.head
+          .findModuleType(barTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+      ServerOps.setAutoFlush(true)
     }
   }
 
   test("Managed to Managed Dependency") {
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-          "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
-      val pkg2 = org.newMDAPIPackageInternal(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+          |}""".stripMargin,
+        "pkg1/Foo.cls" -> "global virtual class Foo {}",
+        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
+      val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
       assert(!org.issues.hasMessages)
 
       val fooTypeLike =
@@ -638,18 +671,23 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
     ParsedCache.clear()
 
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "global virtual class Foo {}",
-          "pkg2/Bar.cls" -> "public class Bar extends test1.Foo {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg1 = org.newMDAPIPackageInternal(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
-      org.newMDAPIPackageInternal(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg1))
+      Map(
+        "sfdx-project.json" ->
+          """{
+          |"namespace": "pkg2",
+          |"packageDirectories": [{"path": "pkg2"}],
+          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+          |}""".stripMargin,
+        "pkg1/Foo.cls" -> "global virtual class Foo {}",
+        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+      ServerOps.setAutoFlush(false)
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
       org.flush()
 
-      val org2 = Org.newOrg().asInstanceOf[OrgImpl]
-      val pkg21 = org2.newMDAPIPackageInternal(Some(Name("test1")), Seq(root.join("pkg1")), Seq())
-      val pkg22 =
-        org2.newMDAPIPackageInternal(Some(Name("test2")), Seq(root.join("pkg2")), Seq(pkg21))
+      val org2 = createOrg(root)
+      val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
+      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
       assert(!org2.issues.hasMessages)
 
       val fooTypeLike =
@@ -658,26 +696,27 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
         pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
       assert(
-        pkg21
-          .getType(fooTypeLike.typeName, None)
-          .toOption
-          .exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg21.orderedModules.head
+          .findModuleType(fooTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
       assert(
-        pkg22
-          .getType(barTypeLike.typeName, None)
-          .toOption
-          .exists(_.isInstanceOf[SummaryDeclaration]))
+        pkg22.orderedModules.head
+          .findModuleType(barTypeLike.typeName)
+          .get
+          .isInstanceOf[SummaryDeclaration])
 
       assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
       assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+      ServerOps.setAutoFlush(true)
     }
   }
 
   test("Trigger with no block") {
     FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val fooTypeLike =
@@ -692,8 +731,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       Map("classes/Bar.cls" -> "public class Bar {}",
           "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val barTypeLike =
@@ -713,8 +752,8 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
       Map("classes/Bar.cls" -> "public class Bar {}",
           "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        val pkg = org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val barTypeLike =
@@ -731,8 +770,7 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
 
   test("location of type") {
     FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(None, Seq(root), Seq())
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
       assert(
@@ -742,38 +780,47 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of type (packaged)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = Org.newOrg().asInstanceOf[OrgImpl]
-      org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" ->
+        """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "test"}]
+          |}""".stripMargin,
+      "test/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
       assert(org.getIdentifierLocation("Dummy") == null)
       assert(
         org.getIdentifierLocation("test.Dummy") ==
-          PathLocation("/classes/Dummy.cls", Location(1, 13, 1, 18)))
+          PathLocation("/test/Dummy.cls", Location(1, 13, 1, 18)))
     }
   }
 
   test("location of type (packaged & nested)") {
-    FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" ->
+        """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "test"}]
+          |}""".stripMargin,
+      "test/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
 
         assert(org.getIdentifierLocation("Dummy") == null)
         assert(org.getIdentifierLocation("Dummy.Inner") == null)
         assert(
           org.getIdentifierLocation("test.Dummy.Inner") ==
-            PathLocation("/classes/Dummy.cls", Location(1, 26, 1, 31)))
+            PathLocation("/test/Dummy.cls", Location(1, 26, 1, 31)))
     }
   }
 
   test("location of trigger") {
     FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(None, Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
 
         assert(org.getIdentifierLocation("Foo") == null)
@@ -784,18 +831,22 @@ class PackageAPITest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("location of trigger (packaged)") {
-    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" ->
+        """{
+          |"namespace": "test",
+          |"packageDirectories": [{"path": "test"}]
+          |}""".stripMargin,
+      "test/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
-        val org = Org.newOrg().asInstanceOf[OrgImpl]
-        org.newMDAPIPackageInternal(Some(Name("test")), Seq(root), Seq())
+        val org = createOrg(root)
         assert(!org.issues.hasMessages)
 
         assert(org.getIdentifierLocation("Foo") == null)
         assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
         assert(
           org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
-            PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
+            PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
-   */
 }

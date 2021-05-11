@@ -223,7 +223,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
     // Otherwise try unmanaged
     if (loc.isEmpty) {
-      loc = unmanaged.orderedModules.head.getTypeLocation(typeName)
+      loc = unmanaged.orderedModules.headOption.flatMap(_.getTypeLocation(typeName))
     }
 
     loc.orNull

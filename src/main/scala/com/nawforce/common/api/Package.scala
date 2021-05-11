@@ -34,7 +34,7 @@ import com.nawforce.runtime.SourceBlob
   *
   * Packages must be created in the context of a specific [[Org]]. Each Package manages a set of Types which are
   * created from the metadata of the package. Once constructed you can use the package APIs to introspect dependency
-  * relationships between Types, obtain summary and view information about Types and replace or delete Types.
+  * relationships between Types, obtain summary information about Types and replace or delete Types.
   *
   * A key concept to understand in this API is that a Type may be created from multiple metadata files, e.g. the
   * System.Labels Type is always present but can be constructed from several labels files. The API methods expose
@@ -46,10 +46,8 @@ import com.nawforce.runtime.SourceBlob
   * a dependency holder that is A. Transitives of dependencies or dependency holder relationships are not exposed by
   * these APIs but can be easily obtained by recursive iteration.
   *
-  * Summary and View information provide two different levels of looking at the structure of Types. In summary
-  * form only the most important details are provided but it is essentially free to access since it is the same
-  * format used in the disk cache. View information requires both more CPU and memory to use but can provide fuller
-  * details on the implementations of Apex classes.
+  * A Summary provides a way of looking at the structure of Types. In summary form only the most important details
+  * are provided but it is essentially free to access since it is the same format used in the disk cache.
   *
   * Packages only handle metadata that is important to Apex class analysis, other forms of metadata that might
   * appear in the package directory are ignored.
@@ -120,19 +118,4 @@ trait Package {
     * this metadata to a type will be removed.
     */
   def refresh(path: String, contents: SourceBlob): Unit
-
-  /** Obtain view information for a Type.
-    *
-    * The view information contains a detailed description of the Type that can either be inspected. In some cases it
-    * may not be possible to construct a Type at all, in which case the view information may only contain diagnostic
-    * information.
-    *
-    * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
-    * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes.
-    *
-    * If the path does not identify supported metadata or that path is not valid for this package no Type will be
-    * returned and the view diagnostics will indicate the error.
-    */
-  def getViewOfType(path: String, contents: SourceBlob): ViewInfo
 }

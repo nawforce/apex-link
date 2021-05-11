@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.org
 
-import com.nawforce.common.api.{Package, ServerOps, TypeSummary, ViewInfo}
+import com.nawforce.common.api.{Package, ServerOps, TypeSummary}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.names.{TypeIdentifier, TypeName}
@@ -251,39 +251,6 @@ trait PackageAPI extends Package {
     })
   }*/
 
-  override def getViewOfType(path: String, contents: SourceBlob): ViewInfo = {
-    getViewOfType(PathFactory(path), Option(contents))
-  }
-
-  private[nawforce] def getViewOfType(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
-    try {
-      OrgImpl.current.withValue(org) {
-        getViewOfTypeInternal(path, contents)
-      }
-    } catch {
-      case ex: IllegalArgumentException =>
-        ViewInfoImpl(IN_ERROR, path, None, Array(), ex.getMessage)
-    }
-  }
-
-  private def getViewOfTypeInternal(path: PathLike, contents: Option[SourceBlob]): ViewInfo = {
-
-    // TODO
-    throw new IllegalArgumentException("TODO")
-
-    /*
-    checkPathInPackageOrThrow(path)
-    val dt = getUpdateableDocumentTypeOrThrow(path)
-    val source = getPathSourceOrThrow(path, contents)
-
-    val td = getFullDeclaration(dt)
-    if (td.exists(_.sourceHash == source.hash))
-      return ViewInfoImpl(EXISTING_TYPE, path, td, org.issues.getDiagnostics(path.toString).toArray)
-
-    createTypeInIsolation(dt, source)
-   */
-  }
-
   // Run validation over the TypeDeclaration without mutating package types or dependencies
   /*
   private def validateInIsolation(td: ApexFullDeclaration): Unit = {
@@ -370,7 +337,7 @@ trait PackageAPI extends Package {
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {
-    Some(config.isVisibleFile(path))
+    Some(orderedModules.headOption.map(_.index.isVisibleFile(path))
       .filterNot(v => v)
       .foreach { _ =>
         throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")
