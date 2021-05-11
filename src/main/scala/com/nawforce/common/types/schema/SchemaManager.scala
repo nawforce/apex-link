@@ -55,7 +55,7 @@ class SchemaManager(pkg: PackageImpl) extends PlatformTypes.PlatformTypeObserver
 
   override def loaded(td: PlatformTypeDeclaration): Unit = {
     if (td.isSObject) {
-      sobjectTypes.createSObjectTypeDeclarations(td.name)
+      pkg.createSObjectTypeDeclarations(td.name)
     }
   }
 }
@@ -83,20 +83,29 @@ class RelatedLists(pkg: PackageImpl) {
 
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
-    sobjects.foreach(sobject => {
-      val td = TypeResolver(sobject, pkg, excludeSObjects = false).toOption
-      if ((td.isEmpty || !td.exists(_.isSObject)) && !pkg.isGhostedType(sobject)) {
-        relationshipFields(sobject).foreach(field => {
-          OrgImpl.logError(field._3,
-                           s"Lookup object $sobject does not exist for field '${field._2}'")
-        })
-      } else if (td.exists(
-                   sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
-        changedObjects.add(td.get)
+    sobjects.foreach(sobjectTypeName => {
+      val encodedName = EncodedName(sobjectTypeName.name)
+      val targetPackage = pkg.transitiveBasePackages.find(_.namespace == encodedName.namespace)
+      if(targetPackage.nonEmpty && targetPackage.get.isGhosted) {
+        val targetGhostPackage = targetPackage.get
+        targetGhostPackage.upsertMetadata(GhostSObjectDeclaration(targetGhostPackage, sobjectTypeName))
+        targetGhostPackage.createSObjectTypeDeclarations(sobjectTypeName.name)
       }
-      if (td.nonEmpty && sobject != td.get.typeName) {
-        relationshipFields.put(td.get.typeName, relationshipFields(sobject))
-        relationshipFields.remove(sobject)
+      else {
+        val td = TypeResolver(sobjectTypeName, pkg, excludeSObjects = false).toOption
+        if (td.isEmpty || !td.exists(_.isSObject)) {
+          relationshipFields(sobjectTypeName).foreach(field => {
+            OrgImpl.logError(field._3,
+              s"Lookup object $sobjectTypeName does not exist for field '${field._2}'")
+          })
+        } else if (td.exists(
+          sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
+          changedObjects.add(td.get)
+        }
+        if (td.nonEmpty && sobjectTypeName != td.get.typeName) {
+          relationshipFields.put(td.get.typeName, relationshipFields(sobjectTypeName))
+          relationshipFields.remove(sobjectTypeName)
+        }
       }
     })
 
@@ -135,7 +144,6 @@ class RelatedLists(pkg: PackageImpl) {
 final case class SchemaSObjectType(pkg: PackageImpl)
     extends BasicTypeDeclaration(PathLike.emptyPaths, pkg, TypeNames.SObjectType) {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
-  private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
   /* Allow adding of virtual SObjects such as for shares etc */
   def add(sObject: SObjectDeclaration): Unit = {
@@ -178,7 +186,7 @@ final case class SchemaSObjectType(pkg: PackageImpl)
    */
   private def createSObjectDescribeField(sobjectName: Name,
                                          typeName: TypeName): FieldDeclaration = {
-    createSObjectTypeDeclarations(sobjectName)
+    pkg.createSObjectTypeDeclarations(sobjectName)
 
     val describeField = CustomFieldDeclaration(sobjectName,
                                                TypeNames.describeSObjectResultOf(typeName),
@@ -188,20 +196,6 @@ final case class SchemaSObjectType(pkg: PackageImpl)
     describeField
   }
 
-  /* Inject virtual type declarations for an sobject to override the platform generic versions. This is done
-   * dynamically so we don't need to create for every SObject */
-  def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
-    if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
-      sobjectTypeDeclarationsCreated.add(sobjectName)
-      val fields = SObjectFields(sobjectName, pkg)
-      val typeFields = SObjectTypeFields(sobjectName, pkg)
-      pkg.upsertMetadata(typeFields)
-      pkg.upsertMetadata(fields)
-      pkg.upsertMetadata(SObjectTypeImpl(sobjectName, fields, pkg))
-      pkg.upsertMetadata(SObjectTypeFieldSets(sobjectName, pkg))
-      pkg.upsertMetadata(SObjectFieldRowCause(sobjectName, pkg))
-    }
-  }
 }
 
 // TODO: Provide paths

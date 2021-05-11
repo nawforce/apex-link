@@ -41,7 +41,7 @@ import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
 import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
-import com.nawforce.common.types.schema.SchemaManager
+import com.nawforce.common.types.schema.{SObjectFieldRowCause, SObjectFields, SObjectTypeFieldSets, SObjectTypeFields, SObjectTypeImpl, SchemaManager}
 
 import scala.collection.mutable
 
@@ -63,6 +63,7 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
 
   private val schemaManager = new SchemaManager(this)
   private val anyDeclaration = AnyDeclaration(this)
+  private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
   initTypes()
   deployFromWorkspace()
@@ -289,5 +290,20 @@ class PackageImpl(val org: OrgImpl, val config: WorkspaceConfig, bases: Seq[Pack
 
   private def getDependentPackageType(typeName: TypeName): Option[TypeDeclaration] = {
     basePackages.view.flatMap(pkg => pkg.getPackageType(typeName, inPackage = false)).headOption
+  }
+
+  /* Inject virtual type declarations for an sobject to override the platform generic versions. This is done
+   * dynamically so we don't need to create for every SObject */
+  def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
+    if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
+      sobjectTypeDeclarationsCreated.add(sobjectName)
+      val fields = SObjectFields(sobjectName, this)
+      val typeFields = SObjectTypeFields(sobjectName, this)
+      upsertMetadata(typeFields)
+      upsertMetadata(fields)
+      upsertMetadata(SObjectTypeImpl(sobjectName, fields, this))
+      upsertMetadata(SObjectTypeFieldSets(sobjectName, this))
+      upsertMetadata(SObjectFieldRowCause(sobjectName, this))
+    }
   }
 }

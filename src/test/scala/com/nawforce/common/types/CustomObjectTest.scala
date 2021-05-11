@@ -670,4 +670,24 @@ class CustomObjectTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+
+  test("Ghosted custom object field visible") {
+    FileSystemHelper.run(
+      Map("Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", "Lookup", Some("ghosted__Bar__c")))),
+        "Dummy.cls" ->
+        """
+          |public class Dummy {
+          |{
+          | ghosted__Bar__c record;
+          | String hello = record.field__c;
+          |}
+          |}""".stripMargin)) {
+      root: PathLike =>
+        val org = Org.newOrg().asInstanceOf[OrgImpl]
+        val ghosted = org.newMDAPIPackageInternal(Some(Name("ghosted")), Seq(), Seq())
+        org.newMDAPIPackageInternal(None, Seq(root), Seq(ghosted))
+        assert(!org.issues.hasMessages)
+    }
+  }
+
 }

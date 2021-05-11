@@ -179,7 +179,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
 object SObjectDeclaration {
   val globalModifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
 
-  private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
+  lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length), m)).toMap
 
   def create(pkg: PackageImpl, path: PathLike): Seq[TypeDeclaration] = {
