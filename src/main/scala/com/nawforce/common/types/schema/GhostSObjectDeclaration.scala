@@ -7,11 +7,10 @@ import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.PackageImpl
 import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 
 final case class GhostSObjectDeclaration( pkg: PackageImpl,
                                     _typeName: TypeName)
-  extends BasicTypeDeclaration(Array(), pkg, _typeName) {
+  extends BasicTypeDeclaration(Array(), pkg, _typeName) with SObjectMethods {
 
   override val isComplete: Boolean = false
 
@@ -25,8 +24,13 @@ final case class GhostSObjectDeclaration( pkg: PackageImpl,
     pkg.getTypeFor(superClass.get, this)
   }
 
+  override val fields: Array[FieldDeclaration] = {
+    PlatformTypes.customSObject.fields.map(f => (f.name, f)).toMap.values.toArray
+  }
+
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    None
+    super
+      .findFieldSObject(name, staticContext)
   }
 
   override def findMethod(name: Name,
@@ -39,39 +43,5 @@ final case class GhostSObjectDeclaration( pkg: PackageImpl,
         return customMethod.toArray
     }
     defaultFindMethod(name, params, staticContext, verifyContext)
-  }
-
-  def defaultFindMethod(name: Name,
-                        params: Array[TypeName],
-                        staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Array[MethodDeclaration] = {
-    val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
-    if (clone.nonEmpty)
-      clone.toArray
-    else
-      PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
-    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
-    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeNames.Boolean)
-    val preserveReadOnlyTimestamps =
-      CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
-    val preserveAutonumber =
-      CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(None, Name("clone"), typeName, Array()),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId)),
-      CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone)),
-      CustomMethodDeclaration(None,
-        Name("clone"),
-        typeName,
-        Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-      CustomMethodDeclaration(
-        None,
-        Name("clone"),
-        typeName,
-        Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
-      .map(m => ((m.name, m.parameters.length, m.isStatic), m))
-      .toMap
   }
 }

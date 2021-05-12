@@ -84,15 +84,12 @@ class RelatedLists(pkg: PackageImpl) {
     // Validate lookups will function
     val sobjects = relationshipFields.keys.toSet
     sobjects.foreach(sobjectTypeName => {
-      val encodedName = EncodedName(sobjectTypeName.name)
-      val targetPackage = pkg.transitiveBasePackages.find(_.namespace == encodedName.namespace)
-      if(targetPackage.nonEmpty && targetPackage.get.isGhosted) {
-        val targetGhostPackage = targetPackage.get
-        targetGhostPackage.upsertMetadata(GhostSObjectDeclaration(targetGhostPackage, sobjectTypeName))
-        targetGhostPackage.createSObjectTypeDeclarations(sobjectTypeName.name)
+      val td = TypeResolver(sobjectTypeName, pkg, excludeSObjects = false).toOption
+      if(td.isEmpty && pkg.isGhostedType(sobjectTypeName)) {
+        pkg.upsertMetadata(GhostSObjectDeclaration(pkg, sobjectTypeName))
+        pkg.createSObjectTypeDeclarations(sobjectTypeName.name)
       }
       else {
-        val td = TypeResolver(sobjectTypeName, pkg, excludeSObjects = false).toOption
         if (td.isEmpty || !td.exists(_.isSObject)) {
           relationshipFields(sobjectTypeName).foreach(field => {
             OrgImpl.logError(field._3,
