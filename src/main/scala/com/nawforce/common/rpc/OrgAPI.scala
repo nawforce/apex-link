@@ -108,7 +108,7 @@ trait OrgAPI {
   def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult]
 
   @api.JSONRPCMethod(name = "refresh")
-  def refresh(path: String, contents: Option[String]): Future[Unit]
+  def refresh(path: String): Future[Unit]
 
   @api.JSONRPCMethod(name = "getTypeIdentifiers")
   def typeIdentifiers(): Future[GetTypeIdentifiersResult]

@@ -86,8 +86,10 @@ object ServerOps {
   }
 
   /** Update auto flushing flag */
-  def setAutoFlush(enable: Boolean): Unit = {
+  def setAutoFlush(enable: Boolean): Boolean = {
+    val current = autoFlush
     autoFlush = enable
+    current
   }
 
 }

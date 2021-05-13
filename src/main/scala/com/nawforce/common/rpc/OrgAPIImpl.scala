@@ -73,8 +73,8 @@ class OrgQueue(quiet: Boolean, path: String) { self =>
     queue.add(request)
   }
 
-  def refresh(path: String, contents: Option[String]): Unit = {
-    packages.headOption.foreach(pkg => pkg.refresh(path, contents.map(c => SourceBlob(c)).orNull))
+  def refresh(path: String): Unit = {
+    packages.headOption.foreach(pkg => pkg.refresh(path))
   }
 }
 
@@ -289,8 +289,8 @@ class OrgAPIImpl extends OrgAPI {
     GetIssues(OrgQueue.instance(), includeWarnings, includeZombies)
   }
 
-  override def refresh(path: String, contents: Option[String]): Future[Unit] = {
-    Future(OrgQueue.instance().refresh(path, contents))
+  override def refresh(path: String): Future[Unit] = {
+    Future(OrgQueue.instance().refresh(path))
   }
 
   override def typeIdentifiers(): Future[GetTypeIdentifiersResult] = {

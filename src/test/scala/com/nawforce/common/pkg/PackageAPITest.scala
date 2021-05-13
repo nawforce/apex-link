@@ -27,7 +27,6 @@
  */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.api.ServerOps
 import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.names.Name
@@ -211,42 +210,41 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
   test("summary of type with namespace (cached)") {
     ParsedCache.clear()
-    ServerOps.setAutoFlush(false)
+    withManualFlush {
 
-    FileSystemHelper.run(
-      Map(
-        "sfdx-project.json" ->
-          """{
+      FileSystemHelper.run(
+        Map("sfdx-project.json" ->
+              """{
           |"namespace": "test",
           |"packageDirectories": [{"path": "pkg"}]
           |}""".stripMargin,
-        "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      org.flush()
+            "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        org.flush()
 
-      val org2 = createOrg(root)
-      val pkg2 = org2.packagesByNamespace(Some(Name("test")))
-      assert(!org2.issues.hasMessages)
+        val org2 = createOrg(root)
+        val pkg2 = org2.packagesByNamespace(Some(Name("test")))
+        assert(!org2.issues.hasMessages)
 
-      val typeLike =
-        pkg2
-          .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
-          .get
-          .asTypeIdentifier
-      val summary = pkg2.getSummaryOfType(typeLike)
+        val typeLike =
+          pkg2
+            .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+            .get
+            .asTypeIdentifier
+        val summary = pkg2.getSummaryOfType(typeLike)
 
-      assert(
-        pkg2.orderedModules.head
-          .findModuleType(typeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
-      assert(summary.name == "Dummy")
-      assert(summary.typeName.toString == "test.Dummy")
-      assert(summary.idRange.contains(Location(1, 21, 1, 26)))
-      assert(summary.modifiers sameElements Array("@IsTest", "public"))
+        assert(
+          pkg2.orderedModules.head
+            .findModuleType(typeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
+        assert(summary.name == "Dummy")
+        assert(summary.typeName.toString == "test.Dummy")
+        assert(summary.idRange.contains(Location(1, 21, 1, 26)))
+        assert(summary.modifiers sameElements Array("@IsTest", "public"))
 
-      ServerOps.setAutoFlush(true)
+      }
     }
   }
 
@@ -313,78 +311,79 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
   def fooHoldsBarCached(files: Map[String, String], outerInheritanceOnly: Boolean = false): Unit = {
     ParsedCache.clear()
-    FileSystemHelper.run(files) { root: PathLike => // Basic non-cached test
-    {
-      ServerOps.setAutoFlush(false)
-      val org = createOrg(root)
-      val pkg = org.unmanaged
-      assert(!org.issues.hasMessages)
+    withManualFlush {
+      FileSystemHelper.run(files) { root: PathLike => // Basic non-cached test
+      {
 
-      val fooTypeLike =
-        pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
-      val barTypeLike =
-        pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
 
-      assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+        val fooTypeLike =
+          pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike =
+          pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
-      if (outerInheritanceOnly) {
+        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+
+        if (outerInheritanceOnly) {
+          assert(
+            pkg
+              .getDependencies(barTypeLike, outerInheritanceOnly = true)
+              .sameElements(Array(fooTypeLike)))
+        } else {
+          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+        }
         assert(
           pkg
-            .getDependencies(barTypeLike, outerInheritanceOnly = true)
+            .getDependencies(barTypeLike, outerInheritanceOnly = false)
             .sameElements(Array(fooTypeLike)))
-      } else {
-        assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+
+        org.flush()
       }
-      assert(
-        pkg
-          .getDependencies(barTypeLike, outerInheritanceOnly = false)
-          .sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
 
-      org.flush()
-      ServerOps.setAutoFlush(true)
-    }
+      // Extended cache test
+      {
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
 
-    // Extended cache test
-    {
-      val org = createOrg(root)
-      val pkg = org.unmanaged
-      assert(!org.issues.hasMessages)
+        val fooTypeLike =
+          pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike =
+          pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
-      val fooTypeLike =
-        pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
-      val barTypeLike =
-        pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+        assert(
+          pkg.orderedModules.head
+            .findModuleType(fooTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
+        assert(
+          pkg.orderedModules.head
+            .findModuleType(barTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
 
-      assert(
-        pkg.orderedModules.head
-          .findModuleType(fooTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
-      assert(
-        pkg.orderedModules.head
-          .findModuleType(barTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
+        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
 
-      assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
-
-      if (outerInheritanceOnly) {
+        if (outerInheritanceOnly) {
+          assert(
+            pkg
+              .getDependencies(barTypeLike, outerInheritanceOnly = true)
+              .sameElements(Array(fooTypeLike)))
+        } else {
+          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+        }
         assert(
           pkg
-            .getDependencies(barTypeLike, outerInheritanceOnly = true)
+            .getDependencies(barTypeLike, outerInheritanceOnly = false)
             .sameElements(Array(fooTypeLike)))
-      } else {
-        assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
       }
-      assert(
-        pkg
-          .getDependencies(barTypeLike, outerInheritanceOnly = false)
-          .sameElements(Array(fooTypeLike)))
-      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
-    }
+      }
     }
   }
 
@@ -598,46 +597,45 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
   test("Unmanaged to Managed Dependency (cached)") {
     ParsedCache.clear()
+    withManualFlush {
 
-    FileSystemHelper.run(
-      Map(
-        "sfdx-project.json" ->
-          """{
-          |"namespace": "pkg2",
-          |"packageDirectories": [{"path": "pkg2"}],
-          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
-          |}""".stripMargin,
-        "pkg1/Foo.cls" -> "global virtual class Foo {}",
-        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
-      ServerOps.setAutoFlush(false)
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      org.flush()
+      FileSystemHelper.run(
+        Map("sfdx-project.json" ->
+              """{
+              |"namespace": "pkg2",
+              |"packageDirectories": [{"path": "pkg2"}],
+              |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+              |}""".stripMargin,
+            "pkg1/Foo.cls" -> "global virtual class Foo {}",
+            "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        org.flush()
 
-      val org2 = createOrg(root)
-      val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
-      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-      assert(!org2.issues.hasMessages)
+        val org2 = createOrg(root)
+        val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
+        val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
+        assert(!org2.issues.hasMessages)
 
-      val fooTypeLike =
-        pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
-      val barTypeLike =
-        pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeLike =
+          pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike =
+          pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
-      assert(
-        pkg21.orderedModules.head
-          .findModuleType(fooTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
-      assert(
-        pkg22.orderedModules.head
-          .findModuleType(barTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
+        assert(
+          pkg21.orderedModules.head
+            .findModuleType(fooTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
+        assert(
+          pkg22.orderedModules.head
+            .findModuleType(barTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
 
-      assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
-      ServerOps.setAutoFlush(true)
+        assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+      }
     }
   }
 
@@ -670,45 +668,44 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   test("Managed to Managed Dependency (cached)") {
     ParsedCache.clear()
 
-    FileSystemHelper.run(
-      Map(
-        "sfdx-project.json" ->
-          """{
-          |"namespace": "pkg2",
-          |"packageDirectories": [{"path": "pkg2"}],
-          |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
-          |}""".stripMargin,
-        "pkg1/Foo.cls" -> "global virtual class Foo {}",
-        "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
-      ServerOps.setAutoFlush(false)
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      org.flush()
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("sfdx-project.json" ->
+              """{
+              |"namespace": "pkg2",
+              |"packageDirectories": [{"path": "pkg2"}],
+              |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
+              |}""".stripMargin,
+            "pkg1/Foo.cls" -> "global virtual class Foo {}",
+            "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        org.flush()
 
-      val org2 = createOrg(root)
-      val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
-      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-      assert(!org2.issues.hasMessages)
+        val org2 = createOrg(root)
+        val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
+        val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
+        assert(!org2.issues.hasMessages)
 
-      val fooTypeLike =
-        pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
-      val barTypeLike =
-        pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeLike =
+          pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeLike =
+          pkg22.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
-      assert(
-        pkg21.orderedModules.head
-          .findModuleType(fooTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
-      assert(
-        pkg22.orderedModules.head
-          .findModuleType(barTypeLike.typeName)
-          .get
-          .isInstanceOf[SummaryDeclaration])
+        assert(
+          pkg21.orderedModules.head
+            .findModuleType(fooTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
+        assert(
+          pkg22.orderedModules.head
+            .findModuleType(barTypeLike.typeName)
+            .get
+            .isInstanceOf[SummaryDeclaration])
 
-      assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
-      ServerOps.setAutoFlush(true)
+        assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
+        assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+      }
     }
   }
 
@@ -780,13 +777,14 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("location of type (packaged)") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           |"namespace": "test",
           |"packageDirectories": [{"path": "test"}]
           |}""".stripMargin,
-      "test/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+        "test/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
@@ -798,22 +796,22 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("location of type (packaged & nested)") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           |"namespace": "test",
           |"packageDirectories": [{"path": "test"}]
           |}""".stripMargin,
-      "test/Dummy.cls" -> "public class Dummy {class Inner {}}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        "test/Dummy.cls" -> "public class Dummy {class Inner {}}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
 
-        assert(org.getIdentifierLocation("Dummy") == null)
-        assert(org.getIdentifierLocation("Dummy.Inner") == null)
-        assert(
-          org.getIdentifierLocation("test.Dummy.Inner") ==
-            PathLocation("/test/Dummy.cls", Location(1, 26, 1, 31)))
+      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org.getIdentifierLocation("Dummy.Inner") == null)
+      assert(
+        org.getIdentifierLocation("test.Dummy.Inner") ==
+          PathLocation("/test/Dummy.cls", Location(1, 26, 1, 31)))
     }
   }
 
@@ -831,22 +829,22 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("location of trigger (packaged)") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" ->
-        """{
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
           |"namespace": "test",
           |"packageDirectories": [{"path": "test"}]
           |}""".stripMargin,
-      "test/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        "test/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
 
-        assert(org.getIdentifierLocation("Foo") == null)
-        assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
-        assert(
-          org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
-            PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
+      assert(org.getIdentifierLocation("Foo") == null)
+      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
+      assert(
+        org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
+          PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
 }

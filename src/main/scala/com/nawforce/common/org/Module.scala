@@ -28,19 +28,25 @@
 
 package com.nawforce.common.org
 
+import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{IssueLog, PathLocation}
+import com.nawforce.common.diagnostics.{IssueLog, LocalLogger, PathLocation}
 import com.nawforce.common.documents._
-import com.nawforce.common.finding.TypeFinder
 import com.nawforce.common.finding.TypeResolver.TypeResponse
+import com.nawforce.common.finding.{TypeFinder, TypeResolver}
 import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
-import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration}
-import com.nawforce.common.types.core.{TypeDeclaration, TypeId}
+import com.nawforce.common.path.PathLike
+import com.nawforce.common.stream.{ComponentGenerator, FlowGenerator, Generator, LabelGenerator, PackageStream, PageGenerator}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
+import com.nawforce.runtime.SourceBlob
+import com.nawforce.runtime.parsers.SourceData
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module])
@@ -68,6 +74,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def any(): AnyDeclaration = anyDeclaration
   def schema(): SchemaManager = schemaManager
+
+  def isVisibleFile(path: PathLike): Boolean = {
+    index.isVisibleFile(path)
+  }
 
   /* Transitive Bases (dependent modules for this modules & its dependents) */
   def transitiveBaseModules: Set[Module] = {
@@ -231,5 +241,139 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       }
     }
     None
+  }
+
+  /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
+   * holders of that type. */
+  def refreshInternal(path: PathLike): (TypeId, Set[TypeId]) = {
+    checkPathInPackageOrThrow(path)
+    val dt = getUpdateableDocumentTypeOrThrow(path)
+    val sourceOpt = resolveSource(path)
+    val typeId = TypeId(this, dt.typeName(namespace))
+
+    // If we have source & it's not changed then ignore
+    if (sourceOpt.exists(
+          s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
+      return (typeId, Set.empty)
+
+    // Update internal document tracking
+    index.upsert(new LocalLogger(pkg.org.issues), dt)
+    if (sourceOpt.isEmpty)
+      index.remove(dt)
+
+    // Clear errors as might fail to create type
+    pkg.org.issues.pop(dt.path.toString)
+
+    // Create type & forward holders to limit need for invalidation chaining
+    val newType = createType(dt, sourceOpt)
+    val typeName = newType.map(_.typeName).getOrElse(dt.typeName(namespace))
+    val existingType = getDependentType(typeName)
+    val holders = existingType
+      .map(_.getTypeDependencyHolders)
+      .getOrElse(DependentType.emptyTypeDependencyHolders)
+    newType.foreach(_.updateTypeDependencyHolders(holders))
+
+    // Update and validate
+    replaceType(typeName, newType)
+    newType.foreach(_.validate())
+
+    (typeId, holders.toSet)
+  }
+
+  private def getDependentType(typeName: TypeName): Option[DependentType] = {
+    types
+      .get(typeName)
+      .flatMap {
+        case dt: DependentType => Some(dt)
+        case _                 => None
+      }
+  }
+
+  private[nawforce] def deployClasses(documents: Seq[ApexClassDocument]): Unit = {
+    OrgImpl.current.withValue(pkg.org) {
+      val updated = documents.flatMap(doc => {
+        val data = doc.path.readSourceData()
+        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
+          FullDeclaration.create(this, doc, data.getOrElse(throw new NoSuchElementException)).toSeq
+        }
+        d.foreach(upsertMetadata(_))
+        d
+      })
+
+      updated.foreach(td => td.validate())
+    }
+  }
+
+  private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
+    OrgImpl.current.withValue(pkg.org) {
+      typeNames.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
+    }
+  }
+
+  private def createType(dt: UpdatableMetadata,
+                         source: Option[SourceData]): Option[DependentType] = {
+    dt match {
+      case ad: ApexClassDocument =>
+        source.flatMap(s => FullDeclaration.create(this, ad, s))
+      case _: ApexTriggerDocument =>
+        source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
+      case _ =>
+        Some(createOtherType(dt, source))
+    }
+  }
+
+  private def createOtherType(dt: UpdatableMetadata, source: Option[SourceData]): DependentType = {
+    // TODO: This is tmp while we refactor index/stream usage
+    val documents = getDocuments(dt)
+    dt match {
+      case _: LabelsDocument =>
+        val events = LabelGenerator.iterator(documents)
+        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        LabelDeclaration(this).merge(stream)
+      case _: PageDocument =>
+        val events = PageGenerator.iterator(documents)
+        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        PageDeclaration(this).merge(stream)
+      case _: ComponentDocument =>
+        val events = ComponentGenerator.iterator(documents)
+        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        ComponentDeclaration(this).merge(stream)
+      case _: FlowDocument =>
+        val events = FlowGenerator.iterator(documents)
+        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        InterviewDeclaration(this).merge(stream)
+    }
+  }
+
+  private def getDocuments(document: MetadataDocument): Iterator[MetadataDocument] = {
+    (index.get(document.nature) ++ Iterator(document)).distinct.iterator
+  }
+
+  private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {
+    types
+      .get(dt.typeName(namespace))
+      .flatMap {
+        case fd: FullDeclaration    => Some(fd)
+        case td: TriggerDeclaration => Some(td)
+        case _                      => None
+      }
+  }
+
+  private def getUpdateableDocumentTypeOrThrow(path: PathLike): UpdatableMetadata = {
+    (MetadataDocument(path) collect {
+      case dt: UpdatableMetadata => dt
+    }).getOrElse(throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
+  }
+
+  private def checkPathInPackageOrThrow(path: PathLike): Unit = {
+    if (!index.isVisibleFile(path))
+      throw new IllegalArgumentException(s"Metadata is not part of this package for '$path'")
+  }
+
+  private def resolveSource(path: PathLike): Option[SourceData] = {
+    path.readSourceData() match {
+      case Left(_)     => None
+      case Right(data) => Some(data)
+    }
   }
 }

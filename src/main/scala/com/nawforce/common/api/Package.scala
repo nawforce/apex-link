@@ -107,15 +107,11 @@ trait Package {
   /** Refresh a type in the package.
     *
     * This registers that the metadata in a file may need updating. The refresh is queued until the Org metadata is
-    * next flushed so that changes are made in batches for efficiency.
+    * next flushed so that changes are made in batches for efficiency. Refreshing causes dependent metadata to be
+    * re-validated so issues may be reported against other metadata types after the flush has completed.
     *
-    * Refreshing causes dependent metadata to be re-validated so issues may be reported against other metadata types
-    * after the flush has completed.
-    *
-    * You can either pass in a path and contents or a path and null contents. If contents are not provided they will
-    * be read from the path if possible. Where contents are provided the path is only used for error identification
-    * purposes. If no contents are provided and there is no file to read the content from, the contribution of
-    * this metadata to a type will be removed.
+    * If there is no file at the given path then any previous contribution to the package metadata from this file
+    * will be removed so you call this after file deletion.
     */
-  def refresh(path: String, contents: SourceBlob): Unit
+  def refresh(path: String): Unit
 }

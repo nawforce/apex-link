@@ -32,11 +32,10 @@ import java.util.concurrent.locks.ReentrantLock
 import com.nawforce.common.documents.ParsedCache
 import com.nawforce.common.memory.{Cleanable, Monitor}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.SourceBlob
 
 import scala.collection.mutable
 
-case class RefreshRequest(pkg: PackageImpl, path: PathLike, source: Option[SourceBlob])
+case class RefreshRequest(pkg: PackageImpl, path: PathLike)
 
 class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
   protected val lock = new ReentrantLock(true)
