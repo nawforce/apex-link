@@ -57,7 +57,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     sharingReason: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     override val isComplete: Boolean)
-    extends BasicTypeDeclaration(_paths, pkg, _typeName) {
+    extends BasicTypeDeclaration(_paths, pkg, _typeName) with SObjectMethods {
 
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
 
@@ -111,40 +111,6 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
     defaultFindMethod(name, params, staticContext, verifyContext)
   }
 
-  def defaultFindMethod(name: Name,
-                        params: Array[TypeName],
-                        staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Array[MethodDeclaration] = {
-    val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
-    if (clone.nonEmpty)
-      clone.toArray
-    else
-      PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
-    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
-    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeNames.Boolean)
-    val preserveReadOnlyTimestamps =
-      CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
-    val preserveAutonumber =
-      CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(None, Name("clone"), typeName, Array()),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId)),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone)),
-        CustomMethodDeclaration(None,
-                                Name("clone"),
-                                typeName,
-                                Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-        CustomMethodDeclaration(
-          None,
-          Name("clone"),
-          typeName,
-          Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
-      .map(m => ((m.name, m.parameters.length, m.isStatic), m))
-      .toMap
-  }
-
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
     Seq(CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
         CustomMethodDeclaration(None,
@@ -179,7 +145,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
 object SObjectDeclaration {
   val globalModifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
 
-  private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
+  lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length), m)).toMap
 
   def create(pkg: PackageImpl, path: PathLike): Seq[TypeDeclaration] = {
