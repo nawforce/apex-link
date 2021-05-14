@@ -28,17 +28,17 @@
 
 package com.nawforce.common.stream
 
-import com.nawforce.common.diagnostics.IssueLogger
 import com.nawforce.common.documents._
-import com.nawforce.common.names.Name
-
-import scala.collection.immutable.Queue
 
 /** Package stream generator, assists queuing package stream events. */
 trait Generator {
 
   def iterator(nature: MetadataNature, index: DocumentIndex): Iterator[PackageEvent] = {
-    index.get(nature).flatMap(toEvents)
+    iterator(index.get(nature))
+  }
+
+  def iterator(documents: Iterator[MetadataDocument]): Iterator[PackageEvent] = {
+    documents.flatMap(toEvents)
   }
 
   protected def toEvents(document: MetadataDocument): Iterator[PackageEvent]

@@ -70,6 +70,11 @@ class DocumentIndex(val namespace: Option[Name],
       collection.add(logger, document)
   }
 
+  /** Remove a document, does not error if the document is not in the index. */
+  def remove(document: MetadataDocument): Unit = {
+    collection.remove(document)
+  }
+
   /** Upsert a document. Document defining new or existing types return true, if the document would create a duplicate
     * type it is not added to the store and false is returned.
     */
@@ -79,7 +84,7 @@ class DocumentIndex(val namespace: Option[Name],
   }
 
   /** Check a file path would be included in index. */
-  private def isVisibleFile(path: PathLike): Boolean = {
+  def isVisibleFile(path: PathLike): Boolean = {
     ignore.forall(_.includeFile(path)) && isVisiblePath(path.parent)
   }
 

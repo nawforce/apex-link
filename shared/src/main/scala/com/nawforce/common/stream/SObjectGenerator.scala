@@ -46,11 +46,11 @@ case class SharingReasonEvent(name: Name) extends PackageEvent
   * present to collect the SFDX fields, fieldSets and sharingRules. */
 object SObjectGenerator extends Generator {
 
-  override def iterator(nature: MetadataNature, index: DocumentIndex): Iterator[PackageEvent] = {
+  override def iterator(documents: Iterator[MetadataDocument]): Iterator[PackageEvent] = {
 
     // SObjects need ordering so lookup target is output before the object using lookup
     val eventsByName =
-      index.get(nature).map(document => (document.name, toEvents(document).toArray)).to(mutable.Map)
+      documents.map(document => (document.name, toEvents(document).toArray)).to(mutable.Map)
     val emitted = new mutable.HashSet[Name]()
     val output = new mutable.ArrayBuffer[Array[PackageEvent]]()
 
