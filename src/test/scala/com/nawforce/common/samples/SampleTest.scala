@@ -27,37 +27,24 @@
  */
 package com.nawforce.common.samples
 
-import org.scalatest.BeforeAndAfter
+import com.nawforce.common.TestHelper
+import com.nawforce.common.api.IssueOptions
+import com.nawforce.common.path.PathFactory
 import org.scalatest.funsuite.AnyFunSuite
 
-class SampleTest extends AnyFunSuite with BeforeAndAfter {
+class SampleTest extends AnyFunSuite with TestHelper {
 
-  /* TODO
-  private val npExternalNamespaces = Set("npe01", "npo02", "npe03", "npe4", "npe5")
-
-  private def sample(path: String,
-                     namespace: String = "",
-                     externalNamespaces: Set[String] = Set()): Unit = {
-    val org = Org.newOrg().asInstanceOf[OrgImpl]
-    val externalPackages =
-      externalNamespaces.map(ens => org.newMDAPIPackage(ens, Array(), Array())).toArray
-    org.newMDAPIPackage(namespace, Array[String](path), externalPackages)
-    val options = new IssueOptions
-    options.includeWarnings = false
-    val issues = org.getIssues(options)
-    if (issues.nonEmpty) {
-      println(issues)
-      assert(false)
+  private def sample(path: String): Unit = {
+    withManualFlush {
+      val org = createOrg(PathFactory(path))
+      val options = new IssueOptions
+      options.includeWarnings = false
+      val issues = org.getIssues(options)
+      if (issues.nonEmpty) {
+        println(issues)
+        assert(false)
+      }
     }
-
-  }
-
-  before {
-    ServerOps.setAutoFlush(false)
-  }
-
-  after {
-    ServerOps.setAutoFlush(true)
   }
 
   test("forcedotcom-enterprise-architecture") {
@@ -69,7 +56,7 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Cumulus") {
-    sample("samples/SalesforceFoundation/Cumulus/src", namespace = "", npExternalNamespaces)
+    sample("samples/SalesforceFoundation/Cumulus")
   }
 
   test("HEDAP") {
@@ -104,51 +91,4 @@ class SampleTest extends AnyFunSuite with BeforeAndAfter {
   test("Affiliations") {
     sample("samples/SalesforceFoundation/Affiliations/src")
   }
-
-  test("forcedotcom-enterprise-architecture packaged") {
-    sample("samples/forcedotcom-enterprise-architecture/src", "namespace")
-  }
-
-  test("chatter=game packaged") {
-    sample("samples/forcedotcomlabs/chatter-game/src", "namespace")
-  }
-
-  test("Cumulus packaged") {
-    sample("samples/SalesforceFoundation/Cumulus/src", "namespace", npExternalNamespaces)
-  }
-
-  test("HEDAP packaged") {
-    sample("samples/SalesforceFoundation/HEDAP/src", "namespace")
-  }
-
-  test("CampaignTools packaged") {
-    sample("samples/SalesforceFoundation/CampaignTools/src", "namespace")
-  }
-
-  /* TODO: Re-enable after rollup fix
-  test("Volunteers-for-Salesforce packaged") {
-    sample("samples/SalesforceFoundation/Volunteers-for-Salesforce/src", "namespace")
-  } */
-
-  test("Relationships packaged") {
-    sample("samples/SalesforceFoundation/Relationships/src", "namespace")
-  }
-
-  test("Households packaged") {
-    sample("samples/SalesforceFoundation/Households/src", "namespace")
-  }
-
-  test("Recurring_Donations packaged") {
-    sample("samples/SalesforceFoundation/Recurring_Donations/src", "namespace")
-  }
-
-  test("Contacts_and_Organizations packaged") {
-    sample("samples/SalesforceFoundation/Contacts_and_Organizations/src", "namespace")
-  }
-
-  test("Affiliations packaged") {
-    sample("samples/SalesforceFoundation/Affiliations/src", "namespace")
-  }
-
-   */
 }
