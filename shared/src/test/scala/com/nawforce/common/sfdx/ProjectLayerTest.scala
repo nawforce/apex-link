@@ -52,7 +52,12 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         assert(logger.issues.isEmpty)
         assert(project.nonEmpty)
         assert(project.get.layers(logger).isEmpty)
-        assert(logger.issues.isEmpty)
+        assert(
+          logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              "$.packageDirectories must have at least one entry"))))
     }
   }
 

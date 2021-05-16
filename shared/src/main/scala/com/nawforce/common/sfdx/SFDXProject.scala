@@ -67,6 +67,14 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       case _: NoSuchElementException => Map()
     }
 
+  val templates: Option[Templates] =
+    plugins.get("templates").map {
+      case ujson.Obj(value) =>
+        Templates(projectPath, s"$$.plugins.templates", value)
+      case _ =>
+        throw new SFDXProjectError("$.plugins.templates", "'templates' should be an object")
+    }
+
   val dependencies: Seq[PackageDependent] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
       case ujson.Arr(value) =>
@@ -77,25 +85,57 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
     }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
-    if (packageDirectories.nonEmpty) {
-      // Fold package directory entries into layers, validating as we go
-      val localPackages = NamespaceLayer(
-        namespace,
-        packageDirectories
-          .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
-            foldPackageDirectory(logger))
-          ._2
-          .reverse)
-
-      // Fold in external 1GP dependencies if needed
-      if (dependencies.nonEmpty) {
-        dependencies.flatMap(dependent => packageDependentLayers(logger, dependent)) :+ localPackages
-      } else {
-        Seq(localPackages)
-      }
-    } else {
-      Seq()
+    if (packageDirectories.isEmpty) {
+      logger.log(
+        Issue(projectFile.toString,
+              Diagnostic(ERROR_CATEGORY,
+                         Location.empty,
+                         s"$$.packageDirectories must have at least one entry")))
+      return Seq.empty
     }
+
+    val localPackage = NamespaceLayer(
+      namespace,
+      packageDirectories
+        .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
+          foldPackageDirectory(logger))
+        ._2
+        .reverse)
+
+    if (!validatePackagePathsLocal(localPackage.layers, logger))
+      return Seq.empty
+
+    val externalPackages =
+      dependencies.flatMap(dependent => packageDependentLayers(logger, dependent))
+    val layers = externalPackages :+ localPackage
+
+    if (layers.map(_.namespace).toSet.size != layers.size) {
+      logger.log(
+        Issue(projectFile.toString,
+              Diagnostic(ERROR_CATEGORY,
+                         Location.empty,
+                         s"$$.plugins.dependencies must use unique namespaces")))
+      return Seq.empty
+    }
+
+    layers
+  }
+
+  private def validatePackagePathsLocal(modules: Seq[ModuleLayer], logger: IssueLogger): Boolean = {
+    val enclosingPath = projectPath.toString
+    val escaping = modules.flatMap(module => {
+      if (!module.path.toString.startsWith(enclosingPath)) Some(module.path) else None
+    })
+    escaping.foreach(
+      path =>
+        logger.log(
+          Issue(
+            projectFile.toString,
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"Package directory '$path' is not within the project directory '$projectPath'"))))
+    escaping.isEmpty
   }
 
   private def packageDependentLayers(logger: IssueLogger,
@@ -103,10 +143,11 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
     (dependent.namespace.nonEmpty, dependent.path.nonEmpty) match {
       case (false, false) =>
         logger.log(
-          Issue(projectFile.toString,
-                Diagnostic(ERROR_CATEGORY,
-                           Location.empty,
-                           s"${dependent.jsonPath} must include either a namespace, a path or both")))
+          Issue(
+            projectFile.toString,
+            Diagnostic(ERROR_CATEGORY,
+                       Location.empty,
+                       s"${dependent.jsonPath} must include either a namespace, a path or both")))
         Seq.empty
       case (true, false) =>
         Seq(NamespaceLayer(dependent.namespace, Nil))

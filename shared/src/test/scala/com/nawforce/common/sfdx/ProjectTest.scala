@@ -116,6 +116,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(logger.issues.isEmpty)
         assert(project.nonEmpty)
         assert(project.get.packageDirectories.isEmpty)
+        assert(project.get.templates.isEmpty)
     }
   }
 
@@ -279,6 +280,25 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
                                         "$.packageDirectories[0].path - 'path' should be a string"))))
     }
   }
+
+  test("Path outside project") {
+    FileSystemHelper.run(Map("pkg/sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"/path\"}]}")) {
+      root: PathLike =>
+        val project = SFDXProject(root.join("pkg"), logger)
+        assert(project.nonEmpty)
+        assert(logger.issues.isEmpty)
+
+        // Path are checked during layer construction
+        project.get.layers(logger)
+        assert(
+          logger.issues == List(Issue(root.join("pkg").join("sfdx-project.json").toString,
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              "Package directory '/path' is not within the project directory '/pkg'"))))
+    }
+  }
+
 
   test("No namespace") {
     FileSystemHelper.run(Map("sfdx-project.json" -> "{\"packageDirectories\": []}")) {
@@ -460,6 +480,24 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("Dependencies duplicate namespace") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" -> "{\"namespace\": \"foo\", \"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": [{\"path\": \"path\"}]}")) {
+      root: PathLike =>
+        val project = SFDXProject(root, logger)
+        assert(logger.issues.isEmpty)
+
+        // Duplicate namespace is checked during layer construction
+        project.get.layers(logger)
+        assert(
+          logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              "$.plugins.dependencies must use unique namespaces"))))
+    }
+  }
+
   test("Dependencies multiple entries") {
     FileSystemHelper.run(
       Map("sfdx-project.json" ->
@@ -480,6 +518,81 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.get.dependencies.head.path.contains(root.join("patha")))
       assert(project.get.dependencies(1).path.isEmpty)
       assert(project.get.dependencies(2).path.contains(root.join("pathc")))
+    }
+  }
+
+  test("Templates wrong type") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": []
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location.empty,
+            "$.plugins.templates - 'templates' should be an object"))))
+    }
+  }
+
+  test("Templates no path") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": {}
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location.empty,
+            "$.plugins.templates.path - 'path' is required"))))
+    }
+  }
+
+  test("Templates no target") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": {"path": "path"}
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location.empty,
+            "$.plugins.templates.target - 'target' is required"))))
+    }
+  }
+
+  test("Templates well formed") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": {"path": "path", "target": "target"}
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.get.templates.get.path == root.join("path"))
+      assert(project.get.templates.get.target == root.join("target"))
     }
   }
 }
