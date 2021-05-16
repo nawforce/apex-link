@@ -82,12 +82,12 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       packagesAndModules.foldLeft(Map[ModuleLayer, Module]())((acc, packageAndDependent) => {
         val pkg = packageAndDependent._1
         val dependents = packageAndDependent._2
-        acc ++ dependents.map(layer => {
+        dependents.foldLeft(acc)((acc, layer) => {
           val issuesAndIndex = workspace.indexes(layer)
           issuesAndIndex.issues.foreach(issues.add)
           val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
           pkg.add(module)
-          layer -> module
+          acc + (layer -> module)
         })
       })
       val packages = packagesAndModules.map(_._1)

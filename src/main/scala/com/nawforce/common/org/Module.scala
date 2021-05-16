@@ -38,7 +38,13 @@ import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.stream._
-import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.common.types.apex.{
+  ApexClassDeclaration,
+  ApexDeclaration,
+  ApexFullDeclaration,
+  FullDeclaration,
+  TriggerDeclaration
+}
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
@@ -216,10 +222,14 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return declaration
     }
 
-    basePackages.view
-      .flatMap(pkg =>
-        pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
+    baseModules.view
+      .flatMap(_.findPackageType(typeName))
       .headOption
+      .orElse(
+        basePackages.view
+          .flatMap(pkg =>
+            pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
+          .headOption)
   }
 
   /** Find a type just in this module. */

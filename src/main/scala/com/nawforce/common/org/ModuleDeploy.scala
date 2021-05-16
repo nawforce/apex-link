@@ -171,7 +171,6 @@ trait ModuleDeploy {
             (td, data.getOrElse(throw new NoSuchElementException))
           })
         })
-        .toSeq
 
       // Validate the full types
       fullTypes.foreach(_._1.validate())
