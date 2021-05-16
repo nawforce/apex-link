@@ -33,8 +33,12 @@ import com.nawforce.common.documents._
 case class ApexEvent(path: String) extends PackageEvent
 
 /** Convert Apex documents into PackageEvents */
-object ApexGenerator extends Generator {
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+object ApexGenerator {
+
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(ApexNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     Iterator(ApexEvent(document.path.toString))
   }
 }

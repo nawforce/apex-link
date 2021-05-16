@@ -79,9 +79,9 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       root: PathLike =>
         val index = DocumentIndex(logger, None, root.join("pkg"))
         assert(logger.issues.isEmpty)
-        assert(index.get(ClassNature).size == 1)
+        assert(index.get(ApexNature).size == 1)
         assert(
-          index.get(ClassNature).toList ==
+          index.get(ApexNature).toList ==
             List(ApexClassDocument(root.join("pkg").join("Foo.cls"), Name("Foo"))))
     }
   }
@@ -91,9 +91,9 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       root: PathLike =>
         val index = DocumentIndex(logger, None, root.join("pkg"))
         assert(logger.issues.isEmpty)
-        assert(index.get(ClassNature).size == 1)
+        assert(index.get(ApexNature).size == 1)
         assert(
-          index.get(ClassNature).toList ==
+          index.get(ApexNature).toList ==
             List(ApexClassDocument(root.join("pkg").join("foo").join("Foo.cls"), Name("Foo"))))
     }
   }
@@ -105,7 +105,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       val index = DocumentIndex(logger, None, root.join("pkg"))
       assert(logger.issues.isEmpty)
       assert(
-        index.get(ClassNature).map(_.toString()).toSet == Set(
+        index.get(ApexNature).map(_.toString()).toSet == Set(
           ApexClassDocument(root.join("pkg").join("Foo.cls"), Name("Foo")).toString,
           ApexClassDocument(root.join("pkg").join("bar").join("Bar.cls"), Name("Bar")).toString))
     }
@@ -116,9 +116,32 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       Map[String, String]("pkg/foo/Foo.cls" -> "public class Foo {}",
                           "/pkg/bar/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val index = DocumentIndex(logger, None, root.join("pkg"))
-      assert(index.get(ClassNature).size == 1)
+      assert(index.get(ApexNature).size == 1)
       assert(logger.issues.head.diagnostic.category == ERROR_CATEGORY)
       assert(logger.issues.head.diagnostic.message.contains("File creates duplicate type 'Foo'"))
+    }
+  }
+
+  test("xcls file found") {
+    FileSystemHelper.run(Map[String, String]("pkg/Foo.xcls" -> "public class Foo {}")) {
+      root: PathLike =>
+        val index = DocumentIndex(logger, None, root.join("pkg"))
+        assert(logger.issues.isEmpty)
+        assert(index.get(ExtendedApexNature).size == 1)
+        assert(
+          index.get(ExtendedApexNature).toList ==
+            List(ExtendedApexDocument(root.join("pkg").join("Foo.xcls"), Name("Foo"))))
+    }
+  }
+
+  test("cls/xcls duplicate classes don't error") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/foo/Foo.cls" -> "public class Foo {}",
+        "/pkg/bar/Foo.xcls" -> "public class Foo {}")) { root: PathLike =>
+      val index = DocumentIndex(logger, None, root.join("pkg"))
+      assert(index.get(ApexNature).size == 1)
+      assert(index.get(ExtendedApexNature).size == 1)
+      assert(logger.issues.isEmpty)
     }
   }
 

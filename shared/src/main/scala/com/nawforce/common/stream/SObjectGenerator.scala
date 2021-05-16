@@ -44,9 +44,11 @@ case class SharingReasonEvent(name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
   * present to collect the SFDX fields, fieldSets and sharingRules. */
-object SObjectGenerator extends Generator {
+object SObjectGenerator {
 
-  override def iterator(documents: Iterator[MetadataDocument]): Iterator[PackageEvent] = {
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] = iterator(index.get(SObjectNature))
+
+  private def iterator(documents: Iterator[MetadataDocument]): Iterator[PackageEvent] = {
 
     // SObjects need ordering so lookup target is output before the object using lookup
     val eventsByName =
@@ -75,7 +77,7 @@ object SObjectGenerator extends Generator {
     output.flatten.iterator
   }
 
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     // The object-meta.xml file is annoyingly optional
     val path = if (document.path.exists) Some(document.path) else None
 
@@ -181,7 +183,7 @@ object SObjectGenerator extends Generator {
     }
   }
 
-  def catchXMLExceptions(path: PathLike)(op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
+  private def catchXMLExceptions(path: PathLike)(op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
     try {
       op
     } catch {

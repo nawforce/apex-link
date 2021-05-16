@@ -36,9 +36,12 @@ import com.nawforce.runtime.parsers.{PageParser, VFParser}
 case class ComponentEvent(sourceInfo: SourceInfo, attributes: Array[Name]) extends PackageEvent
 
 /** Convert component documents into PackageEvents */
-object ComponentGenerator extends Generator {
+object ComponentGenerator {
 
-  override def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(ComponentNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {

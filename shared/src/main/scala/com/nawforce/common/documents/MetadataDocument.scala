@@ -39,7 +39,8 @@ import scala.collection.immutable.ArraySeq.ofRef
 sealed abstract class MetadataNature(val partialType: Boolean = false)
 
 case object LabelNature extends MetadataNature(partialType = true)
-case object ClassNature extends MetadataNature
+case object ApexNature extends MetadataNature
+case object ExtendedApexNature extends MetadataNature
 case object TriggerNature extends MetadataNature
 case object ComponentNature extends MetadataNature
 case object PageNature extends MetadataNature
@@ -82,7 +83,7 @@ abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetad
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
-  override val nature: MetadataNature = ClassNature
+  override val nature: MetadataNature = ApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name).withNamespace(namespace)
   }
@@ -96,6 +97,14 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
       .map(ns => s"__sfdc_trigger/${ns.value}/${name.value}")
       .getOrElse(s"__sfdc_trigger/${name.value}")
     TypeName(Name(qname))
+  }
+}
+
+final case class ExtendedApexDocument(_path: PathLike, _name: Name)
+  extends ApexDocument(_path, _name) {
+  override val nature: MetadataNature = ExtendedApexNature
+  override def typeName(namespace: Option[Name]): TypeName = {
+    TypeName(name).withNamespace(namespace)
   }
 }
 
@@ -201,6 +210,9 @@ object MetadataDocument {
 
       case Seq(name, Name("trigger")) =>
         Some(ApexTriggerDocument(path, name))
+
+      case Seq(name, Name("xcls")) =>
+        Some(ExtendedApexDocument(path, name))
 
       case Seq(name, Name("component")) =>
         Some(ComponentDocument(path, name))

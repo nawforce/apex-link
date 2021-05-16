@@ -32,12 +32,16 @@ import com.nawforce.common.documents._
 
 case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
 
-object FlowGenerator extends Generator {
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+object FlowGenerator {
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(FlowNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {
         Iterator(FlowEvent(SourceInfo(document.path.toString, source)))
-      }).getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
+      })
+      .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
 }

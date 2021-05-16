@@ -33,8 +33,12 @@ import com.nawforce.common.documents._
 case class TriggerEvent(path: String) extends PackageEvent
 
 /** Convert trigger documents into PackageEvents */
-object TriggerGenerator extends Generator {
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+object TriggerGenerator{
+
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(TriggerNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     Iterator(TriggerEvent(document.path.toString))
   }
 }

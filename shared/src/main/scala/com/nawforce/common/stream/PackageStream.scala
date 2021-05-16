@@ -65,12 +65,13 @@ object PackageStream {
   }
 
   def eventStream(index: DocumentIndex): Iterator[PackageEvent] = {
-    LabelGenerator.iterator(LabelNature, index) ++
-      PageGenerator.iterator(PageNature, index) ++
-      FlowGenerator.iterator(FlowNature, index) ++
-      ComponentGenerator.iterator(ComponentNature, index) ++
-      SObjectGenerator.iterator(SObjectNature, index) ++
-      ApexGenerator.iterator(ClassNature, index) ++
-      TriggerGenerator.iterator(TriggerNature, index)
+    LabelGenerator.iterator(index) ++
+      PageGenerator.iterator(index) ++
+      FlowGenerator.iterator(index) ++
+      ComponentGenerator.iterator(index) ++
+      SObjectGenerator.iterator(index) ++
+      ExtendedApexGenerator.iterator(index) ++
+      ApexGenerator.iterator(index) ++
+      TriggerGenerator.iterator(index)
   }
 }

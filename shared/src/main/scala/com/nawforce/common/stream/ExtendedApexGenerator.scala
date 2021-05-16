@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2021 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,15 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-/** Package stream generator, assists queuing package stream events. */
-trait Generator {
+case class ExtendedApexEvent(path: String) extends PackageEvent
 
-  def iterator(nature: MetadataNature, index: DocumentIndex): Iterator[PackageEvent] = {
-    iterator(index.get(nature))
+/** Convert Apex documents into PackageEvents */
+object ExtendedApexGenerator {
+
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(ExtendedApexNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+    Iterator(ExtendedApexEvent(document.path.toString))
   }
-
-  def iterator(documents: Iterator[MetadataDocument]): Iterator[PackageEvent] = {
-    documents.flatMap(toEvents)
-  }
-
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent]
 }

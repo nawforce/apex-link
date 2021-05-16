@@ -37,9 +37,12 @@ import com.nawforce.runtime.xml.XMLDocument
 case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
 case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
 
-object LabelGenerator extends Generator {
+object LabelGenerator {
 
-  protected def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
+  def iterator(index: DocumentIndex): Iterator[PackageEvent] =
+    index.get(LabelNature).flatMap(toEvents)
+
+  private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
     val source = document.source
     source.value
       .map(source => {
@@ -50,7 +53,8 @@ object LabelGenerator extends Generator {
             try {
               rootElement.assertIs("CustomLabels")
               val labels = rootElement
-                .getChildren("labels").iterator
+                .getChildren("labels")
+                .iterator
                 .flatMap(c => {
                   val fullName: String = c.getSingleChildAsString("fullName")
                   val protect: Boolean = c.getSingleChildAsBoolean("protected")

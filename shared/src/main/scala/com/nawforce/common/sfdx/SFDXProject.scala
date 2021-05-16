@@ -94,8 +94,10 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       return Seq.empty
     }
 
+    val templateLayer = templates.map(tl => ModuleLayer(tl.path, Seq.empty)).toSeq
     val localPackage = NamespaceLayer(
       namespace,
+      templateLayer ++
       packageDirectories
         .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
           foldPackageDirectory(logger))

@@ -53,11 +53,11 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         assert(project.nonEmpty)
         assert(project.get.layers(logger).isEmpty)
         assert(
-          logger.issues == List(Issue(root.join("sfdx-project.json").toString,
-            diagnostics.Diagnostic(
-              ERROR_CATEGORY,
-              Location.empty,
-              "$.packageDirectories must have at least one entry"))))
+          logger.issues == List(
+            Issue(root.join("sfdx-project.json").toString,
+                  diagnostics.Diagnostic(ERROR_CATEGORY,
+                                         Location.empty,
+                                         "$.packageDirectories must have at least one entry"))))
     }
   }
 
@@ -375,4 +375,33 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       assert(logger.issues.isEmpty)
     }
   }
+
+  test("Template add layer") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          |  "packageDirectories": [
+          |    { "path": "foo"}
+          |  ],
+          |  "plugins": {
+          |    "templates": {"path": "template", "target": "target"}
+          |  }
+          |}
+          |""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+
+      val dir = root.join("foo")
+      val dir2 = root.join("template")
+      project.get.layers(logger) should matchPattern {
+        case List(
+            NamespaceLayer(None, List(ModuleLayer(template, List()), ModuleLayer(path, List()))))
+            if path == dir && template == dir2 =>
+      }
+
+      assert(logger.issues.isEmpty)
+    }
+  }
+
 }
