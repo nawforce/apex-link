@@ -37,13 +37,12 @@ import com.nawforce.common.finding.{TypeFinder, TypeResolver}
 import com.nawforce.common.modifiers.GLOBAL_MODIFIER
 import com.nawforce.common.names.{EncodedName, TypeNames, _}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.stream.{ComponentGenerator, FlowGenerator, Generator, LabelGenerator, PackageStream, PageGenerator}
+import com.nawforce.common.stream._
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
-import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.immutable.ArraySeq
@@ -318,35 +317,30 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
       case _ =>
-        Some(createOtherType(dt, source))
+        Some(createOtherType(dt))
     }
   }
 
-  private def createOtherType(dt: UpdatableMetadata, source: Option[SourceData]): DependentType = {
+  private def createOtherType(dt: UpdatableMetadata): DependentType = {
     // TODO: This is tmp while we refactor index/stream usage
-    val documents = getDocuments(dt)
     dt match {
       case _: LabelsDocument =>
-        val events = LabelGenerator.iterator(documents)
+        val events = LabelGenerator.iterator(index)
         val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
         LabelDeclaration(this).merge(stream)
       case _: PageDocument =>
-        val events = PageGenerator.iterator(documents)
+        val events = PageGenerator.iterator(index)
         val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
         PageDeclaration(this).merge(stream)
       case _: ComponentDocument =>
-        val events = ComponentGenerator.iterator(documents)
+        val events = ComponentGenerator.iterator(index)
         val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
         ComponentDeclaration(this).merge(stream)
       case _: FlowDocument =>
-        val events = FlowGenerator.iterator(documents)
+        val events = FlowGenerator.iterator(index)
         val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
         InterviewDeclaration(this).merge(stream)
     }
-  }
-
-  private def getDocuments(document: MetadataDocument): Iterator[MetadataDocument] = {
-    (index.get(document.nature) ++ Iterator(document)).distinct.iterator
   }
 
   private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {

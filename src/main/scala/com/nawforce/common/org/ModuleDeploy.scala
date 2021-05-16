@@ -121,7 +121,7 @@ trait ModuleDeploy {
 
   private def loadClasses(): Unit = {
     val pcOpt = pkg.org.parsedCache
-    val docs = index.get(ClassNature).collect { case ad: ApexClassDocument => ad }.toSeq
+    val docs = index.get(ApexNature).collect { case ad: ApexClassDocument => ad }.toSeq
 
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
 
