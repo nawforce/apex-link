@@ -261,11 +261,16 @@ private class DocumentStore(namespace: Option[Name]) {
 object DocumentIndex {
 
   /** Construct a new DocumentIndex from a recursive descent scan of the passed path. */
-  def apply(logger: IssueLogger, namespace: Option[Name], path: PathLike): DocumentIndex = {
-    val ignore = logger.logAndGet(ForceIgnore(path))
+  def apply(logger: IssueLogger, namespace: Option[Name], projectPath: PathLike, path: PathLike): DocumentIndex = {
+    val ignore = logger.logAndGet(ForceIgnore(projectPath.join(".forceignore")))
     val collection = new MetadataCollection(namespace)
     index(logger, path, ignore, collection)
     new DocumentIndex(namespace, path, ignore, collection)
+  }
+
+  /** Simplified construction for MDAPI only projects where projectDir = module path. */
+  def apply(logger: IssueLogger, namespace: Option[Name], path: PathLike): DocumentIndex = {
+    DocumentIndex(logger, namespace, path, path)
   }
 
   private def index(logger: IssueLogger,

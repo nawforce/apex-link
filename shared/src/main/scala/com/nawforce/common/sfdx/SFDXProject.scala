@@ -94,7 +94,7 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       return Seq.empty
     }
 
-    val templateLayer = templates.map(tl => ModuleLayer(tl.path, Seq.empty)).toSeq
+    val templateLayer = templates.map(tl => ModuleLayer(projectPath, tl.path, Seq.empty)).toSeq
     val localPackage = NamespaceLayer(
       namespace,
       templateLayer ++
@@ -154,7 +154,7 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       case (true, false) =>
         Seq(NamespaceLayer(dependent.namespace, Nil))
       case (true, true) =>
-        Seq(NamespaceLayer(dependent.namespace, Seq(ModuleLayer(dependent.path.get, Seq.empty))))
+        Seq(NamespaceLayer(dependent.namespace, Seq(ModuleLayer(dependent.path.get, dependent.path.get, Seq.empty))))
       case (false, true) =>
         SFDXProject(dependent.path.get, logger)
           .map(project => {
@@ -173,7 +173,7 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       validateDependency(layers._1, dependency, logger))
     val newLayer = VersionedPackageLayer(
       packageDirectory.version,
-      ModuleLayer(packageDirectory.path, dependencies.map(_.packageLayer)))
+      ModuleLayer(projectPath, packageDirectory.path, dependencies.map(_.packageLayer)))
 
     // For 2GP, named packages need a version as well
     if (packageDirectory.name.nonEmpty) {
