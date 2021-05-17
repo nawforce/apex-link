@@ -30,7 +30,7 @@ package com.nawforce.common.cst
 import com.nawforce.common.api.{Name, PathLocation, TypeName}
 import com.nawforce.common.diagnostics.{Issue, IssueOps}
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, TypeNames, _}
+import com.nawforce.common.names.{EncodedName, TypeNames, Names, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
@@ -211,13 +211,20 @@ final case class DotExpression(expression: Expression,
                         td: TypeDeclaration,
                         pkg: PackageImpl,
                         staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    val encodedName = EncodedName(name)
-    val namespaceName = encodedName.defaultNamespace(pkg.namespace)
-    td.findField(namespaceName.fullName, staticContext)
-      .orElse({
-        if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
-        else None
-      })
+    td.typeName match {
+      case TypeName( Names.SObjectTypeFieldSets$, _, Some(TypeNames.Internal)) => {
+        td.findField(name, staticContext)
+      }
+      case _ => {
+        val encodedName = EncodedName(name)
+        val namespaceName = encodedName.defaultNamespace(pkg.namespace)
+        td.findField(namespaceName.fullName, staticContext)
+          .orElse({
+            if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
+            else None
+          })
+      }
+    }
   }
 }
 

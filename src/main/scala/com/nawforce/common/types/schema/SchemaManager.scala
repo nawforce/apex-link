@@ -362,7 +362,11 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    sobjectFieldSets.get(name)
+    // Remove the namespace as it seems to be legal on FieldSets.
+    sobjectFieldSets.get(
+      pkg.namespace.map(ns => {
+        Name(name.value.replaceFirst(s"^${ns.value}__", ""))
+      }).getOrElse(name))
   }
 
   override def findMethod(name: Name,
