@@ -365,7 +365,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, pkg: PackageImpl)
     // Remove the namespace as it seems to be legal on FieldSets.
     sobjectFieldSets.get(
       pkg.namespace.map(ns => {
-        Name(name.value.replaceFirst(s"^${ns.value}__", ""))
+        Name(name.value.replaceFirst(s"(?i)^${ns.value}__", ""))
       }).getOrElse(name))
   }
 
