@@ -4,6 +4,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 lazy val build = taskKey[Unit]("Build artifacts")
 
 ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / parallelExecution := false
 
 lazy val pkgforce = project.in(file(".")).
   aggregate(cross.js, cross.jvm).

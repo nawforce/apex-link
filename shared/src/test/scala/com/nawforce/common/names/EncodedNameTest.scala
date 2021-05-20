@@ -81,7 +81,7 @@ class EncodedNameTest extends AnyFunSuite {
 
   test("Empty namespace name") {
     val testName = EncodedName("__Custom__mdt")
-    assert(testName == EncodedName(Name("__Custom"), Some(Name("mdt")), None))
+    assert(testName == EncodedName(Name("__Custom__mdt"), None, None))
     assert(testName.localName == Name("__Custom__mdt"))
     assert(testName.fullName == Name("__Custom__mdt"))
     assert(testName.asTypeName == TypeName(Name("__Custom__mdt")))
@@ -120,4 +120,13 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName.fullName == Name("Subfield__s"))
     assert(testName.asTypeName == TypeName(Name("Subfield__s"), Nil, None))
   }
+
+  test("Page name with namespace") {
+    val testName = EncodedName("ns__MyPage")
+    assert(testName == EncodedName(Name("MyPage"), None, Some(Name("ns"))))
+    assert(testName.localName == Name("MyPage"))
+    assert(testName.fullName == Name("ns__MyPage"))
+    assert(testName.asTypeName == TypeName(Name("MyPage"), Nil, Some(TypeName(Name("ns")))))
+  }
+
 }
