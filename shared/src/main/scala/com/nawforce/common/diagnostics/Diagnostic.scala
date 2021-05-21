@@ -62,7 +62,7 @@ case class Diagnostic(category: DiagnosticCategory, location: Location, message:
 object Diagnostic {
   implicit val rw: RW[Diagnostic] = macroRW
 
-  def apply(category: String, location: Location, message: String) = {
+  def apply(category: String, location: Location, message: String): Diagnostic = {
     new Diagnostic(DiagnosticCategory(category), location, message)
   }
 }

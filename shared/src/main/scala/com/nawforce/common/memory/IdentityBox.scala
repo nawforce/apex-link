@@ -28,7 +28,7 @@
 package com.nawforce.common.memory
 
 /* Value wrapper giving identity equality handling. */
-class IdentityBox[T <: AnyRef](var value: T) {
+final class IdentityBox[T <: AnyRef](var value: T) {
 
   override val hashCode: Int = value.hashCode
 

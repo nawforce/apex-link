@@ -33,10 +33,11 @@ import io.scalajs.nodejs.buffer.Buffer
 import io.scalajs.nodejs.fs.Fs
 import io.scalajs.nodejs.process.Process
 
+import scala.collection.mutable
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
-case class Path private (path: String) extends PathLike {
+final case class Path private (path: String) extends PathLike {
 
   private lazy val pathObject = io.scalajs.nodejs.path.Path.parse(path)
   private lazy val stat = {
@@ -152,6 +153,21 @@ case class Path private (path: String) extends PathLike {
     } else {
       Right(Seq())
     }
+  }
+
+  override def splitDirectoryEntries(): (Array[PathLike], Array[PathLike]) = {
+    val files = mutable.ArrayBuffer[PathLike]()
+    val directories = mutable.ArrayBuffer[PathLike]()
+
+    Fs.readdirSync(path)
+      .foreach(path => {
+        val pathLike = this.join(path)
+        if (pathLike.isFile)
+          files.append(pathLike)
+        else if (pathLike.isDirectory)
+          directories.append(pathLike)
+      })
+    (files.toArray, directories.toArray)
   }
 
   override def lastModified(): Option[Long] = {

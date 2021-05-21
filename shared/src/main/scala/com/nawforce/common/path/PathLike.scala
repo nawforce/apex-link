@@ -83,6 +83,9 @@ abstract class PathLike {
   // List contents of directory or return error message
   def directoryList(): Either[String, Seq[String]]
 
+  // Obtain entries in a directory split into regular files and subdirectories
+  def splitDirectoryEntries(): (Array[PathLike], Array[PathLike])
+
   // Delete a file or directory, returns an error message on failure
   def delete(): Option[String]
 

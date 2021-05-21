@@ -36,11 +36,10 @@ import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
 
-case class SObjectEvent(path: String) extends PackageEvent
-
-case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name]) extends PackageEvent
-case class FieldsetEvent(name: Name) extends PackageEvent
-case class SharingReasonEvent(name: Name) extends PackageEvent
+final case class SObjectEvent(path: String) extends PackageEvent
+final case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name]) extends PackageEvent
+final case class FieldsetEvent(name: Name) extends PackageEvent
+final case class SharingReasonEvent(name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
   * present to collect the SFDX fields, fieldSets and sharingRules. */

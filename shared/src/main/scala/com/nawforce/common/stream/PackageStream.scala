@@ -35,7 +35,7 @@ import scala.collection.compat.immutable.ArraySeq
 
 trait PackageEvent
 
-case class IssuesEvent(issues: ArraySeq[Issue]) extends PackageEvent
+final case class IssuesEvent(issues: ArraySeq[Issue]) extends PackageEvent
 
 object IssuesEvent {
   def apply(issues: Issue*): IssuesEvent = {

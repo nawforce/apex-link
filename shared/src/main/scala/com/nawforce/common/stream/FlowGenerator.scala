@@ -30,7 +30,7 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
+final case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
 
 object FlowGenerator {
   def iterator(index: DocumentIndex): Iterator[PackageEvent] =

@@ -34,7 +34,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
   * The provided namespace is used to locate a package which qualifies the meaning of the type name. This is useful
   * when the type name may not contain a namespace or it may be visible across package such as with global classes.
   */
-case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
+final case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
 
   override def toString: String = {
     typeName.toString + namespace.map(n => s" (${n.toString})").getOrElse("")

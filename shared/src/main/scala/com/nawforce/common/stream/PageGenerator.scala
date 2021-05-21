@@ -30,7 +30,7 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class PageEvent(sourceInfo: SourceInfo) extends PackageEvent
+final case class PageEvent(sourceInfo: SourceInfo) extends PackageEvent
 
 /** Convert page documents into PackageEvents */
 object PageGenerator {

@@ -29,14 +29,19 @@ package com.nawforce.runtime.platform
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import java.nio.file.{DirectoryStream, Files}
 
 import com.nawforce.common.path._
 import com.nawforce.runtime.parsers.SourceData
 
-case class Path(native: java.nio.file.Path) extends PathLike {
+import scala.collection.mutable
 
-  override lazy val basename: String = Option(native.getFileName).map(_.toString).getOrElse("")
+final case class Path(native: java.nio.file.Path) extends PathLike {
+
+  override lazy val basename: String = {
+    val filename = native.getFileName
+    if (filename == null) "" else filename.toString
+  }
   override lazy val parent: Path = join("..")
   override lazy val exists: Boolean = Files.exists(native)
   override lazy val isRoot: Boolean = this.toString == parent.toString
@@ -129,6 +134,26 @@ case class Path(native: java.nio.file.Path) extends PathLike {
     }
   }
 
+  override def splitDirectoryEntries(): (Array[PathLike], Array[PathLike]) = {
+    val files = mutable.ArrayBuffer[PathLike]()
+    val directories = mutable.ArrayBuffer[PathLike]()
+
+    var paths: DirectoryStream[java.nio.file.Path] = null
+    try {
+      paths = Files.newDirectoryStream(native)
+      paths.forEach(path => {
+        val pathLike = Path(path)
+        if (pathLike.isFile)
+          files.append(pathLike)
+        else if (pathLike.isDirectory)
+          directories.append(pathLike)
+      })
+      (files.toArray, directories.toArray)
+    } finally {
+      if (paths != null) paths.close()
+    }
+  }
+
   override def lastModified(): Option[Long] = {
     try {
       Some(native.toFile.lastModified())
@@ -156,5 +181,5 @@ object Path {
   val separator: String = File.separator
 
   def apply(path: String): Path =
-    Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath)
+    Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath.normalize())
 }

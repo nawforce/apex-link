@@ -34,8 +34,8 @@ import com.nawforce.common.names.Name
 import com.nawforce.common.xml.XMLException
 import com.nawforce.runtime.xml.XMLDocument
 
-case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
-case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
+final case class LabelFileEvent(sourceInfo: SourceInfo) extends PackageEvent
+final case class LabelEvent(location: PathLocation, name: Name, isProtected: Boolean) extends PackageEvent
 
 object LabelGenerator {
 

@@ -28,11 +28,9 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.diagnostics._
+import com.nawforce.runtime.parsers.SourceData
 import com.nawforce.common.names.{TypeName, TypeNames, _}
 import com.nawforce.common.path.PathLike
-import com.nawforce.runtime.parsers.SourceData
-
-import scala.collection.immutable.ArraySeq.ofRef
 
 /** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
   * may contribute to the same type. */
@@ -101,7 +99,7 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
 }
 
 final case class ExtendedApexDocument(_path: PathLike, _name: Name)
-  extends ApexDocument(_path, _name) {
+    extends ApexDocument(_path, _name) {
   override val nature: MetadataNature = ExtendedApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name).withNamespace(namespace)
@@ -205,73 +203,74 @@ final case class FlowDocument(_path: PathLike, _name: Name)
 object MetadataDocument {
   def apply(path: PathLike): Option[MetadataDocument] = {
     splitFilename(path) match {
-      case Seq(name, Name("cls")) =>
+      case Array(name, Name("cls")) =>
         Some(ApexClassDocument(path, name))
 
-      case Seq(name, Name("trigger")) =>
+      case Array(name, Name("trigger")) =>
         Some(ApexTriggerDocument(path, name))
 
-      case Seq(name, Name("xcls")) =>
+      case Array(name, Name("xcls")) =>
         Some(ExtendedApexDocument(path, name))
 
-      case Seq(name, Name("component")) =>
+      case Array(name, Name("component")) =>
         Some(ComponentDocument(path, name))
 
-      case Seq(name, Name("object")) if name.value.endsWith("__mdt") =>
+      case Array(name, Name("object")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
-      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
+      case Array(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__mdt") =>
         Some(CustomMetadataDocument(path, name))
 
-      case Seq(name, Name("object")) if name.value.endsWith("__b") =>
+      case Array(name, Name("object")) if name.value.endsWith("__b") =>
         Some(BigObjectDocument(path, name))
-      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__b") =>
+      case Array(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__b") =>
         Some(BigObjectDocument(path, name))
 
-      case Seq(name, Name("object")) if name.value.endsWith("__e") =>
+      case Array(name, Name("object")) if name.value.endsWith("__e") =>
         Some(PlatformEventDocument(path, name))
-      case Seq(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__e") =>
+      case Array(name, Name("object-meta"), Name("xml")) if name.value.endsWith("__e") =>
         Some(PlatformEventDocument(path, name))
 
-      case Seq(name, Name("object")) =>
+      case Array(name, Name("object")) =>
         Some(SObjectDocument(path, name))
-      case Seq(name, Name("object-meta"), Name("xml")) =>
+      case Array(name, Name("object-meta"), Name("xml")) =>
         Some(SObjectDocument(path, name))
 
-      case Seq(name, Name("field-meta"), Name("xml"))
+      case Array(name, Name("field-meta"), Name("xml"))
           if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
         Some(SObjectFieldDocument(path, name))
 
-      case Seq(name, Name("fieldset-meta"), Name("xml"))
+      case Array(name, Name("fieldset-meta"), Name("xml"))
           if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
         Some(SObjectFieldSetDocument(path, name))
 
-      case Seq(name, Name("flow")) =>
+      case Array(name, Name("flow")) =>
         Some(FlowDocument(path, name))
-      case Seq(name, Name("flow-meta"), Name("xml")) =>
+      case Array(name, Name("flow-meta"), Name("xml")) =>
         Some(FlowDocument(path, name))
 
-      case Seq(name, Name("labels")) =>
+      case Array(name, Name("labels")) =>
         Some(LabelsDocument(path, name))
-      case Seq(name, Name("labels-meta"), Name("xml")) =>
+      case Array(name, Name("labels-meta"), Name("xml")) =>
         Some(LabelsDocument(path, name))
 
-      case Seq(name, Name("page")) =>
+      case Array(name, Name("page")) =>
         Some(PageDocument(path, name))
       case _ => None
     }
   }
 
-  private def splitFilename(path: PathLike): Seq[Name] = {
-    var parts = path.basename.split('.')
+  private def splitFilename(path: PathLike): Array[Name] = {
+    val parts = path.basename.split('.')
     if (parts.length > 3) {
-      parts = List(parts.slice(0, parts.length - 2).mkString("."),
-                   parts(parts.length - 2).toLowerCase(),
-                   parts(parts.length - 1).toLowerCase).toArray
+      Array(Name(parts.slice(0, parts.length - 2).mkString(".")),
+            Name(parts(parts.length - 2)),
+            Name(parts(parts.length - 1)))
     } else if (parts.length == 3) {
-      parts = List(parts(0), parts(1).toLowerCase, parts(2).toLowerCase).toArray
+      Array(Name(parts(0)), Name(parts(1)), Name(parts(2)))
     } else if (parts.length == 2) {
-      parts = List(parts(0), parts(1).toLowerCase).toArray
+      Array(Name(parts(0)), Name(parts(1)))
+    } else {
+      Array(Name(parts.head))
     }
-    new ofRef(parts.map(Name(_)))
   }
 }

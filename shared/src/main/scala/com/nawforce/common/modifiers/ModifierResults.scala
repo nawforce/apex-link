@@ -36,7 +36,7 @@ import com.nawforce.common.memory.InternCache
   * Modifiers are examined before the CST is constructed to make things a bit simpler. The results of the analysis
   * are returned via this type. Interning is supported to reduce memory use.
   **/
-case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
+final case class ModifierResults(modifiers: Array[Modifier], issues: Array[Issue]) {
 
   override val hashCode: Int = modifiers.toSeq.hashCode()
 

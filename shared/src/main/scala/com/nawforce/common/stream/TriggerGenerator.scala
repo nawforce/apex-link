@@ -30,7 +30,7 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class TriggerEvent(path: String) extends PackageEvent
+final case class TriggerEvent(path: String) extends PackageEvent
 
 /** Convert trigger documents into PackageEvents */
 object TriggerGenerator{

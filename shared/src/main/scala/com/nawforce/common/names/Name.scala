@@ -35,7 +35,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
   * value.
   */
 @upickle.implicits.key("Name")
-case class Name(value: String) {
+final case class Name(value: String) {
 
   override val hashCode: Int = value.toLowerCase.hashCode
 

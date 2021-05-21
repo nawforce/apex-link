@@ -30,7 +30,7 @@ package com.nawforce.common.stream
 
 import com.nawforce.common.documents._
 
-case class ExtendedApexEvent(path: String) extends PackageEvent
+final case class ExtendedApexEvent(path: String) extends PackageEvent
 
 /** Convert Apex documents into PackageEvents */
 object ExtendedApexGenerator {

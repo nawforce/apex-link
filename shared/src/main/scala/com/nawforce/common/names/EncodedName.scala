@@ -39,7 +39,7 @@ package com.nawforce.common.names
   * For subfields the subfield name is combined with the extension. For supporting SObjects such as MyObject\_\_Feed
   * the 'Feed' is considered an extension in the same way that 'c' would be.
   */
-case class EncodedName(name: Name, ext: Option[Name], namespace: Option[Name]) {
+final case class EncodedName(name: Name, ext: Option[Name], namespace: Option[Name]) {
 
   /** The name & suffix excluding any namespace. */
   lazy val localName: Name = Name(name.value + ext.map("__" + _.value).getOrElse(""))

@@ -35,7 +35,7 @@ case class Build(build: Int) extends BuildNumber
 case class VersionNumber(major: Int, minor: Int, patch: Int, build: BuildNumber) {
   def isCompatible(other: VersionNumber): Boolean = {
     if (major != other.major || minor != other.minor || patch != other.patch)
-      return false;
+      return false
 
     (build, other.build) match {
       case (Build(x), Build(y)) => x == y

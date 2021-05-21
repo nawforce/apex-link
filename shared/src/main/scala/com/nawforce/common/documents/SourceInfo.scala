@@ -30,7 +30,7 @@ package com.nawforce.common.documents
 import com.nawforce.runtime.parsers.SourceData
 
 /** Source information carrier. */
-case class SourceInfo(path: String, hash: Int)
+final case class SourceInfo(path: String, hash: Int)
 
 object SourceInfo {
   def apply(path: String, data: SourceData): SourceInfo = {

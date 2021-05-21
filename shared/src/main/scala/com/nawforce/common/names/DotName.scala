@@ -30,7 +30,7 @@ package com.nawforce.common.names
 /**
   * A qualified name with notional 'dot' separators
   */
-case class DotName(names: Seq[Name]) {
+final case class DotName(names: Seq[Name]) {
 
   val isCompound: Boolean = names.size > 1
 

@@ -44,7 +44,7 @@ object PackageDirectory {
                        config("dependencies") match {
                          case ujson.Arr(value) =>
                            value.toSeq.zipWithIndex.map(d =>
-                             new ModuleDependent(s"$jsonPath.dependencies[${d._2}]", d._1))
+                             ModuleDependent(s"$jsonPath.dependencies[${d._2}]", d._1))
                          case _ =>
                            throw new SFDXProjectError(s"$jsonPath.dependencies",
                                                       "'dependencies' should be an array")

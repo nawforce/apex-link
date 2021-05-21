@@ -33,7 +33,7 @@ import com.nawforce.common.documents._
 import com.nawforce.common.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
-case class ComponentEvent(sourceInfo: SourceInfo, attributes: Array[Name]) extends PackageEvent
+final case class ComponentEvent(sourceInfo: SourceInfo, attributes: Array[Name]) extends PackageEvent
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator {

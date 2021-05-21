@@ -43,7 +43,7 @@ import scala.collection.mutable
   * During an upsert/deletion of new types the index will also need to be updated so that it maintains an accurate
   * view of the metadata files being used.
   */
-class DocumentIndex(val namespace: Option[Name],
+final class DocumentIndex(val namespace: Option[Name],
                     val path: PathLike,
                     private val ignore: Option[ForceIgnore],
                     private val collection: MetadataCollection) {
@@ -103,7 +103,7 @@ class DocumentIndex(val namespace: Option[Name],
 }
 
 /** A DocumentStore specialised for duplicate detection and other metadata shenanigans. */
-private class MetadataCollection(val namespace: Option[Name]) extends DocumentStore(namespace) {
+final private class MetadataCollection(val namespace: Option[Name]) extends DocumentStore(namespace) {
 
   override def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     // Reject if document may be ignored
@@ -259,12 +259,14 @@ private class DocumentStore(namespace: Option[Name]) {
 }
 
 object DocumentIndex {
-
   /** Construct a new DocumentIndex from a recursive descent scan of the passed path. */
-  def apply(logger: IssueLogger, namespace: Option[Name], projectPath: PathLike, path: PathLike): DocumentIndex = {
+  def apply(logger: IssueLogger,
+            namespace: Option[Name],
+            projectPath: PathLike,
+            path: PathLike): DocumentIndex = {
     val ignore = logger.logAndGet(ForceIgnore(projectPath.join(".forceignore")))
     val collection = new MetadataCollection(namespace)
-    index(logger, path, ignore, collection)
+    new DirectoryIndexer(logger, path, ignore, collection)
     new DocumentIndex(namespace, path, ignore, collection)
   }
 
@@ -272,48 +274,37 @@ object DocumentIndex {
   def apply(logger: IssueLogger, namespace: Option[Name], path: PathLike): DocumentIndex = {
     DocumentIndex(logger, namespace, path, path)
   }
+}
 
-  private def index(logger: IssueLogger,
-                    path: PathLike,
-                    ignore: Option[ForceIgnore],
-                    collection: MetadataCollection): Unit = {
-    if (path.isDirectory) {
-      LoggerOps.debugTime(s"Indexed ${path.toString}") {
-        indexPath(logger, path, ignore, collection)
-      }
-    }
+/** Directory indexer, somewhat optimised to minimise scan time */
+final class DirectoryIndexer(logger: IssueLogger,
+                             path: PathLike,
+                             forceIgnore: Option[ForceIgnore],
+                             collection: MetadataCollection) {
+
+  LoggerOps.debugTime(s"Indexed ${path.toString}") {
+    indexPath(path)
   }
 
-  private def indexPath(logger: IssueLogger,
-                        path: PathLike,
-                        forceIgnore: Option[ForceIgnore],
-                        collection: MetadataCollection): Unit = {
-    if (DocumentIndex.isExcluded(path))
+  private def indexPath(path: PathLike): Unit = {
+    if (isExcluded(path))
       return
 
     if (path.isDirectory) {
       if (forceIgnore.forall(_.includeDirectory(path))) {
-
-        path.directoryList() match {
-          case Left(err) => LoggerOps.error(err)
-          case Right(parts) =>
-            // Enforce top-down handling
-            val split = parts.map(path.join).groupBy(_.isDirectory)
-            split.getOrElse(false, Seq.empty).foreach(part => addPath(logger, part, forceIgnore, collection))
-            split.getOrElse(true, Seq.empty).foreach(part => indexPath(logger, part, forceIgnore, collection))
-        }
+        val entries = path.splitDirectoryEntries()
+        // Enforce top-down handling
+        entries._1.foreach(addPath)
+        entries._2.foreach(indexPath)
       } else {
         LoggerOps.debug(LoggerOps.Trace, s"Ignoring directory $path")
       }
     } else {
-      addPath(logger, path, forceIgnore, collection)
+      addPath(path)
     }
   }
 
-  private def addPath(logger: IssueLogger,
-                      path: PathLike,
-                      forceIgnore: Option[ForceIgnore],
-                      collection: MetadataCollection): Unit = {
+  private def addPath(path: PathLike): Unit = {
     // Not testing if this is a regular file to improve scan performance, will fail later on read
     if (forceIgnore.forall(_.includeFile(path))) {
       val dt = MetadataDocument(path)

@@ -34,7 +34,7 @@ import upickle.default.{macroRW, ReadWriter => RW, _}
 import scala.util.hashing.MurmurHash3
 
 // Key of cache entries, update version if the format changes
-case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Array[Byte]) {
+final case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Array[Byte]) {
   lazy val hashParts: Array[String] = {
     val hash = MurmurHash3.bytesHash(writeBinary(this))
     val asHex = hash.toHexString
@@ -58,7 +58,7 @@ object CacheKey {
 }
 
 // Package details used in key to ensure error messages will be accurate
-case class PackageContext(namespace: Option[String],
+final case class PackageContext(namespace: Option[String],
                           ghostedPackages: Array[String],
                           analysedPackages: Array[String]) {
   override def equals(that: Any): Boolean = {
@@ -77,14 +77,14 @@ object PackageContext {
 }
 
 // Cache entry, a simple key/value pairing
-case class CacheEntry(key: CacheKey, value: Array[Byte])
+final case class CacheEntry(key: CacheKey, value: Array[Byte])
 
 object CacheEntry {
   implicit val rw: RW[CacheEntry] = macroRW
 }
 
 /* Parsed class cache */
-class ParsedCache(val path: PathLike, version: Int) {
+final class ParsedCache(val path: PathLike, version: Int) {
 
   /** Auto expire before use */
   expire()
