@@ -29,7 +29,7 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.{IssueOps, PathLocation}
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, TypeNames, _}
+import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames, _}
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration

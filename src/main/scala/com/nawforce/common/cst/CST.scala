@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.diagnostics.IssueOps
-import com.nawforce.common.names._
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser._

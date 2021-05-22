@@ -30,7 +30,7 @@ package com.nawforce.common.types.schema
 import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.documents._
 import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames}
-import com.nawforce.common.org.{OrgImpl, Module}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration
 import com.nawforce.common.xml.{XMLElementLike, XMLException, XMLFactory}

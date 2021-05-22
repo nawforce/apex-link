@@ -33,12 +33,7 @@ import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.org.Module
 import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.stream.{PackageStream, PageEvent}
-import com.nawforce.common.types.core.{
-  BasicTypeDeclaration,
-  DependentType,
-  FieldDeclaration,
-  TypeId
-}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3

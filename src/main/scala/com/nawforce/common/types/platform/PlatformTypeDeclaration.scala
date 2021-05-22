@@ -31,12 +31,11 @@ package com.nawforce.common.types.platform
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
 import java.util
 
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
-import com.nawforce.common.names.{DotName, Names, TypeNames, _}
-import com.nawforce.common.org.{Module, PackageImpl}
+import com.nawforce.common.names.{DotName, Name, Names, TypeName, TypeNames}
+import com.nawforce.common.org.Module
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}

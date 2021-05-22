@@ -33,7 +33,7 @@ import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.documents._
 import com.nawforce.common.memory.Monitor
 import com.nawforce.common.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
-import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex

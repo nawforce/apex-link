@@ -104,7 +104,7 @@ object ClassDeclaration {
     val implementsType =
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
-        .getOrElse(TypeName.emptyTypeNames)
+        .getOrElse(TypeName.emptyTypeName)
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
@@ -174,7 +174,7 @@ object InterfaceDeclaration {
 final case class EnumDeclaration(_source: Source, _module: Module, _typeName: TypeName,
                                  _outerTypeName: Option[TypeName], _id: Id,
                                  _modifiers:ModifierResults, _bodyDeclarations: Array[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeNames,
+  extends FullDeclaration(_source, _module, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeName,
     _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE

@@ -35,7 +35,6 @@ import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.platform.PlatformTypeException
-import com.nawforce.runtime.SourceBlob
 import upickle.default._
 
 import scala.collection.mutable
@@ -202,7 +201,6 @@ trait PackageAPI extends Package {
   private[nawforce] def refresh(path: PathLike): Unit = {
     org.queueMetadataRefresh(RefreshRequest(this, path))
   }
-
 
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */

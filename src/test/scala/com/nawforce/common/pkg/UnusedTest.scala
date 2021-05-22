@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.api.ServerOps
-import com.nawforce.common.names._
+import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}

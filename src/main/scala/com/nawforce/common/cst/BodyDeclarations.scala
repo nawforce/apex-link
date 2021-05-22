@@ -32,7 +32,7 @@ import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.memory.SkinnySet
 import com.nawforce.common.modifiers.{MethodModifiers, _}
 import com.nawforce.common.names.{Name, TypeName, TypeNames}
-import com.nawforce.common.org.{OrgImpl, Module}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
 import com.nawforce.runtime.parsers.ApexParser._

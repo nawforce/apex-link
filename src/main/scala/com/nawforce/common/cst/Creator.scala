@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, TypeNames, _}
+import com.nawforce.common.names.{EncodedName, TypeName, TypeNames, _}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
@@ -79,7 +79,7 @@ object IdCreatedNamePair {
                       CodeParser
                         .toScala(from.typeList())
                         .map(tl => TypeList.construct(tl))
-                        .getOrElse(TypeName.emptyTypeNames)).withContext(from)
+                        .getOrElse(TypeName.emptyTypeName)).withContext(from)
   }
 }
 

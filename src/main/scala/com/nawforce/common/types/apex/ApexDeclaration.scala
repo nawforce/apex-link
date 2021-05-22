@@ -27,14 +27,14 @@
  */
 package com.nawforce.common.types.apex
 
-import com.nawforce.common.api.{BlockSummary, ConstructorSummary, FieldSummary, MethodSummary, TypeSummary}
+import com.nawforce.common.api._
 import com.nawforce.common.cst._
 import com.nawforce.common.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
 import com.nawforce.common.names.{Name, TypeName}
-import com.nawforce.common.org.{Module, OrgImpl, PackageImpl}
+import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 

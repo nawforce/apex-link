@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.{Names, _}
+import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite

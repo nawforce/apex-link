@@ -29,10 +29,9 @@ package com.nawforce.common.types.platform
 
 import java.lang.ref.WeakReference
 
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeResolver.TypeResponse
-import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.names.{TypeName, TypeNames}
 import com.nawforce.common.types.core.TypeDeclaration
 
 object PlatformTypes {

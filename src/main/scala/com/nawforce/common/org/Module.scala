@@ -35,16 +35,10 @@ import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{TypeFinder, TypeResolver}
 import com.nawforce.common.modifiers.GLOBAL_MODIFIER
-import com.nawforce.common.names.{EncodedName, TypeNames, _}
+import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.stream._
-import com.nawforce.common.types.apex.{
-  ApexClassDeclaration,
-  ApexDeclaration,
-  ApexFullDeclaration,
-  FullDeclaration,
-  TriggerDeclaration
-}
+import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes

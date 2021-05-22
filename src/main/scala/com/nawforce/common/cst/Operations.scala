@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.names.TypeName
-import com.nawforce.common.names.{TypeNames, _}
+import com.nawforce.common.names.{TypeName, TypeNames}
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 

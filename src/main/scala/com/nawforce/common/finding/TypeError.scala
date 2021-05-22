@@ -27,8 +27,7 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.diagnostics.{Diagnostic, MISSING_CATEGORY, PathLocation}
-import com.nawforce.common.diagnostics.Issue
+import com.nawforce.common.diagnostics.{Diagnostic, Issue, MISSING_CATEGORY, PathLocation}
 import com.nawforce.common.names.TypeName
 
 /** Collection of error types returned from type requests */

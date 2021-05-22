@@ -35,7 +35,7 @@ import com.nawforce.common.api.{FileIssueOptions, IssueOptions, Org, Package, Se
 import com.nawforce.common.cst.UnusedLog
 import com.nawforce.common.diagnostics._
 import com.nawforce.common.documents._
-import com.nawforce.common.names.{DotName, _}
+import com.nawforce.common.names.{DotName, Name, TypeIdentifier}
 import com.nawforce.common.path.PathFactory
 import com.nawforce.common.workspace.{ModuleLayer, Workspace}
 

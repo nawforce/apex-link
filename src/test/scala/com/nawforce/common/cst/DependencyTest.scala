@@ -27,9 +27,9 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.{TestHelper, FileSystemHelper}
 import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.path.PathLike
+import com.nawforce.common.{FileSystemHelper, TestHelper}
 import org.scalatest.funsuite.AnyFunSuite
 
 class DependencyTest extends AnyFunSuite with TestHelper {

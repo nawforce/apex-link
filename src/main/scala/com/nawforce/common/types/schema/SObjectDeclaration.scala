@@ -31,21 +31,12 @@ import com.nawforce.common.cst.VerifyContext
 import com.nawforce.common.diagnostics.{Location, PathLocation}
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{DotName, Names, TypeNames, _}
+import com.nawforce.common.names.{DotName, Name, Names, TypeName, TypeNames}
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
-import com.nawforce.common.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.common.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.platform.PlatformTypes
-import com.nawforce.common.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
 
 import scala.collection.mutable
 

@@ -45,7 +45,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Public outer class") {
     assert(
       classSummary("public class Dummy {}") ==
-        TypeSummary(1202117904,
+        TypeSummary(1193498817,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -64,7 +64,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Global outer class") {
     assert(
       classSummary("global class Dummy {}") ==
-        TypeSummary(-548216944,
+        TypeSummary(-497317248,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -83,7 +83,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Global outer class with isTest") {
     assert(
       classSummary("@isTest global class Dummy {}") ==
-        TypeSummary(1213450638,
+        TypeSummary(-8782017,
                     Some(Location(1, 21, 1, 26)),
                     "Dummy",
                     dummyTypeName,
@@ -102,7 +102,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Interface") {
     assert(
       classSummary("public interface Dummy {}") ==
-        TypeSummary(-790821413,
+        TypeSummary(1991290676,
                     Some(Location(1, 17, 1, 22)),
                     "Dummy",
                     dummyTypeName,
@@ -122,7 +122,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
     val idLocation = Some(Location(1, 12, 1, 17))
     assert(
       classSummary("public enum Dummy {}") ==
-        TypeSummary(582020380,
+        TypeSummary(-1196814154,
                     idLocation,
                     "Dummy",
                     dummyTypeName,
@@ -176,7 +176,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Class with unknown super class") {
     assert(
       classSummary("public class Dummy extends Bar {}", hasMessages = true) ==
-        TypeSummary(-1732644072,
+        TypeSummary(-261265427,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -195,7 +195,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Class with unknown interfaces") {
     assert(
       classSummary("public class Dummy implements A, B {}", hasMessages = true) ==
-        TypeSummary(1270273994,
+        TypeSummary(162295607,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -214,7 +214,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Interface with interfaces") {
     assert(
       classSummary("public interface Dummy extends A, B {}", hasMessages = true) ==
-        TypeSummary(1951586885,
+        TypeSummary(-1368148342,
                     Some(Location(1, 17, 1, 22)),
                     "Dummy",
                     dummyTypeName,
@@ -233,7 +233,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Class with fields") {
     assert(
       classSummary("public class Dummy {private String B; public Integer A;}") ==
-        TypeSummary(349895857,
+        TypeSummary(350433220,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -268,7 +268,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
     assert(
       classSummary("public class Dummy {" +
         "private String B {get; set;} public Integer A {private set; get;} }") ==
-        TypeSummary(1509489293,
+        TypeSummary(1703738882,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -302,7 +302,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Class with constructors") {
     assert(
       classSummary("public class Dummy {public Dummy(String a) {} Dummy() {} }") ==
-        TypeSummary(-380622695,
+        TypeSummary(95956350,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -329,7 +329,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   test("Class with methods") {
     assert(
       classSummary("public class Dummy {public String foo(String a) {} void bar() {} }") ==
-        TypeSummary(1735220165,
+        TypeSummary(-140800034,
                     Some(Location(1, 13, 1, 18)),
                     "Dummy",
                     dummyTypeName,
@@ -361,7 +361,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
   }
 
   test("Interfaces with methods") {
-    val expected = TypeSummary(-875397803,
+    val expected = TypeSummary(-1437805576,
                                Some(Location(1, 17, 1, 22)),
                                "Dummy",
                                dummyTypeName,
@@ -391,14 +391,14 @@ class SummaryTest extends AnyFunSuite with TestHelper {
                                Array())
 
     val actual = classSummary("public interface Dummy {String foo(String a); void bar(); }")
-    assert(expected == actual)
+    assert(actual == expected)
   }
 
   test("Enum with values") {
     val idLocation = Some(Location(1, 12, 1, 17))
     assert(
       classSummary("public enum Dummy {B, A, C }") ==
-        TypeSummary(-1528660812,
+        TypeSummary(-1270140630,
                     idLocation,
                     "Dummy",
                     dummyTypeName,
@@ -414,21 +414,21 @@ class SummaryTest extends AnyFunSuite with TestHelper {
                                    dummyTypeName,
                                    "public",
                                    "public",
-                                   Array(TypeDependentSummary(dummyTypeId, -1528660812))),
+                                   Array(TypeDependentSummary(dummyTypeId, -1270140630))),
                       FieldSummary(Some(Location(1, 19, 1, 20)),
                                    "B",
                                    Array("public", "static"),
                                    dummyTypeName,
                                    "public",
                                    "public",
-                                   Array(TypeDependentSummary(dummyTypeId, -1528660812))),
+                                   Array(TypeDependentSummary(dummyTypeId, -1270140630))),
                       FieldSummary(Some(Location(1, 25, 1, 26)),
                                    "C",
                                    Array("public", "static"),
                                    dummyTypeName,
                                    "public",
                                    "public",
-                                   Array(TypeDependentSummary(dummyTypeId, -1528660812))),
+                                   Array(TypeDependentSummary(dummyTypeId, -1270140630))),
                     ),
                     Array(),
                     Array(

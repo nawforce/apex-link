@@ -27,11 +27,10 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.cst.BlockVerifyContext
 import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.finding.TypeResolver.TypeResponse
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{Name, TypeName, TypeNames}
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.{Nature, TypeDeclaration}
 

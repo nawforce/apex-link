@@ -33,7 +33,7 @@ import com.nawforce.common.diagnostics.{IssueOps, Location}
 import com.nawforce.common.finding.TypeResolver
 import com.nawforce.common.modifiers._
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{Names, TypeNames, _}
+import com.nawforce.common.names.{Name, Names, TypeName, TypeNames, _}
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.other.Component

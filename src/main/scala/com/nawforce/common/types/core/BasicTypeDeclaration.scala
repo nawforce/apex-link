@@ -44,7 +44,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
   override lazy val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeNames
+  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
   override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations

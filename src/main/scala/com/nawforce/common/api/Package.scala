@@ -28,7 +28,6 @@
 package com.nawforce.common.api
 
 import com.nawforce.common.names.{TypeIdentifier, TypeName}
-import com.nawforce.runtime.SourceBlob
 
 /** A virtual Package constructed from metadata.
   *

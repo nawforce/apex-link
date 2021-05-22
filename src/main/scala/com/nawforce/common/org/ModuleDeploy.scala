@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.common.documents._
-import com.nawforce.common.names._
+import com.nawforce.common.names.TypeName
 import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}

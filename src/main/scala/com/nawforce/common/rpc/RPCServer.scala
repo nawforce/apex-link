@@ -36,6 +36,9 @@ import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
+// In case IntelliJ messes up the imports again stick this back in
+// import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
+
 class RPCTerminatedException(msg: String) extends Exception(msg)
 
 class RPCServer {

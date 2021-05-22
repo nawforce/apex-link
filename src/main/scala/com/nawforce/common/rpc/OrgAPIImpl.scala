@@ -34,7 +34,6 @@ import com.nawforce.common.deps.{DependencyNode, DownWalker}
 import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.PathFactory
-import com.nawforce.runtime.SourceBlob
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

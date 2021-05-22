@@ -28,10 +28,9 @@
 package com.nawforce.common.parsers
 
 import com.nawforce.common.FileSystemHelper
-import com.nawforce.common.api.{Org, Package, ServerOps}
+import com.nawforce.common.api.{Org, ServerOps}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.sfdx.MDAPIWorkspaceConfig
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite

@@ -74,7 +74,7 @@ final case class TriggerDeclaration(source: Source,
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeNames
+  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
   override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
@@ -84,7 +84,7 @@ final case class TriggerDeclaration(source: Source,
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
-  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
+  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
 
   override def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $path") {

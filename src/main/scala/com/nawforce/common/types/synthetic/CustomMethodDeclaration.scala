@@ -28,8 +28,8 @@
 package com.nawforce.common.types.synthetic
 
 import com.nawforce.common.api._
-import com.nawforce.common.modifiers._
 import com.nawforce.common.diagnostics.PathLocation
+import com.nawforce.common.modifiers._
 import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
 import com.nawforce.common.types.core.ParameterDeclaration
