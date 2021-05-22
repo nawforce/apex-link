@@ -28,9 +28,9 @@
 package com.nawforce.common.documents
 
 import com.nawforce.common.diagnostics._
-import com.nawforce.runtime.parsers.SourceData
-import com.nawforce.common.names.{TypeName, TypeNames, _}
+import com.nawforce.common.names.{TypeName, _}
 import com.nawforce.common.path.PathLike
+import com.nawforce.runtime.parsers.SourceData
 
 /** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
   * may contribute to the same type. */
@@ -74,7 +74,7 @@ abstract class UpdatableMetadata(_path: PathLike, _name: Name)
 final case class LabelsDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
   override val nature: MetadataNature = LabelNature
-  override def typeName(namespace: Option[Name]): TypeName = TypeNames.Label
+  override def typeName(namespace: Option[Name]): TypeName = TypeName.Label
 }
 
 abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name)
@@ -83,7 +83,7 @@ final case class ApexClassDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
   override val nature: MetadataNature = ApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
-    TypeName(name).withNamespace(namespace)
+    TypeName(name, Seq(), namespace.map(TypeName(_)))
   }
 }
 
@@ -102,7 +102,7 @@ final case class ExtendedApexDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
   override val nature: MetadataNature = ExtendedApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
-    TypeName(name).withNamespace(namespace)
+    TypeName(name, Seq(), namespace.map(TypeName(_)))
   }
 }
 
@@ -111,8 +111,8 @@ final case class ComponentDocument(_path: PathLike, _name: Name)
   override val nature: MetadataNature = ComponentNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
-      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Component)))))
-      .getOrElse(TypeName(name, Nil, Some(TypeNames.Component)))
+      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeName.Component)))))
+      .getOrElse(TypeName(name, Nil, Some(TypeName.Component)))
   }
 }
 
@@ -130,7 +130,7 @@ final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLi
         namespace.map(ns => s"${ns}__").getOrElse("")
       else
         ""
-    TypeName(Name(prefix + name), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name), Nil, Some(TypeName.Schema))
   }
 }
 
@@ -138,14 +138,14 @@ final case class CustomMetadataDocument(_path: PathLike, _name: Name)
     extends SObjectLike(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeName.Schema))
   }
 }
 
 final case class BigObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeName.Schema))
   }
 }
 
@@ -153,7 +153,7 @@ final case class PlatformEventDocument(_path: PathLike, _name: Name)
     extends SObjectLike(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeNames.Schema))
+    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeName.Schema))
   }
 }
 
@@ -163,8 +163,8 @@ final case class SObjectFieldDocument(_path: PathLike, _name: Name)
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    val fieldsType = TypeNames.sObjectTypeFields$(
-      TypeName(Name(prefix + sobjectName), Nil, Some(TypeNames.Schema)))
+    val fieldsType =
+      TypeName.sObjectTypeFields$(TypeName(Name(prefix + sobjectName), Nil, Some(TypeName.Schema)))
     TypeName(name, Nil, Some(fieldsType))
   }
 }
@@ -175,8 +175,8 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    val fieldSetType = TypeNames.sObjectTypeFieldSets$(
-      TypeName(Name(prefix + sobjectName), Nil, Some(TypeNames.Schema)))
+    val fieldSetType = TypeName.sObjectTypeFieldSets$(
+      TypeName(Name(prefix + sobjectName), Nil, Some(TypeName.Schema)))
     TypeName(name, Nil, Some(fieldSetType))
   }
 }
@@ -186,7 +186,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
   override val nature: MetadataNature = PageNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name), Nil, Some(TypeNames.Page))
+    TypeName(Name(prefix + name), Nil, Some(TypeName.Page))
   }
 }
 
@@ -195,8 +195,8 @@ final case class FlowDocument(_path: PathLike, _name: Name)
   override lazy val nature: MetadataNature = FlowNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
-      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeNames.Interview)))))
-      .getOrElse(TypeName(name, Nil, Some(TypeNames.Interview)))
+      .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeName.Interview)))))
+      .getOrElse(TypeName(name, Nil, Some(TypeName.Interview)))
   }
 }
 

@@ -45,13 +45,55 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
   override val hashCode: Int = scala.util.hashing.MurmurHash3.productHash(this)
 
   /** Provide custom handling to toString to deal with internal type display */
-  override def toString: String = this.asString
+  override def toString: String = {
+    this match {
+      case TypeName.Null                  => "null"
+      case TypeName.Any                   => "any"
+      case TypeName.InternalObject        => "Object"
+      case TypeName.InternalInterface     => "Object"
+      case TypeName.RecordSet             => "[SOQL Results]"
+      case TypeName.SObjectFieldRowCause$ => "SObjectField"
+      case TypeName(Names.DescribeSObjectResult$,
+                    Seq(TypeName(name, Nil, None)),
+                    Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name"
+      case TypeName(Names.SObjectType$,
+                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+                    Some(TypeName.Internal)) =>
+        s"$name.SObjectType"
+      case TypeName(Names.SObjectTypeFields$,
+                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+                    Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name.Fields"
+      case TypeName(Names.SObjectTypeFieldSets$,
+                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+                    Some(TypeName.Internal)) =>
+        s"Schema.SObjectType.$name.FieldSets"
+      case TypeName(Names.SObjectFields$,
+                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+                    Some(TypeName.Internal)) =>
+        s"Schema.$name.Fields"
+      case TypeName(Names.SObjectFieldRowCause$,
+                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+                    Some(TypeName.Internal)) =>
+        s"Schema.$name.RowCause"
+      case _ => basicString
+    }
+  }
+
+  private def basicString: String = {
+    (if (outer.isEmpty) "" else outer.get.toString + ".") +
+      name.toString +
+      (if (params.isEmpty) ""
+       else s"<${params.map(_.toString).mkString(", ")}>")
+  }
+
 }
 
 object TypeName {
   implicit val rw: RW[TypeName] = macroRW
 
-  val emptyTypeNames: Array[TypeName] = Array()
+  val emptyTypeName: Array[TypeName] = Array()
 
   /** Helper for construction from Java, outer may be null */
   def fromJava(name: Name, params: Array[TypeName], outer: TypeName): TypeName = {
@@ -70,4 +112,34 @@ object TypeName {
   def apply(name: Name): TypeName = {
     new TypeName(name, Nil, None)
   }
+
+  val Internal: TypeName = TypeName(Names.Internal)
+  val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
+  val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
+  val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeName.Internal))
+  val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
+
+  val System: TypeName = TypeName(Names.System)
+  val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
+  val RecordSet: TypeName =
+    TypeName(Names.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
+  val SObjectFieldRowCause$ : TypeName =
+    TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
+
+  val Schema: TypeName = TypeName(Names.Schema)
+  val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeName.System))
+  val Component: TypeName = TypeName(Names.Component, Nil, None)
+  val Flow: TypeName = TypeName(Names.Flow)
+  val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeName.Flow))
+  val Page: TypeName = TypeName(Names.Page, Nil, None)
+
+  val SObjectTypeFields$ : TypeName =
+    TypeName(Names.SObjectTypeFields$, Nil, Some(TypeName.Internal))
+  val SObjectTypeFieldSets$ : TypeName =
+    TypeName(Names.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
+
+  def sObjectTypeFields$(typeName: TypeName): TypeName =
+    new TypeName(SObjectTypeFields$.name, Seq(typeName), SObjectTypeFields$.outer)
+  def sObjectTypeFieldSets$(typeName: TypeName): TypeName =
+    new TypeName(SObjectTypeFieldSets$.name, Seq(typeName), SObjectTypeFieldSets$.outer)
 }

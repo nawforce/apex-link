@@ -35,6 +35,11 @@ class IdentifierTest extends AnyFunSuite {
   private val illegalChar = "can only use characters A-Z, a-z, 0-9 or _"
   private val illegalDoubleUnderscore = "can not use '__'"
 
+  implicit class NameUtils(name: Name) {
+    def isLegalIdentifier: Option[String] = Identifier.isLegalIdentifier(name)
+    def isReservedIdentifier: Boolean = Identifier.isReservedIdentifier(name)
+  }
+
   test("Illegal identifiers") {
     assert(Name("a").isLegalIdentifier.isEmpty)
     assert(Name("ab").isLegalIdentifier.isEmpty)

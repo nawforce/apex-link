@@ -34,7 +34,7 @@ import ujson.Value
 case class PackageDependent(projectPath: PathLike, jsonPath: String, config: Value.Value) {
   val namespace: Option[Name] =
     config.optIdentifier(jsonPath, "namespace") match {
-      case Some(ns) if ns.isEmpty =>
+      case Some(ns) if ns.value.isEmpty =>
         throw new SFDXProjectError(s"$jsonPath.namespace", "'namespace' can not be empty")
       case Some(ns) => Some(ns)
       case None     => None

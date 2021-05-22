@@ -58,7 +58,7 @@ package object sfdx {
         case None | Some("") => None
         case Some(str) =>
           val ns = Name(str)
-          ns.isLegalIdentifier match {
+          Identifier.isLegalIdentifier(ns) match {
             case None => Some(ns)
             case Some(error) =>
               throw new SFDXProjectError(s"$jsonPath.$name",
