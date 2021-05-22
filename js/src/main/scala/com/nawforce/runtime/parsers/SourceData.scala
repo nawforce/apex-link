@@ -56,7 +56,7 @@ object SourceData {
 }
 
 case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) extends SourceData {
-  val hash: Int = MurmurHash3.arrayHash(source)
+  val hash: Int = MurmurHash3.bytesHash(source)
 
   override def subdata(startChar: Int, stopChar: Int): ByteArraySourceData = {
     val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)

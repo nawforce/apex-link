@@ -40,7 +40,7 @@ import scala.collection.mutable
 import scala.xml._
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-class XMLElement(element: Elem) extends XMLElementLike {
+final class XMLElement(element: Elem) extends XMLElementLike {
   override lazy val line: Int = element.attribute("line").get.toString().toInt
 
   override lazy val name: XMLName = XMLName(element.namespace, element.label)
@@ -54,7 +54,7 @@ class XMLElement(element: Elem) extends XMLElementLike {
   }
 }
 
-class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike(path) {
+final class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike(path) {
   override lazy val rootElement: XMLElementLike = new XMLElement(elem)
 }
 
@@ -79,22 +79,21 @@ trait WithLocation extends NoBindingFactoryAdapter {
   private var locator: org.xml.sax.Locator = _
   private val startLines = mutable.Stack[Int]()
 
-  // Get location
-  abstract override def setDocumentLocator(locator: Locator): Unit = {
+  final override def setDocumentLocator(locator: Locator): Unit = {
     this.locator = locator
     super.setDocumentLocator(locator)
   }
 
-  abstract override def createNode(pre: String,
+  final override def createNode(pre: String,
                                    label: String,
                                    attrs: MetaData,
                                    scope: NamespaceBinding,
-                                   children: List[Node]): Elem = (
-    super.createNode(pre, label, attrs, scope, children)
-      % Attribute("line", Text(startLines.pop().toString), Null)
-  )
+                                   children: List[Node]): Elem = {
+    val newAttrs = attrs.append(Attribute("line", Text(startLines.pop().toString), Null))
+    super.createNode(pre, label, newAttrs, scope, children)
+  }
 
-  abstract override def startElement(uri: scala.Predef.String,
+  final override def startElement(uri: scala.Predef.String,
                                      _localName: scala.Predef.String,
                                      name: scala.Predef.String,
                                      attributes: org.xml.sax.Attributes): scala.Unit = {
