@@ -28,9 +28,10 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.cst.{CST, Literal}
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
-import com.nawforce.common.path.PathFactory
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.types.core.{DependencyHolder, TypeDeclaration}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
 

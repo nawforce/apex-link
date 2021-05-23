@@ -28,8 +28,9 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, TypeName, TypeNames, _}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.OrgImpl
+import com.nawforce.pkgforce.names.{EncodedName, TypeName, _}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -327,7 +328,7 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
       case Left(error) =>
         if (!context.module.isGhostedType(enclosedType.get))
           OrgImpl.log(error.asIssue(location))
-        return ExprContext.empty
+        ExprContext.empty
       case Right(_) =>
         // FUTURE: Validate the expressions are assignable to 'creating'
         parts.foreach(_.verify(input, context))

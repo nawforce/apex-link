@@ -33,12 +33,13 @@ import java.util
 
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.modifiers.{Modifier, PUBLIC_MODIFIER}
-import com.nawforce.common.names.{DotName, Name, Names, TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.Module
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
+import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable

@@ -28,7 +28,7 @@
 package com.nawforce.common.deps
 
 import com.nawforce.common.api.Org
-import com.nawforce.common.names.{Name, Names, TypeIdentifier}
+import com.nawforce.pkgforce.names.{Name, Names, TypeIdentifier}
 
 import scala.collection.mutable
 

@@ -27,10 +27,10 @@
  */
 package com.nawforce.common.api
 
-import com.nawforce.common.diagnostics.{Issue, PathLocation}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.workspace.Workspace
+import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.workspace.Workspace
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
   *

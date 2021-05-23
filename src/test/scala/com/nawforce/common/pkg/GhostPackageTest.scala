@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class GhostPackageTest extends AnyFunSuite with TestHelper {

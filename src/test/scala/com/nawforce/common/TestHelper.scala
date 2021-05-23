@@ -1,11 +1,11 @@
 package com.nawforce.common
 
 import com.nawforce.common.api.{Org, ServerOps, TypeSummary}
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.{ApexFullDeclaration, FullDeclaration}
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 
 trait TestHelper {
 
@@ -103,9 +103,9 @@ trait TestHelper {
   }
 
   def packagedCustomType(namespace: String, name: String): Option[TypeDeclaration] = {
-    packagedType(Some(Name(namespace)), TypeName(Name(name), Seq(), Some(TypeName(Name(namespace)))))
+    packagedType(Some(Name(namespace)),
+                 TypeName(Name(name), Seq(), Some(TypeName(Name(namespace)))))
   }
-
 
   def hasIssues: Boolean = defaultOrg.issues.hasMessages
 

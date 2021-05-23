@@ -29,7 +29,7 @@ package com.nawforce.common.samples
 
 import com.nawforce.common.TestHelper
 import com.nawforce.common.api.IssueOptions
-import com.nawforce.common.path.PathFactory
+import com.nawforce.pkgforce.path.PathFactory
 import org.scalatest.funsuite.AnyFunSuite
 
 class SampleTest extends AnyFunSuite with TestHelper {

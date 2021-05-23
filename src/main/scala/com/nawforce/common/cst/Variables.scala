@@ -27,9 +27,9 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{Diagnostic, Issue, WARNING_CATEGORY}
-import com.nawforce.common.modifiers.{ApexModifiers, ModifierResults}
-import com.nawforce.common.names.TypeName
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, WARNING_CATEGORY}
+import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
+import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
 import com.nawforce.runtime.parsers.CodeParser
 

@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.TestHelper
-import com.nawforce.common.names.Name
+import com.nawforce.pkgforce.names.Name
 import org.scalatest.funsuite.AnyFunSuite
 
 class IdDependencyTest extends AnyFunSuite with TestHelper {

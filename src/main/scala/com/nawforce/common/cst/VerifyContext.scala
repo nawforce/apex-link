@@ -27,15 +27,16 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{Issue, IssueOps, PathLocation}
+import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.finding.{TypeError, TypeResolver}
 import com.nawforce.common.memory.SkinnySet
-import com.nawforce.common.modifiers.SUPPRESS_WARNINGS_ANNOTATION
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.common.types.other._
+import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 

@@ -27,14 +27,15 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{Module, PackageImpl}
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.stream.{ComponentEvent, PackageStream}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.synthetic.CustomFieldDeclaration
+import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3

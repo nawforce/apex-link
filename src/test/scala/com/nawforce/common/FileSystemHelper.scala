@@ -3,8 +3,8 @@ package com.nawforce.common
 import java.nio.file.Files
 
 import com.google.common.jimfs.{Configuration, Jimfs}
-import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.path.PathLike
+import com.nawforce.pkgforce.documents.ParsedCache
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.platform.Path
 
 object FileSystemHelper {

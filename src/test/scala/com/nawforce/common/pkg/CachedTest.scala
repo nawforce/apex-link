@@ -29,11 +29,12 @@
 package com.nawforce.common.pkg
 
 import com.nawforce.common.api.{IssueOptions, ServerOps}
-import com.nawforce.common.names.{Name, TypeIdentifier, TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.PackageImpl
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 

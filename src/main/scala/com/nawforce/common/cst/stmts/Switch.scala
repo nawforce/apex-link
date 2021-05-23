@@ -29,9 +29,10 @@
 package com.nawforce.common.cst.stmts
 
 import com.nawforce.common.cst._
-import com.nawforce.common.names.{TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.types.core.{ENUM_NATURE, TypeDeclaration}
+import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
 import com.nawforce.runtime.parsers.CodeParser
 

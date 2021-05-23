@@ -27,6 +27,8 @@
  */
 package com.nawforce.common
 
+import com.nawforce.pkgforce.names._
+
 /** Name handling support.
   *
   * The two most visible types of name (Name & TypeName) are included in the api package. Additional support is
@@ -102,8 +104,8 @@ package object names {
 
     def withNameReplace(regex: String, replacement: String): TypeName = {
       TypeName(Name(typeName.name.value.replaceAll(regex, replacement)),
-        typeName.params,
-        typeName.outer)
+               typeName.params,
+               typeName.outer)
     }
 
     def maybeNamespace: Option[Name] = {
@@ -146,7 +148,7 @@ package object names {
       if (typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1) {
         typeName.params.headOption
       } else if (typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) &&
-        typeName.params.size == 1) {
+                 typeName.params.size == 1) {
         typeName.params.headOption
       } else {
         None
@@ -155,8 +157,8 @@ package object names {
 
     def getSetOrListType: Option[TypeName] = {
       if ((typeName.name == Names.Set$ || typeName.name == Names.List$) && typeName.outer.contains(
-        TypeNames.System) &&
-        typeName.params.size == 1) {
+            TypeNames.System) &&
+          typeName.params.size == 1) {
         typeName.params.headOption
       } else {
         None
@@ -190,9 +192,9 @@ package object names {
 
     def equalsIgnoreParams(other: TypeName): Boolean = {
       typeName.name == other.name &&
-        typeName.params.size == other.params.size &&
-        typeName.outer.nonEmpty == other.outer.nonEmpty &&
-        typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
+      typeName.params.size == other.params.size &&
+      typeName.outer.nonEmpty == other.outer.nonEmpty &&
+      typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
     }
   }
 }

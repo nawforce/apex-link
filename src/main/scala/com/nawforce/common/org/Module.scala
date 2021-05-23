@@ -30,19 +30,20 @@ package com.nawforce.common.org
 
 import com.nawforce.common.api.ServerOps
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics.{IssueLog, LocalLogger, PathLocation}
-import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.finding.{TypeFinder, TypeResolver}
-import com.nawforce.common.modifiers.GLOBAL_MODIFIER
-import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames}
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.stream._
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.other.{InterviewDeclaration, _}
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.SchemaManager
+import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.immutable.ArraySeq

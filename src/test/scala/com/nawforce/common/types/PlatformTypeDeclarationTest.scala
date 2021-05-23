@@ -28,10 +28,11 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.common.types.platform.PlatformTypeDeclaration
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypeDeclarationTest extends AnyFunSuite {

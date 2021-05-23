@@ -27,10 +27,10 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.TypeName
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.TypeDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.pkgforce.names.TypeName
 
 import scala.collection.mutable
 

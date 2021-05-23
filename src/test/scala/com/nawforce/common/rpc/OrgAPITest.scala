@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.rpc
 
-import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
-import com.nawforce.common.path.PathFactory
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.path.PathFactory
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
 

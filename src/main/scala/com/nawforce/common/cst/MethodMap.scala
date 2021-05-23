@@ -27,13 +27,13 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, PathLocation}
-import com.nawforce.common.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
-import com.nawforce.common.names.{Name, Names, TypeName}
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.common.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
 import com.nawforce.common.types.synthetic.CustomMethodDeclaration
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, PathLocation}
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
 import scala.collection.mutable
 

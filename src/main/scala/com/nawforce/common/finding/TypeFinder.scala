@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.{DotName, TypeName}
+import com.nawforce.common.names._
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.pkgforce.names.{DotName, TypeName}
 
 /** Helper that implements local type searching, extracted out as logic is a bit involved. */
 trait TypeFinder {

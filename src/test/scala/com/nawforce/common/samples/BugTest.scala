@@ -28,8 +28,8 @@
 package com.nawforce.common.samples
 
 import com.nawforce.common.api.IssueOptions
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class BugTest extends AnyFunSuite with TestHelper {

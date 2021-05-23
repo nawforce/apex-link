@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.api
 
-import com.nawforce.common.names.{TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 
 /** A virtual Package constructed from metadata.
   *

@@ -29,8 +29,9 @@ package com.nawforce.common.cst
 
 import com.nawforce.common.TestHelper
 import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.Location
-import com.nawforce.common.names.{DotName, Name, TypeIdentifier, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
+import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.names.{DotName, Name, TypeIdentifier, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
 
 class SummaryTest extends AnyFunSuite with TestHelper {

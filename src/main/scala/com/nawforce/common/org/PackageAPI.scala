@@ -28,13 +28,13 @@
 package com.nawforce.common.org
 
 import com.nawforce.common.api.{Package, ServerOps, TypeSummary}
-import com.nawforce.common.documents._
 import com.nawforce.common.finding.TypeResolver
-import com.nawforce.common.names.{TypeIdentifier, TypeName}
-import com.nawforce.common.path.{PathFactory, PathLike}
 import com.nawforce.common.types.apex._
 import com.nawforce.common.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.common.types.platform.PlatformTypeException
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import upickle.default._
 
 import scala.collection.mutable

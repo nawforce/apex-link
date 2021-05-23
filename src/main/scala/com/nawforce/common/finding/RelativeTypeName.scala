@@ -28,11 +28,12 @@
 package com.nawforce.common.finding
 
 import com.nawforce.common.cst.BlockVerifyContext
-import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.finding.TypeResolver.TypeResponse
-import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.core.{Nature, TypeDeclaration}
+import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.names.{Name, TypeName}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved

@@ -28,8 +28,8 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.names.{TypeIdentifier, TypeName}
 import com.nawforce.common.org.Module
+import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 
 case class TypeId(module: Module, typeName: TypeName) {
   def asTypeIdentifier: TypeIdentifier = {

@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.names.{Name, Names, TypeNames}
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, Names}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class DeleteTest extends AnyFunSuite with TestHelper {

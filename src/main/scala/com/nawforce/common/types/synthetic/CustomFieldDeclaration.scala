@@ -27,15 +27,16 @@
  */
 package com.nawforce.common.types.synthetic
 
-import com.nawforce.common.diagnostics.{Location, PathLocation}
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{EncodedName, Name, TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.Module
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.FieldDeclaration
 import com.nawforce.common.types.platform.PlatformTypes
 import com.nawforce.common.types.schema.{PlatformObjectNature, SObjectNature}
-import com.nawforce.common.xml.{XMLElementLike, XMLException}
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.xml.{XMLElementLike, XMLException}
 
 final case class CustomFieldDeclaration(name: Name,
                                         typeName: TypeName,
@@ -115,9 +116,10 @@ object CustomFieldDeclaration {
     if (rawType == "Lookup" || rawType == "MasterDetail" || rawType == "MetadataRelationship") {
       val referenceTo = Name(elem.getSingleChildAsString("referenceTo").trim)
       val relName = Name(elem.getSingleChildAsString("relationshipName").trim + "__r")
-      val refTypeName = TypeName(EncodedName(referenceTo).defaultNamespace(module.namespace).fullName,
-                                 Nil,
-                                 Some(TypeNames.Schema))
+      val refTypeName = TypeName(
+        EncodedName(referenceTo).defaultNamespace(module.namespace).fullName,
+        Nil,
+        Some(TypeNames.Schema))
       idTarget = Some(refTypeName)
 
       module

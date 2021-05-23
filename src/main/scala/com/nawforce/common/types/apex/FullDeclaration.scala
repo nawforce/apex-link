@@ -29,16 +29,17 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.PathLocation
-import com.nawforce.common.documents._
 import com.nawforce.common.memory.Monitor
-import com.nawforce.common.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
-import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.{Module, OrgImpl}
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.other.{Component, Interview, Label, Page}
+import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
@@ -146,8 +147,7 @@ abstract class FullDeclaration(val source: Source,
 
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
-    if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(
-          s"${id.name}.cls")) {
+    if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.cls")) {
       context.logError(id.location,
                        s"Type name '${id.name}' does not match file name '${path.basename}'")
     }
@@ -242,9 +242,7 @@ abstract class FullDeclaration(val source: Source,
 }
 
 object FullDeclaration {
-  def create(module: Module,
-             doc: ApexClassDocument,
-             data: SourceData): Option[FullDeclaration] = {
+  def create(module: Module, doc: ApexClassDocument, data: SourceData): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
     parser.parseClass() match {
       case Left(issues) =>

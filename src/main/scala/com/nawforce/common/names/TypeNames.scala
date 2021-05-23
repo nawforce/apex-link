@@ -27,7 +27,8 @@
  */
 package com.nawforce.common.names
 
-import com.nawforce.common.memory.InternCache
+import com.nawforce.pkgforce.memory.InternCache
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
 object TypeNames extends InternCache[TypeName] {
 
@@ -62,7 +63,8 @@ object TypeNames extends InternCache[TypeName] {
   lazy val PageReference: TypeName =
     TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System)).intern
-  lazy val CustomSObject$: TypeName = TypeName(Names.CustomSObject$, Nil, Some(TypeNames.Internal)).intern
+  lazy val CustomSObject$ : TypeName =
+    TypeName(Names.CustomSObject$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val ApexPages: TypeName = TypeName(Names.ApexPages).intern
   lazy val ApexPagesPageReference: TypeName =
@@ -119,7 +121,8 @@ object TypeNames extends InternCache[TypeName] {
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName =
     SObjectTypeFieldSets$.withParams(Seq(typeName)).intern
   def sObjectFields$(typeName: TypeName): TypeName = SObjectFields$.withParams(Seq(typeName)).intern
-  def sObjectFieldRowCause$(typeName: TypeName): TypeName = SObjectFieldRowCause$.withParams(Seq(typeName)).intern
+  def sObjectFieldRowCause$(typeName: TypeName): TypeName =
+    SObjectFieldRowCause$.withParams(Seq(typeName)).intern
   def trigger(typeName: TypeName): TypeName = Trigger$.withParams(Seq(typeName)).intern
 
   def listOf(typeName: TypeName): TypeName =
@@ -130,71 +133,71 @@ object TypeNames extends InternCache[TypeName] {
     TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
 
   val standardShareNames = Set("AccountShare",
-    "AssetShare",
-    "AuthorizationFormConsentShare",
-    "AuthorizationFormDataUseShare",
-    "AuthorizationFormShare",
-    "CalendarViewShare",
-    "CampaignShare",
-    "CaseShare",
-    "CommSubscriptionChannelTypeShare",
-    "CommSubscriptionConsentShare",
-    "CommSubscriptionShare",
-    "ConsumptionScheduleShare",
-    "ContactPointAddressShare",
-    "ContactPointConsentShare",
-    "ContactPointEmailShare",
-    "ContactPointPhoneShare",
-    "ContactPointTypeConsentShare",
-    "ContactRequestShare",
-    "ContactShare",
-    "DataUseLegalBasisShare",
-    "DataUsePurposeShare",
-    "EngagementChannelTypeShare",
-    "ExternalEventMappingShare",
-    "FlowInterviewShare",
-    "ForecastShare",
-    "ForecastingShare",
-    "GoalShare",
-    "ImageShare",
-    "IndividualShare",
-    "LeadShare",
-    "LegalEntityShare",
-    "ListEmailShare",
-    "MacroShare",
-    "MacroUsageShare",
-    "MetricShare",
-    "OpportunityShare",
-    "OrderShare",
-    "OrgDeleteRequestShare",
-    "PartyConsentShare",
-    "ProfileSkillShare",
-    "PromptActionShare",
-    "QuickTextShare",
-    "QuickTextUsageShare",
-    "QuoteShare",
-    "SOSSessionShare",
-    "StreamingChannelShare",
-    "SurveyInvitationShare",
-    "SurveyShare",
-    "TodayGoalShare",
-    "UserAppMenuCustomizationShare",
-    "UserEmailPreferredPersonShare",
-    "UserProvisioningRequestShare",
-    "UserShare",
-    "WorkAccessShare",
-    "WorkBadgeDefinitionShare",
-    "WorkCoachingShare",
-    "WorkFeedbackQuestionSetShare",
-    "WorkFeedbackQuestionShare",
-    "WorkFeedbackRequestShare",
-    "WorkFeedbackShare",
-    "WorkFeedbackTemplateShare",
-    "WorkPerformanceCycleShare",
-    "WorkRewardFundShare",
-    "WorkRewardFundTypeShare",
-    "WorkRewardShare",
-    "WorkThanksShare",
+                               "AssetShare",
+                               "AuthorizationFormConsentShare",
+                               "AuthorizationFormDataUseShare",
+                               "AuthorizationFormShare",
+                               "CalendarViewShare",
+                               "CampaignShare",
+                               "CaseShare",
+                               "CommSubscriptionChannelTypeShare",
+                               "CommSubscriptionConsentShare",
+                               "CommSubscriptionShare",
+                               "ConsumptionScheduleShare",
+                               "ContactPointAddressShare",
+                               "ContactPointConsentShare",
+                               "ContactPointEmailShare",
+                               "ContactPointPhoneShare",
+                               "ContactPointTypeConsentShare",
+                               "ContactRequestShare",
+                               "ContactShare",
+                               "DataUseLegalBasisShare",
+                               "DataUsePurposeShare",
+                               "EngagementChannelTypeShare",
+                               "ExternalEventMappingShare",
+                               "FlowInterviewShare",
+                               "ForecastShare",
+                               "ForecastingShare",
+                               "GoalShare",
+                               "ImageShare",
+                               "IndividualShare",
+                               "LeadShare",
+                               "LegalEntityShare",
+                               "ListEmailShare",
+                               "MacroShare",
+                               "MacroUsageShare",
+                               "MetricShare",
+                               "OpportunityShare",
+                               "OrderShare",
+                               "OrgDeleteRequestShare",
+                               "PartyConsentShare",
+                               "ProfileSkillShare",
+                               "PromptActionShare",
+                               "QuickTextShare",
+                               "QuickTextUsageShare",
+                               "QuoteShare",
+                               "SOSSessionShare",
+                               "StreamingChannelShare",
+                               "SurveyInvitationShare",
+                               "SurveyShare",
+                               "TodayGoalShare",
+                               "UserAppMenuCustomizationShare",
+                               "UserEmailPreferredPersonShare",
+                               "UserProvisioningRequestShare",
+                               "UserShare",
+                               "WorkAccessShare",
+                               "WorkBadgeDefinitionShare",
+                               "WorkCoachingShare",
+                               "WorkFeedbackQuestionSetShare",
+                               "WorkFeedbackQuestionShare",
+                               "WorkFeedbackRequestShare",
+                               "WorkFeedbackShare",
+                               "WorkFeedbackTemplateShare",
+                               "WorkPerformanceCycleShare",
+                               "WorkRewardFundShare",
+                               "WorkRewardFundTypeShare",
+                               "WorkRewardShare",
+                               "WorkThanksShare",
   )
 
   implicit class TypeNameOps(typeName: TypeName) {
@@ -203,15 +206,15 @@ object TypeNames extends InternCache[TypeName] {
     def intern: TypeName = {
       TypeNames.intern(
         TypeName(Names(typeName.name.value),
-          typeName.params.map(_.intern),
-          typeName.outer.map(_.intern)))
+                 typeName.params.map(_.intern),
+                 typeName.outer.map(_.intern)))
     }
 
     // Check on if is a Schema Share type
     def isShare: Boolean = {
       typeName.outer.contains(TypeNames.Schema) &&
-        (typeName.name.toString.endsWith("__Share") ||
-          standardShareNames.contains(typeName.name.toString))
+      (typeName.name.toString.endsWith("__Share") ||
+      standardShareNames.contains(typeName.name.toString))
     }
   }
 }

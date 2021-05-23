@@ -30,13 +30,14 @@ package com.nawforce.common.org
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.common.api.ServerOps
-import com.nawforce.common.diagnostics.{Issue, MISSING_CATEGORY}
-import com.nawforce.common.documents._
-import com.nawforce.common.names.TypeName
-import com.nawforce.common.stream.PackageStream
+import com.nawforce.common.names._
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.common.types.other.{ComponentDeclaration, InterviewDeclaration, LabelDeclaration, PageDeclaration}
 import com.nawforce.common.types.schema.SObjectDeclaration
+import com.nawforce.pkgforce.diagnostics.{Issue, MISSING_CATEGORY}
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.stream.PackageStream
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
@@ -56,7 +57,7 @@ trait ModuleDeploy {
     stream.issues.foreach(e => e.issues.foreach(OrgImpl.log))
 
     labels = LabelDeclaration(this)
-    pages =  PageDeclaration(this)
+    pages = PageDeclaration(this)
     interviews = InterviewDeclaration(this)
     components = ComponentDeclaration(this)
 

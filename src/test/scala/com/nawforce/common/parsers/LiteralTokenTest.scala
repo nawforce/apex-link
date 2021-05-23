@@ -27,7 +27,7 @@
  */
 package com.nawforce.common.parsers
 
-import com.nawforce.common.path.PathFactory
+import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite

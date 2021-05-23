@@ -28,10 +28,10 @@
 
 package com.nawforce.common.types.core
 
-import com.nawforce.common.modifiers.{Modifier, ModifierOps}
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.org.Module
-import com.nawforce.common.path.PathLike
+import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 
 class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeName: TypeName)
     extends TypeDeclaration {

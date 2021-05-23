@@ -28,11 +28,11 @@
 package com.nawforce.common.types.synthetic
 
 import com.nawforce.common.api._
-import com.nawforce.common.diagnostics.PathLocation
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexVisibleMethodLike
 import com.nawforce.common.types.core.ParameterDeclaration
+import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{Name, TypeName}
 
 /** Custom methods are used to inject synthetic methods into types so they fulfil some contract. They extend from
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information

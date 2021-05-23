@@ -1,9 +1,9 @@
 package com.nawforce.common.types
 
-import com.nawforce.common.documents._
 import com.nawforce.common.org.Module
-import com.nawforce.common.stream.PackageStream
 import com.nawforce.common.types.core.DependentType
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.stream.PackageStream
 
 package object other {
 

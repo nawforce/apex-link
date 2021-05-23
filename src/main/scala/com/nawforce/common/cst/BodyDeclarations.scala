@@ -27,14 +27,15 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.{Issue, PathLocation}
 import com.nawforce.common.finding.RelativeTypeName
 import com.nawforce.common.memory.SkinnySet
-import com.nawforce.common.modifiers.{MethodModifiers, _}
-import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{Module, OrgImpl}
 import com.nawforce.common.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.common.types.core._
+import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.modifiers.{MethodModifiers, _}
+import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -418,7 +419,9 @@ object FormalParameter {
                     ApexModifiers.parameterModifiers(parser,
                                                      CodeParser.toScala(from.modifier()),
                                                      from),
-                    RelativeTypeName(module, outerTypeName, TypeReference.construct(from.typeRef())),
+                    RelativeTypeName(module,
+                                     outerTypeName,
+                                     TypeReference.construct(from.typeRef())),
                     Id.construct(from.id())).withContext(from)
   }
 }

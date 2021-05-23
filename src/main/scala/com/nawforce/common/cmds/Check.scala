@@ -65,7 +65,8 @@ object Check {
       return STATUS_ARGS
     }
     if (dirs.length > 1) {
-      System.err.println(s"Multiple arguments provided, expected workspace directory, '${dirs.mkString(", ")}'}")
+      System.err.println(
+        s"Multiple arguments provided, expected workspace directory, '${dirs.mkString(", ")}'}")
       return STATUS_ARGS
     }
 

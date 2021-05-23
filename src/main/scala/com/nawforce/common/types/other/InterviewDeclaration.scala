@@ -28,13 +28,14 @@
 package com.nawforce.common.types.other
 
 import com.nawforce.common.cst.VerifyContext
-import com.nawforce.common.documents.{MetadataDocument, SourceInfo}
-import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{Module, PackageImpl}
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.stream.{FlowEvent, PackageStream}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.platform.PlatformTypes
+import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3

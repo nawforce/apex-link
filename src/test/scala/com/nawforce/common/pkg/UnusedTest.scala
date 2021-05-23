@@ -27,11 +27,12 @@
  */
 package com.nawforce.common.pkg
 
-import com.nawforce.common.names.{Name, TypeName}
+import com.nawforce.common.names._
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class UnusedTest extends AnyFunSuite with TestHelper {
@@ -124,9 +125,8 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(
         Map("Dummy.cls" -> "public class Dummy {public static void foo() {}}",
-          "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
+            "Caller.cls" -> "public class Caller {{Dummy.Foo();}}",
         )) { root: PathLike =>
-
         // Setup as cached
         val org = createOrg(root)
         val pkg = org.unmanaged

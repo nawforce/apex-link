@@ -27,12 +27,13 @@
 */
 package com.nawforce.common.cst
 
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.Module
 import com.nawforce.common.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.common.types.core._
 import com.nawforce.common.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}

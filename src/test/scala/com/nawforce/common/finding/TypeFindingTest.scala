@@ -27,9 +27,10 @@
  */
 package com.nawforce.common.finding
 
-import com.nawforce.common.names.{Name, Names, TypeName}
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.names._
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite with TestHelper {

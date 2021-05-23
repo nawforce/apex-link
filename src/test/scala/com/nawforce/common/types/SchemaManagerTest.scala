@@ -1,7 +1,7 @@
 package com.nawforce.common.types
 
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class SchemaManagerTest extends AnyFunSuite with TestHelper {

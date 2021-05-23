@@ -27,11 +27,11 @@
  */
 package com.nawforce.common.cst
 
-import com.nawforce.common.diagnostics.PathLocation
-import com.nawforce.common.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
-import com.nawforce.common.names.{Name, TypeName}
 import com.nawforce.common.types.apex.ApexFieldLike
 import com.nawforce.common.types.core.TypeId
+import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
+import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 

@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.api
 
-import com.nawforce.common.diagnostics.{Diagnostic, Location}
-import com.nawforce.common.names.{TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Location}
+import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import upickle.default.{macroRW, ReadWriter => RW}
 
 /**

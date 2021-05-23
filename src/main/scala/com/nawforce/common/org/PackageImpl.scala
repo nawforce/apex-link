@@ -28,10 +28,11 @@
 
 package com.nawforce.common.org
 
-import com.nawforce.common.documents._
-import com.nawforce.common.names.{EncodedName, Name, TypeName}
+import com.nawforce.common.names._
 import com.nawforce.common.types.other._
 import com.nawforce.common.types.platform.PlatformTypeDeclaration
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
@@ -95,7 +96,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /* Check if a type is ghosted in this package */
   def isGhostedType(typeName: TypeName): Boolean = {
-    if (typeName.outer.contains(TypeName.Schema)) {
+    if (typeName.outer.contains(TypeNames.Schema)) {
       val encName = EncodedName(typeName.name)
       basePackages.filter(_.isGhosted).exists(_.namespace == encName.namespace)
     } else {

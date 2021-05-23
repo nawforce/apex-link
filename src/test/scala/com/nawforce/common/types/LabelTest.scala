@@ -28,9 +28,9 @@
 
 package com.nawforce.common.types
 
-import com.nawforce.common.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class LabelTest extends AnyFunSuite with TestHelper {

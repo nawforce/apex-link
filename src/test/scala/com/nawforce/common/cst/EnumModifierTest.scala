@@ -28,7 +28,7 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.TestHelper
-import com.nawforce.common.modifiers._
+import com.nawforce.pkgforce.modifiers._
 import org.scalatest.funsuite.AnyFunSuite
 
 class EnumModifierTest extends AnyFunSuite with TestHelper {

@@ -31,8 +31,9 @@ import java.lang.ref.WeakReference
 
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeResolver.TypeResponse
-import com.nawforce.common.names.{TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.pkgforce.names.TypeName
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
@@ -43,7 +44,7 @@ object PlatformTypes {
   lazy val sObjectTypeType: TypeDeclaration = loadType(TypeNames.SObjectType)
   lazy val sObjectTypeFieldSets: TypeDeclaration = loadType(TypeNames.SObjectTypeFieldSets)
   lazy val sObjectFieldType: TypeDeclaration = loadType(TypeNames.SObjectField)
-  lazy val sObjectFieldRowCause$: TypeDeclaration = loadType(TypeNames.SObjectFieldRowCause$)
+  lazy val sObjectFieldRowCause$ : TypeDeclaration = loadType(TypeNames.SObjectFieldRowCause$)
   lazy val typeType: TypeDeclaration = loadType(TypeNames.TypeType)
   lazy val stringType: TypeDeclaration = loadType(TypeNames.String)
   lazy val idType: TypeDeclaration = loadType(TypeNames.IdType)

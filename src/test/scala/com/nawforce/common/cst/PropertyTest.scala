@@ -28,9 +28,9 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.TestHelper
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.Name
 import com.nawforce.common.types.core.TypeDeclaration
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.Name
 import org.scalatest.funsuite.AnyFunSuite
 
 class PropertyTest extends AnyFunSuite with TestHelper {

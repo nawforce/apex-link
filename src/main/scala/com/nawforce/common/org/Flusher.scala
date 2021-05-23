@@ -29,9 +29,10 @@ package com.nawforce.common.org
 
 import java.util.concurrent.locks.ReentrantLock
 
-import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.memory.{Cleanable, Monitor}
-import com.nawforce.common.path.PathLike
+import com.nawforce.common.memory.Monitor
+import com.nawforce.pkgforce.documents.ParsedCache
+import com.nawforce.pkgforce.memory.Cleanable
+import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
 

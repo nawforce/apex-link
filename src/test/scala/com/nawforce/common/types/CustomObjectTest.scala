@@ -27,8 +27,8 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.immutable.ArraySeq.ofRef
@@ -115,8 +115,9 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(
           // TODO: This is creating dual errors, it will be fixed by event stream
-          org.issues.getMessages(root.join("Foo__c.object").toString).startsWith(
-            "Error: line 5: Unexpected type 'Silly' on custom field\n"))
+          org.issues
+            .getMessages(root.join("Foo__c.object").toString)
+            .startsWith("Error: line 5: Unexpected type 'Silly' on custom field\n"))
     }
   }
 

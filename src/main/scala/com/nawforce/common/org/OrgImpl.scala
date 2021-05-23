@@ -33,11 +33,12 @@ import java.util.jar.JarFile
 
 import com.nawforce.common.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.cst.UnusedLog
-import com.nawforce.common.diagnostics._
-import com.nawforce.common.documents._
-import com.nawforce.common.names.{DotName, Name, TypeIdentifier}
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.workspace.{ModuleLayer, Workspace}
+import com.nawforce.common.names._
+import com.nawforce.pkgforce.diagnostics._
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.{DotName, Name, TypeIdentifier}
+import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 
 import scala.util.DynamicVariable
 import scala.util.hashing.MurmurHash3

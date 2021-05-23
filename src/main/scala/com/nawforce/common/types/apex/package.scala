@@ -29,9 +29,9 @@
 package com.nawforce.common.types
 
 import com.nawforce.common.api._
-import com.nawforce.common.memory.InternCache
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{Names, TypeIdentifier}
+import com.nawforce.pkgforce.memory.InternCache
+import com.nawforce.pkgforce.names.{Names, TypeIdentifier}
 
 package object apex {
 

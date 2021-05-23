@@ -27,13 +27,14 @@
  */
 package com.nawforce.common.types.other
 
-import com.nawforce.common.documents._
-import com.nawforce.common.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
-import com.nawforce.common.names.{Name, TypeName, TypeNames}
+import com.nawforce.common.names.{TypeNames, _}
 import com.nawforce.common.org.Module
-import com.nawforce.common.path.{PathFactory, PathLike}
-import com.nawforce.common.stream.{PackageStream, PageEvent}
 import com.nawforce.common.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
+import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3

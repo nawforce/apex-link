@@ -29,8 +29,8 @@ package com.nawforce.common.types.platform
 
 import java.lang.reflect.{Modifier => JavaModifier}
 
-import com.nawforce.common.modifiers._
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
+import com.nawforce.pkgforce.modifiers._
 
 object PlatformModifiers {
   private val modPublic: Array[Modifier] = Array(PUBLIC_MODIFIER)
@@ -63,10 +63,10 @@ object PlatformModifiers {
                               isStatic: Boolean,
                               isAbstract: Boolean): Array[Modifier] = {
     (isClass, isStatic, isAbstract) match {
-      case (true, false, false)  => modPublicVirtual
-      case (true, true, false)   => modPublicVirtualStatic
-      case (true, false, true)   => modPublicAbs
-      case (true, true, true)    => modPublicStaticAbs
+      case (true, false, false) => modPublicVirtual
+      case (true, true, false)  => modPublicVirtualStatic
+      case (true, false, true)  => modPublicAbs
+      case (true, true, true)   => modPublicStaticAbs
 
       case (false, false, _) => modPublic
       case (false, true, _)  => modPublicStatic

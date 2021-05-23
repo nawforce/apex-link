@@ -27,10 +27,11 @@
  */
 package com.nawforce.common.types
 
-import com.nawforce.common.modifiers._
-import com.nawforce.common.names.{DotName, Name, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
 import com.nawforce.common.types.platform.{PlatformTypeDeclaration, PlatformTypes}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{DotName, Name, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {

@@ -31,9 +31,9 @@ import java.util.concurrent.LinkedBlockingQueue
 
 import com.nawforce.common.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.common.deps.{DependencyNode, DownWalker}
-import com.nawforce.common.diagnostics.Issue
 import com.nawforce.common.org.OrgImpl
-import com.nawforce.common.path.PathFactory
+import com.nawforce.pkgforce.diagnostics.Issue
+import com.nawforce.pkgforce.path.PathFactory
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

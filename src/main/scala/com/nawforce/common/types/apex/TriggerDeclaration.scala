@@ -29,13 +29,14 @@ package com.nawforce.common.types.apex
 
 import com.nawforce.common.api._
 import com.nawforce.common.cst._
-import com.nawforce.common.diagnostics.PathLocation
 import com.nawforce.common.memory.SkinnySet
-import com.nawforce.common.modifiers.{Modifier, ModifierOps}
-import com.nawforce.common.names.{Name, Names, TypeName, TypeNames}
+import com.nawforce.common.names.TypeNames
 import com.nawforce.common.org.{Module, OrgImpl}
-import com.nawforce.common.path.PathLike
 import com.nawforce.common.types.core.{BlockDeclaration, _}
+import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
@@ -84,7 +85,7 @@ final case class TriggerDeclaration(source: Source,
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
-  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeName.Schema))
+  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(withPropagation: Boolean): Unit = {
     ServerOps.debugTime(s"Validated $path") {
