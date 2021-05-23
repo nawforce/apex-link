@@ -108,7 +108,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
-  var unmanaged: PackageImpl = packages.last
+  val unmanaged: PackageImpl = packages.last
 
   /** Is this Org using auto-flushing of the parsedCache */
   private val autoFlush = ServerOps.getAutoFlush

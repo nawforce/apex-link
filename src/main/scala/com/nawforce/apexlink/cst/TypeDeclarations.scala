@@ -113,7 +113,7 @@ object ClassDeclaration {
     val bodyDeclarations: Array[ClassBodyDeclaration] =
         classBodyDeclarations.flatMap(cbd =>
           CodeParser.toScala(cbd.block())
-            .map(x => Seq(ApexInitialiserBlock.construct(parser,
+            .map(x => Seq(ApexInitializerBlock.construct(parser,
                 ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, module, modifiers.methodOwnerNature,

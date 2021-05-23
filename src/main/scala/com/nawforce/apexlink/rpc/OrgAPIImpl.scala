@@ -46,7 +46,7 @@ trait APIRequest {
 
 class OrgQueue(quiet: Boolean, path: String) { self =>
   val org: Org = Org.newOrg(path)
-  var packages: List[Package] = Nil
+  val packages: List[Package] = Nil
 
   private val queue = new LinkedBlockingQueue[APIRequest]()
   private val dispatcher = new APIRequestDispatcher()

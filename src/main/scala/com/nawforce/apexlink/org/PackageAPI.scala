@@ -255,7 +255,7 @@ trait PackageAPI extends Package {
     true
   }
 
-  /* Revalidate a set of types. A side effect of re-validation is that summary types are replaced by full types as
+  /* Re-validate a set of types. A side effect of re-validation is that summary types are replaced by full types as
    * they are needed to re-establish the dependency graph. This is not done recursively as the full type should
    * be of the exact same shape as the summary it replaces. */
   private def reValidate(references: Set[TypeId]): Unit = {

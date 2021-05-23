@@ -81,9 +81,9 @@ abstract class FullDeclaration(val source: Source,
   }
 
   override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
-  private lazy val _blocks: Array[ApexInitialiserBlock] = {
+  private lazy val _blocks: Array[ApexInitializerBlock] = {
     bodyDeclarations.flatMap {
-      case x: ApexInitialiserBlock => Some(x)
+      case x: ApexInitializerBlock => Some(x)
       case _                       => None
     }
   }

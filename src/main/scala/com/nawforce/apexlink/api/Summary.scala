@@ -33,7 +33,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 
 /**
   * Summary types are used both by the disk cache and to provide a quick & cheap way to examine what is available
-  * in a type. See [[Package.getViewOfType()]] for more access to more detailed information.
+  * in a type.
   */
 /** Summary of an Apex class with diagnostic information */
 case class ApexSummary(typeSummary: TypeSummary, diagnostics: Array[Diagnostic])
@@ -82,7 +82,6 @@ case class TypeSummary(sourceHash: Int,
   }
 }
 
-/** Summary of a initialiser block */
 case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) {
 
   override def equals(that: Any): Boolean = {

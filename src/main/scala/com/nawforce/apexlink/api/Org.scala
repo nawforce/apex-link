@@ -56,30 +56,6 @@ trait Org {
   /** Get array of current packages. */
   def getPackages(): Array[Package]
 
-  /** Create a new package in the org from MDAPI format metadata.
-    *
-    * To use this package to replace the 'unmanaged' package modeled in all Orgs pass a null or empty namespace. The
-    * directories are scanned in the order provided which influences how duplicate metadata is reported. The
-    * basePackages array should contain any packages that this package depends on. References to metadata not
-    * included in basePackage is not possible.
-    **/
-  /* TODO Delete me
-  def newMDAPIPackage(namespace: String,
-                      directories: Array[String],
-                      basePackages: Array[Package]): Package
-   */
-
-  /** Create a new package in the org from SFDX format metadata.
-    *
-    * The metadata directory must contain a well formed sfdx-project.json file. The package namespace & package
-    * directories to use are read from the sfdx-project.json file. If a .forceignore file is present in the
-    * metadata directory it will be honoured. Any dependent packages that are also required can be specified
-    * in the "plugins" section of sfdx-project.json under in a "dependencies" array.
-    **/
-  /* TODO Delete me
-  def newSFDXPackage(directory: String): Package
-   */
-
   /** Force syncing of org metadata to the cache when not using automatic flushing (see ServerOps).
     *
     * When using manual flushing this should be called periodically to ensure the cache is kept upto date after
@@ -150,7 +126,7 @@ class FileIssueOptions {
   var includeZombies: Boolean = false
 
   /** Maximum errors to include for each file, errors are ordered so this is the first 'n' errors. */
-  var maxErrorsPerFile: Integer = 10
+  val maxErrorsPerFile: Integer = 10
 }
 
 /** Options available when retrieving Org issues. */

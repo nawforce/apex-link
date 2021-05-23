@@ -179,7 +179,7 @@ object ClassBodyDeclaration {
   }
 }
 
-final case class ApexInitialiserBlock(_modifiers: ModifierResults, block: Block)
+final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block)
     extends ClassBodyDeclaration(_modifiers)
     with ApexBlockLike {
 
@@ -194,11 +194,11 @@ final case class ApexInitialiserBlock(_modifiers: ModifierResults, block: Block)
   }
 }
 
-object ApexInitialiserBlock {
+object ApexInitializerBlock {
   def construct(parser: CodeParser,
                 modifiers: ModifierResults,
-                block: BlockContext): ApexInitialiserBlock = {
-    ApexInitialiserBlock(modifiers, Block.constructLazy(parser, block))
+                block: BlockContext): ApexInitializerBlock = {
+    ApexInitializerBlock(modifiers, Block.constructLazy(parser, block))
   }
 }
 
