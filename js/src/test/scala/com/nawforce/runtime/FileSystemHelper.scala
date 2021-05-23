@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime
 
-import com.nawforce.common.documents.ParsedCache
-import com.nawforce.common.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.documents.ParsedCache
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.runtime.imports.{FSMonkey, Memfs}
 import com.nawforce.runtime.platform.Environment
 import io.scalajs.nodejs.os.OS

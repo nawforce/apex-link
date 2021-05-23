@@ -29,9 +29,9 @@ package com.nawforce.runtime.xml
 
 import java.io.ByteArrayInputStream
 
-import com.nawforce.common.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
 import javax.xml.parsers.SAXParserFactory
 import org.xml.sax.Locator

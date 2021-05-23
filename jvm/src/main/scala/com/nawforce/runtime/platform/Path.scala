@@ -31,7 +31,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{DirectoryStream, Files}
 
-import com.nawforce.common.path._
+import com.nawforce.pkgforce.path._
 import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable

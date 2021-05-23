@@ -27,7 +27,7 @@
  */
 package com.nawforce.runtime.platform
 
-import com.nawforce.common.path._
+import com.nawforce.pkgforce.path._
 import com.nawforce.runtime.parsers.SourceData
 import io.scalajs.nodejs.buffer.Buffer
 import io.scalajs.nodejs.fs.Fs

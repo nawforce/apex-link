@@ -29,8 +29,8 @@ package com.nawforce.runtime.parsers
 
 import java.io.ByteArrayInputStream
 
-import com.nawforce.common.diagnostics.{Issue, Location}
-import com.nawforce.common.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTree

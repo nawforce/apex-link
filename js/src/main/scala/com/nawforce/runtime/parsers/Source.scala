@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.diagnostics.{Location, PathLocation}
-import com.nawforce.common.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 

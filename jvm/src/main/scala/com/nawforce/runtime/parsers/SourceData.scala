@@ -31,7 +31,7 @@ package com.nawforce.runtime.parsers
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
-import com.nawforce.common.parsers.UTF8Decode
+import com.nawforce.pkgforce.parsers.UTF8Decode
 import com.nawforce.runtime.SourceBlob
 import org.antlr.v4.runtime.{CharStream, CharStreams}
 

@@ -1,7 +1,7 @@
 package com.nawforce.runtime.cmds
 
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.workspace.Workspace
+import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.workspace.Workspace
 
 object Scan {
 

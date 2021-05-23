@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets
 /** Platform specific handling for JVM execution.
   *
   * Contains a number of abstractions for handling the differences between JVM & Node execution. This is just the JVM
-  * implementation, the node version of the same abstraction is not in this project. See [[com.nawforce.common]] for
+  * implementation, the node version of the same abstraction is not in this project. See [[com.nawforce.pkgforce]] for
   * the analysis code.
   **/
 package object runtime {

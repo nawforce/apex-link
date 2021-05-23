@@ -27,9 +27,9 @@
  */
 package com.nawforce.runtime.xml
 
-import com.nawforce.common.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, Location}
-import com.nawforce.common.path.PathLike
-import com.nawforce.common.xml.{XMLDocumentLike, XMLElementLike, XMLName}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable.ArrayBuffer

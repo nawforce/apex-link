@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.common.diagnostics.{Issue, Location}
-import com.nawforce.common.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 

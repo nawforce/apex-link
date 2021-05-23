@@ -27,9 +27,9 @@
  */
 package com.nawforce.runtime.documents
 
-import com.nawforce.common.names.DotName
-import com.nawforce.common.path.PathFactory
-import com.nawforce.common.workspace.Workspace
+import com.nawforce.pkgforce.names.DotName
+import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.workspace.Workspace
 
 import scala.collection.mutable
 import scala.scalajs.js
