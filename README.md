@@ -13,7 +13,7 @@ The underlying handling of metadata currently uses a 1GP like package model. The
 The library comes with a set of unit tests to limit regressions. The [test-samples](https://github.com/nawforce/test-samples) repo uses git modules to provide testing against commonly used open source libraries. If you have a particular interest in seeing a project regularly tested for compatibility please feel free to raise a PR to add it to test-samples.
 
 ### API Access
-The main API for the library is based around the concept of a virtual (in-memory) Salesforce Org. Using this model makes it a little easier to reason about how the API should work. You can find docs for the Org abstraction at [javadoc.io](https://javadoc.io/doc/com.github.nawforce/apexlink/latest/com/nawforce/common/api/Org.html). Many of the internal classes of the library are available for use but only classes in the com.nawforce.common.api package are considered stable.
+The main API for the library is based around the concept of a virtual (in-memory) Salesforce Org. Using this model makes it a little easier to reason about how the API should work. You can find docs for the Org abstraction at [javadoc.io](https://javadoc.io/doc/com.github.nawforce/apexlink/latest/com/nawforce/common/api/Org.html). Many of the internal classes of the library are available for use but only classes in the com.nawforce.apexlink.api package are considered stable.
 
 The [apex-assist](https://github.com/nawforce/apex-assist) VSCode extension makes use of a JSON-RPC server that is built into the library. The [API](https://javadoc.io/doc/com.github.nawforce/apexlink/latest/com/nawforce/common/rpc/OrgAPI.html) for this is not considered stable, but it may be more convenient for some use cases.
 

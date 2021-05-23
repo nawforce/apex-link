@@ -26,8 +26,8 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.nawforce.common.api.*;
-import com.nawforce.common.api.Package;
+import com.nawforce.apexlink.api.*;
+import com.nawforce.apexlink.api.Package;
 
 import java.io.IOException;
 import java.nio.file.Files;
