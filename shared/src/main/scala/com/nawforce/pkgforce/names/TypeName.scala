@@ -113,29 +113,30 @@ object TypeName {
     new TypeName(name, Nil, None)
   }
 
-  val Internal: TypeName = TypeName(Names.Internal)
-  val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
-  val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
-  val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeName.Internal))
-  val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
+  // Package private to avoid accidental use in apex-link
+  private[pkgforce] val Internal: TypeName = TypeName(Names.Internal)
+  private[pkgforce] val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
 
-  val System: TypeName = TypeName(Names.System)
-  val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
-  val RecordSet: TypeName =
+  private[pkgforce] val System: TypeName = TypeName(Names.System)
+  private[pkgforce] val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
+  private[pkgforce] val RecordSet: TypeName =
     TypeName(Names.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
-  val SObjectFieldRowCause$ : TypeName =
+  private[pkgforce] val SObjectFieldRowCause$ : TypeName =
     TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
 
-  val Schema: TypeName = TypeName(Names.Schema)
-  val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeName.System))
-  val Component: TypeName = TypeName(Names.Component, Nil, None)
-  val Flow: TypeName = TypeName(Names.Flow)
-  val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeName.Flow))
-  val Page: TypeName = TypeName(Names.Page, Nil, None)
+  private[pkgforce] val Schema: TypeName = TypeName(Names.Schema)
+  private[pkgforce] val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeName.System))
+  private[pkgforce] val Component: TypeName = TypeName(Names.Component, Nil, None)
+  private[pkgforce] val Flow: TypeName = TypeName(Names.Flow)
+  private[pkgforce] val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeName.Flow))
+  private[pkgforce] val Page: TypeName = TypeName(Names.Page, Nil, None)
 
-  val SObjectTypeFields$ : TypeName =
+  private[pkgforce] val SObjectTypeFields$ : TypeName =
     TypeName(Names.SObjectTypeFields$, Nil, Some(TypeName.Internal))
-  val SObjectTypeFieldSets$ : TypeName =
+  private[pkgforce] val SObjectTypeFieldSets$ : TypeName =
     TypeName(Names.SObjectTypeFieldSets$, Nil, Some(TypeName.Internal))
 
   def sObjectTypeFields$(typeName: TypeName): TypeName =
