@@ -1,4 +1,3 @@
-
 export declare class WorkspaceException {
     message: string;
 }

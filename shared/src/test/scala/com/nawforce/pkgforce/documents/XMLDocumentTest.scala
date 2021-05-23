@@ -102,7 +102,7 @@ class XMLDocumentTest extends AnyFunSuite {
             assert(node.get.line == 1)
             assert(node.get.name == XMLName(XMLDocument.sfNamespace, "a"))
             assert(node.get.text == "Foo")
-            node.get.assertIs("a")
+            node.get.checkIsOrThrow("a")
         }
     }
   }

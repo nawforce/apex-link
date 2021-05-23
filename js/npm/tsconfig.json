@@ -1,12 +1,12 @@
 {
-    "compilerOptions": {
-      "target": "es2015",
-      "module": "commonjs",
-      "sourceMap": true,
-      "declaration": false,
-      "rootDir": "src",
-      "outDir": "lib",
-      "allowJs": true,
-      "esModuleInterop": true
-    }
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": false,
+    "rootDir": "src",
+    "outDir": "lib",
+    "allowJs": true,
+    "esModuleInterop": true
   }
+}

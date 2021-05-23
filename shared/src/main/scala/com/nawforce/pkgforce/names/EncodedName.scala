@@ -72,9 +72,12 @@ object EncodedName {
     parts.size match {
       case 3 =>
         val normalExt = parts(2).toLowerCase
-        assert(extensions.contains(normalExt) || normalExt.endsWith("__s"),
-               s"Unexpected EncodedName extension '$normalExt'")
-        EncodedName(Name(parts(1)), Some(Name(parts(2))), Some(Name(parts.head)))
+        if (extensions.contains(normalExt) || normalExt.endsWith("__s")) {
+          EncodedName(Name(parts(1)), Some(Name(parts(2))), Some(Name(parts.head)))
+        } else {
+          // If extension is not recognised don't split
+          EncodedName(Name(name), None, None)
+        }
       case 2 =>
         val normalExt = parts(1).toLowerCase
         if (extensions.contains(normalExt) || normalExt.endsWith("__s"))

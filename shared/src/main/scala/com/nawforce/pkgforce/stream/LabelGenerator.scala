@@ -51,7 +51,7 @@ object LabelGenerator {
           case Right(document) =>
             val rootElement = document.rootElement
             try {
-              rootElement.assertIs("CustomLabels")
+              rootElement.checkIsOrThrow("CustomLabels")
               val labels = rootElement
                 .getChildren("labels")
                 .iterator

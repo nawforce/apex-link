@@ -45,7 +45,7 @@ trait XMLElementLike {
   val text: String
 
   // Assert name of an element, throws XMLException on error
-  def assertIs(value: String): Unit = {
+  def checkIsOrThrow(value: String): Unit = {
     if (name.namespace != XMLDocumentLike.sfNamespace) {
       throw XMLException(
         Location(line),

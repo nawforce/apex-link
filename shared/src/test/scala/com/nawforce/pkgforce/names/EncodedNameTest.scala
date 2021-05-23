@@ -129,4 +129,11 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName.asTypeName == TypeName(Name("MyPage"), Nil, Some(TypeName(Name("ns")))))
   }
 
+  test("Bad extension") {
+    val testName = EncodedName("ns__Foo__x")
+    assert(testName == EncodedName(Name("ns__Foo__x"), None, None))
+    assert(testName.localName == Name("ns__Foo__x"))
+    assert(testName.fullName == Name("ns__Foo__x"))
+    assert(testName.asTypeName == TypeName(Name("ns__Foo__x"), Nil, None))
+  }
 }

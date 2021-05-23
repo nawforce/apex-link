@@ -174,7 +174,7 @@ object SObjectGenerator {
               XMLFactory.parse(filePath) match {
                 case Left(issue) => IssuesEvent.iterator(Seq(issue))
                 case Right(root) =>
-                  root.rootElement.assertIs(rootElement)
+                  root.rootElement.checkIsOrThrow(rootElement)
                   op(root.rootElement, filePath)
               }
             }
