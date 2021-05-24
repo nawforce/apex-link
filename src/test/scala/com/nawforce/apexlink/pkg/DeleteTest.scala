@@ -174,7 +174,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(pkg.interviews.get.nestedTypes.isEmpty)
+        assert(pkg.orderedModules.head.interviews.nestedTypes.isEmpty)
       }
     }
   }
@@ -191,7 +191,8 @@ class DeleteTest extends AnyFunSuite with TestHelper {
           path.delete()
           pkg.refresh(path)
           assert(org.flush())
-          assert(pkg.interviews.get.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
+          assert(
+            pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
       }
     }
   }
@@ -207,7 +208,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(pkg.pages.get.fields.isEmpty)
+        assert(pkg.orderedModules.head.pages.fields.isEmpty)
       }
     }
   }
@@ -223,7 +224,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(pkg.pages.get.fields.map(_.name).toSet == Set(Name("Test2")))
+        assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("Test2")))
       }
     }
   }
@@ -240,9 +241,9 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         pkg.refresh(path)
         assert(org.flush())
         assert(
-          pkg.components.get.nestedTypes.map(_.name).toSet == Set(Names.c,
-                                                                  Names.Apex,
-                                                                  Names.Chatter))
+          pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet == Set(Names.c,
+                                                                                  Names.Apex,
+                                                                                  Names.Chatter))
       }
     }
   }
@@ -261,10 +262,10 @@ class DeleteTest extends AnyFunSuite with TestHelper {
           pkg.refresh(path)
           assert(org.flush())
           assert(
-            pkg.components.get.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
-                                                                    Names.c,
-                                                                    Names.Apex,
-                                                                    Names.Chatter))
+            pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
+                                                                                    Names.c,
+                                                                                    Names.Apex,
+                                                                                    Names.Chatter))
       }
     }
   }

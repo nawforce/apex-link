@@ -158,11 +158,9 @@ object InterviewDeclaration {
   private def collectBaseInterviews(module: Module): Seq[NestedInterviews] = {
     module.basePackages
       .map(basePkg => {
-        if (basePkg.isGhosted) {
-          new GhostedInterviews(module, basePkg)
-        } else {
-          new PackageInterviews(module, basePkg.interviews.get)
-        }
+        basePkg.orderedModules.headOption
+          .map(m => new PackageInterviews(module, m.interviews))
+          .getOrElse(new GhostedInterviews(module, basePkg))
       })
   }
 }

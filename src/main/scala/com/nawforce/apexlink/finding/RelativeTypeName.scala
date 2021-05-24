@@ -37,7 +37,7 @@ final case class RelativeTypeName(module: Module,
         context.addDependency(td)
       case _ =>
         context.missingType(location, relativeTypeName)
-        context.addVar(name, module.any())
+        context.addVar(name, module.any)
     }
   }
 

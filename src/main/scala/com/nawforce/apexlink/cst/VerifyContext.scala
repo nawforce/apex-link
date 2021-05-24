@@ -234,7 +234,7 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     if (td.isEmpty)
       missingType(location, typeName)
 
-    vars.put(name, td.getOrElse(module.any()))
+    vars.put(name, td.getOrElse(module.any))
   }
 
   def isStatic: Boolean

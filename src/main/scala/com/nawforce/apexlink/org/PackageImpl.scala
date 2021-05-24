@@ -12,7 +12,6 @@
     derived from this software without specific prior written permission.
  */
 
-
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.names._
@@ -58,11 +57,6 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /** Is this or any base package of this a ghost package. */
   lazy val hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
-
-  lazy val labels: Option[LabelDeclaration] = orderedModules.headOption.map(_.labels)
-  lazy val interviews: Option[InterviewDeclaration] = orderedModules.headOption.map(_.interviews)
-  lazy val pages: Option[PageDeclaration] = orderedModules.headOption.map(_.pages)
-  lazy val components: Option[ComponentDeclaration] = orderedModules.headOption.map(_.components)
 
   /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {

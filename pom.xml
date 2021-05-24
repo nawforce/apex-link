@@ -346,7 +346,7 @@
           </execution>
         </executions>
         <configuration>
-          <doCheck>true</doCheck>
+          <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
         </configuration>
       </plugin>

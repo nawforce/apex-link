@@ -12,7 +12,6 @@
     derived from this software without specific prior written permission.
  */
 
-
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.api.ServerOps
@@ -20,7 +19,13 @@ import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.types.apex.{
+  ApexClassDeclaration,
+  ApexDeclaration,
+  ApexFullDeclaration,
+  FullDeclaration,
+  TriggerDeclaration
+}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
@@ -48,19 +53,17 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   private[nawforce] val schemaManager = new SchemaManager(this)
   private[nawforce] val anyDeclaration = AnyDeclaration(this)
 
-  var labels: LabelDeclaration = _
-  var pages: PageDeclaration = _
-  var interviews: InterviewDeclaration = _
-  var components: ComponentDeclaration = _
-
   def typeCount: Int = types.size
 
-  initTypes()
-
-  private def initTypes(): Unit = {}
-
-  def any(): AnyDeclaration = anyDeclaration
   def schema(): SchemaManager = schemaManager
+
+  def any: AnyDeclaration = findModuleType(TypeNames.Any).get.asInstanceOf[AnyDeclaration]
+  def labels: LabelDeclaration = findModuleType(TypeNames.Label).get.asInstanceOf[LabelDeclaration]
+  def interviews: InterviewDeclaration =
+    findModuleType(TypeNames.Interview).get.asInstanceOf[InterviewDeclaration]
+  def pages: PageDeclaration = findModuleType(TypeNames.Page).get.asInstanceOf[PageDeclaration]
+  def components: ComponentDeclaration =
+    findModuleType(TypeNames.Component).get.asInstanceOf[ComponentDeclaration]
 
   def isVisibleFile(path: PathLike): Boolean = {
     index.isVisibleFile(path)
@@ -106,15 +109,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       val td = typeDeclaration.get
       types.put(typeName, td)
 
-      // Handle special cases
+      // Labels must also be updated against just 'Label' to simulate the defaulting of the System namespace, this is
+      // a design flaw but I am living it for now, if this is skipped Label would resolve against an empty platform
+      // type.
       typeName match {
-        case TypeNames.Label =>
-          labels = td.asInstanceOf[LabelDeclaration]
-          types.put(TypeName(labels.name), labels)
-        case TypeNames.Page      => pages = td.asInstanceOf[PageDeclaration]
-        case TypeNames.Interview => interviews = td.asInstanceOf[InterviewDeclaration]
-        case TypeNames.Component => components = td.asInstanceOf[ComponentDeclaration]
-        case _                   => ()
+        case TypeNames.Label => types.put(TypeName(labels.name), labels)
+        case _               => ()
       }
 
     } else {

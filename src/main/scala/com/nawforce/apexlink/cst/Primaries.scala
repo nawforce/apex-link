@@ -168,14 +168,14 @@ final case class SOQL(query: QueryContext) extends Primary {
       expr.verify(input, context)
     })
 
-    ExprContext(isStatic = Some(false), context.module.any())
+    ExprContext(isStatic = Some(false), context.module.any)
   }
 }
 
 final case class SOSL(query: SoslLiteralContext) extends Primary {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    ExprContext(isStatic = Some(false), context.module.any())
+    ExprContext(isStatic = Some(false), context.module.any)
   }
 }
 

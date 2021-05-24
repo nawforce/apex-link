@@ -16,9 +16,19 @@ package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
+import com.nawforce.apexlink.types.core.{
+  BasicTypeDeclaration,
+  DependentType,
+  FieldDeclaration,
+  TypeId
+}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{
+  GLOBAL_MODIFIER,
+  Modifier,
+  PRIVATE_MODIFIER,
+  STATIC_MODIFIER
+}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
@@ -82,12 +92,14 @@ object PageDeclaration {
     module.basePackages
       .flatMap(basePkg => {
         val ns = basePkg.namespace.get
-        basePkg.pages.map(_.pages.map(page => {
-          if (page.name.contains("__"))
-            page
-          else
-            Page(module, page.path, Name(s"${ns}__${page.name}"))
-        }))
+        basePkg.orderedModules.headOption.map(m => {
+          m.pages.pages.map(page => {
+            if (page.name.contains("__"))
+              page
+            else
+              Page(module, page.path, Name(s"${ns}__${page.name}"))
+          })
+        })
       })
       .flatten
       .toArray

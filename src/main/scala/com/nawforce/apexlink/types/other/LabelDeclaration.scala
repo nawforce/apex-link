@@ -154,11 +154,9 @@ object LabelDeclaration {
   private def createPackageLabels(module: Module): Array[NestedLabels] = {
     module.basePackages
       .map(basePkg => {
-        if (basePkg.isGhosted) {
-          new GhostedLabels(module, basePkg.namespace.get)
-        } else {
-          new PackageLabels(module, basePkg.labels.get)
-        }
+        basePkg.orderedModules.headOption
+          .map(m => new PackageLabels(module, m.labels))
+          .getOrElse(new GhostedLabels(module, basePkg.namespace.get))
       })
       .toArray
   }

@@ -169,11 +169,9 @@ object ComponentDeclaration {
   private def collectBaseComponents(module: Module): Seq[NestedComponents] = {
     module.basePackages
       .map(basePkg => {
-        if (basePkg.isGhosted) {
-          new GhostedComponents(module, basePkg)
-        } else {
-          new PackageComponents(module, basePkg.components.get)
-        }
+        basePkg.orderedModules.headOption
+          .map(m => new PackageComponents(module, m.components))
+          .getOrElse(new GhostedComponents(module, basePkg))
       })
   }
 }

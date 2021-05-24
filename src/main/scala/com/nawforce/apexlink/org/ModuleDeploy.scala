@@ -43,10 +43,10 @@ trait ModuleDeploy {
 
     stream.issues.foreach(e => e.issues.foreach(OrgImpl.log))
 
-    labels = LabelDeclaration(this)
-    pages = PageDeclaration(this)
-    interviews = InterviewDeclaration(this)
-    components = ComponentDeclaration(this)
+    var labels = LabelDeclaration(this)
+    var pages = PageDeclaration(this)
+    var interviews = InterviewDeclaration(this)
+    var components = ComponentDeclaration(this)
 
     upsertMetadata(anyDeclaration)
     upsertMetadata(schemaManager.sobjectTypes)

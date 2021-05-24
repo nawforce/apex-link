@@ -485,7 +485,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "")
         assert(org.flush())
-        assert(pkg.interviews.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.interviews.findNestedType(Name("Test")).nonEmpty)
         assert(!org.issues.hasMessages)
       }
     }
@@ -500,7 +500,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "")
         assert(org.flush())
-        assert(pkg.interviews.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.interviews.findNestedType(Name("Test")).nonEmpty)
         assert(!org.issues.hasMessages)
       }
     }
@@ -515,7 +515,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "Changed")
         assert(org.flush())
-        assert(pkg.interviews.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.interviews.findNestedType(Name("Test")).nonEmpty)
       }
     }
   }
@@ -529,7 +529,9 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test2.flow-meta.xml"), "")
         assert(org.flush())
-        assert(pkg.interviews.get.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
+        assert(
+          pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"),
+                                                                                  Name("Test2")))
       }
     }
   }
@@ -543,7 +545,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage.page"), "")
         assert(org.flush())
-        assert(pkg.pages.get.findField(Name("TestPage"), Some(true)).nonEmpty)
+        assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
     }
   }
@@ -557,7 +559,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage.page"), "")
         assert(org.flush())
-        assert(pkg.pages.get.findField(Name("TestPage"), Some(true)).nonEmpty)
+        assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
     }
   }
@@ -571,7 +573,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage.page"), " ")
         assert(org.flush())
-        assert(pkg.pages.get.findField(Name("TestPage"), Some(true)).nonEmpty)
+        assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
     }
   }
@@ -585,7 +587,9 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage2.page"), " ")
         assert(org.flush())
-        assert(pkg.pages.get.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
+        assert(
+          pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("TestPage"),
+                                                                        Name("TestPage2")))
       }
     }
   }
@@ -599,7 +603,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.component"), "<apex:component/> ")
         assert(org.flush())
-        assert(pkg.components.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.components.findNestedType(Name("Test")).nonEmpty)
       }
     }
   }
@@ -613,7 +617,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.component"), "<apex:component/>")
         assert(org.flush())
-        assert(pkg.components.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.components.findNestedType(Name("Test")).nonEmpty)
       }
     }
   }
@@ -627,7 +631,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test.component"), "<apex:component/> ")
         assert(org.flush())
-        assert(pkg.components.get.findNestedType(Name("Test")).nonEmpty)
+        assert(pkg.orderedModules.head.components.findNestedType(Name("Test")).nonEmpty)
       }
     }
   }
@@ -642,7 +646,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("Test2.component"), "<apex:component/> ")
         assert(org.flush())
         assert(
-          pkg.components.get.nestedTypes.map(_.name).toSet ==
+          pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet ==
             Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
       }
     }
