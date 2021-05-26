@@ -24,7 +24,7 @@ import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
@@ -34,8 +34,13 @@ import scala.collection.{BufferedIterator, mutable}
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
+/** 'Deploy' a module from a stream of PackageEvents. Deploying here really means constructing a set of TypeDeclarations
+  * and validating them against each other. This process mutates the passed types Map for compatibility with dependency
+  * analysis code. The class handling code here is performance sensitive so this may also aid with efficiency.
+  *
+  * TODO: Remove Module dependency.
+  */
 class StreamDeployer(module: Module,
-                     namespace: Option[Name],
                      events: Iterator[PackageEvent],
                      types: mutable.Map[TypeName, TypeDeclaration]) {
 
@@ -115,114 +120,113 @@ class StreamDeployer(module: Module,
         case _ => assert(false); Seq()
       }
       tds.map(tds => {
-        tds.foreach(upsertMetadata(_))
+        tds.foreach(td => types.put(td.typeName, td))
         tds.foreach(td => td.validate())
       })
     }
     module.schema().relatedLists.validate()
   }
 
+  /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
+    * to reading the source and parsing.  */
   private def consumeClasses(events: BufferedIterator[PackageEvent]): Unit = {
-    val parsedCache = module.pkg.org.parsedCache
-    val docs =
-      bufferEvents[ApexEvent](events).flatMap(e => MetadataDocument(e.path)).collect {
-        case d: ApexClassDocument => d
-      }
+    val docs = bufferEvents[ApexEvent](events).map(e => ApexClassDocument(e.path))
 
+    // Load summary classes from the cache
     ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
-
-      // Load summary docs that have valid dependents
-      if (parsedCache.nonEmpty) {
-        val validSummaryDocs = new mutable.HashMap[TypeName, SummaryApex]()
-        docs
-          .grouped(500)
-          .foreach(grp => loadClassesFromCache(grp.toArray, parsedCache.get, validSummaryDocs))
-
-        // Multi-pass removal of those with invalid dependencies to counter resolving cyclic links
-        var invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
-        while (invalidDocs.nonEmpty) {
-          invalidDocs.foreach(pair => {
-            validSummaryDocs.remove(pair._1)
-            types.remove(pair._2.declaration.typeName)
-          })
-          invalidDocs = validSummaryDocs.filterNot(_._2.declaration.hasValidDependencies)
-        }
-
-        // Validate for dependency propagation purposes
-        validSummaryDocs.foreach(_._2.declaration.validate())
-
-        // Report diagnostics for those that get this far
-        validSummaryDocs.foreach(pair => {
-          val summary: SummaryApex = pair._2
-          val path = summary.declaration.path.toString
-          summary.diagnostics.foreach(diagnostic =>
-            module.pkg.org.issues.add(Issue(path, diagnostic)))
-        })
-
-      }
+      validateSummaryClasses(docs.grouped(500).flatMap(loadClassesFromCache))
     }
 
-    val missingTypes =
-      docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(namespace)))
-    ServerOps.debugTime(s"Parsed ${missingTypes.length} classes", docs.nonEmpty) {
+    // Load any classes not found via cache or that have been rejected
+    val missingClasses =
+      docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(module.namespace)))
 
-      // Load full docs for rest of set
-      val fullTypes = missingTypes
+    ServerOps.debugTime(s"Parsed ${missingClasses.length} classes", missingClasses.nonEmpty) {
+      val classTypes = missingClasses
         .flatMap(doc => {
-          val data = doc.path.readSourceData()
-          val tdOpt = ServerOps.debugTime(s"Parsed ${doc.path}") {
-            FullDeclaration.create(module, doc, data.getOrElse(throw new NoSuchElementException))
+          doc.path.readSourceData() match {
+            case Left(_) => None
+            case Right(data) =>
+              ServerOps.debugTime(s"Parsed ${doc.path}") {
+                FullDeclaration
+                  .create(module, doc, data)
+                  .map(td => {
+                    types.put(td.typeName, td)
+                    td
+                  })
+              }
           }
-          tdOpt.map(td => {
-            upsertMetadata(td)
-            (td, data.getOrElse(throw new NoSuchElementException))
-          })
         })
 
-      // Validate the full types
-      fullTypes.foreach(_._1.validate())
+      // Validate the classes, this must be last due to mutual dependence
+      classTypes.foreach(_.validate())
     }
   }
 
-  private def loadClassesFromCache(docs: Array[MetadataDocument],
-                                   pc: ParsedCache,
-                                   accum: mutable.Map[TypeName, SummaryApex]): Unit = {
-    val pkgContext = module.pkg.packageContext
-    val localAccum = new ConcurrentHashMap[TypeName, SummaryApex]()
-    docs.par.foreach(doc => {
-      val data = doc.path.readBytes()
-      val value = pc.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
-      val ad = value.map(v => SummaryApex(doc.path, module, v))
-      if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
-        localAccum.put(ad.get.declaration.typeName, ad.get)
-      }
-    })
+  /** Validate summary classes & log diagnostics, those with any invalid dependents are discarded. */
+  private def validateSummaryClasses(summaryClasses: Iterator[SummaryApex]): Unit = {
+    summaryClasses
+      .foreach(summaryClass => {
+        if (summaryClass.declaration.hasValidDependencies) {
+          // Validate (just for dependency propagation as these are summaries)
+          summaryClass.declaration.validate()
 
-    localAccum
-      .entrySet()
-      .asScala
-      .foreach(kv => {
-        accum.put(kv.getKey, kv.getValue)
-        upsertMetadata(kv.getValue.declaration)
+          // Report any (existing) diagnostics
+          val path = summaryClass.declaration.path.toString
+          summaryClass.diagnostics.foreach(diagnostic =>
+            module.pkg.org.issues.add(Issue(path, diagnostic)))
+        } else {
+          // Remove those dependent on non-cached so they are re-validated via loading fresh
+          types.remove(summaryClass.declaration.typeName)
+        }
       })
-
   }
 
+  /** Load classes from the code cache as types returning TypeNames of those available. Benchmarking has shown
+    * running this in parallel helps performance quite a bit with SSDs. */
+  private def loadClassesFromCache(classes: Array[ApexClassDocument]): Iterator[SummaryApex] = {
+    module.pkg.org.parsedCache
+      .map(parsedCache => {
+
+        val pkgContext = module.pkg.packageContext
+        val localAccum = new ConcurrentHashMap[TypeName, SummaryApex]()
+
+        classes.par.foreach(doc => {
+          val data = doc.path.readBytes()
+          val value = parsedCache.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
+          val ad = value.map(v => SummaryApex(doc.path, module, v))
+          if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
+            localAccum.put(ad.get.declaration.typeName, ad.get)
+          }
+        })
+
+        localAccum.entrySet.forEach(kv => {
+          types.put(kv.getKey, kv.getValue.declaration)
+        })
+
+        localAccum.values().iterator().asScala
+      })
+      .getOrElse(Iterator())
+  }
+
+  /** Consume trigger events, these could be cached but they don't consume much time to for we load from disk and
+    * parse each time. */
   private def consumeTriggers(events: BufferedIterator[PackageEvent]): Unit = {
-    val docs = bufferEvents[TriggerEvent](events)
-      .flatMap(e => MetadataDocument(e.path))
-      .collect { case d: ApexTriggerDocument => d }
+    val docs = bufferEvents[TriggerEvent](events).map(e => ApexTriggerDocument(e.path))
     ServerOps.debugTime(s"Parsed ${docs.length} triggers", docs.nonEmpty) {
-      val tds = docs.flatMap {
-        case docType: ApexTriggerDocument =>
-          val data = docType.path.readSourceData()
-          TriggerDeclaration.create(module,
-                                    docType.path,
-                                    data.getOrElse(throw new NoSuchElementException))
-        case _ => assert(false); Seq()
-      }
-      tds.foreach(upsertMetadata(_))
-      tds.foreach(_.validate())
+      docs
+        .flatMap(doc => {
+          doc.path.readSourceData() match {
+            case Left(_) => None
+            case Right(data) =>
+              TriggerDeclaration
+                .create(module, doc.path, data)
+                .map(td => {
+                  types.put(td.typeName, td)
+                  td.validate()
+                })
+          }
+        })
     }
   }
 

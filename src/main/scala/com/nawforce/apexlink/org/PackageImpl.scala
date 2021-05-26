@@ -15,7 +15,6 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.names._
-import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}

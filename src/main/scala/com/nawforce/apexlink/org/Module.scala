@@ -52,8 +52,8 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
 
   def freeze(): Unit = {
-    // TODO: Have return types, currently can't be done because class loading code needs access to in-flight types
-    new StreamDeployer(this, pkg.namespace, PackageStream.eventStream(index), types)
+    // FUTURE: Have return types, currently can't be done because class loading code needs access to in-flight types
+    new StreamDeployer(this, PackageStream.eventStream(index), types)
   }
 
   def typeCount: Int = types.size
