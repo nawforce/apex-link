@@ -38,20 +38,23 @@ import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
 
-import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module])
-    extends TypeFinder
-    with ModuleDeploy {
+    extends TypeFinder {
 
   val namespace: Option[Name] = pkg.namespace
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
 
-  private[nawforce] val types = mutable.Map[TypeName, TypeDeclaration]()
-  private[nawforce] val schemaManager = new SchemaManager(this)
-  private[nawforce] val anyDeclaration = AnyDeclaration(this)
+  private val schemaManager = new SchemaManager(this)
+
+  private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
+
+  def freeze(): Unit = {
+    // TODO: Have return types, currently can't be done because class loading code needs access to in-flight types
+    new StreamDeployer(this, pkg.namespace, PackageStream.eventStream(index), types)
+  }
 
   def typeCount: Int = types.size
 
@@ -318,19 +321,19 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     dt match {
       case _: LabelsDocument =>
         val events = LabelGenerator.iterator(index)
-        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        val stream = new PackageStream(events.toArray)
         LabelDeclaration(this).merge(stream)
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
-        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        val stream = new PackageStream(events.toArray)
         PageDeclaration(this).merge(stream)
       case _: ComponentDocument =>
         val events = ComponentGenerator.iterator(index)
-        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        val stream = new PackageStream(events.toArray)
         ComponentDeclaration(this).merge(stream)
       case _: FlowDocument =>
         val events = FlowGenerator.iterator(index)
-        val stream = new PackageStream(pkg.namespace, events.to(ArraySeq))
+        val stream = new PackageStream(events.toArray)
         InterviewDeclaration(this).merge(stream)
     }
   }

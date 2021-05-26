@@ -47,7 +47,7 @@ case class Page(module: Module, path: PathLike, name: Name) extends FieldDeclara
 
 object Page {
   def apply(module: Module, event: PageEvent): Page = {
-    val path = PathFactory(event.sourceInfo.path)
+    val path = event.sourceInfo.path
     val document = MetadataDocument(path)
     new Page(module, path, document.get.name)
   }
@@ -73,8 +73,12 @@ final case class PageDeclaration(sources: Array[SourceInfo],
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
-    val newPages = pages ++ stream.pages.map(pe => Page(module, pe))
-    val sourceInfo = stream.pages.map(_.sourceInfo).distinct.toArray
+    merge(stream.pages)
+  }
+
+  def merge(pageEvents: Array[PageEvent]): PageDeclaration = {
+    val newPages = pages ++ pageEvents.map(pe => Page(module, pe))
+    val sourceInfo = pageEvents.map(_.sourceInfo).distinct
     new PageDeclaration(sourceInfo, module, newPages)
   }
 

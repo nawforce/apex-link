@@ -47,7 +47,7 @@ final case class Interview(module: Module, path: Option[PathLike], interviewName
 
 object Interview {
   def apply(module: Module, event: FlowEvent): Interview = {
-    val path = PathFactory(event.sourceInfo.path)
+    val path = event.sourceInfo.path
     val document = MetadataDocument(path)
     new Interview(module, Some(path), document.get.name)
   }
@@ -55,7 +55,7 @@ object Interview {
 
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
-final class InterviewDeclaration(sources: Seq[SourceInfo],
+final class InterviewDeclaration(sources: Array[SourceInfo],
                                  override val module: Module,
                                  interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
@@ -93,21 +93,26 @@ final class InterviewDeclaration(sources: Seq[SourceInfo],
         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedInterviews
 
-    def merge(stream: PackageStream): NamespaceDeclaration = {
-      new NamespaceDeclaration(nestedInterviews ++ stream.flows.map(fe => Interview(module, fe)))
+    def merge(events: Array[FlowEvent]): NamespaceDeclaration = {
+      new NamespaceDeclaration(nestedInterviews ++ events.map(fe => Interview(module, fe)))
     }
   }
 
   /** Create new from merging those in the provided stream */
   def merge(stream: PackageStream): InterviewDeclaration = {
-    val newInterviews = interviews ++ stream.flows.map(fe => Interview(module, fe))
-    val sourceInfo = stream.flows.map(_.sourceInfo).distinct
+    merge(stream.flows)
+  }
+
+  def merge(events: Array[FlowEvent]): InterviewDeclaration = {
+    val newInterviews = interviews ++ events.map(fe => Interview(module, fe))
+    val sourceInfo = events.map(_.sourceInfo).distinct
     val interviewDeclaration =
       new InterviewDeclaration(sourceInfo, module, newInterviews, nestedInterviews)
     interviewDeclaration.namespaceDeclaration.foreach(td =>
-      interviewDeclaration.namespaceDeclaration = Some(td.merge(stream)))
+      interviewDeclaration.namespaceDeclaration = Some(td.merge(events)))
     interviewDeclaration
   }
+
 }
 
 trait NestedInterviews extends TypeDeclaration {
@@ -152,7 +157,7 @@ final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
 
 object InterviewDeclaration {
   def apply(module: Module): InterviewDeclaration = {
-    new InterviewDeclaration(Seq(), module, Seq.empty, collectBaseInterviews(module))
+    new InterviewDeclaration(Array(), module, Seq.empty, collectBaseInterviews(module))
   }
 
   private def collectBaseInterviews(module: Module): Seq[NestedInterviews] = {

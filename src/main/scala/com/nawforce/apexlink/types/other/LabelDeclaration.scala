@@ -22,7 +22,7 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
-import com.nawforce.pkgforce.stream.PackageStream
+import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
@@ -50,7 +50,7 @@ final class LabelDeclaration(sources: Array[SourceInfo],
                              override val module: Module,
                              labels: Array[Label],
                              nestedLabels: Array[NestedLabels])
-    extends BasicTypeDeclaration(sources.map(s => PathFactory(s.path)), module, TypeNames.Label)
+    extends BasicTypeDeclaration(sources.map(s => s.path), module, TypeNames.Label)
     with DependentType
     with OtherTypeDeclaration {
 
@@ -65,10 +65,14 @@ final class LabelDeclaration(sources: Array[SourceInfo],
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
+    merge(stream.labelsFiles, stream.labels)
+  }
+
+  def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
-    val newLabels = labels ++ stream.labels.map(le =>
+    val newLabels = labels ++ labelEvents.map(le =>
       Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
-    val sourceInfo = stream.labelsFiles.map(_.sourceInfo).distinct.toArray
+    val sourceInfo = labelFileEvents.map(_.sourceInfo).distinct
     new LabelDeclaration(sourceInfo, module, newLabels, nestedLabels)
   }
 

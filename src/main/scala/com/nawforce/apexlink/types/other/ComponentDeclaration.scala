@@ -54,7 +54,7 @@ final case class Component(module: Module,
 
 object Component {
   def apply(module: Module, event: ComponentEvent): Component = {
-    val path = PathFactory(event.sourceInfo.path)
+    val path = event.sourceInfo.path
     val document = MetadataDocument(path)
     new Component(module, Some(path), document.get.name, Some(event.attributes))
   }
@@ -63,7 +63,7 @@ object Component {
 }
 
 /** Component namespace handler */
-final case class ComponentDeclaration(sources: Seq[SourceInfo],
+final case class ComponentDeclaration(sources: Array[SourceInfo],
                                       module: Module,
                                       components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
@@ -97,25 +97,30 @@ final case class ComponentDeclaration(sources: Seq[SourceInfo],
                                         TypeName(name, Nil, Some(TypeNames.Component))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 
-    def merge(stream: PackageStream): NamespaceDeclaration = {
+    def merge(events: Array[ComponentEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
                                nestedComponents ++
-                                 stream.components.map(ce => Component(module, ce)))
+                                 events.map(ce => Component(module, ce)))
     }
   }
 
   /** Create new components from merging those in the provided stream */
   def merge(stream: PackageStream): ComponentDeclaration = {
+    merge(stream.components)
+  }
+
+  def merge(events: Array[ComponentEvent]): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
-      stream.components.map(ce => Component(module, ce))
-    val sourceInfo = stream.components.map(_.sourceInfo).distinct
+      events.map(ce => Component(module, ce))
+    val sourceInfo = events.map(_.sourceInfo).distinct
     val componentDeclaration =
       new ComponentDeclaration(sourceInfo, module, components, nestedComponents)
     componentDeclaration.namespaceDeclaration.foreach(td =>
-      componentDeclaration.namespaceDeclaration = Some(td.merge(stream)))
-    componentDeclaration.cDeclaration = componentDeclaration.cDeclaration.merge(stream)
+      componentDeclaration.namespaceDeclaration = Some(td.merge(events)))
+    componentDeclaration.cDeclaration = componentDeclaration.cDeclaration.merge(events)
     componentDeclaration
   }
+
 }
 
 trait NestedComponents extends TypeDeclaration {
@@ -163,7 +168,7 @@ object ComponentDeclaration {
   val standardTypes = Seq(PlatformTypes.apexComponent, PlatformTypes.chatterComponent)
 
   def apply(module: Module): ComponentDeclaration = {
-    new ComponentDeclaration(Seq(), module, standardTypes, collectBaseComponents(module))
+    new ComponentDeclaration(Array(), module, standardTypes, collectBaseComponents(module))
   }
 
   private def collectBaseComponents(module: Module): Seq[NestedComponents] = {

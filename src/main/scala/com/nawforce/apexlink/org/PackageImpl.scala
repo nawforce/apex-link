@@ -44,7 +44,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     modules = moduleBuilder.toArray
     moduleBuilder = null
 
-    modules.foreach(_.deploy())
+    modules.foreach(_.freeze())
   }
 
   /** Package modules in reverse deploy order, note ghost packages have no modules. */
