@@ -87,6 +87,13 @@ final case class ApexClassDocument(_path: PathLike, _name: Name)
   }
 }
 
+object ApexClassDocument {
+  def apply(path: PathLike): ApexClassDocument = {
+    assert(path.basename.toLowerCase.endsWith(".cls"))
+    new ApexClassDocument(path, Name(path.basename.replaceFirst("(?i)\\.cls$", "")))
+  }
+}
+
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
     extends ApexDocument(_path, _name) {
   override val nature: MetadataNature = TriggerNature
@@ -95,6 +102,13 @@ final case class ApexTriggerDocument(_path: PathLike, _name: Name)
       .map(ns => s"__sfdc_trigger/${ns.value}/${name.value}")
       .getOrElse(s"__sfdc_trigger/${name.value}")
     TypeName(Name(qname))
+  }
+}
+
+object ApexTriggerDocument {
+  def apply(path: PathLike): ApexTriggerDocument = {
+    assert(path.basename.toLowerCase.endsWith(".trigger"))
+    new ApexTriggerDocument(path, Name(path.basename.replaceFirst("(?i)\\.trigger$", "")))
   }
 }
 
