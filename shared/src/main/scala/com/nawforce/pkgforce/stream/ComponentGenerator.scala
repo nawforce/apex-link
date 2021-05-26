@@ -54,7 +54,7 @@ object ComponentGenerator {
             val logger = new CatchingLogger
             val attributes = extractAttributes(parser, logger, component)
             (if (logger.issues.isEmpty)
-               Iterator(ComponentEvent(SourceInfo(document.path.toString, source), attributes))
+               Iterator(ComponentEvent(SourceInfo(document.path, source), attributes))
              else
                Iterator()) ++ IssuesEvent.iterator(logger.issues)
 

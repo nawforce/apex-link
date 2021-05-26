@@ -29,8 +29,9 @@
 package com.nawforce.pkgforce.stream
 
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.path.PathLike
 
-final case class TriggerEvent(path: String) extends PackageEvent
+final case class TriggerEvent(path: PathLike) extends PackageEvent
 
 /** Convert trigger documents into PackageEvents */
 object TriggerGenerator{
@@ -39,6 +40,6 @@ object TriggerGenerator{
     index.get(TriggerNature).flatMap(toEvents)
 
   private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    Iterator(TriggerEvent(document.path.toString))
+    Iterator(TriggerEvent(document.path))
   }
 }

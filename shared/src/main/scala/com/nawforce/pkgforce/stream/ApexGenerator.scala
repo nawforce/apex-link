@@ -29,8 +29,9 @@
 package com.nawforce.pkgforce.stream
 
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.path.PathLike
 
-final case class ApexEvent(path: String) extends PackageEvent
+final case class ApexEvent(path: PathLike) extends PackageEvent
 
 /** Convert Apex documents into PackageEvents */
 object ApexGenerator {
@@ -39,6 +40,6 @@ object ApexGenerator {
     index.get(ApexNature).flatMap(toEvents)
 
   private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    Iterator(ApexEvent(document.path.toString))
+    Iterator(ApexEvent(document.path))
   }
 }

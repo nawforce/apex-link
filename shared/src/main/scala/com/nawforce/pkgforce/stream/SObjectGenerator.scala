@@ -36,7 +36,7 @@ import com.nawforce.pkgforce.xml.{XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
 
-final case class SObjectEvent(path: String) extends PackageEvent
+final case class SObjectEvent(path: PathLike) extends PackageEvent
 final case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name]) extends PackageEvent
 final case class FieldsetEvent(name: Name) extends PackageEvent
 final case class SharingReasonEvent(name: Name) extends PackageEvent
@@ -81,7 +81,7 @@ object SObjectGenerator {
     val path = if (document.path.exists) Some(document.path) else None
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(document.path.toString)) ++ (path.map(XMLFactory.parse) match {
+    Iterator(SObjectEvent(document.path)) ++ (path.map(XMLFactory.parse) match {
       case Some(Left(issue)) => IssuesEvent.iterator(Seq(issue))
       case Some(Right(root)) =>
         val rootElement = root.rootElement

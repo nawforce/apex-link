@@ -42,7 +42,7 @@ object PageGenerator {
     val source = document.source
     source.value
       .map(source => {
-        Iterator(PageEvent(SourceInfo(document.path.toString, source)))
+        Iterator(PageEvent(SourceInfo(document.path, source)))
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }
