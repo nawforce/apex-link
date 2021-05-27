@@ -148,37 +148,35 @@ final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLi
   }
 }
 
-final case class CustomMetadataDocument(_path: PathLike, _name: Name)
-    extends SObjectLike(_path, _name) {
-  override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__mdt"), Nil, Some(TypeName.Schema))
+object NamespacePrefix {
+  def apply(namespace: Option[Name], name: String): Name = {
+    Name(namespace.map(ns => s"${ns}__").getOrElse("") + name)
   }
 }
 
-final case class BigObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
+abstract class SimpleSObjectLike(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__b"), Nil, Some(TypeName.Schema))
+    TypeName(NamespacePrefix(namespace, name.value), Nil, Some(TypeName.Schema))
   }
 }
+
+final case class CustomMetadataDocument(_path: PathLike, _name: Name)
+    extends SimpleSObjectLike(_path, _name)
+
+final case class BigObjectDocument(_path: PathLike, _name: Name)
+    extends SimpleSObjectLike(_path, _name)
 
 final case class PlatformEventDocument(_path: PathLike, _name: Name)
-    extends SObjectLike(_path, _name) {
-  override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name + "__e"), Nil, Some(TypeName.Schema))
-  }
-}
+    extends SimpleSObjectLike(_path, _name)
 
 final case class SObjectFieldDocument(_path: PathLike, _name: Name)
     extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = FieldNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
     val fieldsType =
-      TypeName.sObjectTypeFields$(TypeName(Name(prefix + sobjectName), Nil, Some(TypeName.Schema)))
+      TypeName.sObjectTypeFields$(
+        TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
     TypeName(name, Nil, Some(fieldsType))
   }
 }
@@ -188,9 +186,8 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   override val nature: MetadataNature = FieldSetNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
     val fieldSetType = TypeName.sObjectTypeFieldSets$(
-      TypeName(Name(prefix + sobjectName), Nil, Some(TypeName.Schema)))
+      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
     TypeName(name, Nil, Some(fieldSetType))
   }
 }
@@ -199,8 +196,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
   override val nature: MetadataNature = PageNature
   override def typeName(namespace: Option[Name]): TypeName = {
-    val prefix = namespace.map(ns => s"${ns}__").getOrElse("")
-    TypeName(Name(prefix + name), Nil, Some(TypeName.Page))
+    TypeName(NamespacePrefix(namespace, name.value), Nil, Some(TypeName.Page))
   }
 }
 
