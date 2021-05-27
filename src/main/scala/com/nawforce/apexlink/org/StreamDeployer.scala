@@ -19,12 +19,14 @@ import java.util.concurrent.ConcurrentHashMap
 import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
-import com.nawforce.apexlink.types.core.TypeDeclaration
+import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
-import com.nawforce.apexlink.types.schema.SObjectDeclaration
+import com.nawforce.apexlink.types.platform.PlatformTypes
+import com.nawforce.apexlink.types.schema.{SObjectNature, _}
+import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.diagnostics.{Issue, MISSING_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
@@ -103,21 +105,33 @@ class StreamDeployer(module: Module,
                                      events).iterator.buffered
     while (objectsEvents.hasNext) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
-      val fields = bufferEvents[CustomFieldEvent](objectsEvents)
-      val fieldSets = bufferEvents[FieldsetEvent](objectsEvents)
+      val fields: Array[FieldDeclaration] = bufferEvents[CustomFieldEvent](objectsEvents).map(
+        field =>
+          CustomFieldDeclaration(field.name,
+                                 StreamDeployer.platformTypeOfFieldType(field.rawType).typeName,
+                                 field.idTarget.map(TypeName(_))))
+      val fieldSets = bufferEvents[FieldsetEvent](objectsEvents).map(_.name)
       val sharingReasons = bufferEvents[SharingReasonEvent](objectsEvents)
 
       // TODO: Fix to use stream data
       val tds = MetadataDocument(sObjectEvent.path).map {
         case docType: SObjectDocument =>
-          SObjectDeclaration.create(module, docType.path)
-        case docType: PlatformEventDocument =>
-          SObjectDeclaration.create(module, docType.path)
-        case docType: CustomMetadataDocument =>
-          SObjectDeclaration.create(module, docType.path)
-        case docType: BigObjectDocument =>
-          SObjectDeclaration.create(module, docType.path)
-        case _ => assert(false); Seq()
+          SObjectDeclaration.create(module, docType.path).toArray
+        case doc: PlatformEventDocument =>
+          val typeName = doc.typeName(module.namespace)
+          createSObject(typeName,
+                        PlatformEventNature,
+                        platformEventFields(typeName, fields),
+                        fieldSets)
+        case doc: CustomMetadataDocument =>
+          val typeName = doc.typeName(module.namespace)
+          createSObject(typeName,
+                        CustomMetadataNature,
+                        customMetadataFields(typeName, fields),
+                        fieldSets)
+        case doc: BigObjectDocument =>
+          createSObject(doc.typeName(module.namespace), BigObjectNature, fields, fieldSets)
+        case _ => assert(false); Array()
       }
       tds.map(tds => {
         tds.foreach(td => types.put(td.typeName, td))
@@ -125,6 +139,43 @@ class StreamDeployer(module: Module,
       })
     }
     module.schema().relatedLists.validate()
+  }
+
+  private def createSObject(typeName: TypeName,
+                            nature: SObjectNature,
+                            fields: Array[FieldDeclaration],
+                            fieldSets: Array[Name]): Array[SObjectDeclaration] = {
+    val sobjectType = new SObjectDeclaration(Array.empty,
+                                             module,
+                                             typeName,
+                                             nature,
+                                             fieldSets,
+                                             Name.emptyNames,
+                                             fields,
+                                             _isComplete = true)
+    types.put(sobjectType.typeName, sobjectType)
+    Array(sobjectType)
+  }
+
+  private def customMetadataFields(typeName: TypeName,
+                                   fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+    Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName)),
+          CustomFieldDeclaration(Names.SObjectType,
+                                 TypeNames.sObjectType$(typeName),
+                                 None,
+                                 asStatic = true)) ++
+      StreamDeployer.standardCustomMetadataFields ++
+      fields
+  }
+
+  private def platformEventFields(typeName: TypeName,
+                                  fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+    StreamDeployer.standardPlatformEventFields ++
+      fields :+
+      CustomFieldDeclaration(Names.SObjectType,
+                             TypeNames.sObjectType$(typeName),
+                             None,
+                             asStatic = true)
   }
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
@@ -272,5 +323,54 @@ class StreamDeployer(module: Module,
       }
     }
     buffer.toArray
+  }
+}
+
+object StreamDeployer {
+  val standardPlatformEventFields: Array[FieldDeclaration] = {
+    Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
+          CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
+          CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
+          CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None))
+  }
+
+  val standardCustomMetadataFields: Array[FieldDeclaration] = {
+    Array(CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
+          CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
+          CustomFieldDeclaration(Names.Label, TypeNames.String, None),
+          CustomFieldDeclaration(Names.Language, TypeNames.String, None),
+          CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
+          CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
+          CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
+  }
+
+  def platformTypeOfFieldType(fieldType: Name): TypeDeclaration = {
+    fieldType.value match {
+      case "MasterDetail"         => PlatformTypes.idType
+      case "Lookup"               => PlatformTypes.idType
+      case "MetadataRelationship" => PlatformTypes.idType
+      case "AutoNumber"           => PlatformTypes.stringType
+      case "Checkbox"             => PlatformTypes.booleanType
+      case "Currency"             => PlatformTypes.decimalType
+      case "Date"                 => PlatformTypes.dateType
+      case "DateTime"             => PlatformTypes.datetimeType
+      case "Email"                => PlatformTypes.stringType
+      case "EncryptedText"        => PlatformTypes.stringType
+      case "Number"               => PlatformTypes.decimalType
+      case "Percent"              => PlatformTypes.decimalType
+      case "Phone"                => PlatformTypes.stringType
+      case "Picklist"             => PlatformTypes.stringType
+      case "MultiselectPicklist"  => PlatformTypes.stringType
+      case "Summary"              => PlatformTypes.decimalType
+      case "Text"                 => PlatformTypes.stringType
+      case "TextArea"             => PlatformTypes.stringType
+      case "LongTextArea"         => PlatformTypes.stringType
+      case "Url"                  => PlatformTypes.stringType
+      case "File"                 => PlatformTypes.stringType
+      case "Location"             => PlatformTypes.locationType
+      case "Time"                 => PlatformTypes.timeType
+      case "Html"                 => PlatformTypes.stringType
+      // pkgforce validates on loading, so need for default handling here
+    }
   }
 }
