@@ -28,16 +28,18 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.pkgforce.xml.{XMLElementLike, XMLException, XMLFactory}
+import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLException, XMLFactory}
 
 import scala.collection.mutable
 
-final case class SObjectEvent(path: PathLike) extends PackageEvent
-final case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name]) extends PackageEvent
+final case class SObjectEvent(path: PathLike, customSettingsType: Option[String])
+    extends PackageEvent
+final case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name])
+    extends PackageEvent
 final case class FieldsetEvent(name: Name) extends PackageEvent
 final case class SharingReasonEvent(name: Name) extends PackageEvent
 
@@ -80,23 +82,49 @@ object SObjectGenerator {
     // The object-meta.xml file is annoyingly optional
     val path = if (document.path.exists) Some(document.path) else None
 
-    // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(document.path)) ++ (path.map(XMLFactory.parse) match {
-      case Some(Left(issue)) => IssuesEvent.iterator(Seq(issue))
-      case Some(Right(root)) =>
-        val rootElement = root.rootElement
-        rootElement.getChildren("fields").flatMap(field => createField(field, path.get)) ++
-          rootElement
-            .getChildren("fieldSets")
-            .flatMap(field => createFieldSet(field, path.get)) ++
-          rootElement
-            .getChildren("sharingReasons")
-            .flatMap(field => createSharingReason(field, path.get))
+    // Which makes extracting the customSettingsType more fun
+    val parsed = path.map(XMLFactory.parse)
+    val customSettingsType = (parsed map {
+      case Right(doc) => extractCustomSettingsType(doc)
+      case _          => IssuesAnd(None)
+    }).getOrElse(IssuesAnd(None))
 
-      case None => Iterator()
-    }) ++
-      collectSfdxFields(document.path) ++ collectSfdxFieldSets(document.path) ++ collectSfdxSharingReason(
-      document.path)
+    // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
+    Iterator(SObjectEvent(document.path, customSettingsType.value)) ++
+      IssuesEvent.iterator(customSettingsType.issues) ++
+      (parsed match {
+        case Some(Left(issue)) => IssuesEvent.iterator(Seq(issue))
+        case Some(Right(root)) =>
+          val rootElement = root.rootElement
+          rootElement.getChildren("fields").flatMap(field => createField(field, path.get)) ++
+            rootElement
+              .getChildren("fieldSets")
+              .flatMap(field => createFieldSet(field, path.get)) ++
+            rootElement
+              .getChildren("sharingReasons")
+              .flatMap(field => createSharingReason(field, path.get))
+
+        case None => Iterator()
+      }) ++
+      collectSfdxFields(document.path) ++
+      collectSfdxFieldSets(document.path) ++
+      collectSfdxSharingReason(document.path)
+  }
+
+  private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[String]] = {
+    doc.rootElement.getOptionalSingleChildAsString("customSettingsType") match {
+      case Some("List")      => IssuesAnd(Some("List"))
+      case Some("Hierarchy") => IssuesAnd(Some("Hierarchy"))
+      case Some(x) =>
+        IssuesAnd(
+          Seq(
+            Issue(doc.path,
+                  ERROR_CATEGORY,
+                  Location(doc.rootElement.line),
+                  s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")),
+          None)
+      case None => IssuesAnd(None)
+    }
   }
 
   private def collectSfdxFields(path: PathLike): Iterator[PackageEvent] = {
@@ -182,7 +210,8 @@ object SObjectGenerator {
     }
   }
 
-  private def catchXMLExceptions(path: PathLike)(op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
+  private def catchXMLExceptions(path: PathLike)(
+    op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
     try {
       op
     } catch {
