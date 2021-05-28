@@ -38,7 +38,7 @@ import scala.collection.mutable
 
 final case class SObjectEvent(path: PathLike, customSettingsType: Option[String])
     extends PackageEvent
-final case class CustomFieldEvent(name: Name, rawType: Name, idTarget: Option[Name])
+final case class CustomFieldEvent(name: Name, rawType: Name, referenceTo: Option[(Name, Name)])
     extends PackageEvent
 final case class FieldsetEvent(name: Name) extends PackageEvent
 final case class SharingReasonEvent(name: Name) extends PackageEvent
@@ -62,7 +62,7 @@ object SObjectGenerator {
       found = false
       eventsByName.foreach(kv => {
         val depends = kv._2
-          .collect { case CustomFieldEvent(_, _, Some(name)) => name }
+          .collect { case CustomFieldEvent(_, _, Some((referenceTo, _))) => referenceTo }
           .filter(eventsByName.contains)
         if (depends.forall(d => emitted.contains(d))) {
           eventsByName.remove(kv._1)
@@ -161,13 +161,14 @@ object SObjectGenerator {
       }
 
       // Create additional fields & lookup relationships for special fields
-      val idTarget = rawType match {
+      val target = rawType match {
         case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
-          Some(Name(elem.getSingleChildAsString("referenceTo").trim))
+          Some((Name(elem.getSingleChildAsString("referenceTo").trim),
+            Name(elem.getSingleChildAsString("relationshipName").trim)))
         case _ => None
       }
 
-      Iterator(CustomFieldEvent(name, Name(rawType), idTarget))
+      Iterator(CustomFieldEvent(name, Name(rawType), target))
     }
   }
 

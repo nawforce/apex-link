@@ -74,7 +74,7 @@ trait XMLElementLike {
   def getSingleChildAsString(name: String): String = {
     val text = getOptionalSingleChildAsString(name)
     if (text.isEmpty)
-      throw XMLException(Location(line), s"Expecting element to have single '$name' child")
+      throw XMLException(Location(line), s"Expecting element '${this.name.label}' to have a single '$name' child element")
     text.get
   }
 
@@ -87,7 +87,7 @@ trait XMLElementLike {
   def getSingleChildAsBoolean(name: String): Boolean = {
     val value = getOptionalSingleChildAsBoolean(name)
     if (value.isEmpty)
-      throw XMLException(Location(line), s"Expecting element to have single '$name' child")
+      throw XMLException(Location(line), s"Expecting element '${this.name.label}' to have a single '$name' child element")
     value.get
   }
 

@@ -202,7 +202,7 @@ class XMLDocumentTest extends AnyFunSuite {
               assert(false)
             } catch {
               case ex: XMLException =>
-                assert(ex.msg == "Expecting element to have single 'a' child")
+                assert(ex.msg == "Expecting element 'test' to have a single 'a' child element")
               case _: Throwable => assert(false)
             }
         }
@@ -223,7 +223,7 @@ class XMLDocumentTest extends AnyFunSuite {
               assert(false)
             } catch {
               case ex: XMLException =>
-                assert(ex.msg == "Expecting element to have single 'a' child")
+                assert(ex.msg == "Expecting element 'test' to have a single 'a' child element")
               case _: Throwable => assert(false)
             }
         }

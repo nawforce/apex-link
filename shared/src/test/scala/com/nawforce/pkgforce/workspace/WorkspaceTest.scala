@@ -393,7 +393,12 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
           |""".stripMargin,
         "pkg/sub/MyDetail.object" ->
           """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-            |  <fields><fullName>Lookup__c</fullName><type>MasterDetail</type><referenceTo>MyMaster</referenceTo></fields>
+            |  <fields>
+            |     <fullName>Lookup__c</fullName>
+            |     <type>MasterDetail</type>
+            |     <referenceTo>MyMaster</referenceTo>
+            |     <relationshipName>Master</relationshipName>
+            |   </fields>
             |</CustomObject>
             |""".stripMargin)) { root: PathLike =>
       val issuesAndWS = Workspace(root)
@@ -402,7 +407,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(objectPath1, None),
                   SObjectEvent(objectPath2, None),
-                  CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some(Name("MyMaster"))))
+                  CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some((Name("MyMaster"), Name("Master")))))
             if objectPath1 == root.join("pkg").join("MyMaster.object") &&
               objectPath2 == root.join("pkg").join("sub").join("MyDetail.object") =>
       }
@@ -418,7 +423,12 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
           |""".stripMargin,
         "pkg/MyDetail.object" ->
           """<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-            |  <fields><fullName>Lookup__c</fullName><type>MasterDetail</type><referenceTo>MyMaster</referenceTo></fields>
+            |  <fields>
+            |    <fullName>Lookup__c</fullName>
+            |    <type>MasterDetail</type>
+            |    <referenceTo>MyMaster</referenceTo>
+            |    <relationshipName>Master</relationshipName>
+            |  </fields>
             |</CustomObject>
             |""".stripMargin)) { root: PathLike =>
       val issuesAndWS = Workspace(root)
@@ -427,7 +437,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(objectPath1, None),
                   SObjectEvent(objectPath2, None),
-                  CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some(Name("MyMaster"))))
+                  CustomFieldEvent(Name("Lookup__c"), Name("MasterDetail"), Some((Name("MyMaster"), Name("Master")))))
             if objectPath1 == root.join("pkg").join("sub").join("MyMaster.object") &&
               objectPath2 == root.join("pkg").join("MyDetail.object") =>
       }
