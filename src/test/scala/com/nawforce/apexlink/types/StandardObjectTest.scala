@@ -424,7 +424,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
           org.issues
             .getMessages(root.join("Account.object").toString)
             .startsWith(
-              "Error: line 5: Expecting custom field 'AccountNumber__c' to have 'type' child element\n"))
+              "Error: line 5: Expecting element 'fields' to have a single 'type' child element\n"))
     }
   }
 

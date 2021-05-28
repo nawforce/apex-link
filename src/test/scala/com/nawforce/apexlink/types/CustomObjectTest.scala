@@ -104,7 +104,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
           // TODO: This is creating dual errors, it will be fixed by event stream
           org.issues
             .getMessages(root.join("Foo__c.object").toString)
-            .startsWith("Error: line 5: Unexpected type 'Silly' on custom field\n"))
+            .startsWith("Error: line 5: Unrecognised type 'Silly' on custom field 'Bar__c'\n"))
     }
   }
 

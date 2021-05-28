@@ -33,7 +33,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
                                     _typeName: TypeName,
                                     sobjectNature: SObjectNature,
                                     fieldSets: Array[Name],
-                                    sharingReason: Array[Name],
+                                    sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
     extends BasicTypeDeclaration(_paths, module, _typeName) {

@@ -72,6 +72,9 @@ object TypeNames extends InternCache[TypeName] {
     TypeName(Names.DescribeFieldResult, Nil, Some(TypeNames.Schema)).intern
   lazy val SObjectTypeFieldSets: TypeName =
     TypeName(Names.SObjectTypeFieldSets, Nil, Some(TypeNames.Schema)).intern
+  lazy val Activity: TypeName = TypeName(Names.Activity, Nil, Some(TypeNames.Schema))
+  lazy val Task: TypeName = TypeName(Names.Task, Nil, Some(TypeNames.Schema))
+  lazy val Event: TypeName = TypeName(Names.Event, Nil, Some(TypeNames.Schema))
 
   lazy val DescribeSObjectResult$ : TypeName =
     TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeNames.Internal)).intern

@@ -17,6 +17,7 @@ package com.nawforce.apexlink.org
 import java.util.concurrent.ConcurrentHashMap
 
 import com.nawforce.apexlink.api.ServerOps
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
@@ -24,9 +25,10 @@ import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
-import com.nawforce.pkgforce.diagnostics.{Issue, MISSING_CATEGORY}
+import com.nawforce.pkgforce.diagnostics.{Issue, Location, MISSING_CATEGORY, PathLocation}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.names._
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
@@ -40,7 +42,7 @@ import scala.reflect.ClassTag
   * and validating them against each other. This process mutates the passed types Map for compatibility with dependency
   * analysis code. The class handling code here is performance sensitive so this may also aid with efficiency.
   *
-  * TODO: Remove Module dependency.
+  * FUTURE: Remove Module dependency.
   */
 class StreamDeployer(module: Module,
                      events: Iterator[PackageEvent],
@@ -60,7 +62,7 @@ class StreamDeployer(module: Module,
   consumePages(bufferedIterator)
   consumeFlows(bufferedIterator)
   consumeComponents(bufferedIterator)
-  consumeCustomObjects(bufferedIterator)
+  consumeSObjects(bufferedIterator)
   consumeClasses(bufferedIterator)
   consumeTriggers(bufferedIterator)
 
@@ -97,7 +99,7 @@ class StreamDeployer(module: Module,
     upsertMetadata(ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events)))
   }
 
-  private def consumeCustomObjects(events: BufferedIterator[PackageEvent]): Unit = {
+  private def consumeSObjects(events: BufferedIterator[PackageEvent]): Unit = {
     val objectsEvents = bufferEvents(Set(classOf[SObjectEvent],
                                          classOf[CustomFieldEvent],
                                          classOf[FieldsetEvent],
@@ -105,51 +107,284 @@ class StreamDeployer(module: Module,
                                      events).iterator.buffered
     while (objectsEvents.hasNext) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
-      val fields: Array[FieldDeclaration] = bufferEvents[CustomFieldEvent](objectsEvents).map(
-        field =>
-          CustomFieldDeclaration(field.name,
-                                 StreamDeployer.platformTypeOfFieldType(field.rawType).typeName,
-                                 field.idTarget.map(TypeName(_))))
-      val fieldSets = bufferEvents[FieldsetEvent](objectsEvents).map(_.name)
-      val sharingReasons = bufferEvents[SharingReasonEvent](objectsEvents)
 
-      // TODO: Fix to use stream data
-      val tds = MetadataDocument(sObjectEvent.path).map {
-        case docType: SObjectDocument =>
-          SObjectDeclaration.create(module, docType.path).toArray
-        case doc: PlatformEventDocument =>
-          val typeName = doc.typeName(module.namespace)
-          createSObject(typeName,
-                        PlatformEventNature,
-                        platformEventFields(typeName, fields),
-                        fieldSets)
-        case doc: CustomMetadataDocument =>
-          val typeName = doc.typeName(module.namespace)
-          createSObject(typeName,
-                        CustomMetadataNature,
-                        customMetadataFields(typeName, fields),
-                        fieldSets)
-        case doc: BigObjectDocument =>
-          createSObject(doc.typeName(module.namespace), BigObjectNature, fields, fieldSets)
-        case _ => assert(false); Array()
-      }
-      tds.map(tds => {
-        tds.foreach(td => types.put(td.typeName, td))
-        tds.foreach(td => td.validate())
-      })
+      val doc = MetadataDocument(sObjectEvent.path)
+      assert(doc.exists(_.isInstanceOf[SObjectLike]))
+      val encodedName = EncodedName(doc.get.name).defaultNamespace(module.namespace)
+      val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
+
+      val fields: Array[FieldDeclaration] =
+        bufferEvents[CustomFieldEvent](objectsEvents).flatMap(f =>
+          createCustomField(sObjectEvent.path, typeName, f))
+      val fieldSets = bufferEvents[FieldsetEvent](objectsEvents).map(_.name)
+      val sharingReasons = bufferEvents[SharingReasonEvent](objectsEvents).map(_.name)
+
+      doc
+        .map {
+          case doc: SObjectDocument if doc.name.value.endsWith("__c") =>
+            // Custom SObject or Custom Setting
+            createCustomObject(sObjectEvent,
+                               encodedName,
+                               typeName,
+                               fields,
+                               fieldSets,
+                               sharingReasons)
+          case doc: SObjectDocument =>
+            // Platform SObject
+            createReplacementSObject(doc.path,
+                                     typeName,
+                                     PlatformObjectNature,
+                                     fields,
+                                     fieldSets,
+                                     sharingReasons)
+          case _: PlatformEventDocument =>
+            createSObjectLike(typeName, PlatformEventNature, platformEventFields(typeName, fields))
+          case _: CustomMetadataDocument =>
+            createSObjectLike(typeName,
+                              CustomMetadataNature,
+                              customMetadataFields(typeName, fields))
+          case _: BigObjectDocument =>
+            createSObjectLike(typeName, BigObjectNature, fields)
+          case _ => assert(false); Array[SObjectDeclaration]()
+        }
+        .getOrElse(Array())
     }
     module.schema().relatedLists.validate()
   }
 
-  private def createSObject(typeName: TypeName,
-                            nature: SObjectNature,
-                            fields: Array[FieldDeclaration],
-                            fieldSets: Array[Name]): Array[SObjectDeclaration] = {
+  private def createCustomField(path: PathLike, typeName: TypeName, field: CustomFieldEvent,
+  ): Array[FieldDeclaration] = {
+    val rawType = field.rawType
+    val fieldType = StreamDeployer.platformTypeOfFieldType(field.rawType).typeName
+    val fieldDeclaration =
+      CustomFieldDeclaration(field.name,
+                             fieldType,
+                             field.referenceTo.map(to => schemaTypeNameOf(to._1)))
+
+    // Create additional fields & lookup relationships for special fields types
+    rawType.value match {
+      case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
+        val referenceTo = field.referenceTo.get._1
+        val relName = Name(field.referenceTo.get._2.value + "__r")
+        val refTypeName = schemaTypeNameOf(referenceTo)
+
+        module
+          .schema()
+          .relatedLists
+          .add(refTypeName, relName, field.name, typeName, PathLocation(path.toString, Location(0)))
+
+        Array(fieldDeclaration,
+              CustomFieldDeclaration(field.name.replaceAll("__c$", "__r"), refTypeName, None))
+      case "Location" =>
+        Array(fieldDeclaration,
+              CustomFieldDeclaration(field.name.replaceAll("__c$", "__latitude__s"),
+                                     TypeNames.Double,
+                                     None),
+              CustomFieldDeclaration(field.name.replaceAll("__c$", "__longitude__s"),
+                                     TypeNames.Double,
+                                     None))
+      case _ => Array(fieldDeclaration)
+    }
+  }
+
+  private def schemaTypeNameOf(name: Name): TypeName = {
+    TypeName(EncodedName(name).defaultNamespace(module.namespace).fullName,
+             Nil,
+             Some(TypeNames.Schema))
+  }
+
+  private def createCustomObject(event: SObjectEvent,
+                                 encodedName: EncodedName,
+                                 typeName: TypeName,
+                                 fields: Array[FieldDeclaration],
+                                 fieldSets: Array[Name],
+                                 sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+    val path = event.path
+
+    val customObjectNature = event.customSettingsType match {
+      case Some("List")      => ListCustomSettingNature
+      case Some("Hierarchy") => HierarchyCustomSettingsNature
+      case _                 => CustomObjectNature
+    }
+    if (encodedName.namespace == module.namespace)
+      createNewSObject(path, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+    else if (module.isGhostedType(typeName))
+      Array(
+        extendExistingSObject(None,
+                              path,
+                              typeName,
+                              customObjectNature,
+                              fields,
+                              fieldSets,
+                              sharingReasons))
+    else
+      createReplacementSObject(path,
+                               typeName,
+                               customObjectNature,
+                               fields,
+                               fieldSets,
+                               sharingReasons)
+  }
+
+  /** Create a new SObject along withs it's supporting objects. */
+  private def createNewSObject(path: PathLike,
+                               typeName: TypeName,
+                               nature: SObjectNature,
+                               fields: Array[FieldDeclaration],
+                               fieldSets: Array[Name],
+                               sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+    val allObjects =
+      Array(
+            // FUTURE: Check fields & when these should be available
+            createShare(typeName, sharingReasons),
+            createFeed(typeName),
+            createHistory(typeName),
+            new SObjectDeclaration(Array(path),
+                                   module,
+                                   typeName,
+                                   nature,
+                                   fieldSets,
+                                   Name.emptyNames,
+                                   customObjectFields(typeName, nature, fields),
+                                   _isComplete = true))
+
+    allObjects.foreach(td => {
+      types.put(td.typeName, td)
+      module.schema().sobjectTypes.add(td)
+    })
+    allObjects
+  }
+
+  private def createShare(typeName: TypeName, sharingReasons: Array[Name]): SObjectDeclaration = {
+    SObjectDeclaration(Array.empty,
+                       module,
+                       typeName.withNameReplace("__c$", "__Share"),
+                       CustomObjectNature,
+                       Array(),
+                       sharingReasons,
+                       customObjectFields(typeName, CustomObjectNature, StreamDeployer.shareFields),
+                       _isComplete = true)
+  }
+
+  private def createFeed(typeName: TypeName): SObjectDeclaration = {
+    SObjectDeclaration(Array.empty,
+                       module,
+                       typeName.withNameReplace("__c$", "__Feed"),
+                       CustomObjectNature,
+                       Name.emptyNames,
+                       Name.emptyNames,
+                       customObjectFields(typeName, CustomObjectNature, StreamDeployer.feedFields),
+                       _isComplete = true)
+  }
+
+  private def createHistory(typeName: TypeName): SObjectDeclaration = {
+    SObjectDeclaration(PathLike.emptyPaths,
+                       module,
+                       typeName.withNameReplace("__c$", "__History"),
+                       CustomObjectNature,
+                       Name.emptyNames,
+                       Name.emptyNames,
+                       customObjectFields(typeName,
+                                          CustomObjectNature,
+                                          StreamDeployer.historyFields),
+                       _isComplete = true)
+  }
+
+  /** Create an SObject to replace some existing SObject so that it can be extended. If no existing can be found then
+    * an error is raised and the operation is new SObject is not created. */
+  private def createReplacementSObject(path: PathLike,
+                                       typeName: TypeName,
+                                       nature: SObjectNature,
+                                       fields: Array[FieldDeclaration],
+                                       fieldSets: Array[Name],
+                                       sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+
+    if (typeName == TypeNames.Activity) {
+      // Fake Activity as applying to Task & Event, how bizarre is that
+      createReplacementSObject(path, TypeNames.Task, nature, fields, fieldSets, sharingReasons) ++
+        createReplacementSObject(path, TypeNames.Event, nature, fields, fieldSets, sharingReasons)
+    } else {
+      val sobjectType = TypeResolver(typeName, module, excludeSObjects = false).toOption
+      if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
+            superClass.typeName == TypeNames.SObject)) {
+        OrgImpl.logError(PathLocation(path.toString, Location.empty),
+                         s"No SObject declaration found for '$typeName'")
+        return Array()
+      }
+      Array(
+        extendExistingSObject(sobjectType,
+                              path,
+                              typeName,
+                              nature,
+                              fields,
+                              fieldSets,
+                              sharingReasons))
+    }
+  }
+
+  /** Create an SObject by extending a base SObject with new fields, fieldSets and sharing reasons. If you don't pass
+    * a base object than this will extend System.SObject. */
+  private def extendExistingSObject(base: Option[TypeDeclaration],
+                                    path: PathLike,
+                                    typeName: TypeName,
+                                    nature: SObjectNature,
+                                    fields: Array[FieldDeclaration],
+                                    fieldSets: Array[Name],
+                                    sharingReasons: Array[Name]): SObjectDeclaration = {
+
+    implicit class TypeDeclarationOps(td: TypeDeclaration) {
+      def fieldSets: Array[Name] = {
+        td match {
+          case td: SObjectDeclaration => td.fieldSets
+          case _                      => Array()
+        }
+      }
+
+      def sharingReasons: Array[Name] = {
+        td match {
+          case td: SObjectDeclaration => td.sharingReasons
+          case _                      => Array()
+        }
+      }
+    }
+
+    val extend = base.getOrElse(PlatformTypes.sObjectType)
+    val combinedField = fields
+      .foldLeft(extend.fields.map(field => (field.name, field)).toMap)((acc, field) =>
+        acc + (field.name -> field))
+      .values
+      .toArray
+    val combinedFieldsets = fieldSets
+      .foldLeft(base.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
+      .toArray
+    val combinedSharingReasons = sharingReasons
+      .foldLeft(base.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) =>
+        acc + sharingReason)
+      .toArray
+
+    val td = new SObjectDeclaration(Array(path),
+                                    module,
+                                    typeName,
+                                    nature,
+                                    combinedFieldsets,
+                                    combinedSharingReasons,
+                                    combinedField,
+                                    base.nonEmpty && base.get.isComplete)
+    types.put(td.typeName, td)
+    module.schema().sobjectTypes.add(td)
+    td
+  }
+
+  /** Create a type declaration for a SObjectLike, such as a platform event. This just defaults a couple of fields
+    * and make the new type declaration available in the module. */
+  private def createSObjectLike(typeName: TypeName,
+                                nature: SObjectNature,
+                                fields: Array[FieldDeclaration]): Array[SObjectDeclaration] = {
     val sobjectType = new SObjectDeclaration(Array.empty,
                                              module,
                                              typeName,
                                              nature,
-                                             fieldSets,
+                                             Name.emptyNames,
                                              Name.emptyNames,
                                              fields,
                                              _isComplete = true)
@@ -157,6 +392,29 @@ class StreamDeployer(module: Module,
     Array(sobjectType)
   }
 
+  /** Construct a full set of fields for a custom objects from the custom fields defined in the event. */
+  private def customObjectFields(typeName: TypeName,
+                                 nature: SObjectNature,
+                                 fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+    Array(
+      CustomFieldDeclaration(Names.SObjectType,
+                             TypeNames.sObjectType$(typeName),
+                             None,
+                             asStatic = true),
+      CustomFieldDeclaration(Names.Fields,
+                             TypeNames.sObjectFields$(typeName),
+                             None,
+                             asStatic = true),
+      CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName))) ++
+      StreamDeployer.standardCustomObjectFields ++
+      fields ++
+      (if (nature == HierarchyCustomSettingsNature)
+         Array(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
+       else
+         Array[FieldDeclaration]())
+  }
+
+  /** Construct a full set of fields for a custom metadata from the custom fields defined in the event. */
   private def customMetadataFields(typeName: TypeName,
                                    fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
     Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName)),
@@ -168,6 +426,7 @@ class StreamDeployer(module: Module,
       fields
   }
 
+  /** Construct a full set of fields for a platform event from the custom fields defined in the event. */
   private def platformEventFields(typeName: TypeName,
                                   fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
     StreamDeployer.standardPlatformEventFields ++
@@ -327,14 +586,32 @@ class StreamDeployer(module: Module,
 }
 
 object StreamDeployer {
-  val standardPlatformEventFields: Array[FieldDeclaration] = {
+
+  /** Standard fields for custom objects. */
+  lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
+    Seq(CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
+        CustomFieldDeclaration(Names.RecordTypeId, TypeNames.IdType, None),
+        CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
+        CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
+        CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
+        CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
+        CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.IdType, None),
+        CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
+        CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
+        CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)) ++
+      PlatformTypes.sObjectType.fields.filterNot(f => f.name == Names.SObjectType)
+  }
+
+  /** Standard fields for platform events. */
+  lazy val standardPlatformEventFields: Array[FieldDeclaration] = {
     Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
           CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
           CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
           CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None))
   }
 
-  val standardCustomMetadataFields: Array[FieldDeclaration] = {
+  /** Standard fields for custom metadata. */
+  lazy val standardCustomMetadataFields: Array[FieldDeclaration] = {
     Array(CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
           CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
           CustomFieldDeclaration(Names.Label, TypeNames.String, None),
@@ -344,6 +621,38 @@ object StreamDeployer {
           CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
   }
 
+  /** Standard fields for a \_\_Share SObject. */
+  lazy val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
+    CustomFieldDeclaration(Names.AccessLevel, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.ParentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.RowCause, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.UserOrGroupId, PlatformTypes.idType.typeName, None))
+
+  /** Standard fields for a \_\_Feed SObject. */
+  lazy val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
+    CustomFieldDeclaration(Names.BestCommentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.Body, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.CommentCount, PlatformTypes.decimalType.typeName, None),
+    CustomFieldDeclaration(Names.ConnectionId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.InsertedById, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.IsRichText, PlatformTypes.booleanType.typeName, None),
+    CustomFieldDeclaration(Names.LikeCount, PlatformTypes.decimalType.typeName, None),
+    CustomFieldDeclaration(Names.LinkUrl, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.NetworkScope, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.ParentId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.RelatedRecordId, PlatformTypes.idType.typeName, None),
+    CustomFieldDeclaration(Names.Title, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.Type, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.Visibility, PlatformTypes.stringType.typeName, None),
+  )
+
+  lazy val historyFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
+    CustomFieldDeclaration(Names.Field, PlatformTypes.stringType.typeName, None),
+    CustomFieldDeclaration(Names.NewValue, PlatformTypes.objectType.typeName, None),
+    CustomFieldDeclaration(Names.OldValue, PlatformTypes.objectType.typeName, None),
+  )
+
+  /** Convert a field type string to the platform type used for it in Apex. */
   def platformTypeOfFieldType(fieldType: Name): TypeDeclaration = {
     fieldType.value match {
       case "MasterDetail"         => PlatformTypes.idType

@@ -381,7 +381,7 @@ final case class SObjectFieldRowCause(sobjectName: Name, module: Module)
     val typeName = TypeName(sobjectTarget)
     TypeResolver(typeName, module, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
-        sobject.sharingReason
+        sobject.sharingReasons
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.String, None)))
           .toMap
       case _ => Map()
