@@ -22,7 +22,7 @@ import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
-import com.nawforce.apexlink.types.platform.PlatformTypes
+import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.diagnostics.{Issue, Location, MISSING_CATEGORY, PathLocation}
@@ -33,6 +33,7 @@ import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.{BufferedIterator, mutable}
 import scala.jdk.CollectionConverters._
@@ -105,6 +106,9 @@ class StreamDeployer(module: Module,
                                          classOf[FieldsetEvent],
                                          classOf[SharingReasonEvent]),
                                      events).iterator.buffered
+
+    val referenceFields = ArrayBuffer[(CustomFieldEvent, SObjectEvent, TypeName)]()
+
     while (objectsEvents.hasNext) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
 
@@ -113,14 +117,18 @@ class StreamDeployer(module: Module,
       val encodedName = EncodedName(doc.get.name).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
 
-      val fields: Array[FieldDeclaration] =
-        bufferEvents[CustomFieldEvent](objectsEvents).flatMap(f =>
-          createCustomField(sObjectEvent.path, typeName, f))
+      val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
+      val fields = fieldEvents.flatMap(f => createCustomField(sObjectEvent.path, typeName, f))
       val fieldSets = bufferEvents[FieldsetEvent](objectsEvents).map(_.name)
       val sharingReasons = bufferEvents[SharingReasonEvent](objectsEvents).map(_.name)
 
+      // As there may be cyclic referencing between SObjects, we save these for later processing
+      referenceFields.addAll(fieldEvents.collect {
+        case e if StreamDeployer.referenceFieldTypes.contains(e.rawType) => (e, sObjectEvent, typeName)
+      })
+
       doc
-        .map {
+        .foreach {
           case doc: SObjectDocument if doc.name.value.endsWith("__c") =>
             // Custom SObject or Custom Setting
             createCustomObject(sObjectEvent,
@@ -145,11 +153,25 @@ class StreamDeployer(module: Module,
                               customMetadataFields(typeName, fields))
           case _: BigObjectDocument =>
             createSObjectLike(typeName, BigObjectNature, fields)
-          case _ => assert(false); Array[SObjectDeclaration]()
         }
-        .getOrElse(Array())
     }
-    module.schema().relatedLists.validate()
+
+    // Apply 'reverse' reference fields over the created SObjects
+    referenceFields.foreach(fieldObject => {
+      val referenceTo = fieldObject._1.referenceTo.get._1
+      val relationshipName = Name(fieldObject._1.referenceTo.get._2.value + "__r")
+      val refTypeName = schemaTypeNameOf(referenceTo)
+      val reverseFieldName =
+        EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
+
+      addReferenceFieldToSObject(refTypeName,
+        reverseFieldName,
+        fieldObject._1.name,
+        fieldObject._3,
+        PathLocation(fieldObject._2.path.toString, Location(0)))
+    })
+
+    //module.schema().relatedLists.validate()
   }
 
   private def createCustomField(path: PathLike, typeName: TypeName, field: CustomFieldEvent,
@@ -165,13 +187,25 @@ class StreamDeployer(module: Module,
     rawType.value match {
       case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
         val referenceTo = field.referenceTo.get._1
-        val relName = Name(field.referenceTo.get._2.value + "__r")
+        val relationshipName = Name(field.referenceTo.get._2.value + "__r")
         val refTypeName = schemaTypeNameOf(referenceTo)
+        val reverseFieldName =
+          EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
 
+        /*
+        addReferenceFieldToSObject(refTypeName,
+                                   reverseFieldName,
+                                   field.name,
+                                   typeName,
+                                   PathLocation(path.toString, Location(0)))
+         */
+
+        /*
         module
           .schema()
           .relatedLists
-          .add(refTypeName, relName, field.name, typeName, PathLocation(path.toString, Location(0)))
+          .add(refTypeName, relationshipName, field.name, typeName, PathLocation(path.toString, Location(0)))
+         */
 
         Array(fieldDeclaration,
               CustomFieldDeclaration(field.name.replaceAll("__c$", "__r"), refTypeName, None))
@@ -185,6 +219,37 @@ class StreamDeployer(module: Module,
                                      None))
       case _ => Array(fieldDeclaration)
     }
+  }
+
+  private def addReferenceFieldToSObject(targetTypeName: TypeName,
+                                         targetFieldName: Name,
+                                         originatingFieldName: Name,
+                                         originatingTypeName: TypeName,
+                                         location: PathLocation): Unit = {
+    val td = TypeResolver(targetTypeName, module, excludeSObjects = false).toOption
+    if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(targetTypeName)) {
+      OrgImpl.logError(
+        location,
+        s"Lookup object $targetTypeName does not exist for field '$originatingFieldName'")
+    }
+
+    td.map(td => {
+      val sobjectNature = td match {
+        case _: PlatformTypeDeclaration => PlatformObjectNature
+        case decl: SObjectDeclaration   => decl.sobjectNature
+      }
+
+      extendExistingSObject(Some(td),
+                            Array(),
+                            td.typeName,
+                            sobjectNature,
+                            Array(
+                              CustomFieldDeclaration(targetFieldName,
+                                                     TypeNames.recordSetOf(originatingTypeName),
+                                                     None)),
+                            Array(),
+                            Array())
+    })
   }
 
   private def schemaTypeNameOf(name: Name): TypeName = {
@@ -211,7 +276,7 @@ class StreamDeployer(module: Module,
     else if (module.isGhostedType(typeName))
       Array(
         extendExistingSObject(None,
-                              path,
+                              Array(path),
                               typeName,
                               customObjectNature,
                               fields,
@@ -313,7 +378,7 @@ class StreamDeployer(module: Module,
       }
       Array(
         extendExistingSObject(sobjectType,
-                              path,
+                              Array(path),
                               typeName,
                               nature,
                               fields,
@@ -325,7 +390,7 @@ class StreamDeployer(module: Module,
   /** Create an SObject by extending a base SObject with new fields, fieldSets and sharing reasons. If you don't pass
     * a base object than this will extend System.SObject. */
   private def extendExistingSObject(base: Option[TypeDeclaration],
-                                    path: PathLike,
+                                    paths: Array[PathLike],
                                     typeName: TypeName,
                                     nature: SObjectNature,
                                     fields: Array[FieldDeclaration],
@@ -362,7 +427,7 @@ class StreamDeployer(module: Module,
         acc + sharingReason)
       .toArray
 
-    val td = new SObjectDeclaration(Array(path),
+    val td = new SObjectDeclaration(paths,
                                     module,
                                     typeName,
                                     nature,
@@ -652,6 +717,9 @@ object StreamDeployer {
     CustomFieldDeclaration(Names.NewValue, PlatformTypes.objectType.typeName, None),
     CustomFieldDeclaration(Names.OldValue, PlatformTypes.objectType.typeName, None),
   )
+
+  val referenceFieldTypes: Set[Name] =
+    Set(Name("Lookup"), Name("MasterDetail"), Name("MetadataRelationship"))
 
   /** Convert a field type string to the platform type used for it in Apex. */
   def platformTypeOfFieldType(fieldType: Name): TypeDeclaration = {

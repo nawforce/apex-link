@@ -36,15 +36,13 @@ import com.nawforce.pkgforce.path.PathLike
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature
 }
-abstract class IntroducingNature(_nature: String) extends SObjectNature(_nature)
-case object ListCustomSettingNature extends IntroducingNature("List")
-case object HierarchyCustomSettingsNature extends IntroducingNature("Hierarchy")
-case object CustomObjectNature extends IntroducingNature("CustomObject")
+case object ListCustomSettingNature extends SObjectNature("List")
+case object HierarchyCustomSettingsNature extends SObjectNature("Hierarchy")
+case object CustomObjectNature extends SObjectNature("CustomObject")
 case object CustomMetadataNature extends SObjectNature("CustomMetadata")
 case object BigObjectNature extends SObjectNature("BigObject")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
-
 
 final case class SObjectDeclaration(_paths: Array[PathLike],
                                     module: Module,
