@@ -389,6 +389,7 @@ class StreamDeployer(module: Module,
                                              fields,
                                              _isComplete = true)
     types.put(sobjectType.typeName, sobjectType)
+    module.schema().sobjectTypes.add(sobjectType)
     Array(sobjectType)
   }
 
