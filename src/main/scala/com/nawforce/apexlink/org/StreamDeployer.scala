@@ -53,8 +53,8 @@ class StreamDeployer(module: Module,
 
   // Prime basic types
   upsertMetadata(AnyDeclaration(module))
-  upsertMetadata(module.schema().sobjectTypes)
-  upsertMetadata(module.schema().sobjectTypes, Some(TypeName(module.schema().sobjectTypes.name)))
+  upsertMetadata(module.schemaSObjectType())
+  upsertMetadata(module.schemaSObjectType(), Some(TypeName(module.schemaSObjectType().name)))
   private val basicTypesSize = types.size
 
   // Process package events, these must follow the publishing order from pkgforce
@@ -315,7 +315,7 @@ class StreamDeployer(module: Module,
 
     allObjects.foreach(td => {
       types.put(td.typeName, td)
-      module.schema().sobjectTypes.add(td)
+      module.schemaSObjectType().add(td)
     })
     allObjects
   }
@@ -436,7 +436,7 @@ class StreamDeployer(module: Module,
                                     combinedField,
                                     base.nonEmpty && base.get.isComplete)
     types.put(td.typeName, td)
-    module.schema().sobjectTypes.add(td)
+    module.schemaSObjectType().add(td)
     td
   }
 
@@ -454,7 +454,7 @@ class StreamDeployer(module: Module,
                                              fields,
                                              _isComplete = true)
     types.put(sobjectType.typeName, sobjectType)
-    module.schema().sobjectTypes.add(sobjectType)
+    module.schemaSObjectType().add(sobjectType)
     Array(sobjectType)
   }
 

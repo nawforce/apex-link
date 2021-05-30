@@ -32,28 +32,24 @@ import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
 
-/* Support for Schema.* handling in Apex */
-class SchemaManager(module: Module) extends PlatformTypes.PlatformTypeObserver {
-  val sobjectTypes: SchemaSObjectType = SchemaSObjectType(module)
-
-  PlatformTypes.addLoadingObserver(this)
-
-  override def loaded(td: PlatformTypeDeclaration): Unit = {
-    if (td.isSObject) {
-      sobjectTypes.createSObjectTypeDeclarations(td.name)
-    }
-  }
-}
-
 /* Schema.SObjectType implementation */
 final case class SchemaSObjectType(module: Module)
-    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType) {
+    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType) with PlatformTypes.PlatformTypeObserver {
   private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
   private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
 
+  PlatformTypes.addLoadingObserver(this)
+
+  // Callback for loading of Pltform Type that may be SObjects so we can hoist correct describe structure around them
+  override def loaded(td: PlatformTypeDeclaration): Unit = {
+    if (td.isSObject) {
+      createSObjectTypeDeclarations(td.name, hasFieldSets = true)
+    }
+  }
+
   /* Allow adding of virtual SObjects such as for shares etc */
   def add(sObject: SObjectDeclaration): Unit = {
-    createSObjectDescribeField(sObject.name, sObject.typeName)
+    createSObjectDescribeField(sObject.name, sObject.typeName, sObject.sobjectNature == CustomObjectNature)
   }
 
   /* Find a specific SObject */
@@ -63,9 +59,10 @@ final case class SchemaSObjectType(module: Module)
 
     val typeName = EncodedName(name).asTypeName
     if (module.isGhostedType(typeName)) {
-      return Some(createSObjectDescribeField(name, typeName))
+      return Some(createSObjectDescribeField(name, typeName, hasFieldsets = true))
     }
 
+    // TODO: Should this cache None
     sobjectFields
       .get(name)
       .orElse({
@@ -73,7 +70,7 @@ final case class SchemaSObjectType(module: Module)
         val td = TypeResolver(TypeName(name), module, excludeSObjects = false).toOption
         if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
               superClass.typeName == TypeNames.SObject)) {
-          Some(createSObjectDescribeField(name, td.get.typeName))
+          Some(createSObjectDescribeField(name, td.get.typeName, hasFieldsets = true))
         } else {
           None
         }
@@ -91,8 +88,8 @@ final case class SchemaSObjectType(module: Module)
    * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
    */
   private def createSObjectDescribeField(sobjectName: Name,
-                                         typeName: TypeName): FieldDeclaration = {
-    createSObjectTypeDeclarations(sobjectName)
+                                         typeName: TypeName, hasFieldsets: Boolean): FieldDeclaration = {
+    createSObjectTypeDeclarations(sobjectName, hasFieldsets)
 
     val describeField = CustomFieldDeclaration(sobjectName,
                                                TypeNames.describeSObjectResultOf(typeName),
@@ -104,16 +101,21 @@ final case class SchemaSObjectType(module: Module)
 
   /* Inject virtual type declarations for an sobject to override the platform generic versions. This is done
    * dynamically so we don't need to create for every SObject */
-  def createSObjectTypeDeclarations(sobjectName: Name): Unit = {
+  def createSObjectTypeDeclarations(sobjectName: Name, hasFieldSets: Boolean): Unit = {
     if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
       sobjectTypeDeclarationsCreated.add(sobjectName)
+
+      val typeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
       val fields = SObjectFields(sobjectName, module)
       val typeFields = SObjectTypeFields(sobjectName, module)
+
       module.upsertMetadata(typeFields)
       module.upsertMetadata(fields)
       module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
-      module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
-      module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
+      if (hasFieldSets)
+        module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
+      if (typeName.isShare)
+        module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
     }
   }
 }
@@ -266,28 +268,31 @@ final case class SObjectFields(sobjectName: Name, module: Module)
   }
 }
 
-// TODO: Provide paths
+/** Handler for Internal.SObjectTypeFieldSets$<SObject> that provides fieldSet access for custom objects. */
 final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
       TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
+  // Cache of discovered fieldSets
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
-    val typeName = TypeName(sobjectName)
-    TypeResolver(typeName, module, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.FieldSet, None)))
           .toMap
       case _ => Map()
+      // TODO: Should this error if type does not support fieldsets?
     }
   }
 
+  /** Intercept field lookup to provide fieldSets on demand. */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     sobjectFieldSets.get(name)
   }
 
+  /** Intercept method lookup to provide Map() function. */
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
@@ -296,40 +301,40 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
   }
 }
 
+/** Handler for Internal.SObjectFieldRowClause$<SObject> that joins the standard sharing reasons with any sharing
+  * reasons that are declared on the the SObject. */
 final case class SObjectFieldRowCause(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
       TypeNames.sObjectFieldRowCause$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
+  assert(sobjectName.value.endsWith("Share"))
+
+  // Cache of discovered sharing reasons
   private lazy val sharingReasonFields: Map[Name, FieldDeclaration] = {
-    // Locate SObject that is holding the sharing reasons
+    // Locate SObject (custom or standard) that is holding the sharing reasons
     val sobjectTarget =
       if (sobjectName.toString().endsWith("__Share"))
         sobjectName
       else
         Name(sobjectName.toString().replaceFirst("Share$", ""))
-    val typeName = TypeName(sobjectTarget)
-    TypeResolver(typeName, module, excludeSObjects = false).toOption match {
+
+    // Extract the sharing reasons as fields
+    TypeResolver(TypeName(sobjectTarget), module, excludeSObjects = false).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.sharingReasons
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.String, None)))
           .toMap
-      case _ => Map()
+      case Some(sobject: PlatformTypeDeclaration) if sobject.isSObject => Map()
+      case _                                                           => assert(false); Map()
     }
   }
 
+  /** Intercept field lookup to provide sharing reasons on demand. */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    if (sharingReasonFields.contains(name))
-      sharingReasonFields.get(name)
-    else
-      PlatformTypes.sObjectFieldRowCause$.findField(name, staticContext)
-  }
-
-  override def findMethod(name: Name,
-                          params: Array[TypeName],
-                          staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
-    PlatformTypes.sObjectFieldRowCause$.findMethod(name, params, staticContext, verifyContext)
+    sharingReasonFields
+      .get(name)
+      .orElse(PlatformTypes.sObjectFieldRowCause$.findField(name, staticContext))
   }
 }

@@ -19,17 +19,11 @@ import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{
-  ApexClassDeclaration,
-  ApexDeclaration,
-  ApexFullDeclaration,
-  FullDeclaration,
-  TriggerDeclaration
-}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
-import com.nawforce.apexlink.types.schema.SchemaManager
+import com.nawforce.apexlink.types.schema.SchemaSObjectType
 import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
@@ -47,7 +41,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
 
-  private val schemaManager = new SchemaManager(this)
+  private val schemaManager = SchemaSObjectType(this)
 
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
 
@@ -58,7 +52,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def typeCount: Int = types.size
 
-  def schema(): SchemaManager = schemaManager
+  def schemaSObjectType(): SchemaSObjectType = schemaManager
 
   def any: AnyDeclaration = findModuleType(TypeNames.Any).get.asInstanceOf[AnyDeclaration]
   def labels: LabelDeclaration = findModuleType(TypeNames.Label).get.asInstanceOf[LabelDeclaration]
