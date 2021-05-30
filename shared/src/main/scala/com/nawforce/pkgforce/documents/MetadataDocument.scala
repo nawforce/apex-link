@@ -120,6 +120,13 @@ final case class ExtendedApexDocument(_path: PathLike, _name: Name)
   }
 }
 
+object ExtendedApexDocument {
+  def apply(path: PathLike): ExtendedApexDocument = {
+    assert(path.basename.toLowerCase.endsWith(".xcls"))
+    new ExtendedApexDocument(path, Name(path.basename.replaceFirst("(?i)\\.xcls$", "")))
+  }
+}
+
 final case class ComponentDocument(_path: PathLike, _name: Name)
     extends UpdatableMetadata(_path, _name) {
   override val nature: MetadataNature = ComponentNature
