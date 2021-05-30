@@ -116,8 +116,8 @@ object PlatformTypes {
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit = {
     val ptd = td.asInstanceOf[PlatformTypeDeclaration]
-    loadingObservers = loadingObservers.filter(_.get != null)
-    loadingObservers.foreach(wr => wr.get.loaded(ptd))
+    loadingObservers = loadingObservers.filterNot(_.get == null)
+    loadingObservers.foreach(wr => Option(wr.get).map(_.loaded(ptd)))
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
