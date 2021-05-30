@@ -32,24 +32,63 @@ import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
 
-/* Schema.SObjectType implementation */
+/** Schema.SObjectType implementation. By its nature this is a container for information about SObjects so it is also
+  * used to initialise supporting types needed for SObjects. Salesforce have hacked their Apex parser to have explicit
+  * knowledge of expressions involving SObjects but I could not bring myself to do something so ungodly. Instead, we
+  * use generics and pass the SObject TypeName as a type arguments. There is no automatic way to create these types
+  * so either it is done as a side effect of loading SObject metadata or on-demand.
+  *
+  * The way generics are used here can be a bit confusing as there are few hard dependencies between the classes.
+  * What generally happens is that during expression evaluation, a field type name will be given as one of the generic
+  * types with the type argument set to a specific SObject, that type name will then be resolved to one of the handlers
+  * below that has been created specifically for dealing with that aspect of the SObject reflective access.
+  **/
 final case class SchemaSObjectType(module: Module)
-    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType) with PlatformTypes.PlatformTypeObserver {
-  private val sobjectFields: mutable.Map[Name, FieldDeclaration] = mutable.Map()
-  private val sobjectTypeDeclarationsCreated = mutable.Set[Name]()
+    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType)
+    with PlatformTypes.PlatformTypeObserver {
 
+  /** Cache of SObject accessible via SObjectType.<name> */
+  private val sobjectFields: mutable.Map[Name, Option[FieldDeclaration]] = mutable.Map()
+
+  /** Observe loading of platform types so we can inject generic handlers as needed. */
   PlatformTypes.addLoadingObserver(this)
 
-  // Callback for loading of Pltform Type that may be SObjects so we can hoist correct describe structure around them
+  /** Callback for loading of Platform Type that may be SObjects so we can hoist correct describe structure around
+    * them. FUTURE: This is a bit over general as any module referencing will cause *all* modules to handle */
   override def loaded(td: PlatformTypeDeclaration): Unit = {
     if (td.isSObject) {
-      createSObjectTypeDeclarations(td.name, hasFieldSets = true)
+      add(td.name, td.typeName, hasFieldSets = true)
     }
   }
 
-  /* Allow adding of virtual SObjects such as for shares etc */
+  /** Manually add an SObject, this will create supporting types needed for reflective access to this SObject. */
   def add(sObject: SObjectDeclaration): Unit = {
-    createSObjectDescribeField(sObject.name, sObject.typeName, sObject.sobjectNature == CustomObjectNature)
+    add(sObject.name, sObject.typeName, sObject.sobjectNature == CustomObjectNature)
+  }
+
+  /* Create the SObjectType field & generic handlers for a SObject. */
+  private def add(sobjectName: Name,
+                  typeName: TypeName,
+                  hasFieldSets: Boolean): FieldDeclaration = {
+
+    val typeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
+    val fields = SObjectFields(sobjectName, module)
+    val typeFields = SObjectTypeFields(sobjectName, module)
+
+    module.upsertMetadata(typeFields)
+    module.upsertMetadata(fields)
+    module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
+    if (hasFieldSets)
+      module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
+    if (typeName.isShare)
+      module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
+
+    val describeField = CustomFieldDeclaration(sobjectName,
+                                               TypeNames.describeSObjectResultOf(typeName),
+                                               None,
+                                               asStatic = true)
+    sobjectFields.put(sobjectName, Some(describeField))
+    describeField
   }
 
   /* Find a specific SObject */
@@ -59,22 +98,20 @@ final case class SchemaSObjectType(module: Module)
 
     val typeName = EncodedName(name).asTypeName
     if (module.isGhostedType(typeName)) {
-      return Some(createSObjectDescribeField(name, typeName, hasFieldsets = true))
+      return Some(add(name, typeName, hasFieldSets = true))
     }
 
-    // TODO: Should this cache None
     sobjectFields
-      .get(name)
-      .orElse({
-        /* If not yet present check if we should create and cache */
-        val td = TypeResolver(TypeName(name), module, excludeSObjects = false).toOption
-        if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
-              superClass.typeName == TypeNames.SObject)) {
-          Some(createSObjectDescribeField(name, td.get.typeName, hasFieldsets = true))
-        } else {
-          None
-        }
-      })
+      .getOrElseUpdate(
+        name, {
+          val td = TypeResolver(TypeName(name), module, excludeSObjects = false).toOption
+          if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
+                superClass.typeName == TypeNames.SObject)) {
+            Some(add(name, td.get.typeName, hasFieldSets = true))
+          } else {
+            None
+          }
+        })
   }
 
   override def findMethod(name: Name,
@@ -83,44 +120,11 @@ final case class SchemaSObjectType(module: Module)
                           verifyContext: VerifyContext): Array[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
-
-  /* Create the describe entries for an SObject, note we are using generics to tunnel the type so that
-   * we can support Field & FieldSet access via injecting virtual TypeDeclarations for these.
-   */
-  private def createSObjectDescribeField(sobjectName: Name,
-                                         typeName: TypeName, hasFieldsets: Boolean): FieldDeclaration = {
-    createSObjectTypeDeclarations(sobjectName, hasFieldsets)
-
-    val describeField = CustomFieldDeclaration(sobjectName,
-                                               TypeNames.describeSObjectResultOf(typeName),
-                                               None,
-                                               asStatic = true)
-    sobjectFields.put(sobjectName, describeField)
-    describeField
-  }
-
-  /* Inject virtual type declarations for an sobject to override the platform generic versions. This is done
-   * dynamically so we don't need to create for every SObject */
-  def createSObjectTypeDeclarations(sobjectName: Name, hasFieldSets: Boolean): Unit = {
-    if (!sobjectTypeDeclarationsCreated.contains(sobjectName)) {
-      sobjectTypeDeclarationsCreated.add(sobjectName)
-
-      val typeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
-      val fields = SObjectFields(sobjectName, module)
-      val typeFields = SObjectTypeFields(sobjectName, module)
-
-      module.upsertMetadata(typeFields)
-      module.upsertMetadata(fields)
-      module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
-      if (hasFieldSets)
-        module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
-      if (typeName.isShare)
-        module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
-    }
-  }
 }
 
-// TODO: Provide paths
+/** Handler for Internal.SObjectType$<SObject> that provides reflective access for custom objects via expressions
+  * starting with <name>.SObjectType.
+  */
 final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
@@ -157,7 +161,9 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   }
 }
 
-// TODO: Provide paths
+/** Handler for Internal.SObjectTypeFields$<SObject> that provides fields access for custom objects via expressions
+  * of the form Schema.SObjectType.<name>.Fields.
+  */
 final case class SObjectTypeFields(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
@@ -213,7 +219,8 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
                               Array())).map(m => ((m.name, m.parameters.length), m)).toMap
 }
 
-// TODO: Provide paths
+/** Handler for Internal.SObjectFields$<SObject> that provides fields access for custom objects via expressions
+  * of the form Schema.<name>.Fields. */
 final case class SObjectFields(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
@@ -240,6 +247,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
 
     // Mimic SObjectType as we proxy for SObjectField
+    // Future: Check if this is needed as its not hit bu unit tests
     if (name == Names.SObjectType)
       return Some(
         CustomFieldDeclaration(
@@ -268,7 +276,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
   }
 }
 
-/** Handler for Internal.SObjectTypeFieldSets$<SObject> that provides fieldSet access for custom objects. */
+/** Handler for Internal.SObjectTypeFieldSets$<SObject> that provides fieldSet access for custom objects  */
 final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
     extends BasicTypeDeclaration(
       PathLike.emptyPaths,
@@ -289,7 +297,13 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
 
   /** Intercept field lookup to provide fieldSets on demand. */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    sobjectFieldSets.get(name)
+    sobjectFieldSets
+      .get(name)
+      .orElse(if (module.isGhostedFieldName(name)) {
+        Some(CustomFieldDeclaration(name, TypeNames.FieldSet, None))
+      } else {
+        None
+      })
   }
 
   /** Intercept method lookup to provide Map() function. */
