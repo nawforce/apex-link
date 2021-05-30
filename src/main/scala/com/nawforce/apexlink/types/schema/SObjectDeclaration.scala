@@ -24,11 +24,7 @@ import com.nawforce.apexlink.types.core.{
   TypeDeclaration
 }
 import com.nawforce.apexlink.types.platform.PlatformTypes
-import com.nawforce.apexlink.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -75,20 +71,7 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    super
-      .findFieldSObject(name, staticContext)
-      .orElse({
-        val field = module.schema().relatedLists.findField(typeName, name)
-        if (field.nonEmpty && staticContext.contains(true)) {
-          Some(
-            CustomFieldDeclaration(field.get.name,
-                                   TypeNames.sObjectFields$(typeName),
-                                   None,
-                                   asStatic = true))
-        } else {
-          field
-        }
-      })
+    super.findFieldSObject(name, staticContext)
   }
 
   override def findMethod(name: Name,

@@ -18,12 +18,15 @@ import com.nawforce.apexlink.cst.VerifyContext
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
-import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.org.Module
+import com.nawforce.apexlink.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
-import com.nawforce.apexlink.types.schema
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
@@ -32,7 +35,6 @@ import scala.collection.mutable
 /* Support for Schema.* handling in Apex */
 class SchemaManager(module: Module) extends PlatformTypes.PlatformTypeObserver {
   val sobjectTypes: SchemaSObjectType = SchemaSObjectType(module)
-  val relatedLists: RelatedLists = new RelatedLists(module)
 
   PlatformTypes.addLoadingObserver(this)
 
@@ -40,77 +42,6 @@ class SchemaManager(module: Module) extends PlatformTypes.PlatformTypeObserver {
     if (td.isSObject) {
       sobjectTypes.createSObjectTypeDeclarations(td.name)
     }
-  }
-}
-
-/* Relationship field tracker, handles finding related lists */
-class RelatedLists(module: Module) {
-  private val relationshipFields = mutable
-    .Map[TypeName, Seq[(CustomFieldDeclaration, Name, PathLocation)]]() withDefaultValue Seq()
-
-  /* Declare a new relationship field */
-  def add(sObject: TypeName,
-          relationshipName: Name,
-          holdingFieldName: Name,
-          holdingSObject: TypeName,
-          location: PathLocation): Unit = {
-    val encodedName = EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
-    val field = CustomFieldDeclaration(encodedName, TypeNames.recordSetOf(holdingSObject), None)
-    relationshipFields.put(sObject,
-                           (field, holdingFieldName, location) +: relationshipFields(sObject))
-  }
-
-  /* Post object loading validation to make sure relationships exist */
-  def validate(): Unit = {
-    val changedObjects = mutable.Set[TypeDeclaration]()
-
-    // Validate lookups will function
-    val sobjects = relationshipFields.keys.toSet
-    sobjects.foreach(sobject => {
-      val td = TypeResolver(sobject, module, excludeSObjects = false).toOption
-      if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(sobject)) {
-        relationshipFields(sobject).foreach(field => {
-          OrgImpl.logError(field._3,
-                           s"Lookup object $sobject does not exist for field '${field._2}'")
-        })
-      } else if (td.exists(
-                   sobject => sobject.isInstanceOf[PlatformTypeDeclaration] && sobject.isSObject)) {
-        changedObjects.add(td.get)
-      }
-      if (td.nonEmpty && sobject != td.get.typeName) {
-        relationshipFields.put(td.get.typeName, relationshipFields(sobject))
-        relationshipFields.remove(sobject)
-      }
-    })
-
-    // Wrap any objects with lookups relationships so they are visible
-    changedObjects.foreach(td => {
-      // TODO: Provide paths
-      module.upsertMetadata(
-        schema.SObjectDeclaration(PathLike.emptyPaths,
-                                  module,
-                                  td.typeName,
-                                  CustomObjectNature,
-                                  Name.emptyNames,
-                                  Name.emptyNames,
-                                  td.fields,
-                                  _isComplete = true))
-    })
-  }
-
-  /* Find for a relationship field on an SObject*/
-  def findField(sobjectType: TypeName, name: Name): Option[FieldDeclaration] = {
-    val encodedName = EncodedName(name).defaultNamespace(module.namespace).fullName
-    relationshipFields(sobjectType)
-      .find(field => field._1.name == encodedName)
-      .map(_._1)
-      .orElse({
-        module.baseModules
-          .flatMap(baseModule => {
-            baseModule.schema().relatedLists.findField(sobjectType, encodedName)
-          })
-          .headOption
-      })
   }
 }
 
