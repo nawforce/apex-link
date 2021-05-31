@@ -17,17 +17,14 @@ package com.nawforce.apexlink.types.schema
 import com.nawforce.apexlink.cst.VerifyContext
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, BlockDeclaration, CLASS_NATURE, ConstructorDeclaration, DependentType, FieldDeclaration, MethodDeclaration, Nature, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+
+import scala.collection.mutable
 
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature
@@ -40,19 +37,27 @@ case object BigObjectNature extends SObjectNature("BigObject")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
 
-final case class SObjectDeclaration(_paths: Array[PathLike],
+final case class SObjectDeclaration(paths: Array[PathLike],
                                     module: Module,
-                                    _typeName: TypeName,
+                                    typeName: TypeName,
                                     sobjectNature: SObjectNature,
                                     fieldSets: Array[Name],
                                     sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
-    extends BasicTypeDeclaration(_paths, module, _typeName) {
+    extends DependentType {
 
+  override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
+  override val name: Name = typeName.name
+  override val outerTypeName: Option[TypeName] = None
+  override val nature: Nature = CLASS_NATURE
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
+  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
+  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  override val constructors: Array[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
   override val superClass: Option[TypeName] = {
     Some(TypeNames.SObject)
@@ -60,6 +65,12 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
 
   override lazy val superClassDeclaration: Option[TypeDeclaration] = {
     module.getTypeFor(superClass.get, this)
+  }
+
+  override def validate(): Unit = {}
+
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+    // TODO: Can depend on other SObjects
   }
 
   override val fields: Array[FieldDeclaration] = {
@@ -73,6 +84,8 @@ final case class SObjectDeclaration(_paths: Array[PathLike],
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     super.findFieldSObject(name, staticContext)
   }
+
+  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def findMethod(name: Name,
                           params: Array[TypeName],

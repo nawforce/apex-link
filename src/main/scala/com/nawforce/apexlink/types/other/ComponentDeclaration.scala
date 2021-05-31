@@ -21,7 +21,7 @@ import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
 
 import scala.collection.mutable
@@ -68,8 +68,7 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
                                       components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
     extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
-    with DependentType
-    with OtherTypeDeclaration {
+    with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 

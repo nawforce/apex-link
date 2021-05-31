@@ -14,17 +14,16 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.cst.UnusedLog
+import com.nawforce.apexlink.finding.TypeFinder
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.SchemaSObjectType
-import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLog, LocalLogger, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
@@ -47,6 +46,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def freeze(): Unit = {
     // FUTURE: Have return types, currently can't be done because class loading code needs access to in-flight types
+    upsertMetadata(AnyDeclaration(this))
+    upsertMetadata(schemaSObjectType())
+    upsertMetadata(schemaSObjectType(), Some(TypeName(schemaSObjectType().name)))
+
     new StreamDeployer(this, PackageStream.eventStream(index), types)
   }
 
@@ -235,7 +238,8 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
    * holders of that type. */
   def refreshInternal(path: PathLike): (TypeId, Set[TypeId]) = {
     checkPathInPackageOrThrow(path)
-    val dt = getUpdateableDocumentTypeOrThrow(path)
+    val dt = MetadataDocument(path).getOrElse(
+      throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
     val sourceOpt = resolveSource(path)
     val typeId = TypeId(this, dt.typeName(namespace))
 
@@ -277,58 +281,39 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       }
   }
 
-  private[nawforce] def deployClasses(documents: Seq[ApexClassDocument]): Unit = {
-    OrgImpl.current.withValue(pkg.org) {
-      val updated = documents.flatMap(doc => {
-        val data = doc.path.readSourceData()
-        val d = ServerOps.debugTime(s"Parsed ${doc.path}") {
-          FullDeclaration.create(this, doc, data.getOrElse(throw new NoSuchElementException)).toSeq
-        }
-        d.foreach(upsertMetadata(_))
-        d
-      })
-
-      updated.foreach(td => td.validate())
-    }
-  }
-
-  private[nawforce] def findTypes(typeNames: Seq[TypeName]): Seq[TypeDeclaration] = {
-    OrgImpl.current.withValue(pkg.org) {
-      typeNames.flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
-    }
-  }
-
-  private def createType(dt: UpdatableMetadata,
+  private def createType(dt: MetadataDocument,
                          source: Option[SourceData]): Option[DependentType] = {
     dt match {
-      case ad: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, ad, s))
+      case doc: ExtendedApexDocument =>
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false))
+      case doc: ApexClassDocument =>
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false))
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
-      case _ =>
-        Some(createOtherType(dt))
-    }
-  }
-
-  private def createOtherType(dt: UpdatableMetadata): DependentType = {
-    // TODO: This is tmp while we refactor index/stream usage
-    dt match {
+      case doc: SObjectDocument =>
+        val logger = new CatchingLogger
+        val events = SObjectGenerator.iterator(DocumentIndex(logger, namespace, doc.path.parent))
+        new StreamDeployer(this, events, this.types)
+        types.get(doc.typeName(namespace)) match {
+          case Some(dt: DependentType) => Some(dt)
+          case _ => None
+        }
       case _: LabelsDocument =>
         val events = LabelGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        LabelDeclaration(this).merge(stream)
+        Some(LabelDeclaration(this).merge(stream))
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        PageDeclaration(this).merge(stream)
+        Some(PageDeclaration(this).merge(stream))
       case _: ComponentDocument =>
         val events = ComponentGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        ComponentDeclaration(this).merge(stream)
+        Some(ComponentDeclaration(this).merge(stream))
       case _: FlowDocument =>
         val events = FlowGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        InterviewDeclaration(this).merge(stream)
+        Some(InterviewDeclaration(this).merge(stream))
     }
   }
 
@@ -340,12 +325,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         case td: TriggerDeclaration => Some(td)
         case _                      => None
       }
-  }
-
-  private def getUpdateableDocumentTypeOrThrow(path: PathLike): UpdatableMetadata = {
-    (MetadataDocument(path) collect {
-      case dt: UpdatableMetadata => dt
-    }).getOrElse(throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {

@@ -12,7 +12,6 @@
     derived from this software without specific prior written permission.
  */
 
-
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.api._

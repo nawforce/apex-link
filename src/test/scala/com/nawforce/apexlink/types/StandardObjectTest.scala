@@ -19,68 +19,69 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class StandardObjectTest extends AnyFunSuite with TestHelper {
 
-  def customObject(label: String,
-                   fields: Seq[(String, Option[String], Option[String])],
-                   sharingReason: Set[String] = Set()): String = {
-    val fieldMetadata = fields.map(field => {
-      s"""
-         |    <fields>
-         |        <fullName>${field._1}</fullName>
-         |        ${if (field._2.nonEmpty) s"<type>${field._2.get}</type>" else ""}
-         |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
-         |        ${if (field._3.nonEmpty)
-           s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
+  /*
+    def customObject(label: String,
+                     fields: Seq[(String, Option[String], Option[String])],
+                     sharingReason: Set[String] = Set()): String = {
+      val fieldMetadata = fields.map(field => {
+        s"""
+           |    <fields>
+           |        <fullName>${field._1}</fullName>
+           |        ${if (field._2.nonEmpty) s"<type>${field._2.get}</type>" else ""}
+           |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
+           |        ${if (field._3.nonEmpty)
+             s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
+           else ""}
+           |    </fields>
+           |""".stripMargin
+      })
+
+      val sharingReasonMetadata = sharingReason.map(sharingReason => {
+        s"""
+           |    <sharingReasons>
+           |        <fullName>$sharingReason</fullName>
+           |    </sharingReasons>
+           |""".stripMargin
+      })
+
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+         |    <fullName>$label</fullName>
+         |    $fieldMetadata
+         |    $sharingReasonMetadata
+         |</CustomObject>
+         |""".stripMargin
+    }
+
+    def customField(name: String, fieldType: String, relationshipName: Option[String]): String = {
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+         |    <fullName>$name</fullName>
+         |    <type>$fieldType</type>
+         |    ${if (relationshipName.nonEmpty) s"<referenceTo>${relationshipName.get}</referenceTo>"
          else ""}
-         |    </fields>
+         |    ${if (relationshipName.nonEmpty)
+           s"<relationshipName>${name.replaceAll("__c$", "")}</relationshipName>"
+         else ""}
+         |</CustomField>
          |""".stripMargin
-    })
+    }
 
-    val sharingReasonMetadata = sharingReason.map(sharingReason => {
-      s"""
-         |    <sharingReasons>
-         |        <fullName>$sharingReason</fullName>
-         |    </sharingReasons>
+    def customFieldSet(name: String): String = {
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+         |    <fullName>$name</fullName>
+         |</FieldSet>
          |""".stripMargin
-    })
+    }
 
-    s"""<?xml version="1.0" encoding="UTF-8"?>
-       |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-       |    <fullName>$label</fullName>
-       |    $fieldMetadata
-       |    $sharingReasonMetadata
-       |</CustomObject>
-       |""".stripMargin
-  }
-
-  def customField(name: String, fieldType: String, relationshipName: Option[String]): String = {
-    s"""<?xml version="1.0" encoding="UTF-8"?>
-       |<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-       |    <fullName>$name</fullName>
-       |    <type>$fieldType</type>
-       |    ${if (relationshipName.nonEmpty) s"<referenceTo>${relationshipName.get}</referenceTo>"
-       else ""}
-       |    ${if (relationshipName.nonEmpty)
-         s"<relationshipName>${name.replaceAll("__c$", "")}</relationshipName>"
-       else ""}
-       |</CustomField>
-       |""".stripMargin
-  }
-
-  def customFieldSet(name: String): String = {
-    s"""<?xml version="1.0" encoding="UTF-8"?>
-       |<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
-       |    <fullName>$name</fullName>
-       |</FieldSet>
-       |""".stripMargin
-  }
-
-  def customSharingReason(name: String): String = {
-    s"""<?xml version="1.0" encoding="UTF-8"?>
-       |<SharingReason xmlns="http://soap.sforce.com/2006/04/metadata">
-       |    <fullName>$name</fullName>
-       |</SharingReason>
-       |""".stripMargin
-  }
+    def customSharingReason(name: String): String = {
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<SharingReason xmlns="http://soap.sforce.com/2006/04/metadata">
+         |    <fullName>$name</fullName>
+         |</SharingReason>
+         |""".stripMargin
+    }*/
 
   test("Not a standard object") {
     FileSystemHelper.run(
@@ -443,7 +444,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Custom RowClause") {
     FileSystemHelper.run(
-      Map("Account.object-meta.xml" -> customObject("Account", Seq(), Set("MyReason__c")),
+      Map("Account.object-meta.xml" -> customObject("Account", Seq(), Set(), Set("MyReason__c")),
           "Dummy.cls" ->
             """
             | public class Dummy {

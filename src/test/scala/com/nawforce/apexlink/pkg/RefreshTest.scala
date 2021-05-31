@@ -17,7 +17,7 @@ import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.names.{Name, Names}
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -172,6 +172,25 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
         assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+      }
+    }
+  }
+
+  test("Deferred issue reporting") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
+
+        refresh(pkg, root.join("Dummy.cls"), "public class Dummy {")
+        assert(!org.issues.hasMessages)
+
+        assert(org.flush())
+        assert(
+          org.issues
+            .getMessages("/Dummy.cls")
+            .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
       }
     }
   }
@@ -652,21 +671,79 @@ class RefreshTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Deferred issue reporting") {
+  test("Valid custom object upsert") {
     withManualFlush {
-      FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__c.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
-        refresh(pkg, root.join("Dummy.cls"), "public class Dummy {")
+        refresh(pkg, root.join("Foo__c.object"), customObjectMetadata)
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
+
+  test("Valid custom object upsert (new)") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
+        refresh(pkg, root.join("Foo__c.object"), customObject("Foo", Seq()))
         assert(org.flush())
+        assert(!org.issues.hasMessages)
         assert(
-          org.issues
-            .getMessages("/Dummy.cls")
-            .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
+
+  test("Valid custom object upsert (changed)") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__c.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
+
+        refresh(pkg, root.join("Foo__c.object"), customObjectMetadata + " ")
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
+
+  test("Valid custom object upsert (new component)") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Foo__c.object" -> customObject("Foo", Seq()))) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
+
+        refresh(pkg, root.join("Bar__c.object"), customObject("Bar", Seq()))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Bar__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
       }
     }
   }

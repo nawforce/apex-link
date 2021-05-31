@@ -33,6 +33,7 @@ import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.{BufferedIterator, mutable}
@@ -50,11 +51,6 @@ class StreamDeployer(module: Module,
                      types: mutable.Map[TypeName, TypeDeclaration]) {
 
   private val start = java.lang.System.currentTimeMillis()
-
-  // Prime basic types
-  upsertMetadata(AnyDeclaration(module))
-  upsertMetadata(module.schemaSObjectType())
-  upsertMetadata(module.schemaSObjectType(), Some(TypeName(module.schemaSObjectType().name)))
   private val basicTypesSize = types.size
 
   // Process package events, these must follow the publishing order from pkgforce
@@ -64,6 +60,7 @@ class StreamDeployer(module: Module,
   consumeFlows(bufferedIterator)
   consumeComponents(bufferedIterator)
   consumeSObjects(bufferedIterator)
+  consumeExtendedClasses(bufferedIterator)
   consumeClasses(bufferedIterator)
   consumeTriggers(bufferedIterator)
 
@@ -124,7 +121,8 @@ class StreamDeployer(module: Module,
 
       // As there may be cyclic referencing between SObjects, we save these for later processing
       referenceFields.addAll(fieldEvents.collect {
-        case e if StreamDeployer.referenceFieldTypes.contains(e.rawType) => (e, sObjectEvent, typeName)
+        case e if StreamDeployer.referenceFieldTypes.contains(e.rawType) =>
+          (e, sObjectEvent, typeName)
       })
 
       doc
@@ -165,10 +163,10 @@ class StreamDeployer(module: Module,
         EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
 
       addReferenceFieldToSObject(refTypeName,
-        reverseFieldName,
-        fieldObject._1.name,
-        fieldObject._3,
-        PathLocation(fieldObject._2.path.toString, Location(0)))
+                                 reverseFieldName,
+                                 fieldObject._1.name,
+                                 fieldObject._3,
+                                 PathLocation(fieldObject._2.path.toString, Location(0)))
     })
 
     //module.schema().relatedLists.validate()
@@ -186,26 +184,7 @@ class StreamDeployer(module: Module,
     // Create additional fields & lookup relationships for special fields types
     rawType.value match {
       case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
-        val referenceTo = field.referenceTo.get._1
-        val relationshipName = Name(field.referenceTo.get._2.value + "__r")
-        val refTypeName = schemaTypeNameOf(referenceTo)
-        val reverseFieldName =
-          EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
-
-        /*
-        addReferenceFieldToSObject(refTypeName,
-                                   reverseFieldName,
-                                   field.name,
-                                   typeName,
-                                   PathLocation(path.toString, Location(0)))
-         */
-
-        /*
-        module
-          .schema()
-          .relatedLists
-          .add(refTypeName, relationshipName, field.name, typeName, PathLocation(path.toString, Location(0)))
-         */
+        val refTypeName = schemaTypeNameOf(field.referenceTo.get._1)
 
         Array(fieldDeclaration,
               CustomFieldDeclaration(field.name.replaceAll("__c$", "__r"), refTypeName, None))
@@ -505,6 +484,13 @@ class StreamDeployer(module: Module,
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
     * to reading the source and parsing.  */
+  private def consumeExtendedClasses(events: BufferedIterator[PackageEvent]): Unit = {
+    val docs = bufferEvents[ExtendedApexEvent](events).map(e => ExtendedApexDocument(e.path))
+    parseAndValidateClasses(ArraySeq.unsafeWrapArray(docs), extendedApex = true)
+  }
+
+  /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
+    * to reading the source and parsing.  */
   private def consumeClasses(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[ApexEvent](events).map(e => ApexClassDocument(e.path))
 
@@ -516,16 +502,20 @@ class StreamDeployer(module: Module,
     // Load any classes not found via cache or that have been rejected
     val missingClasses =
       docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(module.namespace)))
+    parseAndValidateClasses(ArraySeq.unsafeWrapArray(missingClasses), extendedApex = false)
+  }
 
-    ServerOps.debugTime(s"Parsed ${missingClasses.length} classes", missingClasses.nonEmpty) {
-      val classTypes = missingClasses
+  /** Parse a collection of Apex classes, insert them and validate them. */
+  private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
+    ServerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
+      val classTypes = docs
         .flatMap(doc => {
           doc.path.readSourceData() match {
             case Left(_) => None
             case Right(data) =>
               ServerOps.debugTime(s"Parsed ${doc.path}") {
                 FullDeclaration
-                  .create(module, doc, data)
+                  .create(module, doc, data, extendedApex)
                   .map(td => {
                     types.put(td.typeName, td)
                     td

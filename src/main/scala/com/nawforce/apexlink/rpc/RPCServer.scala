@@ -17,8 +17,8 @@ package com.nawforce.apexlink.rpc
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
-import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
+import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}

@@ -12,7 +12,6 @@
     derived from this software without specific prior written permission.
  */
 
-
 package com.nawforce.apexlink.cst.stmts
 
 import com.nawforce.apexlink.cst._

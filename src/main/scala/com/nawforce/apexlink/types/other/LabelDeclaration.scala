@@ -21,7 +21,7 @@ import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSE
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
 
 import scala.collection.mutable
@@ -51,8 +51,7 @@ final class LabelDeclaration(sources: Array[SourceInfo],
                              labels: Array[Label],
                              nestedLabels: Array[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.path), module, TypeNames.Label)
-    with DependentType
-    with OtherTypeDeclaration {
+    with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
@@ -68,7 +67,8 @@ final class LabelDeclaration(sources: Array[SourceInfo],
     merge(stream.labelsFiles, stream.labels)
   }
 
-  def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
+  def merge(labelFileEvents: Array[LabelFileEvent],
+            labelEvents: Array[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ labelEvents.map(le =>
       Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))

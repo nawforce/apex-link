@@ -16,21 +16,11 @@ package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{
-  BasicTypeDeclaration,
-  DependentType,
-  FieldDeclaration,
-  TypeId
-}
+import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{
-  GLOBAL_MODIFIER,
-  Modifier,
-  PRIVATE_MODIFIER,
-  STATIC_MODIFIER
-}
+import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
 
 import scala.collection.mutable
@@ -60,8 +50,7 @@ final case class PageDeclaration(sources: Array[SourceInfo],
                                  override val module: Module,
                                  pages: Array[Page])
     extends BasicTypeDeclaration(pages.map(p => p.path).distinct, module, TypeNames.Page)
-    with DependentType
-    with OtherTypeDeclaration {
+    with DependentType {
 
   // Propagate dependencies to base packages
   module.baseModules.foreach(_.pages.addTypeDependencyHolder(typeId))

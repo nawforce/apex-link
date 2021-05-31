@@ -12,7 +12,6 @@
     derived from this software without specific prior written permission.
  */
 
-
 package com.nawforce.apexlink.types.platform
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse

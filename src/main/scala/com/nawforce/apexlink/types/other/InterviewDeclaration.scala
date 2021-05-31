@@ -21,7 +21,7 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
 
 import scala.collection.mutable
@@ -60,8 +60,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
                                  interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
     extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Interview)
-    with DependentType
-    with OtherTypeDeclaration {
+    with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 

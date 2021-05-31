@@ -24,14 +24,14 @@ import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
-class CompilationUnit(val typeDeclaration: FullDeclaration) extends CST
+class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Boolean) extends CST
 
 object CompilationUnit {
-  def construct(parser: CodeParser, module: Module, name: Name, compilationUnit: CompilationUnitContext)
+  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext)
       : CompilationUnit = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      new CompilationUnit(FullDeclaration.construct(parser, module, name, compilationUnit.typeDeclaration()))
-        .withContext(compilationUnit)
+      new CompilationUnit(FullDeclaration.construct(parser, module, name, compilationUnit.typeDeclaration()),
+        extendedApex).withContext(compilationUnit)
     }
   }
 }
