@@ -68,19 +68,16 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   }
 }
 
-abstract class UpdatableMetadata(_path: PathLike, _name: Name)
-    extends MetadataDocument(_path, _name)
-
 final case class LabelsDocument(_path: PathLike, _name: Name)
-    extends UpdatableMetadata(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = LabelNature
   override def typeName(namespace: Option[Name]): TypeName = TypeName.Label
 }
 
-abstract class ApexDocument(_path: PathLike, _name: Name) extends UpdatableMetadata(_path, _name)
+abstract class ClassDocument(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name)
 
 final case class ApexClassDocument(_path: PathLike, _name: Name)
-    extends ApexDocument(_path, _name) {
+    extends ClassDocument(_path, _name) {
   override val nature: MetadataNature = ApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name, Seq(), namespace.map(TypeName(_)))
@@ -95,7 +92,7 @@ object ApexClassDocument {
 }
 
 final case class ApexTriggerDocument(_path: PathLike, _name: Name)
-    extends ApexDocument(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = TriggerNature
   override def typeName(namespace: Option[Name]): TypeName = {
     val qname: String = namespace
@@ -113,7 +110,7 @@ object ApexTriggerDocument {
 }
 
 final case class ExtendedApexDocument(_path: PathLike, _name: Name)
-    extends ApexDocument(_path, _name) {
+    extends ClassDocument(_path, _name) {
   override val nature: MetadataNature = ExtendedApexNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(name, Seq(), namespace.map(TypeName(_)))
@@ -128,7 +125,7 @@ object ExtendedApexDocument {
 }
 
 final case class ComponentDocument(_path: PathLike, _name: Name)
-    extends UpdatableMetadata(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = ComponentNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
@@ -200,7 +197,7 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
 }
 
 final case class PageDocument(_path: PathLike, _name: Name)
-    extends UpdatableMetadata(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = PageNature
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(NamespacePrefix(namespace, name.value), Nil, Some(TypeName.Page))
@@ -208,7 +205,7 @@ final case class PageDocument(_path: PathLike, _name: Name)
 }
 
 final case class FlowDocument(_path: PathLike, _name: Name)
-    extends UpdatableMetadata(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override lazy val nature: MetadataNature = FlowNature
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
