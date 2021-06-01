@@ -22,7 +22,11 @@ import com.nawforce.apexlink.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
-import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.apexlink.types.synthetic.{
+  CustomFieldDeclaration,
+  CustomMethodDeclaration,
+  CustomParameterDeclaration
+}
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -272,9 +276,9 @@ object PlatformTypeDeclaration {
     }
   }
 
-  /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
-   * needed. If needed this will construct a GenericPlatformTypeDeclaration to specialise a
-   * PlatformTypeDeclaration but it does not handle nested classes, see PlatformTypes for that.
+  /* Get a type, in general don't call this direct, use TypeRequest which will delegate here. If needed this will
+   * construct a GenericPlatformTypeDeclaration to specialise a PlatformTypeDeclaration but you must provide from
+   * for that to be possible as this allows discovery of the correct type arguments.
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     val tdOption = getDeclaration(typeName.asDotName)

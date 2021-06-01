@@ -185,11 +185,11 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasSameErasedParameters(module: Option[Module], other: MethodDeclaration): Boolean = {
+  def hasSameErasedParameters(module: Module, other: MethodDeclaration): Boolean = {
     hasErasedParameters(module, other.parameters.map(_.typeName))
   }
 
-  private def hasErasedParameters(module: Option[Module], params: Array[TypeName]): Boolean = {
+  private def hasErasedParameters(module: Module, params: Array[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       // Future: This is very messy, we need to know the general rules
       parameters
@@ -209,8 +209,8 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  private def isSObject(module: Option[Module], typeName: TypeName): Boolean = {
-    TypeResolver(typeName, None, module, excludeSObjects = false) match {
+  private def isSObject(module: Module, typeName: TypeName): Boolean = {
+    TypeResolver(typeName, module) match {
       case Right(td) => td.isSObject
       case Left(_)   => false
     }
@@ -224,9 +224,9 @@ trait MethodDeclaration extends DependencyHolder {
           z =>
             z._1.typeName == z._2 ||
               (z._1.typeName.equalsIgnoreParams(z._2) &&
-                (TypeResolver(z._1.typeName, None, Some(module), excludeSObjects = false) match {
+                (TypeResolver(z._1.typeName, module) match {
                   case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
-                    TypeResolver(z._2, None, Some(module), excludeSObjects = false) match {
+                    TypeResolver(z._2, module) match {
                       case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
                       case _                                                                 => false
                     }
@@ -303,12 +303,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   lazy val isApexPagesComponent: Boolean = superClass.contains(TypeNames.ApexPagesComponent)
 
   def outerTypeDeclaration: Option[TypeDeclaration] =
-    outerTypeName.flatMap(typeName =>
-      TypeResolver(typeName, this, excludeSObjects = false).toOption)
+    outerTypeName.flatMap(typeName => TypeResolver(typeName, this).toOption)
 
   def outermostTypeDeclaration: TypeDeclaration =
     outerTypeName
-      .flatMap(typeName => TypeResolver(typeName, this, excludeSObjects = false).toOption)
+      .flatMap(typeName => TypeResolver(typeName, this).toOption)
       .getOrElse(this)
 
   def validate(): Unit
@@ -436,8 +435,8 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   def extendsOrImplements(typeName: TypeName): Boolean = {
-    lazy val superclasses = superClassDeclaration
-    lazy val interfaces = interfaceDeclarations
+    val superclasses = superClassDeclaration
+    val interfaces = interfaceDeclarations
     superClassDeclaration.exists(_.typeName == typeName) ||
     interfaces.exists(_.typeName == typeName) ||
     superclasses.exists(_.extendsOrImplements(typeName)) ||

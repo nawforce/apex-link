@@ -42,7 +42,7 @@ trait PackageAPI extends Package {
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
     orderedModules.headOption
       .flatMap(module =>
-        TypeResolver(typeName, module, excludeSObjects = false) match {
+        TypeResolver(typeName, module) match {
           case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
           case _                          => None
       })

@@ -76,18 +76,16 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults,
   def verify(context: BlockVerifyContext): Unit = {
 
     variableDeclarators.declarators.foreach(vd => {
-      context.thisType.foreach(td => {
-        td.findField(vd.id.name, None).foreach {
-          case field: ApexFieldDeclaration =>
-            context.log(new Issue(location.path,
-                                  new Diagnostic(
-                                    WARNING_CATEGORY,
-                                    location.location,
-                                    s"Local variable is hiding class field '${vd.id.name}', see " +
-                                      s"${field.location.toString}")))
-          case _ => ()
-        }
-      })
+      context.thisType.findField(vd.id.name, None).foreach {
+        case field: ApexFieldDeclaration =>
+          context.log(new Issue(location.path,
+                                new Diagnostic(
+                                  WARNING_CATEGORY,
+                                  location.location,
+                                  s"Local variable is hiding class field '${vd.id.name}', see " +
+                                    s"${field.location.toString}")))
+        case _ => ()
+      }
     })
 
     modifiers.issues.foreach(context.log)

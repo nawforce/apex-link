@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.types
 
+import com.nawforce.apexlink.TestHelper
 import com.nawforce.apexlink.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
@@ -22,7 +23,7 @@ import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import org.scalatest.funsuite.AnyFunSuite
 
-class PlatformTypeDeclarationTest extends AnyFunSuite {
+class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
 
   test("Bad class not found") {
     assert(
@@ -272,8 +273,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
   }
 
   test("Generic class") {
+    val dummy = typeDeclaration("public class Dummy {}")
     val td = PlatformTypeDeclaration
-      .get(TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)), None)
+      .get(TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System)), Some(dummy))
       .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "List")
@@ -314,9 +316,10 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
   }
 
   test("Nested Generic class") {
+    val dummy = typeDeclaration("public class Dummy {}")
     val inner = TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System))
     val td = PlatformTypeDeclaration
-      .get(TypeName(Name("Iterable"), Seq(inner), Some(TypeNames.System)), None)
+      .get(TypeName(Name("Iterable"), Seq(inner), Some(TypeNames.System)), Some(dummy))
       .toOption
     assert(td.nonEmpty)
     assert(td.get.name.toString == "Iterable")
@@ -364,9 +367,10 @@ class PlatformTypeDeclarationTest extends AnyFunSuite {
   }
 
   test("Relative type in param") {
+    val dummy = typeDeclaration("public class Dummy {}")
     val td = PlatformTypeDeclaration.get(
       TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)),
-      None)
+      Some(dummy))
     assert(td.isRight)
     assert(
       td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("List"),

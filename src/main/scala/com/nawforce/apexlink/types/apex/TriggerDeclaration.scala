@@ -85,7 +85,7 @@ final case class TriggerDeclaration(source: Source,
                            s"Duplicate trigger case for '${triggerCase.name}'"))
 
       val context = new TypeVerifyContext(None, this, withPropagation)
-      val tdOpt = context.getTypeAndAddDependency(objectTypeName, Some(this))
+      val tdOpt = context.getTypeAndAddDependency(objectTypeName, this)
 
       tdOpt match {
         case Left(error) =>
@@ -93,7 +93,7 @@ final case class TriggerDeclaration(source: Source,
             OrgImpl.log(error.asIssue(objectNameId.location))
         case Right(_) =>
           val triggerContext = context
-            .getTypeFor(TypeNames.trigger(objectTypeName), Some(this))
+            .getTypeFor(TypeNames.trigger(objectTypeName), this)
             .getOrElse(throw new NoSuchElementException)
           val tc = TriggerContext(module, triggerContext)
           module.upsertMetadata(tc)

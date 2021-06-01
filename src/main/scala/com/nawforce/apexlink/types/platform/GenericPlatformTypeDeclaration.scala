@@ -17,7 +17,12 @@ package com.nawforce.apexlink.types.platform
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.apexlink.names._
-import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{
+  FieldDeclaration,
+  MethodDeclaration,
+  ParameterDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
@@ -130,8 +135,11 @@ object GenericPlatformTypeDeclaration {
    */
   def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     // Make sure params are resolvable first
-    val params =
-      typeName.params.map(pt => (pt, TypeResolver(pt, from, None, excludeSObjects = false)))
+    val params = typeName.params.map(
+      pt =>
+        (pt,
+         // Without a 'from' we can only search for platform types, but this is still needed for handling platform types
+         if (from.nonEmpty) TypeResolver(pt, from.get) else PlatformTypes.get(pt, None)))
     val module = from.flatMap(_.moduleDeclaration)
     val failedParams = params.find(_._2.isLeft).filterNot(p => module.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {

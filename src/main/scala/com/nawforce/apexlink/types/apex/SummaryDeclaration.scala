@@ -143,7 +143,7 @@ object DependentValidation {
   /* Find an Apex type declaration from a module */
   private def findDependentType(typeName: TypeName, module: Module): Option[TypeDeclaration] = {
 
-    TypeResolver(typeName, module, excludeSObjects = false) match {
+    TypeResolver(typeName, module) match {
       case Left(_)                        => None
       case Right(d: ApexClassDeclaration) => Some(d)
       case Right(d: LabelDeclaration)     => Some(d)
@@ -367,7 +367,7 @@ class SummaryDeclaration(val path: PathLike,
   }
 
   private def getOutermostDeclaration(typeName: TypeName): Option[TypeId] = {
-    TypeResolver(typeName, module, excludeSObjects = false) match {
+    TypeResolver(typeName, module) match {
       case Right(d: ApexClassDeclaration) =>
         d.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(d.typeId))
       case Right(d: LabelDeclaration)     => Some(d.typeId)

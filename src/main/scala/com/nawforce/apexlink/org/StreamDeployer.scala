@@ -205,7 +205,7 @@ class StreamDeployer(module: Module,
                                          originatingFieldName: Name,
                                          originatingTypeName: TypeName,
                                          location: PathLocation): Unit = {
-    val td = TypeResolver(targetTypeName, module, excludeSObjects = false).toOption
+    val td = TypeResolver(targetTypeName, module).toOption
     if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(targetTypeName)) {
       OrgImpl.logError(
         location,
@@ -348,7 +348,7 @@ class StreamDeployer(module: Module,
       createReplacementSObject(path, TypeNames.Task, nature, fields, fieldSets, sharingReasons) ++
         createReplacementSObject(path, TypeNames.Event, nature, fields, fieldSets, sharingReasons)
     } else {
-      val sobjectType = TypeResolver(typeName, module, excludeSObjects = false).toOption
+      val sobjectType = TypeResolver(typeName, module).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
             superClass.typeName == TypeNames.SObject)) {
         OrgImpl.logError(PathLocation(path.toString, Location.empty),

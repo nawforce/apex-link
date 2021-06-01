@@ -100,7 +100,7 @@ final case class IdPrimary(id: Id) extends Primary {
         val field = findField(name, td, staticContext)
         if (field.nonEmpty && isAccessible(td, field.get, staticContext)) {
           context.addDependency(field.get)
-          val target = context.getTypeAndAddDependency(field.get.typeName, Some(td)).toOption
+          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
           if (target.isEmpty) {
             context.missingType(location, field.get.typeName)
             return ExprContext.empty
@@ -119,7 +119,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = TypeResolver(TypeName(id.name), context.module, excludeSObjects = false)
+    val absTd = TypeResolver(TypeName(id.name), context.module)
     if (absTd.isRight) {
       context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
       return ExprContext(isStatic = Some(true), absTd.getOrElse(throw new NoSuchElementException))

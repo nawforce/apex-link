@@ -101,9 +101,9 @@ object MethodMap {
     })
 
     // Validate any interface use in classes
-    if (td.nature == CLASS_NATURE) {
+    if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
       workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
-      checkInterfaces(td.moduleDeclaration, location, td.isAbstract, workingMap, interfaces, errors)
+      checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
     new MethodMap(workingMap.toMap, errors.toList)
@@ -137,7 +137,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(module: Option[Module], location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterfaces(module: Module, location: Option[PathLocation], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
@@ -146,7 +146,7 @@ object MethodMap {
     })
   }
 
-  private def checkInterface(module: Option[Module], location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterface(module: Module, location: Option[PathLocation], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
       checkInterfaces(module, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
@@ -163,8 +163,8 @@ object MethodMap {
 
       if (matched.isEmpty) {
         lazy val hasGhostedMethods =
-          methods.exists(method => module.exists(_.isGhostedType(method.typeName)) ||
-          methods.exists(method => module.exists(p => method.parameters.map(_.typeName).exists(p.isGhostedType))))
+          methods.exists(method => module.isGhostedType(method.typeName) ||
+          methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
 
         if (!isAbstract && !hasGhostedMethods)
           location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,

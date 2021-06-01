@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, 
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
-import com.nawforce.apexlink.types.schema.SchemaSObjectType
+import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
 import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLog, LocalLogger, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
@@ -168,23 +168,20 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if you know local searching is not required. */
   def findType(typeName: TypeName,
-               from: Option[TypeDeclaration],
-               excludeSObjects: Boolean = false): TypeResponse = {
+               from: Option[TypeDeclaration]): TypeResponse = {
 
-    if (!excludeSObjects) {
-      var td = findPackageType(typeName).map(Right(_))
+    var td = findPackageType(typeName).map(Right(_))
+    if (td.nonEmpty)
+      return td.get
+
+    if (namespace.nonEmpty) {
+      td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
       if (td.nonEmpty)
         return td.get
-
-      if (namespace.nonEmpty) {
-        td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
-        if (td.nonEmpty)
-          return td.get
-      }
     }
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
-    PlatformTypes.get(typeName, from, excludeSObjects)
+    PlatformTypes.get(typeName, from)
   }
 
   // Find locally, or fallback to a searching base packages

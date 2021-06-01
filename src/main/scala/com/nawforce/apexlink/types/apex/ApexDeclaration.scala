@@ -171,7 +171,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   lazy val outerStaticMethods: Array[MethodDeclaration] = {
-    outerTypeName.flatMap(ot => TypeResolver(ot, this, excludeSObjects = false).toOption) match {
+    outerTypeName.flatMap(ot => TypeResolver(ot, this).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
       case _                              => MethodDeclaration.emptyMethodDeclarations
     }

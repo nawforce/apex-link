@@ -15,9 +15,10 @@ package com.nawforce.apexlink
 
 import com.nawforce.apexlink.api.{Org, ServerOps, TypeSummary}
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.types.apex.{ApexFullDeclaration, FullDeclaration}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexFullDeclaration, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.apexlink.types.schema.SObjectDeclaration
+import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
 trait TestHelper {
@@ -107,6 +108,15 @@ trait TestHelper {
     defaultOrg.unmanaged.orderedModules.head.findModuleType(typeName)
   }
 
+  def unmanagedClass(name: String): Option[ApexClassDeclaration] = {
+    unmanagedType(TypeName(Name(name))).map(_.asInstanceOf[ApexClassDeclaration])
+  }
+
+  def unmanagedSObject(name: String): Option[SObjectDeclaration] = {
+    unmanagedType(TypeName(Name(name), Nil, Some(TypeName(Names.Schema))))
+      .map(_.asInstanceOf[SObjectDeclaration])
+  }
+
   def packagedType(namespace: Some[Name], typeName: TypeName): Option[TypeDeclaration] = {
     defaultOrg.packagesByNamespace(namespace).orderedModules.head.findModuleType(typeName)
   }
@@ -118,6 +128,15 @@ trait TestHelper {
   def packagedCustomType(namespace: String, name: String): Option[TypeDeclaration] = {
     packagedType(Some(Name(namespace)),
                  TypeName(Name(name), Seq(), Some(TypeName(Name(namespace)))))
+  }
+
+  def packagedClass(namespace: String, name: String): Option[ApexClassDeclaration] = {
+    packagedCustomType(namespace, name).map(_.asInstanceOf[ApexClassDeclaration])
+  }
+
+  def packagedSObject(namespace: String, name: String): Option[SObjectDeclaration] = {
+    packagedType(Name(namespace), TypeName(Name(name), Nil, Some(TypeName(Names.Schema))))
+      .map(_.asInstanceOf[SObjectDeclaration])
   }
 
   def hasIssues: Boolean = defaultOrg.issues.hasMessages
@@ -135,8 +154,8 @@ trait TestHelper {
          |        ${if (field._2.nonEmpty) s"<type>${field._2.get}</type>" else ""}
          |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
          |        ${if (field._3.nonEmpty)
-        s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
-      else ""}
+           s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
+         else ""}
          |    </fields>
          |""".stripMargin
     })
@@ -173,10 +192,10 @@ trait TestHelper {
        |    <fullName>$name</fullName>
        |    <type>$fieldType</type>
        |    ${if (relationshipName.nonEmpty) s"<referenceTo>${relationshipName.get}</referenceTo>"
-    else ""}
+       else ""}
        |    ${if (relationshipName.nonEmpty)
-      s"<relationshipName>${name.replaceAll("__c$", "")}</relationshipName>"
-    else ""}
+         s"<relationshipName>${name.replaceAll("__c$", "")}</relationshipName>"
+       else ""}
        |</CustomField>
        |""".stripMargin
   }

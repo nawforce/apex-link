@@ -83,7 +83,7 @@ final case class DotExpression(expression: Expression,
           val typeName = TypeName(target.swap.getOrElse(throw new NoSuchElementException).name,
                                   Nil,
                                   Some(TypeName(primary.id.name))).intern
-          val td = context.getTypeAndAddDependency(typeName, None).toOption
+          val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
           if (td.nonEmpty)
             return ExprContext(isStatic = Some(true), td.get)
         case _ =>
@@ -96,8 +96,8 @@ final case class DotExpression(expression: Expression,
       expression match {
         case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
           if (findField(primary.id.name, input.typeDeclaration, context.module, None).isEmpty) {
-            val td = context
-              .getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true)
+            val td = PlatformTypes
+              .get(TypeName(primary.id.name), Some(context.thisType), excludeSObjects = true)
               .toOption
             if (td.nonEmpty) {
               return verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context)
@@ -143,7 +143,9 @@ final case class DotExpression(expression: Expression,
           findField(name, inputType, context.module, input.isStatic)
         if (field.nonEmpty) {
           context.addDependency(field.get)
-          val target = context.getTypeAndAddDependency(field.get.typeName, Some(inputType)).toOption
+          if (name.value == "Fields")
+            println()
+          val target = context.getTypeAndAddDependency(field.get.typeName, inputType).toOption
           if (target.isEmpty) {
             context.missingType(location, field.get.typeName)
             return ExprContext.empty

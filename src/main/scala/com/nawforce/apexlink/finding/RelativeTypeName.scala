@@ -56,13 +56,13 @@ final case class RelativeTypeName(module: Module,
 
       // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
       if (relativeTypeName.outer.nonEmpty) {
-        TypeResolver(relativeTypeName, module, excludeSObjects = false) match {
+        TypeResolver(relativeTypeName, module) match {
           case Right(td) => Some(Right(td))
           case Left(_) =>
-            Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+            Some(TypeResolver(relativeTypeName, outerTypeDeclaration))
         }
       } else {
-        Some(TypeResolver(relativeTypeName, outerTypeDeclaration, excludeSObjects = false))
+        Some(TypeResolver(relativeTypeName, outerTypeDeclaration))
       }
     } else {
       None
@@ -73,7 +73,7 @@ final case class RelativeTypeName(module: Module,
   lazy val outerNature: Nature = outerTypeDeclaration.nature
 
   private def outerTypeDeclaration: TypeDeclaration = {
-    TypeResolver(outerTypeName, module, excludeSObjects = false)
+    TypeResolver(outerTypeName, module)
       .getOrElse(throw new NoSuchElementException)
   }
 }

@@ -99,7 +99,7 @@ final case class SchemaSObjectType(module: Module)
     sobjectFields
       .getOrElseUpdate(
         name, {
-          val td = TypeResolver(TypeName(name), module, excludeSObjects = false).toOption
+          val td = TypeResolver(TypeName(name), module).toOption
           if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
                 superClass.typeName == TypeNames.SObject)) {
             Some(add(name, td.get.typeName, hasFieldSets = true))
@@ -166,7 +166,7 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
       TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module ).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields
           .map(field =>
@@ -229,7 +229,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     val shareTypeName = if (typeName.isShare) Some(typeName) else None
-    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName))).toMap
       case _ => Map()
@@ -280,7 +280,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
 
   // Cache of discovered fieldSets
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
-    TypeResolver(TypeName(sobjectName), module, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectName), module).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.fieldSets
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.FieldSet, None)))
@@ -330,7 +330,7 @@ final case class SObjectFieldRowCause(sobjectName: Name, module: Module)
         Name(sobjectName.toString().replaceFirst("Share$", ""))
 
     // Extract the sharing reasons as fields
-    TypeResolver(TypeName(sobjectTarget), module, excludeSObjects = false).toOption match {
+    TypeResolver(TypeName(sobjectTarget), module).toOption match {
       case Some(sobject: SObjectDeclaration) =>
         sobject.sharingReasons
           .map(name => (name, CustomFieldDeclaration(name, TypeNames.String, None)))

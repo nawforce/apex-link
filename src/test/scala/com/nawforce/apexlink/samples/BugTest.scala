@@ -342,4 +342,15 @@ class BugTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasMessages)
     }
   }
+
+  test("Generic assignment") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
+        s"""public class Dummy { { Iterable<Id> a; a = new List<Id>(); } }
+           |""".stripMargin)) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+    }
+  }
+
 }

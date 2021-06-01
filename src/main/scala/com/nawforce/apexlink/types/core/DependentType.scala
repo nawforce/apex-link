@@ -68,7 +68,7 @@ trait DependentType extends TypeDeclaration {
   }
 
   private def getOutermostDeclaration(typeId: TypeId): Option[DependentType] = {
-    TypeResolver(typeId.typeName, typeId.module, excludeSObjects = false) match {
+    TypeResolver(typeId.typeName, typeId.module) match {
       case Right(td: DependentType) =>
         td.outerTypeName
           .map(ot => getOutermostDeclaration(TypeId(typeId.module, ot)))

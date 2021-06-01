@@ -281,6 +281,7 @@ case object AssignmentOperation extends Operation {
     } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
       Right(leftContext)
     } else {
+      isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)
       Left(
         s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
     }
