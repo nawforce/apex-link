@@ -98,7 +98,7 @@ final case class DotExpression(expression: Expression,
         case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
           if (findField(primary.id.name, input.typeDeclaration, context.module, None).isEmpty) {
             val td = TypeResolver
-              .platformType(TypeName(primary.id.name), Some(context.thisType), excludeSObjects = true)
+              .platformType(TypeName(primary.id.name), context.thisType, excludeSObjects = true)
               .toOption
             if (td.nonEmpty) {
               return verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context)
