@@ -24,7 +24,7 @@ object TypeResolver {
 
   /* Search for non-relative typename from given modules perspective */
   def apply(typeName: TypeName, module: Module): TypeResponse = {
-    module.findType(typeName, None)
+    module.findType(typeName)
   }
 
   /** Search for relative or non-relative typename from perspective of module of 'from', if it has one. */
@@ -36,9 +36,9 @@ object TypeResolver {
   def apply(typeName: TypeName, from: TypeDeclaration, module: Option[Module]): TypeResponse = {
     // Allow override of platform types in packages to support Schema.SObjectType handling.  This is a hack caused by
     // assuming platform types always live outside the module system and then deciding to inject some within it. It
-    // might be fixable by assigning them correct module to them on construction/injection.
+    // might be fixable by assigning them to the correct module on construction/injection.
     if (from.moduleDeclaration.isEmpty && module.nonEmpty) {
-      val tr = module.get.findType(typeName, None)
+      val tr = module.get.findType(typeName)
       if (tr.isRight)
         return tr
     }
@@ -50,7 +50,16 @@ object TypeResolver {
           case Some(td) => Right(td)
           case None     => Left(MissingType(typeName))
       })
-      .getOrElse(PlatformTypes.get(typeName, Some(from)))
+      .getOrElse{
+        platformType(typeName, from)
+      }
   }
 
+  def platformType(typeName: TypeName, from: TypeDeclaration, excludeSObjects: Boolean=false): TypeResponse = {
+    PlatformTypes.get(typeName, Some(from), excludeSObjects)
+  }
+
+  def platformTypeOnly(typeName: TypeName, module: Module, excludeSObjects: Boolean=false): TypeResponse = {
+    PlatformTypes.get(typeName, None, excludeSObjects)
+  }
 }

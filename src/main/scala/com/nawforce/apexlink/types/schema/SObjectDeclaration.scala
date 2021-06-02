@@ -15,9 +15,10 @@
 package com.nawforce.apexlink.types.schema
 
 import com.nawforce.apexlink.cst.VerifyContext
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, BlockDeclaration, CLASS_NATURE, ConstructorDeclaration, DependentType, FieldDeclaration, MethodDeclaration, Nature, TypeDeclaration, TypeId}
+import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.modifiers._
@@ -56,16 +57,16 @@ final case class SObjectDeclaration(paths: Array[PathLike],
   override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
   override val interfaces: Array[TypeName] = TypeName.emptyTypeName
   override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
-  override val constructors: Array[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: Array[ConstructorDeclaration] =
+    ConstructorDeclaration.emptyConstructorDeclarations
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
   override val superClass: Option[TypeName] = {
     Some(TypeNames.SObject)
   }
 
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = {
-    module.getTypeFor(superClass.get, this)
-  }
+  override lazy val superClassDeclaration: Option[TypeDeclaration] =
+    TypeResolver(superClass.get, this).toOption
 
   override def validate(): Unit = {}
 

@@ -25,7 +25,7 @@ trait TypeFinder {
 
   /** Find a type relative to a starting type from a local or global name. */
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): Option[TypeDeclaration] = {
-    getLocalTypeFor(typeName, from).orElse(this.findType(typeName, Some(from)).toOption)
+    getLocalTypeFor(typeName, from).orElse(this.findType(typeName, from).toOption)
   }
 
   /** Find a type relative to a starting type assuming a local name. */
@@ -91,7 +91,7 @@ trait TypeFinder {
     if (dotName.isCompound || from.outerTypeName.isEmpty) {
       None
     } else {
-      val outerType = this.findType(from.outerTypeName.get, Some(from))
+      val outerType = this.findType(from.outerTypeName.get, from)
       if (outerType.isRight) {
         if (dotName.names.head == outerType.getOrElse(throw new NoSuchElementException).name)
           outerType.toOption

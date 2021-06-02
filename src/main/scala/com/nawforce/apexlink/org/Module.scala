@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst.UnusedLog
-import com.nawforce.apexlink.finding.TypeFinder
+import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
@@ -167,8 +167,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   /* Find a package/platform type. For general needs don't call this direct, use TypeRequest which will delegate here
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if you know local searching is not required. */
-  def findType(typeName: TypeName,
-               from: Option[TypeDeclaration]): TypeResponse = {
+  def findType(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
 
     var td = findPackageType(typeName).map(Right(_))
     if (td.nonEmpty)
@@ -181,8 +180,25 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     }
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
-    PlatformTypes.get(typeName, from)
+    TypeResolver.platformType(typeName, from)
   }
+
+  def findType(typeName: TypeName): TypeResponse = {
+
+    var td = findPackageType(typeName).map(Right(_))
+    if (td.nonEmpty)
+      return td.get
+
+    if (namespace.nonEmpty) {
+      td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+      if (td.nonEmpty)
+        return td.get
+    }
+
+    // From may be used to locate type variable types so must be accurate even for a platform type request
+    TypeResolver.platformTypeOnly(typeName, this)
+  }
+
 
   // Find locally, or fallback to a searching base packages
   def findPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {

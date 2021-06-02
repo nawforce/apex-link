@@ -23,7 +23,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
 
   test("Bad type not") {
     withEmptyOrg(org => {
-      assert(org.unmanaged.modules.head.findType(TypeName(Name("Hello")), None).toOption.isEmpty)
+      assert(org.unmanaged.modules.head.findType(TypeName(Name("Hello"))).toOption.isEmpty)
     })
   }
 
@@ -32,7 +32,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
       assert(
         org.unmanaged.modules.head
-          .findType(TypeName(Name("String")), None)
+          .findType(TypeName(Name("String")))
           .toOption
           .get
           .typeName == typeName)
@@ -44,7 +44,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       val typeName = TypeName(Seq(Name("String"))).withOuter(Some(TypeName(Names.System)))
       assert(
         org.unmanaged.modules.head
-          .findType(TypeName(Name("STRING")), None)
+          .findType(TypeName(Name("STRING")))
           .toOption
           .get
           .typeName == typeName)
@@ -57,7 +57,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
     withOrg(org => {
       assert(
         org.unmanaged.modules.head
-          .findType(TypeName(Name("Dummy")), None)
+          .findType(TypeName(Name("Dummy")))
           .toOption
           .get
           .typeName == td.typeName)
@@ -70,7 +70,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
     withOrg(org => {
       assert(
         org.unmanaged.modules.head
-          .findType(TypeName(Name("duMmy")), None)
+          .findType(TypeName(Name("duMmy")))
           .toOption
           .get
           .typeName == td.typeName)
@@ -84,7 +84,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(
         org.unmanaged.modules.head
-          .findType(innerTypeName, None)
+          .findType(innerTypeName)
           .toOption
           .get
           .typeName == innerTypeName)
@@ -98,7 +98,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
       assert(
         org.unmanaged.modules.head
-          .findType(innerTypeName, None)
+          .findType(innerTypeName)
           .toOption
           .get
           .typeName == innerTypeName)

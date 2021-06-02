@@ -21,7 +21,12 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.pkgforce.modifiers.{
+  GLOBAL_MODIFIER,
+  ISTEST_ANNOTATION,
+  TEST_METHOD_MODIFIER,
+  TEST_SETUP_ANNOTATION
+}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
@@ -132,13 +137,11 @@ trait ApexClassDeclaration extends ApexDeclaration {
   /** Override to handle request to propagate all dependencies in type */
   def propagateAllDependencies(): Unit
 
-  override def superClassDeclaration: Option[TypeDeclaration] = {
-    superClass.flatMap(sc => module.getTypeFor(sc, this))
-  }
+  override def superClassDeclaration: Option[TypeDeclaration] =
+    superClass.flatMap(sc => TypeResolver(sc, this).toOption)
 
-  override def interfaceDeclarations: Array[TypeDeclaration] = {
-    interfaces.flatMap(i => module.getTypeFor(i, this))
-  }
+  override def interfaceDeclarations: Array[TypeDeclaration] =
+    interfaces.flatMap(i => TypeResolver(i, this).toOption)
 
   override def isComplete: Boolean = {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty

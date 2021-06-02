@@ -231,7 +231,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
     val shareTypeName = if (typeName.isShare) Some(typeName) else None
     TypeResolver(TypeName(sobjectName), module).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName))).toMap
+        sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName, Some(module)))).toMap
       case _ => Map()
     }
   }

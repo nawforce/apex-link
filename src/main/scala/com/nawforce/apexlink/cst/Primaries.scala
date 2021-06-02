@@ -119,7 +119,7 @@ final case class IdPrimary(id: Id) extends Primary {
       case _ => ()
     }
 
-    val absTd = TypeResolver(TypeName(id.name), context.module)
+    val absTd = TypeResolver(TypeName(id.name), context.thisType)
     if (absTd.isRight) {
       context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
       return ExprContext(isStatic = Some(true), absTd.getOrElse(throw new NoSuchElementException))

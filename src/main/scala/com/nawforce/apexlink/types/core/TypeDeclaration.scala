@@ -18,6 +18,7 @@ import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -90,11 +91,15 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   // Create an SObjectField version of this field
-  def getSObjectField(shareTypeName: Option[TypeName]): CustomFieldDeclaration = {
+  def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
+    def preloadSObject(typeName: TypeName): TypeResponse = {
+      module.map(m => TypeResolver(typeName, m)).getOrElse(PlatformTypes.get(typeName, None))
+    }
+
     // Some messy special cases
     if (typeName == TypeNames.IdType && idTarget.nonEmpty) {
       // Id field that carries a target SObjectType returns 'fields'
-      PlatformTypes.get(idTarget.get, None)
+      preloadSObject(idTarget.get)
       CustomFieldDeclaration(name, TypeNames.sObjectFields$(idTarget.get), None, asStatic = true)
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
@@ -107,7 +112,7 @@ trait FieldDeclaration extends DependencyHolder {
         CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
     } else {
       // Otherwise must be a SObject, but if Platform it might need loading
-      PlatformTypes.get(typeName, None)
+      preloadSObject(typeName)
       CustomFieldDeclaration(name, TypeNames.sObjectFields$(typeName), None, asStatic = true)
     }
   }
@@ -342,7 +347,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       fieldOption
     } else if (staticContext.contains(true)) {
       val shareTypeName = if (typeName.isShare) Some(typeName) else None
-      Some(field.getSObjectField(shareTypeName))
+      Some(field.getSObjectField(shareTypeName, moduleDeclaration))
     } else {
       None
     }
@@ -381,7 +386,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
   def findLocalType(localName: TypeName): Option[TypeDeclaration] = {
     if (moduleDeclaration.isEmpty)
-      PlatformTypes.get(localName.withTail(typeName), Some(this)).toOption
+      TypeResolver.platformType(localName.withTail(typeName), this).toOption
     else
       moduleDeclaration.get.getLocalTypeFor(localName, this)
   }

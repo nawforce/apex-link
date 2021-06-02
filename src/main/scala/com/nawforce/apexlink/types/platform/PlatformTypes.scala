@@ -89,29 +89,13 @@ object PlatformTypes {
     }
 
     val alias = typeAliasMap.getOrElse(typeName, typeName)
-
-    // TODO: Tidy up with Either orElse
-    val firstResult = findOuterOrNestedPlatformType(alias)
-    if (firstResult.isRight) {
-      fireLoadingEvents(firstResult.getOrElse(throw new NoSuchElementException))
-      return firstResult
-    }
-
-    if (!excludeSObjects) {
-      val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
-      if (schemaResult.isRight) {
-        fireLoadingEvents(schemaResult.getOrElse(throw new NoSuchElementException))
-        return schemaResult
-      }
-    }
-
-    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.System))
-    if (systemResult.isRight) {
-      fireLoadingEvents(systemResult.getOrElse(throw new NoSuchElementException))
-      return systemResult
-    }
-
-    firstResult
+    findOuterOrNestedPlatformType(alias)
+      .orElse(
+        if (!excludeSObjects)
+          findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
+        else Left(MissingType(typeName)))
+      .orElse(findOuterOrNestedPlatformType(alias.wrap(TypeNames.System)))
+      .map(r => { fireLoadingEvents(r); r })
   }
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit = {
