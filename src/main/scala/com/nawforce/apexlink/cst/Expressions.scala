@@ -144,8 +144,6 @@ final case class DotExpression(expression: Expression,
           findField(name, inputType, context.module, input.isStatic)
         if (field.nonEmpty) {
           context.addDependency(field.get)
-          if (name.value == "Fields")
-            println()
           val target = context.getTypeAndAddDependency(field.get.typeName, inputType).toOption
           if (target.isEmpty) {
             context.missingType(location, field.get.typeName)

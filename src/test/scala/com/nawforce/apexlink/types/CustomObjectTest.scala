@@ -320,7 +320,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("Foo__c").get))
+            unmanagedSObject("Foo__c").get, unmanagedSObject("UserRecordAccess").get))
     }
   }
 

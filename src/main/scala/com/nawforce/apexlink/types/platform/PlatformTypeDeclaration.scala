@@ -22,11 +22,8 @@ import com.nawforce.apexlink.finding.{MissingType, WrongTypeArguments}
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
-import com.nawforce.apexlink.types.synthetic.{
-  CustomFieldDeclaration,
-  CustomMethodDeclaration,
-  CustomParameterDeclaration
-}
+import com.nawforce.apexlink.types.schema.SObjectFieldFinder
+import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -39,7 +36,8 @@ class PlatformTypeException(msg: String) extends Exception(msg)
 
 /* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDeclaration])
-    extends TypeDeclaration {
+    extends TypeDeclaration
+    with SObjectFieldFinder {
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
@@ -124,33 +122,6 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     } else {
       super.findField(name, staticContext)
     }
-  }
-
-  override protected def findFieldSObject(
-    name: Name,
-    staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    val field = super.findFieldSObject(name, staticContext)
-
-    // If SObjectField if Id replace with SObjectFields over SObject so can access nested fields
-    field.map(f => {
-      val isIdLike = f.name.value.endsWith("Id") && f.name.value.length > 2
-      if (isIdLike && staticContext.contains(true)) {
-        val relationshipField =
-          super.findFieldSObject(Name(f.name.value.dropRight(2)), staticContext)
-        relationshipField match {
-          case Some(
-              CustomFieldDeclaration(
-                _,
-                TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeNames.Internal)),
-                _,
-                _)) =>
-            CustomFieldDeclaration(f.name, TypeNames.sObjectFields$(sObject), None, asStatic = true)
-          case _ => f
-        }
-      } else {
-        f
-      }
-    })
   }
 
   override lazy val methods: Array[MethodDeclaration] = {

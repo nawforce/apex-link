@@ -19,7 +19,6 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
@@ -91,7 +90,8 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   // Create an SObjectField version of this field
-  def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
+  def getSObjectField(shareTypeName: Option[TypeName],
+                      module: Option[Module]): CustomFieldDeclaration = {
     def preloadSObject(typeName: TypeName): TypeResponse = {
       module.map(m => TypeResolver(typeName, m)).getOrElse(PlatformTypes.get(typeName, None))
     }
@@ -329,31 +329,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     }
   }
 
-  protected def findFieldSObject(name: Name,
-                                 staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    val fieldOption = fieldsByName.get(name)
-
-    // Handle the synthetic static SObjectField or abort
-    if (fieldOption.isEmpty) {
-      if (name == Names.SObjectField && staticContext.contains(true))
-        return Some(
-          CustomFieldDeclaration(Names.SObjectField, TypeNames.sObjectFields$(typeName), None))
-      else
-        return None
-    }
-
-    val field = fieldOption.get
-    if (staticContext.contains(field.isStatic)) {
-      fieldOption
-    } else if (staticContext.contains(true)) {
-      val shareTypeName = if (typeName.isShare) Some(typeName) else None
-      Some(field.getSObjectField(shareTypeName, moduleDeclaration))
-    } else {
-      None
-    }
-  }
-
-  private lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
+  protected lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
     val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq: _*)
     outerTypeDeclaration.foreach(
       td =>

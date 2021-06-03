@@ -18,6 +18,7 @@ import com.nawforce.apexlink.api.{DependentSummary, FieldDependentSummary, Metho
 import com.nawforce.apexlink.memory.SkinnyWeakSet
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.other._
+import com.nawforce.apexlink.types.schema.{PlatformObjectNature, SObjectDeclaration}
 
 /* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
  *
@@ -103,6 +104,12 @@ trait DependencyHolder extends Dependent {
           val id = c.module.components
           Some(TypeDependentSummary(id.typeId.asTypeIdentifier, id.sourceHash))
 
+        case o: SObjectDeclaration =>
+          if (o.sobjectNature != PlatformObjectNature)
+            // TODO: Calculate source hash
+            Some(TypeDependentSummary(o.typeId.asTypeIdentifier, 0))
+          else
+            None
       }
       .toSet
       .toArray

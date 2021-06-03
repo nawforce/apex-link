@@ -46,7 +46,7 @@ final case class SObjectDeclaration(paths: Array[PathLike],
                                     sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
-    extends DependentType {
+    extends DependentType with SObjectFieldFinder {
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
@@ -83,7 +83,7 @@ final case class SObjectDeclaration(paths: Array[PathLike],
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    super.findFieldSObject(name, staticContext)
+    findFieldSObject(name, staticContext)
   }
 
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations

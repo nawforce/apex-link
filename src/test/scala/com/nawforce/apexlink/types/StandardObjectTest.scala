@@ -371,7 +371,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Standard RowClause") {
-    FileSystemHelper.run(
+      FileSystemHelper.run(
       Map("Dummy.cls" ->
         """
             | public class Dummy {
