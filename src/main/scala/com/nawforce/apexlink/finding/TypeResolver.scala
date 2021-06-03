@@ -34,7 +34,9 @@ object TypeResolver {
 
   /* Search for TypeDeclaration from a absolute typename from given modules perspective. */
   def apply(typeName: TypeName, module: Module): TypeResponse = {
-    module.findType(typeName)
+    sobjectIntercept(Some(module)) {
+      module.findType(typeName)
+    }
   }
 
   /** Search for TypeDeclaration from local or absolute typename from perspective of the module of 'from', if
@@ -55,22 +57,24 @@ object TypeResolver {
     }
 
     // Search module if we have one, otherwise short-cut to platform types
-    from.moduleDeclaration
-      .map(module =>
-        module.getTypeFor(typeName, from) match {
-          case Some(td) => Right(td)
-          case None     => Left(MissingType(typeName))
-      })
-      .getOrElse {
-        platformType(typeName, from)
-      }
+    sobjectIntercept(module) {
+      from.moduleDeclaration
+        .map(module =>
+          module.getTypeFor(typeName, from) match {
+            case Some(td) => Right(td)
+            case None     => Left(MissingType(typeName))
+        })
+        .getOrElse {
+          platformType(typeName, from)
+        }
+    }
   }
 
   /** Search for platform TypeDeclaration from a local or absolute typename. */
   def platformType(typeName: TypeName,
                    from: TypeDeclaration,
                    excludeSObjects: Boolean = false): TypeResponse = {
-    sobjectWrap(from.moduleDeclaration) {
+    sobjectIntercept(from.moduleDeclaration) {
       PlatformTypes.get(typeName, Some(from), excludeSObjects)
     }
   }
@@ -79,14 +83,14 @@ object TypeResolver {
   def platformTypeOnly(typeName: TypeName,
                        module: Module,
                        excludeSObjects: Boolean = false): TypeResponse = {
-    sobjectWrap(Some(module)) {
+    sobjectIntercept(Some(module)) {
       PlatformTypes.get(typeName, None, excludeSObjects)
     }
   }
 
   /** Hook to upgrade a SObject defined as a platform type into an SObject for the module. This allows us to support
     * dependencies on Standard SObjects but also allows for module specific versions to be managed. */
-  private def sobjectWrap(module: Option[Module])(op: => TypeResponse): TypeResponse = {
+  private def sobjectIntercept(module: Option[Module])(op: => TypeResponse): TypeResponse = {
     val result = op
     module
       .map(m => {
@@ -96,6 +100,17 @@ object TypeResolver {
                                             m,
                                             base.typeName,
                                             PlatformObjectNature,
+                                            Array(),
+                                            Array(),
+                                            base.fields,
+                                            _isComplete = true)
+            m.upsertMetadata(td)
+            Right(td)
+          case Right(base) if base.isSObject && !base.moduleDeclaration.contains(m) =>
+            val td = new SObjectDeclaration(Array(),
+                                            m,
+                                            base.typeName,
+                                            base.asInstanceOf[SObjectDeclaration].sobjectNature,
                                             Array(),
                                             Array(),
                                             base.fields,

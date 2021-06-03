@@ -168,8 +168,6 @@ class StreamDeployer(module: Module,
                                  fieldObject._3,
                                  PathLocation(fieldObject._2.path.toString, Location(0)))
     })
-
-    //module.schema().relatedLists.validate()
   }
 
   private def createCustomField(path: PathLike, typeName: TypeName, field: CustomFieldEvent,
