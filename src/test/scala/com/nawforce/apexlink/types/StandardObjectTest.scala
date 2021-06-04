@@ -47,11 +47,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      /*
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
-       */
+          unmanagedSObject("Account").get, unmanagedSObject("UserRecordAccess").get))
     }
   }
 
@@ -62,6 +60,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -74,6 +75,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         org.issues.getMessages("/Dummy.cls") ==
           "Missing: line 1 at 33-41: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -91,6 +95,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
+          packagedSObject("pkg2", "Account").get))
     }
   }
 
@@ -110,6 +117,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         org.issues.getMessages("/pkg2/Dummy.cls") ==
           "Missing: line 1 at 33-41: Unknown field 'Bar__c' on SObject 'Schema.Account'\n")
+      assert(
+        packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
+          packagedSObject("pkg2", "Account").get))
     }
   }
 
@@ -119,6 +129,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+            unmanagedSObject("Account").get))
     }
   }
 
@@ -128,6 +141,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
     )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Contract").get))
     }
   }
 
@@ -137,6 +153,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Contract").get))
     }
   }
 
@@ -147,6 +166,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Contract").get))
     }
   }
 
@@ -156,6 +178,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
     )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Contract").get))
     }
   }
 
@@ -166,6 +191,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+            unmanagedSObject("BusinessHours").get))
     }
   }
 
@@ -175,6 +203,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectField a = Opportunity.Account.Name;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get))
     }
   }
 
@@ -185,6 +216,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+            unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get))
     }
   }
 
@@ -195,6 +229,10 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+            unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get,
+          unmanagedClass("Dummy").get.methods.find(_.name.value == "func").get))
     }
   }
 
@@ -205,6 +243,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -217,6 +258,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         org.issues.getMessages("/Dummy.cls") ==
           "Missing: line 1 at 39-53: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -228,6 +272,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get, unmanagedSObject("Foo__c").get))
     }
   }
 
@@ -246,6 +293,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
+          packagedSObject("pkg2", "Account").get))
     }
   }
 
@@ -255,6 +305,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -266,6 +319,8 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
         assert(
           org.issues.getMessages("/Dummy.cls") ==
             "Missing: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
 
@@ -275,6 +330,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -284,6 +342,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Contact").get))
     }
   }
 
@@ -294,6 +355,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -304,6 +368,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(org.issues.getMessages("/Dummy.cls") ==
         "Missing: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -315,6 +382,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -326,6 +396,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Account").get))
     }
   }
 
@@ -335,6 +408,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+            unmanagedSObject("Account").get))
     }
   }
 
@@ -344,6 +420,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
+            unmanagedSObject("Account").get))
     }
   }
 
@@ -380,6 +459,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
+            unmanagedSObject("AccountShare").get))
     }
   }
 
@@ -394,6 +476,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
+          unmanagedSObject("AccountShare").get))
     }
   }
 
@@ -410,6 +495,9 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
           |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
+          unmanagedSObject("AccountShare").get))
     }
   }
 }
