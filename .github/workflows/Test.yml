@@ -312,20 +312,20 @@ jobs:
 
       - name: fflib-apex-common
         run: |
-          cp -r fflib-apex-mocks/fflib-apex-mocks fflib-apex-common
+          cp -r samples/fflib-apex-mocks/fflib-apex-mocks samples/fflib-apex-common
           java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/fflib-apex-common
 
       - name: fflib-apex-common-samplecode
         run: |
-          cp -r fflib-apex-mocks/fflib-apex-mocks fflib-apex-common-samplecode
-          cp -r fflib-apex-common/fflib-apex-common fflib-apex-common-samplecode
+          cp -r samples/fflib-apex-mocks/fflib-apex-mocks samples/fflib-apex-common-samplecode
+          cp -r samples/fflib-apex-common/fflib-apex-common samples/fflib-apex-common-samplecode
           java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/fflib-apex-common-samplecode
 
       - name: at4dx
         run: |
-          cp -r fflib-apex-mocks/fflib-apex-mocks at4dx
-          cp -r fflib-apex-common/fflib-apex-common at4dx
-          cp -r force-di/force-di at4dx
+          cp -r samples/fflib-apex-mocks/fflib-apex-mocks samples/at4dx
+          cp -r samples/fflib-apex-common/fflib-apex-common samples/at4dx
+          cp -r samples/force-di/force-di samples/at4dx
           java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/at4dx
 
       - name: HEDAP
