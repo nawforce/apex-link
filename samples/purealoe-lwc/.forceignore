@@ -1,0 +1,21 @@
+# List files or directories below to ignore them when running force:source:push, force:source:pull, and force:source:status
+# More information: https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_exclude_source.htm
+#
+
+# Standard metadata
+purealoe-lwc/package.xml
+purealoe-lwc/**appMenu
+purealoe-lwc/**appSwitcher
+purealoe-lwc/**objectTranslations
+purealoe-lwc/**profiles
+purealoe-lwc/**settings
+
+# LWC configuration files
+purealoe-lwc/**/jsconfig.json
+purealoe-lwc/**/.eslintrc.json
+
+# LWC Jest
+purealoe-lwc/**/__tests__/**
+
+purealoe-lwc/force-app/main/default/objects/Einstein_Settings__c.object
+
