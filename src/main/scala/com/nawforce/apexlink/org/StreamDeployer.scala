@@ -69,7 +69,7 @@ class StreamDeployer(module: Module,
     val total = java.lang.System.currentTimeMillis() - start
     val avg = total / types.size
     ServerOps.debug(ServerOps.Trace,
-                    s"Module($toString) loaded ${types.size}" +
+                    s"$module loaded ${types.size}" +
                       s" types in ${total / 1000} seconds, average $avg ms/type")
   }
 
@@ -172,15 +172,14 @@ class StreamDeployer(module: Module,
 
   private def createCustomField(path: PathLike, typeName: TypeName, field: CustomFieldEvent,
   ): Array[FieldDeclaration] = {
-    val rawType = field.rawType
-    val fieldType = StreamDeployer.platformTypeOfFieldType(field.rawType).typeName
+    val fieldType = StreamDeployer.platformTypeOfFieldType(field).typeName
     val fieldDeclaration =
       CustomFieldDeclaration(field.name,
                              fieldType,
                              field.referenceTo.map(to => schemaTypeNameOf(to._1)))
 
     // Create additional fields & lookup relationships for special fields types
-    rawType.value match {
+    field.rawType.value match {
       case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
         val refTypeName = schemaTypeNameOf(field.referenceTo.get._1)
 
@@ -710,32 +709,37 @@ object StreamDeployer {
     Set(Name("Lookup"), Name("MasterDetail"), Name("MetadataRelationship"))
 
   /** Convert a field type string to the platform type used for it in Apex. */
-  def platformTypeOfFieldType(fieldType: Name): TypeDeclaration = {
-    fieldType.value match {
-      case "MasterDetail"         => PlatformTypes.idType
-      case "Lookup"               => PlatformTypes.idType
+  def platformTypeOfFieldType(field: CustomFieldEvent): TypeDeclaration = {
+    field.rawType.value match {
+      case "MasterDetail"        => PlatformTypes.idType
+      case "Lookup"              => PlatformTypes.idType
+      case "AutoNumber"          => PlatformTypes.stringType
+      case "Checkbox"            => PlatformTypes.booleanType
+      case "Currency"            => PlatformTypes.decimalType
+      case "Date"                => PlatformTypes.dateType
+      case "DateTime"            => PlatformTypes.datetimeType
+      case "Email"               => PlatformTypes.stringType
+      case "EncryptedText"       => PlatformTypes.stringType
+      case "Number"              => PlatformTypes.decimalType
+      case "Percent"             => PlatformTypes.decimalType
+      case "Phone"               => PlatformTypes.stringType
+      case "Picklist"            => PlatformTypes.stringType
+      case "MultiselectPicklist" => PlatformTypes.stringType
+      case "Summary"             => PlatformTypes.decimalType
+      case "Text"                => PlatformTypes.stringType
+      case "TextArea"            => PlatformTypes.stringType
+      case "LongTextArea"        => PlatformTypes.stringType
+      case "Url"                 => PlatformTypes.stringType
+      case "File"                => PlatformTypes.stringType
+      case "Location"            => PlatformTypes.locationType
+      case "Time"                => PlatformTypes.timeType
+      case "Html"                => PlatformTypes.stringType
+      case "MetadataRelationship"
+          if field.referenceTo
+            .map(_._1.value)
+            .exists(to => to == "FieldDefinition" || to == "EntityDefinition") =>
+        PlatformTypes.stringType
       case "MetadataRelationship" => PlatformTypes.idType
-      case "AutoNumber"           => PlatformTypes.stringType
-      case "Checkbox"             => PlatformTypes.booleanType
-      case "Currency"             => PlatformTypes.decimalType
-      case "Date"                 => PlatformTypes.dateType
-      case "DateTime"             => PlatformTypes.datetimeType
-      case "Email"                => PlatformTypes.stringType
-      case "EncryptedText"        => PlatformTypes.stringType
-      case "Number"               => PlatformTypes.decimalType
-      case "Percent"              => PlatformTypes.decimalType
-      case "Phone"                => PlatformTypes.stringType
-      case "Picklist"             => PlatformTypes.stringType
-      case "MultiselectPicklist"  => PlatformTypes.stringType
-      case "Summary"              => PlatformTypes.decimalType
-      case "Text"                 => PlatformTypes.stringType
-      case "TextArea"             => PlatformTypes.stringType
-      case "LongTextArea"         => PlatformTypes.stringType
-      case "Url"                  => PlatformTypes.stringType
-      case "File"                 => PlatformTypes.stringType
-      case "Location"             => PlatformTypes.locationType
-      case "Time"                 => PlatformTypes.timeType
-      case "Html"                 => PlatformTypes.stringType
       // pkgforce validates on loading, so need for default handling here
     }
   }
