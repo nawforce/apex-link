@@ -11,7 +11,7 @@
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
  */
-package com.nawforce.apexlink.samples
+package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}

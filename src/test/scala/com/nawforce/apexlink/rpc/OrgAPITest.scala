@@ -47,7 +47,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Add package MDAPI directory") {
-    val workspace = PathFactory("samples/forcedotcom-enterprise-architecture/src")
+    val workspace = PathFactory("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
