@@ -310,6 +310,3 @@
 [submodule "samples/visualforce-table-grid/visualforce-table-grid"]
 	path = samples/visualforce-table-grid/visualforce-table-grid
 	url = https://github.com/rsoesemann/visualforce-table-grid.git
-[submodule "samples/visualforce-typeahead/visualf"]
-	path = samples/visualforce-typeahead/visualf
-	url = https://github.com/SalesforceFoundation/visualforce-typeahead.git
