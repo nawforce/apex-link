@@ -34,320 +34,320 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - name: TriggerX
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose TriggerX/TriggerX
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/TriggerX/TriggerX
 
       - name: apex-query-builder
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-query-builder/apex-query-builder
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-query-builder/apex-query-builder
 
       - name: salesforce-bot-toolkit
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose salesforce-bot-toolkit/salesforce-bot-toolkit
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/salesforce-bot-toolkit/salesforce-bot-toolkit
 
       - name: SalesforceDurableStreamingDemo
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose SalesforceDurableStreamingDemo/SalesforceDurableStreamingDemo
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SalesforceDurableStreamingDemo/SalesforceDurableStreamingDemo
 
       - name: amoss
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose amoss/amoss
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/amoss/amoss
 
       - name: SimpleLightningComponents
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose SimpleLightningComponents/SimpleLightningComponents
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SimpleLightningComponents/SimpleLightningComponents
 
       - name: FormulaShare-DX
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose FormulaShare-DX/FormulaShare-DX
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/FormulaShare-DX/FormulaShare-DX
 
       - name: Apex-for-Xero
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Apex-for-Xero/Apex-for-Xero
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Apex-for-Xero/Apex-for-Xero
 
       - name: sendgrid-apex
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sendgrid-apex/sendgrid-apex
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sendgrid-apex/sendgrid-apex
 
       - name: FindNearby
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose FindNearby
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/FindNearby
 
       #- name: promiseV3
-      #  run: java -cp "target/dependency/*:target/apexlink-1.4.2.jar" com.nawforce.apexlink.ApexLink -verbose promiseV3/promiseV3
+      #  run: java -cp "target/dependency/*:target/apexlink-1.4.2.jar" com.nawforce.apexlink.ApexLink -verbose samples/promiseV3/promiseV3
 
       - name: Apex-Opensource-Library
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Apex-Opensource-Library/Apex-Opensource-Library
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Apex-Opensource-Library/Apex-Opensource-Library
 
       - name: SFDCRules
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose SFDCRules/SFDCRules
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SFDCRules/SFDCRules
 
       - name: forcelog
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose forcelog/forcelog
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/forcelog/forcelog
 
       - name: Apex-XML-Serializer
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Apex-XML-Serializer/Apex-XML-Serializer
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Apex-XML-Serializer/Apex-XML-Serializer
 
       - name: ObjectMerge
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ObjectMerge/ObjectMerge
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ObjectMerge/ObjectMerge
 
       - name: grid
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose grid/grid
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/grid/grid
 
       - name: soql-secure
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose soql-secure/soql-secure
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/soql-secure/soql-secure
 
       - name: box-salesforce-sdk
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose box-salesforce-sdk/box-salesforce-sdk
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/box-salesforce-sdk/box-salesforce-sdk
 
       - name: Angular
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Angular/Angular
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Angular/Angular
 
       - name: Lightweight-Trigger-Framework
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Lightweight-Trigger-Framework/Lightweight-Trigger-Framework
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Lightweight-Trigger-Framework/Lightweight-Trigger-Framework
 
       - name: SObjectFabricator
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose SObjectFabricator/SObjectFabricator
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SObjectFabricator/SObjectFabricator
 
       - name: ApexTriggerHandler
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ApexTriggerHandler/ApexTriggerHandler
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ApexTriggerHandler/ApexTriggerHandler
 
       - name: forcedotcom-enterprise-architecture
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose forcedotcom-enterprise-architecture/forcedotcom-enterprise-architecture
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/forcedotcom-enterprise-architecture/forcedotcom-enterprise-architecture
 
       - name: sf-sandbox-post-copy
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sf-sandbox-post-copy/sf-sandbox-post-copy
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sf-sandbox-post-copy/sf-sandbox-post-copy
 
       - name: Multi-File-Uploader-Force
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Multi-File-Uploader-Force/Multi-File-Uploader-Force
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Multi-File-Uploader-Force/Multi-File-Uploader-Force
 
       - name: logger
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose logger/logger
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/logger/logger
 
       - name: apex-sobjectdataloader
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-sobjectdataloader/apex-sobjectdataloader
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-sobjectdataloader/apex-sobjectdataloader
 
       - name: q
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose q/q
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/q/q
 
       - name: MyTriggers
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose MyTriggers/MyTriggers
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/MyTriggers/MyTriggers
 
       - name: ForceDotComSprintWall
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ForceDotComSprintWall/ForceDotComSprintWall
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ForceDotComSprintWall/ForceDotComSprintWall
 
       - name: apex-rest-route
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-rest-route/apex-rest-route
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-rest-route/apex-rest-route
 
       - name: flowtoolbelt
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose flowtoolbelt/flowtoolbelt
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/flowtoolbelt/flowtoolbelt
 
       - name: user-access-visualization
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose user-access-visualization/user-access-visualization
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/user-access-visualization/user-access-visualization
 
       - name: einstein-ai
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose einstein-ai/einstein-ai
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/einstein-ai/einstein-ai
 
       - name: purealoe-lwc
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose purealoe-lwc
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/purealoe-lwc
 
       - name: HyperBatch
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose HyperBatch
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/HyperBatch
 
       - name: Interactions-for-Student-Recruitment
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Interactions-for-Student-Recruitment
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Interactions-for-Student-Recruitment
 
       - name: sobject-work-queue
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sobject-work-queue/sobject-work-queue
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sobject-work-queue/sobject-work-queue
 
       - name: ffhttp-core
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ffhttp-core/ffhttp-core
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ffhttp-core/ffhttp-core
 
       - name: Force.com-Toolkit-for-Facebook
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Force.com-Toolkit-for-Facebook/Force.com-Toolkit-for-Facebook
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Force.com-Toolkit-for-Facebook/Force.com-Toolkit-for-Facebook
 
       - name: sfdc-oauth-playground
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sfdc-oauth-playground/sfdc-oauth-playground
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sfdc-oauth-playground/sfdc-oauth-playground
 
       - name: salesforce-limit-monitor
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose salesforce-limit-monitor/salesforce-limit-monitor
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/salesforce-limit-monitor/salesforce-limit-monitor
 
       - name: Centralized-Salesforce-Dev-Framework
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework
 
       - name: aws-sdk
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose aws-sdk/aws-sdk
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/aws-sdk/aws-sdk
 
       - name: eventlogging
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose eventlogging/eventlogging
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/eventlogging/eventlogging
 
       - name: quiz-host-app
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose quiz-host-app/quiz-host-app
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/quiz-host-app/quiz-host-app
 
       - name: sfdc-related-files-lightning
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sfdc-related-files-lightning/sfdc-related-files-lightning
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sfdc-related-files-lightning/sfdc-related-files-lightning
 
       - name: sObject-Remote
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sObject-Remote/sObject-Remote
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sObject-Remote/sObject-Remote
 
       - name: apex-domainbuilder
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-domainbuilder/apex-domainbuilder
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-domainbuilder/apex-domainbuilder
 
       - name: Force.com-Helper-Classes
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Force.com-Helper-Classes/Force.com-Helper-Classes
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Force.com-Helper-Classes/Force.com-Helper-Classes
 
       - name: selector
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose selector/selector
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/selector/selector
 
       - name: R-apex
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose R-apex/R-apex
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/R-apex/R-apex
 
       #- name: rflib
-      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose rflib/rflib
+      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/rflib/rflib
 
       - name: apex-dml-manager
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-dml-manager/apex-dml-manager
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-dml-manager/apex-dml-manager
 
       - name: ConnectApiHelper
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ConnectApiHelper/ConnectApiHelper
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ConnectApiHelper/ConnectApiHelper
 
       - name: sfdc-convert-attachments-to-chatter-files
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sfdc-convert-attachments-to-chatter-files/sfdc-convert-attachments-to-chatter-files
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sfdc-convert-attachments-to-chatter-files/sfdc-convert-attachments-to-chatter-files
 
       - name: Forceea-data-factory
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Forceea-data-factory/Forceea-data-factory/dx
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Forceea-data-factory/Forceea-data-factory/dx
 
       - name: ApexTestKit
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose ApexTestKit/ApexTestKit
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/ApexTestKit/ApexTestKit
 
       - name: jsonparse
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose jsonparse/jsonparse
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/jsonparse/jsonparse
 
       - name: sirono-common
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sirono-common/sirono-common
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sirono-common/sirono-common
 
       - name: apex-trigger-actions-framework
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-trigger-actions-framework/apex-trigger-actions-framework
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-trigger-actions-framework/apex-trigger-actions-framework
 
       - name: esapi
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose esapi/esapi
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/esapi/esapi
 
       - name: EnhancedLightningGrid
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose EnhancedLightningGrid/EnhancedLightningGrid
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/EnhancedLightningGrid/EnhancedLightningGrid
 
       - name: processBuilderBlocks
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose processBuilderBlocks/processBuilderBlocks
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/processBuilderBlocks/processBuilderBlocks
 
       - name: promise
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose promise/promise
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/promise/promise
 
       - name: Query.apex
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Query.apex/Query.apex
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Query.apex/Query.apex
 
       - name: apex-unified-logging
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-unified-logging/apex-unified-logging
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-unified-logging/apex-unified-logging
 
       - name: Zippex
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Zippex/Zippex
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Zippex/Zippex
 
       - name: TestDataFactory
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose TestDataFactory/TestDataFactory
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/TestDataFactory/TestDataFactory
 
       - name: automation-components
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose automation-components/automation-components
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/automation-components/automation-components
 
       - name: force-di
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose force-di/force-di
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/force-di/force-di
 
       - name: EDA
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose EDA/EDA
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/EDA/EDA
 
       - name: apex-lambda
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-lambda/apex-lambda
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-lambda/apex-lambda
 
       - name: sfdx-mass-action-scheduler
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sfdx-mass-action-scheduler/sfdx-mass-action-scheduler
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sfdx-mass-action-scheduler/sfdx-mass-action-scheduler
 
       - name: apex-recipes
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-recipes/apex-recipes
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-recipes/apex-recipes
 
       - name: NPSP
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose NPSP
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NPSP
 
       - name: apex-mdapi
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-mdapi/apex-mdapi
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-mdapi/apex-mdapi
 
       - name: apex-rollup
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-rollup/apex-rollup
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-rollup/apex-rollup
 
       - name: NebulaLogger
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose NebulaLogger/NebulaLogger
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NebulaLogger/NebulaLogger
 
       - name: apex-toolingapi
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose apex-toolingapi/apex-toolingapi
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-toolingapi/apex-toolingapi
 
       - name: Automated-Testing-for-Force
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Automated-Testing-for-Force/Automated-Testing-for-Force
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Automated-Testing-for-Force/Automated-Testing-for-Force
 
       - name: Batch-Entry-for-Salesforce
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce
 
       - name: CustomMetadataLoader
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose CustomMetadataLoader/CustomMetadataLoader
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/CustomMetadataLoader/CustomMetadataLoader
 
       - name: declarative-lookup-rollup-summaries
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose declarative-lookup-rollup-summaries/declarative-lookup-rollup-summaries
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/declarative-lookup-rollup-summaries/declarative-lookup-rollup-summaries
 
       - name: df12-apex-enterprise-patterns
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose df12-apex-enterprise-patterns/df12-apex-enterprise-patterns
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/df12-apex-enterprise-patterns/df12-apex-enterprise-patterns
 
       - name: df12-deployment-tools
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose df12-deployment-tools/df12-deployment-tools
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/df12-deployment-tools/df12-deployment-tools
 
       - name: dreamhouse-sfdx
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose dreamhouse-sfdx/dreamhouse-sfdx
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/dreamhouse-sfdx/dreamhouse-sfdx
 
       - name: fflib-apex-mocks
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose fflib-apex-mocks/fflib-apex-mocks
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/fflib-apex-mocks/fflib-apex-mocks
 
       - name: fflib-apex-common
         run: |
           cp -r fflib-apex-mocks/fflib-apex-mocks fflib-apex-common
-          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose fflib-apex-common
+          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/fflib-apex-common
 
       - name: fflib-apex-common-samplecode
         run: |
           cp -r fflib-apex-mocks/fflib-apex-mocks fflib-apex-common-samplecode
           cp -r fflib-apex-common/fflib-apex-common fflib-apex-common-samplecode
-          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose fflib-apex-common-samplecode
+          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/fflib-apex-common-samplecode
 
       - name: at4dx
         run: |
           cp -r fflib-apex-mocks/fflib-apex-mocks at4dx
           cp -r fflib-apex-common/fflib-apex-common at4dx
           cp -r force-di/force-di at4dx
-          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose at4dx
+          java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/at4dx
 
       - name: HEDAP
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose HEDAP/HEDAP
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/HEDAP/HEDAP
 
       - name: Milestones-PM
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Milestones-PM/Milestones-PM
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Milestones-PM/Milestones-PM
 
       - name: Salesforce-Lookup-Rollup-Summaries
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Salesforce-Lookup-Rollup-Summaries/Salesforce-Lookup-Rollup-Summaries
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Salesforce-Lookup-Rollup-Summaries/Salesforce-Lookup-Rollup-Summaries
 
       - name: Salesforce-Test-Factory
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Salesforce-Test-Factory/Salesforce-Test-Factory
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Salesforce-Test-Factory/Salesforce-Test-Factory
 
       - name: sfdc-trigger-framework
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose sfdc-trigger-framework/sfdc-trigger-framework
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/sfdc-trigger-framework/sfdc-trigger-framework
 
       - name: SmartFactory-for-Force.com
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose SmartFactory-for-Force/SmartFactory-for-Force
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SmartFactory-for-Force/SmartFactory-for-Force
 
       - name: twilio-salesforce
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose twilio-salesforce/twilio-salesforce
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/twilio-salesforce/twilio-salesforce
 
       - name: Visualforce-Multiselect-Picklist
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Visualforce-Multiselect-Picklist/Visualforce-Multiselect-Picklist
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Visualforce-Multiselect-Picklist/Visualforce-Multiselect-Picklist
 
       - name: visualforce-table-grid
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose visualforce-table-grid/visualforce-table-grid
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/visualforce-table-grid/visualforce-table-grid
 
       - name: visualforce-typeahead
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose visualforce-typeahead/visualforce-typeahead
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/visualforce-typeahead/visualforce-typeahead
 
       - name: Cumulus
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose Cumulus
+        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Cumulus
 
