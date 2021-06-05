@@ -1,0 +1,18 @@
+{
+    "packageDirectories": [
+        {
+            "path": "purealoe-lwc/force-app",
+            "default": true,
+            "package": "PureAloeLWC",
+            "versionNumber": "4.0.0.NEXT",
+            "versionName": "Spring '20"
+        }
+    ],
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "48.0",
+    "packageAliases": {
+        "PureAloeLWC": "0HoB0000000Gmi9KAC",
+        "PureAloeLWC@4.0.0-17": "04tB0000000Azj5IAC"
+    }
+}

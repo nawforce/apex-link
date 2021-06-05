@@ -1,0 +1,19 @@
+{
+  "packageDirectories": [
+    {
+      "path": "NPSP/src",
+      "default": true
+    }
+  ],
+  "namespace": "npsp",
+  "sourceApiVersion": "48.0",
+  "plugins": {
+    "dependencies": [
+        {"namespace": "npe01"},
+        {"namespace": "npo02"},
+        {"namespace": "npe03"},
+        {"namespace": "npe4"},
+        {"namespace": "npe5"}
+    ]
+  }
+}

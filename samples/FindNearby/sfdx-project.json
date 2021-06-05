@@ -1,0 +1,10 @@
+{
+  "packageDirectories": [
+    {
+      "path": "FindNearBy/src",
+      "default": true
+    }
+  ],
+  "namespace": "FN",
+  "sourceApiVersion": "48.0"
+}

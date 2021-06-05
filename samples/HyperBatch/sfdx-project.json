@@ -1,0 +1,9 @@
+{
+  "packageDirectories": [
+    {
+      "path": "HyperBatch/src",
+      "default": true
+    }
+  ],
+  "sourceApiVersion": "48.0"
+}

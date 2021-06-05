@@ -1,8 +1,12 @@
 ## Apex Test Samples
 
-This repo contains a number of test samples as git modules for regression testing [apex-link](https://github.com/nawforce/apex-link). The github action 'Test' will run the latest apex-link against each of the samples.
+This directory contains a number of test samples as git modules for regression testing. The github action 'Test' will run the latest apex-link against each of the samples.
 
-To add a sample follow the pattern below and also edit .github/workflows/Test.yml to include it in the action.
+If you want to test against these locally run:
+
+    git submodule update --init
+
+To add a sample follow the pattern below and also edit .github/workflows/Test.yml to include it in the action. In some cases a custom sfdx-project.json file is needed to load dependencies. To accommodate that the submodules are placed in sub-directory and the custom sfdx-project.json can then be checked into the parent, e.g. fflib-apex-common-samplecode/sfdx-project.json.  
 
     git submodule add https://github.com/se6wagner/TriggerX.git TriggerX/TriggerX
     git submodule add https://github.com/4an70m/apex-query-builder.git apex-query-builder/apex-query-builder

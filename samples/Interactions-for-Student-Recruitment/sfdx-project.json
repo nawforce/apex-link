@@ -1,0 +1,18 @@
+{
+  "packageDirectories": [
+    {
+      "path": "extra",
+      "default": false
+    },
+    {
+      "path": "Interactions-for-Student-Recruitment/src",
+      "default": true
+    }
+  ],
+  "sourceApiVersion": "48.0",
+  "plugins": {
+    "dependencies": [
+        {"namespace": "hed"}
+    ]
+  }
+}

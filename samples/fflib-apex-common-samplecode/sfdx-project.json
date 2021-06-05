@@ -1,0 +1,19 @@
+{
+    "packageDirectories": [
+        {
+            "path": "fflib-apex-mocks/sfdx-source/apex-mocks",
+            "default": false
+        },
+        {
+            "path": "fflib-apex-common/sfdx-source/apex-common",
+            "default": false
+        },
+        {
+            "path": "fflib-apex-common-samplecode/sfdx-source/apex-common-samplecode",
+            "default": true
+        }
+    ],
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "51.0"
+}
