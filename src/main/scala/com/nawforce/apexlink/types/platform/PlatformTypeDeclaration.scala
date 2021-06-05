@@ -27,6 +27,7 @@ import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomPar
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runforce.Internal.Object$
 
 import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
@@ -226,7 +227,7 @@ class PlatformMethod(val method: java.lang.reflect.Method,
 
 object PlatformTypeDeclaration {
   /* Java package prefix for platform types */
-  private val platformPackage = "com.nawforce.platform"
+  private val platformPackage = "com.nawforce.runforce"
 
   /* Cache of loaded platform declarations */
   private val declarationCache = mutable.Map[DotName, Option[PlatformTypeDeclaration]]()
@@ -234,7 +235,7 @@ object PlatformTypeDeclaration {
   /* Get a Path that leads to platform classes */
   lazy val platformPackagePath: java.nio.file.Path = {
     val path = "/" + platformPackage.replaceAll("\\.", "/")
-    val uri = classOf[PlatformTypeDeclaration].getResource(path).toURI
+    val uri = classOf[Object$].getResource(path).toURI
     if (uri.getScheme.equalsIgnoreCase("file")) {
       Paths.get(uri)
     } else {
