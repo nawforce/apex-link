@@ -30,6 +30,16 @@ jobs:
         working-directory: './pkgforce'
         run: sbt crossJVM/publishM2
 
+      - name: runforce-checkout
+        uses: actions/checkout@v2
+        with:
+          repository: nawforce/runforce
+          path: './runforce'
+
+      - name: run-compile
+        working-directory: './runforce'
+        run: mvn -B install
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 

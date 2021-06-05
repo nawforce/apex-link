@@ -79,7 +79,7 @@
     <dependency>
       <groupId>com.github.nawforce</groupId>
       <artifactId>runforce</artifactId>
-      <version>51.0.0</version>
+      <version>51.0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>
