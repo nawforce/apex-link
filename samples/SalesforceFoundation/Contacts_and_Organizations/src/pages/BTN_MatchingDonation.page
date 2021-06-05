@@ -1,1 +1,0 @@
-<apex:page standardController="Opportunity" action="{! urlFor('/apex/npsp__OPP_MatchingDonationsBTN?id=' + opportunity.Id) }" />

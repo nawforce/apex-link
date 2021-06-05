@@ -1,1 +1,0 @@
-<apex:page standardController="Household__c" action="{! urlFor('/apex/npsp__HH_ManageHousehold?id=' + Household__c.Id) }" />

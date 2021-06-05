@@ -1,1 +1,0 @@
-<apex:page standardController="Lead" action="{! urlFor('/apex/npsp__LD_LeadConvertOverride?id=' + lead.Id) }" />

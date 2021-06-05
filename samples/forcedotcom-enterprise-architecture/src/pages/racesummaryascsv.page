@@ -1,3 +1,0 @@
-<apex:page standardController="Race__c"
-	extensions="RaceSummaryController"
-	contentType="application/csv#{!Race__c.Name} Race Summary">{!CSVContent}</apex:page>

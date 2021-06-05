@@ -1,9 +1,0 @@
-<apex:component >
-    <apex:attribute name="sectionLabel" type="String" description="label for the section where this setting lives" required="true" />
-    <apex:attribute name="pageLabel" type="String" description="label for this settings page" required="true" />
-    <div class="slds-grid">
-        <div class="slds-col slds-size--1-of-1">
-            <h1 class="slds-text-heading--medium slds-p-top-medium">{!sectionLabel} - {!pageLabel}</h1>
-        </div>
-    </div>
-</apex:component>

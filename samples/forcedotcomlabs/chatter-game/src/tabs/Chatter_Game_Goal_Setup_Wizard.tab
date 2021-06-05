@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>This tab is where users can set up Goals for The Chatter Game.</description>
-    <label>Goal Setup Wizard</label>
-    <mobileReady>false</mobileReady>
-    <motif>Custom26: Flag</motif>
-    <page>ChatterGameGoalSetupWizard</page>
-</CustomTab>

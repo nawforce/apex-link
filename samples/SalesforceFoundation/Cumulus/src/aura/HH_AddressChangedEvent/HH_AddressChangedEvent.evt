@@ -1,3 +1,0 @@
-<aura:event type="APPLICATION" description="Event template" >
-    <aura:attribute name="addrDefault" type="Object"/>
-</aura:event>

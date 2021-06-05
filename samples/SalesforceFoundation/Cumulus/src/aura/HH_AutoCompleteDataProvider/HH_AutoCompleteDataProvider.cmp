@@ -1,3 +1,0 @@
-<aura:component controller="HH_AutoCompleteDataProvider_LCTRL" implements="c:dataProviderInterface">
-    <aura:attribute name="listCon" type="Object[]" access="public" />    
-</aura:component>

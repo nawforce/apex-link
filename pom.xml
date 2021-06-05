@@ -135,6 +135,7 @@
   </distributionManagement>
 
   <build>
+    <finalName>${project.artifactId}</finalName>
     <sourceDirectory>src/main/scala</sourceDirectory>
     <testSourceDirectory>src/test/scala</testSourceDirectory>
 
@@ -163,7 +164,7 @@
             <manifestEntries>
               <Implementation-Build>${buildNumber}</Implementation-Build>
             </manifestEntries>
-          </archive>:q
+          </archive>
         </configuration>
       </plugin>
 

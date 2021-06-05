@@ -1,1 +1,0 @@
-<apex:page standardController="Contact" action="{!URLFOR('/apex/npsp__ADDR_CopyAddrHHObjBTN?id=' + Contact.Id)}" />

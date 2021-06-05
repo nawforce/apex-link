@@ -1,6 +1,0 @@
-<apex:page standardController="Account" extensions="HH_ManageHH_CTRL" title="{!$Label.npo02__ManageHousehold}" standardStylesheets="true" showHeader="true" docType="html-5.0"
-	action="{!if(hhA.npe01__SYSTEM_AccountType__c != 'Household Account' || isChangingRecordType,  urlFor($Action.Account.Edit, hhA.Id, [retURL=$CurrentPage.parameters.retURL, RecordType=$CurrentPage.parameters.RecordType], true), null)}" >
-            
-    <apex:include pageName="HH_ManageHH"/>
-        
-</apex:page>

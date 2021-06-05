@@ -34,7 +34,7 @@ class SampleTest extends AnyFunSuite with TestHelper {
   }
 
   test("forcedotcom-enterprise-architecture") {
-    sample("samples/forcedotcom-enterprise-architecture/src")
+    sample("samples/forcedotcom-enterprise-architecture/forcedotcom-enterprise-architecture/src")
   }
 
   test("chatter=game") {

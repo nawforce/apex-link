@@ -1,1 +1,0 @@
-<apex:page standardController="Contact" action="{!urlFor('/apex/npsp__CON_DeleteContactOverride?id=' + contact.id)}" />

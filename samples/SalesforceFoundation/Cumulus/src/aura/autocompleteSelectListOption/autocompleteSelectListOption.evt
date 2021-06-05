@@ -1,3 +1,0 @@
-<aura:event type="COMPONENT" description="An event fired when an option in an autocomplete menu is selected">
-    <aura:attribute name="value" type="Object"/>
-</aura:event>

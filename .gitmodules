@@ -1,0 +1,318 @@
+[submodule "samples/TriggerX/TriggerX"]
+	path = samples/TriggerX/TriggerX
+	url = https://github.com/se6wagner/TriggerX.git
+[submodule "samples/apex-query-builder/apex-query-builder"]
+	path = samples/apex-query-builder/apex-query-builder
+	url = https://github.com/4an70m/apex-query-builder.git
+[submodule "samples/salesforce-bot-toolkit/salesforce-bot-toolkit"]
+	path = samples/salesforce-bot-toolkit/salesforce-bot-toolkit
+	url = https://github.com/ccoenraets/salesforce-bot-toolkit.git
+[submodule "samples/SalesforceDurableStreamingDemo/SalesforceDurableStreamingDemo"]
+	path = samples/SalesforceDurableStreamingDemo/SalesforceDurableStreamingDemo
+	url = https://github.com/developerforce/SalesforceDurableStreamingDemo.git
+[submodule "samples/Lightning-Components/Lightning-Components"]
+	path = samples/Lightning-Components/Lightning-Components
+	url = https://github.com/ericrsmith35/Lightning-Components.git
+[submodule "samples/amoss/amoss"]
+	path = samples/amoss/amoss
+	url = https://github.com/bobalicious/amoss.git
+[submodule "samples/SimpleLightningComponents/SimpleLightningComponents"]
+	path = samples/SimpleLightningComponents/SimpleLightningComponents
+	url = https://github.com/jongpie/SimpleLightningComponents.git
+[submodule "samples/FormulaShare-DX/FormulaShare-DX"]
+	path = samples/FormulaShare-DX/FormulaShare-DX
+	url = https://github.com/LawrenceLoz/FormulaShare-DX.git
+[submodule "samples/Apex-for-Xero/Apex-for-Xero"]
+	path = samples/Apex-for-Xero/Apex-for-Xero
+	url = https://github.com/benedwards44/Apex-for-Xero.git
+[submodule "samples/sendgrid-apex/sendgrid-apex"]
+	path = samples/sendgrid-apex/sendgrid-apex
+	url = https://github.com/sendgrid/sendgrid-apex.git
+[submodule "samples/FindNearby/FindNearby"]
+	path = samples/FindNearby/FindNearby
+	url = https://github.com/SalesforceLabs/FindNearby.git
+[submodule "samples/promiseV3/promiseV3"]
+	path = samples/promiseV3/promiseV3
+	url = https://github.com/codefriar/promiseV3.git
+[submodule "samples/Apex-Opensource-Library/Apex-Opensource-Library"]
+	path = samples/Apex-Opensource-Library/Apex-Opensource-Library
+	url = https://github.com/amorek/Apex-Opensource-Library.git
+[submodule "samples/SFDCRules/SFDCRules"]
+	path = samples/SFDCRules/SFDCRules
+	url = https://github.com/JitendraZaa/SFDCRules.git
+[submodule "samples/forcelog/forcelog"]
+	path = samples/forcelog/forcelog
+	url = https://github.com/davidsbond/forcelog.git
+[submodule "samples/Apex-XML-Serializer/Apex-XML-Serializer"]
+	path = samples/Apex-XML-Serializer/Apex-XML-Serializer
+	url = https://github.com/skolakan/Apex-XML-Serializer.git
+[submodule "samples/ObjectMerge/ObjectMerge"]
+	path = samples/ObjectMerge/ObjectMerge
+	url = https://github.com/kyleschmid/ObjectMerge.git
+[submodule "samples/grid/grid"]
+	path = samples/grid/grid
+	url = https://github.com/open-force/grid.git
+[submodule "samples/soql-secure/soql-secure"]
+	path = samples/soql-secure/soql-secure
+	url = https://github.com/stomita/soql-secure.git
+[submodule "samples/box-salesforce-sdk/box-salesforce-sdk"]
+	path = samples/box-salesforce-sdk/box-salesforce-sdk
+	url = https://github.com/box/box-salesforce-sdk.git
+[submodule "samples/Angular/Angular"]
+	path = samples/Angular/Angular
+	url = https://github.com/mailtoharshit/Angular.git
+[submodule "samples/Lightweight-Trigger-Framework/Lightweight-Trigger-Framework"]
+	path = samples/Lightweight-Trigger-Framework/Lightweight-Trigger-Framework
+	url = https://github.com/ChrisAldridge/Lightweight-Trigger-Framework.git
+[submodule "samples/SObjectFabricator/SObjectFabricator"]
+	path = samples/SObjectFabricator/SObjectFabricator
+	url = https://github.com/mattaddy/SObjectFabricator.git
+[submodule "samples/ApexTriggerHandler/ApexTriggerHandler"]
+	path = samples/ApexTriggerHandler/ApexTriggerHandler
+	url = https://github.com/apexfarm/ApexTriggerHandler.git
+[submodule "samples/forcedotcom-enterprise-architecture/forcedotcom-enterprise-architecture"]
+	path = samples/forcedotcom-enterprise-architecture/forcedotcom-enterprise-architecture
+	url = https://github.com/afawcett/forcedotcom-enterprise-architecture.git
+[submodule "samples/sf-sandbox-post-copy/sf-sandbox-post-copy"]
+	path = samples/sf-sandbox-post-copy/sf-sandbox-post-copy
+	url = https://github.com/GSA/sf-sandbox-post-copy.git
+[submodule "samples/Multi-File-Uploader-Force/Multi-File-Uploader-Force"]
+	path = samples/Multi-File-Uploader-Force/Multi-File-Uploader-Force
+	url = https://github.com/TehNrd/Multi-File-Uploader-Force.com.git
+[submodule "samples/logger/logger"]
+	path = samples/logger/logger
+	url = https://github.com/Szandor72/logger.git
+[submodule "samples/apex-sobjectdataloader/apex-sobjectdataloader"]
+	path = samples/apex-sobjectdataloader/apex-sobjectdataloader
+	url = https://github.com/afawcett/apex-sobjectdataloader.git
+[submodule "samples/q/q"]
+	path = samples/q/q
+	url = https://github.com/jpmonette/q.git
+[submodule "samples/MyTriggers/MyTriggers"]
+	path = samples/MyTriggers/MyTriggers
+	url = https://github.com/appero-com/MyTriggers.git
+[submodule "samples/ForceDotComSprintWall/ForceDotComSprintWall"]
+	path = samples/ForceDotComSprintWall/ForceDotComSprintWall
+	url = https://github.com/financialforcedev/ForceDotComSprintWall.git
+[submodule "samples/apex-rest-route/apex-rest-route"]
+	path = samples/apex-rest-route/apex-rest-route
+	url = https://github.com/callawaycloud/apex-rest-route.git
+[submodule "samples/flowtoolbelt/flowtoolbelt"]
+	path = samples/flowtoolbelt/flowtoolbelt
+	url = https://github.com/afawcett/flowtoolbelt.git
+[submodule "samples/user-access-visualization/user-access-visualization"]
+	path = samples/user-access-visualization/user-access-visualization
+	url = https://github.com/forcedotcom/user-access-visualization.git
+[submodule "samples/einstein-ai/einstein-ai"]
+	path = samples/einstein-ai/einstein-ai
+	url = https://github.com/mshanemc/einstein-ai.git
+[submodule "samples/purealoe-lwc/purealoe-lwc"]
+	path = samples/purealoe-lwc/purealoe-lwc
+	url = https://github.com/trailheadapps/purealoe-lwc.git
+[submodule "samples/HyperBatch/HyperBatch"]
+	path = samples/HyperBatch/HyperBatch
+	url = https://github.com/danieljpeter/HyperBatch.git
+[submodule "samples/Interactions-for-Student-Recruitment/Interactions-for-Student-Recruitment"]
+	path = samples/Interactions-for-Student-Recruitment/Interactions-for-Student-Recruitment
+	url = https://github.com/SFDO-Community-Sprints/Interactions-for-Student-Recruitment.git
+[submodule "samples/sobject-work-queue/sobject-work-queue"]
+	path = samples/sobject-work-queue/sobject-work-queue
+	url = https://github.com/rsoesemann/sobject-work-queue.git
+[submodule "samples/ffhttp-core/ffhttp-core"]
+	path = samples/ffhttp-core/ffhttp-core
+	url = https://github.com/financialforcedev/ffhttp-core.git
+[submodule "samples/Force.com-Toolkit-for-Facebook/Force.com-Toolkit-for-Facebook"]
+	path = samples/Force.com-Toolkit-for-Facebook/Force.com-Toolkit-for-Facebook
+	url = https://github.com/developerforce/Force.com-Toolkit-for-Facebook.git
+[submodule "samples/sfdc-oauth-playground/sfdc-oauth-playground"]
+	path = samples/sfdc-oauth-playground/sfdc-oauth-playground
+	url = https://github.com/jesperfj/sfdc-oauth-playground.git
+[submodule "samples/salesforce-limit-monitor/salesforce-limit-monitor"]
+	path = samples/salesforce-limit-monitor/salesforce-limit-monitor
+	url = https://github.com/dhoechst/salesforce-limit-monitor.git
+[submodule "samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework"]
+	path = samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework
+	url = https://github.com/scottbcovert/Centralized-Salesforce-Dev-Framework.git
+[submodule "samples/aws-sdk/aws-sdk"]
+	path = samples/aws-sdk/aws-sdk
+	url = https://github.com/bigassforce/aws-sdk.git
+[submodule "samples/eventlogging/eventlogging"]
+	path = samples/eventlogging/eventlogging
+	url = https://github.com/afawcett/eventlogging.git
+[submodule "samples/quiz-host-app/quiz-host-app"]
+	path = samples/quiz-host-app/quiz-host-app
+	url = https://github.com/fostive/quiz-host-app.git
+[submodule "samples/sfdc-related-files-lightning/sfdc-related-files-lightning"]
+	path = samples/sfdc-related-files-lightning/sfdc-related-files-lightning
+	url = https://github.com/douglascayers/sfdc-related-files-lightning.git
+[submodule "samples/sObject-Remote/sObject-Remote"]
+	path = samples/sObject-Remote/sObject-Remote
+	url = https://github.com/TehNrd/sObject-Remote.git
+[submodule "samples/apex-domainbuilder/apex-domainbuilder"]
+	path = samples/apex-domainbuilder/apex-domainbuilder
+	url = https://github.com/rsoesemann/apex-domainbuilder.git
+[submodule "samples/Force.com-Helper-Classes/Force.com-Helper-Classes"]
+	path = samples/Force.com-Helper-Classes/Force.com-Helper-Classes
+	url = https://github.com/kevinohara80/Force.com-Helper-Classes.git
+[submodule "samples/selector/selector"]
+	path = samples/selector/selector
+	url = https://github.com/bluewolf-beyond/selector.git
+[submodule "samples/R-apex/R-apex"]
+	path = samples/R-apex/R-apex
+	url = https://github.com/PropicSignifi/R.apex.git
+[submodule "samples/rflib/rflib"]
+	path = samples/rflib/rflib
+	url = https://github.com/j-fischer/rflib.git
+[submodule "samples/apex-dml-manager/apex-dml-manager"]
+	path = samples/apex-dml-manager/apex-dml-manager
+	url = https://github.com/patronmanager/apex-dml-manager.git
+[submodule "samples/ConnectApiHelper/ConnectApiHelper"]
+	path = samples/ConnectApiHelper/ConnectApiHelper
+	url = https://github.com/forcedotcom/ConnectApiHelper.git
+[submodule "samples/sfdc-convert-attachments-to-chatter-files/sfdc-convert-attachments-to-chatter-files"]
+	path = samples/sfdc-convert-attachments-to-chatter-files/sfdc-convert-attachments-to-chatter-files
+	url = https://github.com/douglascayers/sfdc-convert-attachments-to-chatter-files.git
+[submodule "samples/Forceea-data-factory/Forceea-data-factory"]
+	path = samples/Forceea-data-factory/Forceea-data-factory
+	url = https://github.com/Forceea/Forceea-data-factory.git
+[submodule "samples/ApexTestKit/ApexTestKit"]
+	path = samples/ApexTestKit/ApexTestKit
+	url = https://github.com/apexfarm/ApexTestKit.git
+[submodule "samples/jsonparse/jsonparse"]
+	path = samples/jsonparse/jsonparse
+	url = https://github.com/open-force/jsonparse.git
+[submodule "samples/sirono-common/sirono-common"]
+	path = samples/sirono-common/sirono-common
+	url = https://github.com/SCWells72/sirono-common.git
+[submodule "samples/apex-trigger-actions-framework/apex-trigger-actions-framework"]
+	path = samples/apex-trigger-actions-framework/apex-trigger-actions-framework
+	url = https://github.com/mitchspano/apex-trigger-actions-framework.git
+[submodule "samples/esapi/esapi"]
+	path = samples/esapi/esapi
+	url = https://github.com/forcedotcom/force-dot-com-esapi.git
+[submodule "samples/at4dx/at4dx"]
+	path = samples/at4dx/at4dx
+	url = https://github.com/apex-enterprise-patterns/at4dx.git
+[submodule "samples/EnhancedLightningGrid/EnhancedLightningGrid"]
+	path = samples/EnhancedLightningGrid/EnhancedLightningGrid
+	url = https://github.com/SalesforceLabs/EnhancedLightningGrid.git
+[submodule "samples/processBuilderBlocks/processBuilderBlocks"]
+	path = samples/processBuilderBlocks/processBuilderBlocks
+	url = https://github.com/mshanemc/processBuilderBlocks.git
+[submodule "samples/promise/promise"]
+	path = samples/promise/promise
+	url = https://github.com/codefriar/promise.git
+[submodule "samples/Volunteers-for-Salesforce/Volunteers-for-Salesforce"]
+	path = samples/Volunteers-for-Salesforce/Volunteers-for-Salesforce
+	url = https://github.com/SalesforceFoundation/Volunteers-for-Salesforce.git
+[submodule "samples/Query.apex/Query.apex"]
+	path = samples/Query.apex/Query.apex
+	url = https://github.com/PropicSignifi/Query.apex.git
+[submodule "samples/apex-unified-logging/apex-unified-logging"]
+	path = samples/apex-unified-logging/apex-unified-logging
+	url = https://github.com/rsoesemann/apex-unified-logging.git
+[submodule "samples/Zippex/Zippex"]
+	path = samples/Zippex/Zippex
+	url = https://github.com/pdalcol/Zippex.git
+[submodule "samples/TestDataFactory/TestDataFactory"]
+	path = samples/TestDataFactory/TestDataFactory
+	url = https://github.com/benahm/TestDataFactory.git
+[submodule "samples/fflib-apex-common-samplecode/fflib-apex-common-samplecode"]
+	path = samples/fflib-apex-common-samplecode/fflib-apex-common-samplecode
+	url = https://github.com/apex-enterprise-patterns/fflib-apex-common-samplecode.git
+[submodule "samples/automation-components/automation-components"]
+	path = samples/automation-components/automation-components
+	url = https://github.com/trailheadapps/automation-components.git
+[submodule "samples/force-di/force-di"]
+	path = samples/force-di/force-di
+	url = https://github.com/apex-enterprise-patterns/force-di.git
+[submodule "samples/EDA/EDA"]
+	path = samples/EDA/EDA
+	url = https://github.com/SalesforceFoundation/EDA.git
+[submodule "samples/apex-lambda/apex-lambda"]
+	path = samples/apex-lambda/apex-lambda
+	url = https://github.com/ipavlic/apex-lambda.git
+[submodule "samples/sfdx-mass-action-scheduler/sfdx-mass-action-scheduler"]
+	path = samples/sfdx-mass-action-scheduler/sfdx-mass-action-scheduler
+	url = https://github.com/douglascayers-org/sfdx-mass-action-scheduler.git
+[submodule "samples/apex-recipes/apex-recipes"]
+	path = samples/apex-recipes/apex-recipes
+	url = https://github.com/trailheadapps/apex-recipes.git
+[submodule "samples/NPSP/NPSP"]
+	path = samples/NPSP/NPSP
+	url = https://github.com/SalesforceFoundation/NPSP.git
+[submodule "samples/apex-mdapi/apex-mdapi"]
+	path = samples/apex-mdapi/apex-mdapi
+	url = https://github.com/financialforcedev/apex-mdapi.git
+[submodule "samples/apex-rollup/apex-rollup"]
+	path = samples/apex-rollup/apex-rollup
+	url = https://github.com/jamessimone/apex-rollup.git
+[submodule "samples/NebulaLogger/NebulaLogger"]
+	path = samples/NebulaLogger/NebulaLogger
+	url = https://github.com/jongpie/NebulaLogger.git
+[submodule "samples/apex-toolingapi/apex-toolingapi"]
+	path = samples/apex-toolingapi/apex-toolingapi
+	url = https://github.com/afawcett/apex-toolingapi.git
+[submodule "samples/Automated-Testing-for-Force/Automated-Testing-for-Force"]
+	path = samples/Automated-Testing-for-Force/Automated-Testing-for-Force
+	url = https://github.com/mbotos/Automated-Testing-for-Force.com.git
+[submodule "samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce"]
+	path = samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce
+	url = https://github.com/SalesforceFoundation/Batch-Entry-for-Salesforce.com.git
+[submodule "samples/Cumulus/Cumulus"]
+	path = samples/Cumulus/Cumulus
+	url = https://github.com/SalesforceFoundation/Cumulus.git
+[submodule "samples/CustomMetadataLoader/CustomMetadataLoader"]
+	path = samples/CustomMetadataLoader/CustomMetadataLoader
+	url = https://github.com/forcedotcom/CustomMetadataLoader.git
+[submodule "samples/declarative-lookup-rollup-summaries/declarative-lookup-rollup-summaries"]
+	path = samples/declarative-lookup-rollup-summaries/declarative-lookup-rollup-summaries
+	url = https://github.com/afawcett/declarative-lookup-rollup-summaries.git
+[submodule "samples/df12-apex-enterprise-patterns/df12-apex-enterprise-patterns"]
+	path = samples/df12-apex-enterprise-patterns/df12-apex-enterprise-patterns
+	url = https://github.com/financialforcedev/df12-apex-enterprise-patterns.git
+[submodule "samples/df12-deployment-tools/df12-deployment-tools"]
+	path = samples/df12-deployment-tools/df12-deployment-tools
+	url = https://github.com/financialforcedev/df12-deployment-tools.git
+[submodule "samples/dreamhouse-sfdx/dreamhouse-sfdx"]
+	path = samples/dreamhouse-sfdx/dreamhouse-sfdx
+	url = https://github.com/dreamhouseapp/dreamhouse-sfdx.git
+[submodule "samples/fflib-apex-common/fflib-apex-common"]
+	path = samples/fflib-apex-common/fflib-apex-common
+	url = https://github.com/financialforcedev/fflib-apex-common.git
+[submodule "samples/fflib-apex-mocks/fflib-apex-mocks"]
+	path = samples/fflib-apex-mocks/fflib-apex-mocks
+	url = https://github.com/financialforcedev/fflib-apex-mocks.git
+[submodule "samples/HEDAP/HEDAP"]
+	path = samples/HEDAP/HEDAP
+	url = https://github.com/SalesforceFoundation/HEDAP.git
+[submodule "samples/Milestones-PM/Milestones-PM"]
+	path = samples/Milestones-PM/Milestones-PM
+	url = https://github.com/SalesforceLabs/Milestones-PM.git
+[submodule "samples/Salesforce-Lookup-Rollup-Summaries/Salesforce-Lookup-Rollup-Summaries"]
+	path = samples/Salesforce-Lookup-Rollup-Summaries/Salesforce-Lookup-Rollup-Summaries
+	url = https://github.com/abhinavguptas/Salesforce-Lookup-Rollup-Summaries.git
+[submodule "samples/Salesforce-Test-Factory/Salesforce-Test-Factory"]
+	path = samples/Salesforce-Test-Factory/Salesforce-Test-Factory
+	url = https://github.com/dhoechst/Salesforce-Test-Factory.git
+[submodule "samples/sfdc-trigger-framework/sfdc-trigger-framework"]
+	path = samples/sfdc-trigger-framework/sfdc-trigger-framework
+	url = https://github.com/kevinohara80/sfdc-trigger-framework.git
+[submodule "samples/sfdx-simple/sfdx-simple"]
+	path = samples/sfdx-simple/sfdx-simple
+	url = https://github.com/forcedotcom/sfdx-simple.git
+[submodule "samples/SmartFactory-for-Force/SmartFactory-for-Force"]
+	path = samples/SmartFactory-for-Force/SmartFactory-for-Force
+	url = https://github.com/mbotos/SmartFactory-for-Force.com.git
+[submodule "samples/twilio-salesforce/twilio-salesforce"]
+	path = samples/twilio-salesforce/twilio-salesforce
+	url = https://github.com/twilio/twilio-salesforce.git
+[submodule "samples/Visualforce-Multiselect-Picklist/Visualforce-Multiselect-Picklist"]
+	path = samples/Visualforce-Multiselect-Picklist/Visualforce-Multiselect-Picklist
+	url = https://github.com/metadaddy/Visualforce-Multiselect-Picklist.git
+[submodule "samples/visualforce-table-grid/visualforce-table-grid"]
+	path = samples/visualforce-table-grid/visualforce-table-grid
+	url = https://github.com/rsoesemann/visualforce-table-grid.git
+[submodule "samples/visualforce-typeahead/visualf"]
+	path = samples/visualforce-typeahead/visualf
+	url = https://github.com/SalesforceFoundation/visualforce-typeahead.git

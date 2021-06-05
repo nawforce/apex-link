@@ -1,1 +1,0 @@
-<apex:page standardController="Account" action="{! urlFor('/apex/npsp__ACCT_ViewOverride?id=' + account.Id) }" />

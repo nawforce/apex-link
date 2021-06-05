@@ -1,3 +1,0 @@
-<aura:event type="COMPONENT">
-    <aura:attribute name="segment" type="Object" access="public"/>
-</aura:event>

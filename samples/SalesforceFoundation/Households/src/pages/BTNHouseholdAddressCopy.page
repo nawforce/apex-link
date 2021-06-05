@@ -1,1 +1,0 @@
-<apex:page standardController="Household__c" action="{!URLFOR('/apex/npsp__ADDR_CopyAddrHHObjBTN?id=' + Household__c.Id)}" />

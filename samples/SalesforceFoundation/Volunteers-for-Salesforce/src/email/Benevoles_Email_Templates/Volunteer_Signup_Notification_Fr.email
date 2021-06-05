@@ -1,9 +1,0 @@
-Un nouveau bénévole s'est inscrit:
-
-{!Contact.FirstName} {!Contact.LastName}
-
-Voici un lien vers ses informations:
-{!Contact.Link}
-{!Lead.Link}
-
-Merci de prendre contact rapidement avec lui.

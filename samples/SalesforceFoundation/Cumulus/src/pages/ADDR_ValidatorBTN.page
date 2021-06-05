@@ -1,3 +1,0 @@
-<apex:page standardController="Address__c" extensions="ADDR_Validator" action="{!verifyAddressButton}">
-	<c:UTIL_NavigateBack recordId="{!Address__c.Id}" redirect="true"/>
-</apex:page>
