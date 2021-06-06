@@ -18,11 +18,17 @@ import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.types.apex.{
+  ApexClassDeclaration,
+  ApexDeclaration,
+  ApexFullDeclaration,
+  FullDeclaration,
+  TriggerDeclaration
+}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.schema.SchemaSObjectType
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLog, LocalLogger, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
@@ -200,7 +206,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     TypeResolver.platformTypeOnly(typeName, this)
   }
 
-
   // Find locally, or fallback to a searching base packages
   def findPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {
     var declaration = findModuleType(typeName)
@@ -305,11 +310,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
       case doc: SObjectDocument =>
-        val logger = new CatchingLogger
-        val events = SObjectGenerator.iterator(DocumentIndex(logger, namespace, doc.path.parent))
-        new StreamDeployer(this, events, this.types)
-        types.get(doc.typeName(namespace)) match {
-          case Some(dt: DependentType) => Some(dt)
+        refreshSObject(doc.typeName(namespace), doc.path.parent)
+      case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
+        val sObjectDir = dt.path.parent.parent
+        MetadataDocument(sObjectDir.join(s"${sObjectDir.basename}.object-meta.xml")) match {
+          case Some(doc: SObjectDocument) =>
+            refreshSObject(doc.typeName(namespace), sObjectDir)
           case _ => None
         }
       case _: LabelsDocument =>
@@ -328,6 +334,16 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         val events = FlowGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
         Some(InterviewDeclaration(this).merge(stream))
+    }
+  }
+
+  private def refreshSObject(typeName: TypeName, sObjectPath: PathLike): Option[DependentType] = {
+    val logger = new LocalLogger(pkg.org.issues)
+    val events = SObjectGenerator.iterator(DocumentIndex(logger, namespace, sObjectPath))
+    new StreamDeployer(this, events, this.types)
+    types.get(typeName) match {
+      case Some(dt: DependentType) => Some(dt)
+      case _                       => None
     }
   }
 

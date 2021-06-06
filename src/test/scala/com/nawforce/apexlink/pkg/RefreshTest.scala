@@ -747,4 +747,82 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       }
     }
   }
+
+  test("Field refresh updates custom object") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
+
+        val objectDir = root.createDirectory("Foo__c").toOption.get
+        objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
+        val fieldsDir = objectDir.createDirectory("fields").toOption.get
+        val fieldFile = fieldsDir
+          .createFile("Bar__c.field-meta.xml", customField("Bar__c", "Text", None))
+          .toOption
+          .get
+
+        pkg.refresh(fieldFile)
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
+
+  test("FieldSet refresh updates custom object") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
+
+        val objectDir = root.createDirectory("Foo__c").toOption.get
+        objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
+        val fieldSetDir = objectDir.createDirectory("fieldSets").toOption.get
+        val fieldSetFile = fieldSetDir
+          .createFile("Bar.fieldSet-meta.xml", customFieldSet("Bar"))
+          .toOption
+          .get
+
+        pkg.refresh(fieldSetFile)
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
+
+  test("SharingReason refresh updates custom object") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        assert(!org.issues.hasMessages)
+
+        val objectDir = root.createDirectory("Foo__c").toOption.get
+        objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
+        val sharingReasonDir = objectDir.createDirectory("sharingReasons").toOption.get
+        val sharingReasonFile = sharingReasonDir
+          .createFile("Bar.sharingReason-meta.xml", customSharingReason("Bar"))
+          .toOption
+          .get
+
+        pkg.refresh(sharingReasonFile)
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
+        assert(
+          pkg.orderedModules.head.types
+            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+            .nonEmpty)
+      }
+    }
+  }
 }
