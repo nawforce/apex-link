@@ -265,11 +265,11 @@ object MetadataDocument {
           if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
         Some(SObjectFieldDocument(path, name))
 
-      case Array(name, Name("fieldset-meta"), Name("xml"))
+      case Array(name, Name("fieldSet-meta"), Name("xml"))
           if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
         Some(SObjectFieldSetDocument(path, name))
 
-      case Array(name, Name("sharingreason-meta"), Name("xml"))
+      case Array(name, Name("sharingReason-meta"), Name("xml"))
         if path.parent.basename.equalsIgnoreCase("sharingReasons") && !path.parent.parent.isRoot =>
         Some(SObjectSharingReasonDocument(path, name))
 
