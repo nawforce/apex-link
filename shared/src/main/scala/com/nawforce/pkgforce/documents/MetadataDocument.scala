@@ -46,6 +46,7 @@ case object FlowNature extends MetadataNature
 case object SObjectNature extends MetadataNature
 case object FieldNature extends MetadataNature
 case object FieldSetNature extends MetadataNature
+case object SharingReasonNature extends MetadataNature
 
 /** A piece of Metadata described in a file */
 abstract class MetadataDocument(val path: PathLike, val name: Name) {
@@ -196,6 +197,17 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   }
 }
 
+final case class SObjectSharingReasonDocument(_path: PathLike, _name: Name)
+  extends MetadataDocument(_path, _name) {
+  override val nature: MetadataNature = SharingReasonNature
+  override def typeName(namespace: Option[Name]): TypeName = {
+    val sobjectName = path.parent.parent.basename
+    val sharingReasonType = TypeName.sObjectTypeRowClause$(
+      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
+    TypeName(name, Nil, Some(sharingReasonType))
+  }
+}
+
 final case class PageDocument(_path: PathLike, _name: Name)
     extends MetadataDocument(_path, _name) {
   override val nature: MetadataNature = PageNature
@@ -256,6 +268,10 @@ object MetadataDocument {
       case Array(name, Name("fieldset-meta"), Name("xml"))
           if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
         Some(SObjectFieldSetDocument(path, name))
+
+      case Array(name, Name("sharingreason-meta"), Name("xml"))
+        if path.parent.basename.equalsIgnoreCase("sharingReasons") && !path.parent.parent.isRoot =>
+        Some(SObjectSharingReasonDocument(path, name))
 
       case Array(name, Name("flow")) =>
         Some(FlowDocument(path, name))

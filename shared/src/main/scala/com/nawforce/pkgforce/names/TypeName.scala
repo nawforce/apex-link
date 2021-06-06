@@ -143,4 +143,7 @@ object TypeName {
     new TypeName(SObjectTypeFields$.name, Seq(typeName), SObjectTypeFields$.outer)
   def sObjectTypeFieldSets$(typeName: TypeName): TypeName =
     new TypeName(SObjectTypeFieldSets$.name, Seq(typeName), SObjectTypeFieldSets$.outer)
+  def sObjectTypeRowClause$(typeName: TypeName): TypeName =
+    new TypeName(SObjectFieldRowCause$.name, Seq(typeName), SObjectFieldRowCause$.outer)
+
 }
