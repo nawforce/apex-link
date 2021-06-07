@@ -17,7 +17,7 @@ import com.nawforce.apexlink.types.apex.SummaryDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.documents.ParsedCache
-import com.nawforce.pkgforce.names.Name
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -757,7 +757,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasMessages)
 
       assert(
-        org.getIdentifierLocation("Dummy") ==
+        org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) ==
           PathLocation("/classes/Dummy.cls", Location(1, 13, 1, 18)))
     }
   }
@@ -774,9 +774,12 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
-      assert(org.getIdentifierLocation("Dummy") == null)
+      assert(org
+        .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy")))) == null)
       assert(
-        org.getIdentifierLocation("test.Dummy") ==
+        org.getIdentifierLocation(
+          TypeIdentifier(Some(Name("test")),
+                         TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))) ==
           PathLocation("/test/Dummy.cls", Location(1, 13, 1, 18)))
     }
   }
@@ -793,10 +796,18 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
-      assert(org.getIdentifierLocation("Dummy") == null)
-      assert(org.getIdentifierLocation("Dummy.Inner") == null)
+      assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) == null)
       assert(
-        org.getIdentifierLocation("test.Dummy.Inner") ==
+        org.getIdentifierLocation(
+          TypeIdentifier(Some(Name("test")),
+                         TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy")))))) == null)
+      assert(
+        org.getIdentifierLocation(
+          TypeIdentifier(
+            Some(Name("test")),
+            TypeName(Name("Inner"),
+                     Nil,
+                     Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))))) ==
           PathLocation("/test/Dummy.cls", Location(1, 26, 1, 31)))
     }
   }
@@ -807,9 +818,9 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
 
-        assert(org.getIdentifierLocation("Foo") == null)
+        assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
         assert(
-          org.getIdentifierLocation("__sfdc_trigger/Foo") ==
+          org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))) ==
             PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
@@ -826,10 +837,15 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
 
-      assert(org.getIdentifierLocation("Foo") == null)
-      assert(org.getIdentifierLocation("__sfdc_trigger/Foo") == null)
       assert(
-        org.getIdentifierLocation("__sfdc_trigger/test/Foo") ==
+        org
+          .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Foo")))) == null)
+      assert(
+        org.getIdentifierLocation(
+          TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/Foo")))) == null)
+      assert(
+        org.getIdentifierLocation(
+          TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/test/Foo")))) ==
           PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }

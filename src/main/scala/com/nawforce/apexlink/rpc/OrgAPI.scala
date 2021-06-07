@@ -84,6 +84,15 @@ object IdentifierLocationResult {
   implicit val rwLocation: RW[Location] = macroRW
 }
 
+case class IdentifierLocationRequest(identifier: TypeIdentifier)
+
+object IdentifierLocationRequest {
+  implicit val rw: RW[IdentifierLocationRequest] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "identifier")
   def identifier(): Future[String]
@@ -107,7 +116,7 @@ trait OrgAPI {
   def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult]
 
   @api.JSONRPCMethod(name = "identifierLocation")
-  def identifierLocation(identifier: String): Future[IdentifierLocationResult]
+  def identifierLocation(identifier: IdentifierLocationRequest): Future[IdentifierLocationResult]
 
   @api.JSONRPCMethod(name = "identifierForPath")
   def identifierForPath(path: String): Future[Option[String]]

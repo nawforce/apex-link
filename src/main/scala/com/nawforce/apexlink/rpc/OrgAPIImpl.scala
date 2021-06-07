@@ -20,9 +20,9 @@ import com.nawforce.apexlink.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.deps.{DependencyNode, DownWalker}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.Issue
+import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.PathFactory
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -181,7 +181,7 @@ case class DependencyGraphRequest(promise: Promise[DependencyGraphResult],
   }
 
   private def nodeFileSize(org: Org, n: DependencyNode): Int = {
-    Option(org.getIdentifierLocation(n.id.typeName.toString()))
+    Option(org.getIdentifierLocation(n.id))
       .map(location => PathFactory(location.path).size.toInt)
       .getOrElse(0)
   }
@@ -195,7 +195,7 @@ object DependencyGraphRequest {
   }
 }
 
-case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: String)
+case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: TypeIdentifier)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(IdentifierLocationResult(queue.org.getIdentifierLocation(identifier)))
@@ -203,7 +203,7 @@ case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identi
 }
 
 object IdentifierLocation {
-  def apply(queue: OrgQueue, identifier: String): Future[IdentifierLocationResult] = {
+  def apply(queue: OrgQueue, identifier: TypeIdentifier): Future[IdentifierLocationResult] = {
     val promise = Promise[IdentifierLocationResult]()
     queue.add(new IdentifierLocation(promise, identifier))
     promise.future
@@ -282,8 +282,8 @@ class OrgAPIImpl extends OrgAPI {
     DependencyGraphRequest(OrgQueue.instance(), path, depth)
   }
 
-  override def identifierLocation(identifier: String): Future[IdentifierLocationResult] = {
-    IdentifierLocation(OrgQueue.instance(), identifier)
+  override def identifierLocation(request: IdentifierLocationRequest): Future[IdentifierLocationResult] = {
+    IdentifierLocation(OrgQueue.instance(), request.identifier)
   }
 
   override def identifierForPath(path: String): Future[Option[String]] = {

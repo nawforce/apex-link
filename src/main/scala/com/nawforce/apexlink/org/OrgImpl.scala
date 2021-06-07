@@ -194,34 +194,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   /** Find a location for an identifier */
-  override def getIdentifierLocation(identifier: String): PathLocation = {
-    val typeName = DotName(identifier).asTypeName()
-    var loc: Option[PathLocation] = None
-
-    // Extract namespace
-    val namespace =
-      typeName.outer
-        .map(_ => typeName.outerName)
-        .orElse({
-          val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
-          typeName.name.value match {
-            case triggerPattern(ns) => Some(Name(ns))
-            case _                  => None
-          }
-        })
-
-    // Package lookup
-    namespace.foreach(
-      n =>
-        loc =
-          packagesByNamespace.get(Some(n)).flatMap(_.orderedModules.head.getTypeLocation(typeName)))
-
-    // Otherwise try unmanaged
-    if (loc.isEmpty) {
-      loc = unmanaged.orderedModules.headOption.flatMap(_.getTypeLocation(typeName))
-    }
-
-    loc.orNull
+  override def getIdentifierLocation(identifier: TypeIdentifier): PathLocation = {
+    packagesByNamespace
+      .get(identifier.namespace)
+      .flatMap(pkg => {
+        pkg.orderedModules.view.map(_.getTypeLocation(identifier.typeName)).head
+      })
+      .orNull
   }
 
   /** Find a TypeIdentifier */

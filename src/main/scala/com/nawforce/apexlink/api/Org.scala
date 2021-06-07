@@ -90,8 +90,7 @@ trait Org {
     * using the usual conventions to find a location for the identifier. Returns the file & position within that
     * file if the identifier is found, otherwise returns null.
     */
-  def getIdentifierLocation(identifier: String): PathLocation
-
+  def getIdentifierLocation(identifier: TypeIdentifier): PathLocation
 }
 
 object Org {
