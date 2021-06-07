@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.rpc
 
 import com.nawforce.pkgforce.diagnostics._
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import io.github.shogowada.scala.jsonrpc.api
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
@@ -50,10 +51,13 @@ object GetIssuesResult {
   implicit val rwLocation: RW[Location] = macroRW
 }
 
-case class GetTypeIdentifiersResult(identifiers: Array[String])
+case class GetTypeIdentifiersResult(identifiers: Array[TypeIdentifier])
 
 object GetTypeIdentifiersResult {
   implicit val rw: RW[GetTypeIdentifiersResult] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
 }
 
 case class NodeData(name: String,

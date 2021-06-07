@@ -18,20 +18,14 @@ import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{
-  ApexClassDeclaration,
-  ApexDeclaration,
-  ApexFullDeclaration,
-  FullDeclaration,
-  TriggerDeclaration
-}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
-import com.nawforce.apexlink.types.schema.SchemaSObjectType
+import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
 import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
-import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
@@ -96,9 +90,13 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     types.values
   }
 
-  /* All available types */
-  def getApexTypeIdentifiers: Set[String] = {
-    types.values.collect { case ad: ApexDeclaration => ad }.map(_.typeName.toString()).toSet
+  /** Iterate metadata defined types, this will include referenced platform SObjects irrespective of if they have been
+    * extended or not which is perhaps not quite accurate to the method name. */
+  def getMetadataDefinedTypeIdentifiers: Iterable[TypeIdentifier] = {
+    types.values.collect {
+      case x: ApexDeclaration => x
+      case x: SObjectDeclaration => x
+    }.map(td => TypeIdentifier(namespace, td.typeName))
   }
 
   /* Search for a specific outer or inner type */

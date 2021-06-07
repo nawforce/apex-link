@@ -833,4 +833,42 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
+
+  test("typeIdentifiers") {
+    FileSystemHelper.run(
+      Map("classes/Dummy.cls" -> "public class Dummy {}",
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+
+        assert(
+          org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo",
+                                                                      "Schema.Account",
+                                                                      "Dummy"))
+    }
+  }
+
+  test("typeIdentifiers (namespaced)") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "test",
+            |"packageDirectories": [{"path": "pkg"}]
+            |}""".stripMargin,
+        "pkg/classes/Dummy.cls" -> "public class Dummy {}",
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+
+        assert(
+          org.getTypeIdentifiers.map(_.toString).toSet == Set[String](
+            "__sfdc_trigger/test/Foo (test)",
+            "Schema.Account (test)",
+            "test.Dummy (test)"))
+    }
+  }
+
 }

@@ -175,6 +175,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     })
   }
 
+  /** Get a array of type identifiers available across all packages. */
+  def getTypeIdentifiers: Array[TypeIdentifier] = {
+    OrgImpl.current.withValue(this) {
+      packages.foldLeft(Array[TypeIdentifier]())((acc, pkg) => acc ++ pkg.getTypeIdentifiers)
+    }
+  }
+
   /** Extract all dependencies */
   override def getDependencies: java.util.Map[String, Array[String]] = {
     OrgImpl.current.withValue(this) {

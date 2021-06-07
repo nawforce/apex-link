@@ -47,6 +47,13 @@ trait Package {
     */
   def getNamespaces(withDependents: Boolean): Array[String]
 
+  /** Get a list of type identifiers available in from this package. This is not all available type identifiers, but
+    * just those that will make most sense to list in an IDE for selection.
+    *
+    * Returns an array which may be empty.
+    */
+  def getTypeIdentifiers: Array[TypeIdentifier]
+
   /** Get a TypeIdentifier for a TypeName resolved against this package.
     *
     * Returns null if the TypeName is not visible in this package.

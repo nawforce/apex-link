@@ -16,6 +16,7 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.workspace.Workspace
 
@@ -69,6 +70,13 @@ trait Org {
     * See file issues.
     */
   def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue]
+
+  /** Get a list of type identifiers available in the org across all packages. This is not all available type
+    * identifiers, but just those that will make most sense to list in an IDE for selection.
+    *
+    * Returns an array which may be empty.
+    */
+  def getTypeIdentifiers: Array[TypeIdentifier]
 
   /** Get Apex type dependency map for all types in the Org.
     *

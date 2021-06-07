@@ -118,14 +118,9 @@ object GetIssues {
 
 case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-
-    val buffer = new mutable.HashSet[String]()
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      orgImpl.packages
-        .filterNot(_.isGhosted)
-        .foreach(pkg => buffer.addAll(pkg.orderedModules.head.getApexTypeIdentifiers))
-      promise.success(GetTypeIdentifiersResult(buffer.toArray.sorted))
+      promise.success(GetTypeIdentifiersResult(orgImpl.getTypeIdentifiers))
     }
   }
 }

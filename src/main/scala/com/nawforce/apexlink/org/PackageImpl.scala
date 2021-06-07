@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
 
 import scala.collection.mutable
 
