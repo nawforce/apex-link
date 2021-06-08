@@ -95,8 +95,9 @@ trait Org {
 
   /** Get a dependency graph for a type identifier.
     *
-    * depth should be a positive integer that indicates how far to search from the starting node for the passed
-    * TypeIdentifier. The root node of the search is always returned, depths > 0 will include additional nodes. */
+    * Depth should be a positive integer that indicates how far to search from the starting node for the passed
+    * TypeIdentifier. The root node of the search is always returned if it can be found. Depths > 0 will include
+    * additional nodes. */
   def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph
 }
 
@@ -157,6 +158,26 @@ case class DependencyNode(identifier: TypeIdentifier,
                           extending: Array[TypeIdentifier],     // Types that this type extends
                           implementing: Array[TypeIdentifier],  // Types that this type implements
                           using: Array[TypeIdentifier])         // Other types that this type depends on
+{
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: DependencyNode =>
+        other.canEqual(this) && doesEqual(other)
+      case _ => false
+    }
+  }
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[DependencyNode]
+
+  private def doesEqual(other: DependencyNode): Boolean = {
+    identifier == other.identifier &&
+    size == other.size &&
+    transitiveCount == other.transitiveCount &&
+    extending.sameElements(other.extending) &&
+    implementing.sameElements(other.implementing) &&
+    using.sameElements(other.using)
+  }
+}
 
 /** Link between nodes in a dependency graph. */
 case class DependencyLink(source: Int, target: Int, nature: String)

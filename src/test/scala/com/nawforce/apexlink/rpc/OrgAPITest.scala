@@ -14,7 +14,9 @@
 
 package com.nawforce.apexlink.rpc
 
+import com.nawforce.apexlink.api.{DependencyLink, DependencyNode}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathFactory
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
@@ -128,4 +130,69 @@ class OrgAPITest extends AsyncFunSuite {
 
     issues
   }
+
+  test("Get Dependency Graph (zero depth)") {
+    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      graph <- orgAPI.dependencyGraph(
+        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
+        depth = 0)
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(graph.nodeData.length == 1)
+      assert(graph.linkData.isEmpty)
+    }
+  }
+
+  test("Get Dependency Graph (some depth)") {
+    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      graph <- orgAPI.dependencyGraph(
+        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
+        depth = 1)
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(
+        graph.nodeData sameElements Array(
+          DependencyNode(TypeIdentifier(None, TypeName(Name("Hello"))),
+                         85,
+                         "class",
+                         2,
+                         Array(),
+                         Array(),
+                         Array(TypeIdentifier(None, TypeName(Name("World"))))),
+          DependencyNode(TypeIdentifier(None, TypeName(Name("World"))),
+                         71,
+                         "class",
+                         1,
+                         Array(),
+                         Array(),
+                         Array()),
+        ))
+      assert(graph.linkData sameElements Array(DependencyLink(0, 1, "uses")))
+    }
+  }
+
+  test("Get Dependency Graph (bad identifier))") {
+    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      graph <- orgAPI.dependencyGraph(
+        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Dummy")))),
+        depth = 0)
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(graph.nodeData.isEmpty)
+      assert(graph.linkData.isEmpty)
+    }
+  }
+
 }

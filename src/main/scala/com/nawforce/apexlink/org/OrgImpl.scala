@@ -30,12 +30,11 @@ import com.nawforce.apexlink.api.{
 }
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
-import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.{DotName, Name, TypeIdentifier}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 
@@ -216,23 +215,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
   }
 
-  /** Find a TypeIdentifier */
-  def getIdentifier(identifier: String): Option[TypeIdentifier] = {
-    val typeName = DotName(identifier).asTypeName()
-
-    // Extract namespace
-    val namespace =
-      typeName.outer
-        .map(_ => typeName.outerName)
-        .orElse({
-          val triggerPattern = """__sfdc_trigger/(.*)/.*""".r
-          typeName.name.value match {
-            case triggerPattern(ns) => Some(Name(ns))
-            case _                  => None
-          }
-        })
-
-    packagesByNamespace.get(namespace).map(pkg => TypeIdentifier(pkg.namespace, typeName))
+  /** Search package modules for the TypeDeclaration matching a TypeIdentifier. */
+  def findTypeIdentifier(identifier: TypeIdentifier): Option[TypeDeclaration] = {
+    packagesByNamespace
+      .get(identifier.namespace)
+      .flatMap(pkg => {
+        pkg.orderedModules.view.flatMap(_.packageType(identifier.typeName)).headOption
+      })
   }
 
   def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph = {
@@ -276,14 +265,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     Option(getIdentifierLocation(identifier))
       .map(location => PathFactory(location.path).size.toInt)
       .getOrElse(0)
-  }
-
-  private def findTypeIdentifier(identifier: TypeIdentifier): Option[TypeDeclaration] = {
-    packagesByNamespace
-      .get(identifier.namespace)
-      .flatMap(pkg => {
-        pkg.orderedModules.view.flatMap(_.packageType(identifier.typeName)).headOption
-      })
   }
 }
 
