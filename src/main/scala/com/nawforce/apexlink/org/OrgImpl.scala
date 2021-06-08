@@ -18,15 +18,28 @@ import java.io.File
 import java.util
 import java.util.jar.JarFile
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
+import com.nawforce.apexlink.api.{
+  DependencyGraph,
+  DependencyLink,
+  DependencyNode,
+  FileIssueOptions,
+  IssueOptions,
+  Org,
+  Package,
+  ServerOps
+}
 import com.nawforce.apexlink.cst.UnusedLog
+import com.nawforce.apexlink.deps.DownWalker
 import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.types.apex.ApexDeclaration
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{DotName, Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
 import scala.util.hashing.MurmurHash3
 
@@ -195,12 +208,12 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Find a location for an identifier */
   override def getIdentifierLocation(identifier: TypeIdentifier): PathLocation = {
-    packagesByNamespace
-      .get(identifier.namespace)
-      .flatMap(pkg => {
-        pkg.orderedModules.view.map(_.getTypeLocation(identifier.typeName)).head
-      })
-      .orNull
+    OrgImpl.current.withValue(this) {
+      (findTypeIdentifier(identifier) match {
+        case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
+        case _                         => None
+      }).orNull
+    }
   }
 
   /** Find a TypeIdentifier */
@@ -222,8 +235,56 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     packagesByNamespace.get(namespace).map(pkg => TypeIdentifier(pkg.namespace, typeName))
   }
 
-  /** Dump current issues to standard out */
-  private[nawforce] def dumpIssues(): Unit = issues.dump()
+  def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph = {
+    OrgImpl.current.withValue(this) {
+      val depWalker = new DownWalker(this)
+      val nodeData = depWalker
+        .walk(identifier, depth)
+        .map(n => {
+          DependencyNode(n.id,
+                         nodeFileSize(n.id),
+                         n.nature,
+                         n.transitiveCount,
+                         n.extending,
+                         n.implementing,
+                         n.using)
+        })
+
+      val nodeIndex = nodeData.map(_.identifier).zipWithIndex.toMap
+
+      val linkData = new ArrayBuffer[DependencyLink]()
+      nodeData.foreach(n => {
+        val source = nodeIndex(n.identifier)
+
+        def safeLink(nature: String)(identifier: TypeIdentifier): Unit = {
+          nodeIndex
+            .get(identifier)
+            .foreach(target =>
+              if (source != target) linkData += DependencyLink(source, target, nature))
+        }
+
+        n.extending.foreach(safeLink("extends"))
+        n.implementing.foreach(safeLink("implements"))
+        n.using.foreach(safeLink("uses"))
+      })
+
+      DependencyGraph(nodeData, linkData.toArray)
+    }
+  }
+
+  private def nodeFileSize(identifier: TypeIdentifier): Int = {
+    Option(getIdentifierLocation(identifier))
+      .map(location => PathFactory(location.path).size.toInt)
+      .getOrElse(0)
+  }
+
+  private def findTypeIdentifier(identifier: TypeIdentifier): Option[TypeDeclaration] = {
+    packagesByNamespace
+      .get(identifier.namespace)
+      .flatMap(pkg => {
+        pkg.orderedModules.view.flatMap(_.packageType(identifier.typeName)).headOption
+      })
+  }
 }
 
 object OrgImpl {

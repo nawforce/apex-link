@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.rpc
 
+import com.nawforce.apexlink.api.DependencyGraph
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import io.github.shogowada.scala.jsonrpc.api
@@ -60,22 +61,6 @@ object GetTypeIdentifiersResult {
   implicit val rwName: RW[Name] = macroRW
 }
 
-case class NodeData(name: String,
-                    size: Long,
-                    nature: String,
-                    transitiveCount: Int,
-                    extending: Array[String],
-                    implementing: Array[String],
-                    using: Array[String])
-case class LinkData(source: Int, target: Int, nature: String)
-case class DependencyGraphResult(nodeData: Array[NodeData], linkData: Array[LinkData])
-
-object DependencyGraphResult {
-  implicit val rw: RW[DependencyGraphResult] = macroRW
-  implicit val rwNodeData: RW[NodeData] = macroRW
-  implicit val rwLinkData: RW[LinkData] = macroRW
-}
-
 case class IdentifierLocationResult(pathLocation: PathLocation)
 
 object IdentifierLocationResult {
@@ -84,10 +69,10 @@ object IdentifierLocationResult {
   implicit val rwLocation: RW[Location] = macroRW
 }
 
-case class IdentifierLocationRequest(identifier: TypeIdentifier)
+case class IdentifierRequest(identifier: TypeIdentifier)
 
-object IdentifierLocationRequest {
-  implicit val rw: RW[IdentifierLocationRequest] = macroRW
+object IdentifierRequest {
+  implicit val rw: RW[IdentifierRequest] = macroRW
   implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
   implicit val rwTypeName: RW[TypeName] = macroRW
   implicit val rwName: RW[Name] = macroRW
@@ -113,10 +98,10 @@ trait OrgAPI {
   def typeIdentifiers(): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
-  def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult]
+  def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph]
 
   @api.JSONRPCMethod(name = "identifierLocation")
-  def identifierLocation(identifier: IdentifierLocationRequest): Future[IdentifierLocationResult]
+  def identifierLocation(identifier: IdentifierRequest): Future[IdentifierLocationResult]
 
   @api.JSONRPCMethod(name = "identifierForPath")
   def identifierForPath(path: String): Future[Option[String]]

@@ -16,12 +16,10 @@ package com.nawforce.apexlink.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.apexlink.api.{IssueOptions, Org, Package, ServerOps}
-import com.nawforce.apexlink.deps.{DependencyNode, DownWalker}
+import com.nawforce.apexlink.api.{DependencyGraph, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.names.TypeIdentifier
-import com.nawforce.pkgforce.path.PathFactory
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -133,69 +131,25 @@ object TypeIdentifiers {
   }
 }
 
-case class DependencyGraphRequest(promise: Promise[DependencyGraphResult],
-                                  typeName: String,
+case class DependencyGraphRequest(promise: Promise[DependencyGraph],
+                                  identifier: TypeIdentifier,
                                   depth: Int)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-
-    val orgImpl = queue.org.asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(orgImpl) {
-
-      orgImpl
-        .getIdentifier(typeName)
-        .foreach(id => {
-          val depWalker = new DownWalker(queue.org)
-          val nodeData = depWalker
-            .walk(id, depth)
-            .map(n => {
-              NodeData(n.id.typeName.toString(),
-                       nodeFileSize(queue.org, n),
-                       n.nature,
-                       n.transitiveCount,
-                       n.extending.map(_.typeName.toString()),
-                       n.implementing.map(_.typeName.toString()),
-                       n.using.map(_.typeName.toString()))
-            })
-
-          val nodeIndex = nodeData.map(_.name).zipWithIndex.toMap
-
-          val linkData = new ArrayBuffer[LinkData]()
-          nodeData.foreach(n => {
-            val source = nodeIndex(n.name)
-            def safeLink(nature: String)(name: String): Unit = {
-              nodeIndex
-                .get(name)
-                .foreach(target =>
-                  if (source != target) linkData += LinkData(source, target, nature))
-            }
-
-            n.extending.foreach(safeLink("extends"))
-            n.implementing.foreach(safeLink("implements"))
-            n.using.foreach(safeLink("uses"))
-          })
-
-          promise.success(DependencyGraphResult(nodeData, linkData.toArray))
-        })
-    }
-  }
-
-  private def nodeFileSize(org: Org, n: DependencyNode): Int = {
-    Option(org.getIdentifierLocation(n.id))
-      .map(location => PathFactory(location.path).size.toInt)
-      .getOrElse(0)
+    promise.success(queue.org.getDependencyGraph(identifier, depth))
   }
 }
 
 object DependencyGraphRequest {
-  def apply(queue: OrgQueue, path: String, depth: Int): Future[DependencyGraphResult] = {
-    val promise = Promise[DependencyGraphResult]()
-    queue.add(new DependencyGraphRequest(promise, path, depth))
+  def apply(queue: OrgQueue, identifier: TypeIdentifier, depth: Int): Future[DependencyGraph] = {
+    val promise = Promise[DependencyGraph]()
+    queue.add(new DependencyGraphRequest(promise, identifier, depth))
     promise.future
   }
 }
 
-case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: TypeIdentifier)
+case class IdentifierLocation(promise: Promise[IdentifierLocationResult],
+                              identifier: TypeIdentifier)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(IdentifierLocationResult(queue.org.getIdentifierLocation(identifier)))
@@ -278,11 +232,12 @@ class OrgAPIImpl extends OrgAPI {
     TypeIdentifiers(OrgQueue.instance())
   }
 
-  override def dependencyGraph(path: String, depth: Int): Future[DependencyGraphResult] = {
-    DependencyGraphRequest(OrgQueue.instance(), path, depth)
+  override def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph] = {
+    DependencyGraphRequest(OrgQueue.instance(), identifier.identifier, depth)
   }
 
-  override def identifierLocation(request: IdentifierLocationRequest): Future[IdentifierLocationResult] = {
+  override def identifierLocation(
+    request: IdentifierRequest): Future[IdentifierLocationResult] = {
     IdentifierLocation(OrgQueue.instance(), request.identifier)
   }
 

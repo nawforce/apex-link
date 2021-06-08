@@ -16,9 +16,10 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
-import com.nawforce.pkgforce.names.TypeIdentifier
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.workspace.Workspace
+import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
   *
@@ -91,6 +92,12 @@ trait Org {
     * file if the identifier is found, otherwise returns null.
     */
   def getIdentifierLocation(identifier: TypeIdentifier): PathLocation
+
+  /** Get a dependency graph for a type identifier.
+    *
+    * depth should be a positive integer that indicates how far to search from the starting node for the passed
+    * TypeIdentifier. The root node of the search is always returned, depths > 0 will include additional nodes. */
+  def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph
 }
 
 object Org {
@@ -129,3 +136,27 @@ class IssueOptions extends FileIssueOptions {
   /** Override output default text format for issues, valid options are "json" & "pickle" */
   var format: String = ""
 }
+
+/** Dependency information for a given, typically this will be depth limited to avoid massive graphs. */
+case class DependencyGraph(nodeData: Array[DependencyNode], linkData: Array[DependencyLink])
+
+object DependencyGraph {
+  implicit val rw: RW[DependencyGraph] = macroRW
+  implicit val rwNode: RW[DependencyNode] = macroRW
+  implicit val rwLink: RW[DependencyLink] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
+}
+
+/** Node of a dependency graph, represents some kind of type declaration. */
+case class DependencyNode(identifier: TypeIdentifier,
+                          size: Long,                           // Size of metadata in bytes
+                          nature: String,                       // Nature of types, class, interface or enum
+                          transitiveCount: Int,                 // Sum of all dependant types
+                          extending: Array[TypeIdentifier],     // Types that this type extends
+                          implementing: Array[TypeIdentifier],  // Types that this type implements
+                          using: Array[TypeIdentifier])         // Other types that this type depends on
+
+/** Link between nodes in a dependency graph. */
+case class DependencyLink(source: Int, target: Int, nature: String)

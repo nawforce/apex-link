@@ -18,11 +18,17 @@ import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.types.apex.{
+  ApexClassDeclaration,
+  ApexDeclaration,
+  ApexFullDeclaration,
+  FullDeclaration,
+  TriggerDeclaration
+}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
-import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
@@ -93,10 +99,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   /** Iterate metadata defined types, this will include referenced platform SObjects irrespective of if they have been
     * extended or not which is perhaps not quite accurate to the method name. */
   def getMetadataDefinedTypeIdentifiers: Iterable[TypeIdentifier] = {
-    types.values.collect {
-      case x: ApexDeclaration => x
-      case x: SObjectDeclaration => x
-    }.map(td => TypeIdentifier(namespace, td.typeName))
+    types.values
+      .collect {
+        case x: ApexDeclaration    => x
+        case x: SObjectDeclaration => x
+      }
+      .map(td => TypeIdentifier(namespace, td.typeName))
   }
 
   /* Search for a specific outer or inner type */
@@ -131,14 +139,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   /* Check if a field name is ghosted in this package */
   def isGhostedFieldName(name: Name): Boolean = pkg.isGhostedFieldName(name)
-
-  /* Find a document location for the type */
-  def getTypeLocation(typeName: TypeName): Option[PathLocation] = {
-    packageType(typeName) match {
-      case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
-      case _                         => None
-    }
-  }
 
   // Upsert some metadata to the package
   def upsertMetadata(td: TypeDeclaration, altTypeName: Option[TypeName] = None): Unit = {
