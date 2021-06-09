@@ -28,14 +28,14 @@
 package com.nawforce.platform.Messaging;
 
 import com.nawforce.platform.System.String;
-import com.nawforce.platform.System.Id;
 import com.nawforce.platform.System.Set;
 
 @SuppressWarnings("unused")
 public class CustomNotification {
-    public void setTitle(String param1) { throw new java.lang.UnsupportedOperationException();}
-    public void setBody(String param1) { throw new java.lang.UnsupportedOperationException();}
-    public void setNotificationTypeId(Id param1) { throw new java.lang.UnsupportedOperationException();}
-    public void setTargetId(Id param1) { throw new java.lang.UnsupportedOperationException();}
-    public void send(Set<String> param1) { throw new java.lang.UnsupportedOperationException();}
+    public void send(Set<String> users) { throw new java.lang.UnsupportedOperationException();}
+    public void setNotificationTypeId(String id) { throw new java.lang.UnsupportedOperationException();}
+    public void setTitle(String title) { throw new java.lang.UnsupportedOperationException();}
+    public void setBody(String body) { throw new java.lang.UnsupportedOperationException();}
+    public void setTargetId(String targetId) { throw new java.lang.UnsupportedOperationException();}
+    public void setTargetPageRef(String pageRef) { throw new java.lang.UnsupportedOperationException();}
 }
