@@ -30,7 +30,7 @@ package com.nawforce.common.cst.stmts
 
 import com.nawforce.common.api.TypeName
 import com.nawforce.common.cst._
-import com.nawforce.common.names.TypeNames
+import com.nawforce.common.names.{EncodedName, TypeNames}
 import com.nawforce.common.org.OrgImpl
 import com.nawforce.common.types.core.{ENUM_NATURE, TypeDeclaration}
 import com.nawforce.runtime.parsers.ApexParser.{
@@ -160,7 +160,7 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
   }
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.addVar(ids(1).name, ids.head.location, TypeName(ids.head.name))
+    context.addVar(ids(1).name, ids.head.location, EncodedName(ids.head.name).asTypeName)
   }
 }
 
