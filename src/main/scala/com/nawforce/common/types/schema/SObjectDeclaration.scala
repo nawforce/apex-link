@@ -309,6 +309,7 @@ object SObjectDeclaration {
     val fields = collectBaseFields(typeName.asDotName, pkg)
     base.getOrElse(PlatformTypes.sObjectType).fields.foreach(field => fields.put(field.name, field))
     sobjectDetails.fields.foreach(field => { fields.put(field.name, field) })
+    standardCustomObjectFields.foreach(field => { fields.getOrElseUpdate(field.name, field) })
 
     // TODO: Collect base fieldsets ?
     // TODO: Provide paths
