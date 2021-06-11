@@ -318,7 +318,6 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
     val enclosedType = td.typeName.getSetOrListType
 
     if (enclosedType.isEmpty) {
-      createdName.verify(context)
       OrgImpl.logError(
         location,
         s"Expression list construction is only supported for Set or List types, not '${td.typeName}'")
