@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,28 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class PermissionSetGroup extends SObject {
-    public static SObjectType$<PermissionSet> SObjectType;
-    public static SObjectFields$<PermissionSet> Fields;
+public class ReturnOrderLineItemHistory extends SObject {
+	public static SObjectType$<ReturnOrderLineItemHistory> SObjectType;
+	public static SObjectFields$<ReturnOrderLineItemHistory> Fields;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public String Field;
+	public Id Id;
+	public Boolean IsDeleted;
+	public Object NewValue;
+	public Object OldValue;
+	public Id ReturnOrderLineItemId;
+	public ReturnOrderLineItem ReturnOrderLineItem;
 
-    public Id Id;
-    public String Description;
-    public String DeveloperName;
-    public String Language;
-    public String MasterLabel;
-    public String NameSpacePrefix;
-    public String Status;
+	public ReturnOrderLineItemHistory clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ReturnOrderLineItemHistory clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ReturnOrderLineItemHistory clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ReturnOrderLineItemHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ReturnOrderLineItemHistory clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

@@ -35,21 +35,13 @@ import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class WorkOrder extends SObject {
-	public static SObjectType$<WorkOrder> SObjectType;
-	public static SObjectFields$<WorkOrder> Fields;
-	public Id AccountId;
-	public Account Account;
+public class WorkOrderLineItem extends SObject {
+	public static SObjectType$<WorkOrderLineItem> SObjectType;
+	public static SObjectFields$<WorkOrderLineItem> Fields;
 	public Address Address;
 	public Id AssetId;
 	public Asset Asset;
-	public Id BusinessHoursId;
-	public BusinessHours BusinessHours;
-	public Id CaseId;
-	public Case Case;
 	public String City;
-	public Id ContactId;
-	public Contact Contact;
 	public String Country;
 	public Id CreatedById;
 	public User CreatedBy;
@@ -61,7 +53,6 @@ public class WorkOrder extends SObject {
 	public String DurationType;
 	public Datetime EndDate;
 	public String GeocodeAccuracy;
-	public Decimal GrandTotal;
 	public Id Id;
 	public Boolean IsClosed;
 	public Boolean IsDeleted;
@@ -72,30 +63,33 @@ public class WorkOrder extends SObject {
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Decimal Latitude;
-	public Integer LineItemCount;
+	public String LineItemNumber;
+	public Decimal ListPrice;
 	public Id LocationId;
 	public Location Location;
 	public Decimal Longitude;
 	public Id MaintenancePlanId;
 	public MaintenancePlan MaintenancePlan;
 	public Integer MinimumCrewSize;
-	public Id OwnerId;
-	public Group Owner;
-	public Id ParentWorkOrderId;
-	public WorkOrder ParentWorkOrder;
+	public Id OrderId;
+	public Order Order;
+	public Id ParentWorkOrderLineItemId;
+	public WorkOrderLineItem ParentWorkOrderLineItem;
 	public String PostalCode;
-	public Id Pricebook2Id;
-	public Pricebook2 Pricebook2;
+	public Id PricebookEntryId;
+	public PricebookEntry PricebookEntry;
 	public String Priority;
+	public Id Product2Id;
+	public Product2 Product2;
+	public Decimal Quantity;
 	public Integer RecommendedCrewSize;
 	public Id ReturnOrderId;
 	public ReturnOrder ReturnOrder;
 	public Id ReturnOrderLineItemId;
 	public ReturnOrderLineItem ReturnOrderLineItem;
-	public Id RootWorkOrderId;
-	public WorkOrder RootWorkOrder;
+	public Id RootWorkOrderLineItemId;
+	public WorkOrderLineItem RootWorkOrderLineItem;
 	public Integer ServiceAppointmentCount;
-	public String ServiceReportLanguage;
 	public Id ServiceReportTemplateId;
 	public ServiceReportLayout ServiceReportTemplate;
 	public Id ServiceTerritoryId;
@@ -109,26 +103,26 @@ public class WorkOrder extends SObject {
 	public Decimal Subtotal;
 	public Date SuggestedMaintenanceDate;
 	public Datetime SystemModstamp;
-	public Decimal Tax;
 	public Decimal TotalPrice;
-	public String WorkOrderNumber;
+	public Decimal UnitPrice;
+	public Id WorkOrderId;
+	public WorkOrder WorkOrder;
 	public Id WorkTypeId;
 	public WorkType WorkType;
 
 	public ActivityHistory[] ActivityHistories;
 	public AttachedContentDocument[] AttachedContentDocuments;
 	public Attachment[] Attachments;
-	public WorkOrder[] ChildWorkOrders;
+	public WorkOrderLineItem[] ChildWorkOrderLineItems;
 	public CombinedAttachment[] CombinedAttachments;
-	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
-	public WorkOrder[] DescendantWorkOrders;
+	public WorkOrderLineItem[] DescendantWorkOrderLineItems;
 	public DigitalSignature[] DigitalSignatures;
 	public EmailMessage[] Emails;
 	public Event[] Events;
 	public EntitySubscription[] FeedSubscriptionsForEntity;
-	public WorkOrderFeed[] Feeds;
-	public WorkOrderHistory[] Histories;
+	public WorkOrderLineItemFeed[] Feeds;
+	public WorkOrderLineItemHistory[] Histories;
 	public Note[] Notes;
 	public NoteAndAttachment[] NotesAndAttachments;
 	public OpenActivity[] OpenActivities;
@@ -140,20 +134,16 @@ public class WorkOrder extends SObject {
 	public ProductRequired[] ProductsRequired;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
-	public ResourcePreference[] ResourcePreferences;
 	public ServiceAppointment[] ServiceAppointments;
 	public ServiceReport[] ServiceReports;
-	public WorkOrderShare[] Shares;
 	public SkillRequirement[] SkillRequirements;
-	public SurveySubject[] SurveySubjectEntities;
 	public Task[] Tasks;
 	public TimeSheetEntry[] TimeSheetEntries;
 	public TopicAssignment[] TopicAssignments;
-	public WorkOrderLineItem[] WorkOrderLineItems;
 
-	public WorkOrder clone$() {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderLineItem clone$() {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderLineItem clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderLineItem clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderLineItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderLineItem clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

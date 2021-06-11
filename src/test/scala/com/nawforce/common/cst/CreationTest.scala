@@ -66,7 +66,7 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Basic new") {
-    typeDeclaration("public class Dummy {{Object a = new Address();}}")
+    typeDeclaration("public class Dummy {{Object a = new HttpRequest();}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
@@ -77,17 +77,17 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Basic with list constructor") {
-    typeDeclaration("public class Dummy {{Object a = new Address{1};}}")
+    typeDeclaration("public class Dummy {{Object a = new HttpRequest{1};}}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'System.Address'\n")
+        "Error: line 1 at 47-50: Expression list construction is only supported for Set or List types, not 'System.HttpRequest'\n")
   }
 
   test("Basic with map constructor") {
-    typeDeclaration("public class Dummy {{Object a = new Address{1 => 2};}}")
+    typeDeclaration("public class Dummy {{Object a = new HttpRequest{1 => 2};}}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'System.Address'\n")
+        "Error: line 1 at 47-55: Expression pair list construction is only supported for Map types, not 'System.HttpRequest'\n")
   }
 
   test("Basic SObject") {
@@ -115,64 +115,64 @@ class CreationTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Empty Map") {
-    typeDeclaration("public class Dummy {{Object a = new Map<String, Address>();}}")
+    typeDeclaration("public class Dummy {{Object a = new Map<String, HttpRequest>();}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Map with argument") {
     typeDeclaration(
-      "public class Dummy {{Object a = new Map<String, Address>{'1' => new Address()};}}")
+      "public class Dummy {{Object a = new Map<String, HttpRequest>{'1' => new HttpRequest()};}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Map with list constructor") {
-    typeDeclaration("public class Dummy {{Object a = new Map<String, Address>{1, 2};}}")
+    typeDeclaration("public class Dummy {{Object a = new Map<String, HttpRequest>{1, 2};}}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
+        "Error: line 1 at 60-66: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.HttpRequest>'\n")
   }
 
   test("Empty List") {
-    typeDeclaration("public class Dummy {{Object a = new List<Address>();}}")
+    typeDeclaration("public class Dummy {{Object a = new List<HttpRequest>();}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("List with argument") {
-    typeDeclaration("public class Dummy {{Object a = new List<Address>{new Address()};}}")
+    typeDeclaration("public class Dummy {{Object a = new List<HttpRequest>{new HttpRequest()};}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("List with map constructor") {
-    typeDeclaration("public class Dummy {{Object a = new List<Address>{1 => 2};}}")
+    typeDeclaration("public class Dummy {{Object a = new List<HttpRequest>{1 => 2};}}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 49-57: Expression pair list construction is only supported for Map types, not 'System.List<System.Address>'\n")
+        "Error: line 1 at 53-61: Expression pair list construction is only supported for Map types, not 'System.List<System.HttpRequest>'\n")
   }
 
   test("Empty Set") {
-    typeDeclaration("public class Dummy {{Object a = new Set<Address>();}}")
+    typeDeclaration("public class Dummy {{Object a = new Set<HttpRequest>();}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Set with argument") {
-    typeDeclaration("public class Dummy {{Object a = new Set<Address>{new Address()};}}")
+    typeDeclaration("public class Dummy {{Object a = new Set<HttpRequest>{new HttpRequest()};}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Set with map constructor") {
-    typeDeclaration("public class Dummy {{Object a = new Set<Address>{1 => 2};}}")
+    typeDeclaration("public class Dummy {{Object a = new Set<HttpRequest>{1 => 2};}}")
     assert(
       defaultOrg.issues.getMessages(defaultPath) ==
-        "Error: line 1 at 48-56: Expression pair list construction is only supported for Map types, not 'System.Set<System.Address>'\n")
+        "Error: line 1 at 52-60: Expression pair list construction is only supported for Map types, not 'System.Set<System.HttpRequest>'\n")
   }
 
   test("Array with Index") {
-    typeDeclaration("public class Dummy {{List<Object> a = new Address[0];}}")
+    typeDeclaration("public class Dummy {{List<Object> a = new HttpRequest[0];}}")
     assert(!defaultOrg.issues.hasMessages)
   }
 
   test("Array with Init") {
-    typeDeclaration("public class Dummy {{ List<Object> a = new Address[]{new Address()}; }}")
+    typeDeclaration("public class Dummy {{ List<Object> a = new HttpRequest[]{new HttpRequest()}; }}")
     assert(!defaultOrg.issues.hasMessages)
   }
 }

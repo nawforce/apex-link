@@ -51,7 +51,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
                                              "Internal.Trigger$" -> "Internal.Trigger$<T>")
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1671)
+    assert(PlatformTypeDeclaration.classNames.size == 1834)
   }
 
   test("SObject type is visible") {

@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,38 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class PermissionSetGroup extends SObject {
-    public static SObjectType$<PermissionSet> SObjectType;
-    public static SObjectFields$<PermissionSet> Fields;
+public class TimeSheetChangeEvent extends SObject {
+	public static SObjectType$<TimeSheetChangeEvent> SObjectType;
+	public static SObjectFields$<TimeSheetChangeEvent> Fields;
+	public Object ChangeEventHeader;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Date EndDate;
+	public Id Id;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
+	public Id OwnerId;
+	public User Owner;
+	public String ReplayId;
+	public Id ServiceResourceId;
+	public ServiceResource ServiceResource;
+	public Date StartDate;
+	public String Status;
+	public Integer TimeSheetEntryCount;
+	public String TimeSheetNumber;
+	public Integer TotalDurationInMinutes;
 
-    public Id Id;
-    public String Description;
-    public String DeveloperName;
-    public String Language;
-    public String MasterLabel;
-    public String NameSpacePrefix;
-    public String Status;
+	public TimeSheetChangeEvent clone$() {throw new java.lang.UnsupportedOperationException();}
+	public TimeSheetChangeEvent clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public TimeSheetChangeEvent clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public TimeSheetChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public TimeSheetChangeEvent clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

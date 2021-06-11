@@ -1,6 +1,6 @@
 /*
  [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
+ Copyright (c) 2019 Kevin Jones
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,32 @@ package com.nawforce.platform.SObjects;
 
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
-import com.nawforce.platform.System.Id;
-import com.nawforce.platform.System.SObject;
+import com.nawforce.platform.System.Boolean;
+import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
+import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class PermissionSetGroup extends SObject {
-    public static SObjectType$<PermissionSet> SObjectType;
-    public static SObjectFields$<PermissionSet> Fields;
+public class WorkOrderStatus extends SObject {
+	public static SObjectType$<WorkOrderStatus> SObjectType;
+	public static SObjectFields$<WorkOrderStatus> Fields;
+	public String ApiName;
+	public Id CreatedById;
+	public User CreatedBy;
+	public Datetime CreatedDate;
+	public Id Id;
+	public Boolean IsDefault;
+	public Id LastModifiedById;
+	public User LastModifiedBy;
+	public Datetime LastModifiedDate;
+	public String MasterLabel;
+	public Integer SortOrder;
+	public String StatusCode;
+	public Datetime SystemModstamp;
 
-    public Id Id;
-    public String Description;
-    public String DeveloperName;
-    public String Language;
-    public String MasterLabel;
-    public String NameSpacePrefix;
-    public String Status;
+	public WorkOrderStatus clone$() {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderStatus clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderStatus clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public WorkOrderStatus clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }

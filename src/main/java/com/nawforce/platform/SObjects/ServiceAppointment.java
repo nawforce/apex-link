@@ -30,23 +30,22 @@ package com.nawforce.platform.SObjects;
 import com.nawforce.platform.Internal.SObjectFields$;
 import com.nawforce.platform.Internal.SObjectType$;
 import com.nawforce.platform.System.Boolean;
-import com.nawforce.platform.System.Integer;
 import com.nawforce.platform.System.String;
 import com.nawforce.platform.System.*;
 
 @SuppressWarnings("unused")
-public class WorkOrder extends SObject {
-	public static SObjectType$<WorkOrder> SObjectType;
-	public static SObjectFields$<WorkOrder> Fields;
+public class ServiceAppointment extends SObject {
+	public static SObjectType$<ServiceAppointment> SObjectType;
+	public static SObjectFields$<ServiceAppointment> Fields;
 	public Id AccountId;
 	public Account Account;
+	public Decimal ActualDuration;
+	public Datetime ActualEndTime;
+	public Datetime ActualStartTime;
 	public Address Address;
-	public Id AssetId;
-	public Asset Asset;
-	public Id BusinessHoursId;
-	public BusinessHours BusinessHours;
-	public Id CaseId;
-	public Case Case;
+	public String AppointmentNumber;
+	public Datetime ArrivalWindowEndTime;
+	public Datetime ArrivalWindowStartTime;
 	public String City;
 	public Id ContactId;
 	public Contact Contact;
@@ -55,105 +54,70 @@ public class WorkOrder extends SObject {
 	public User CreatedBy;
 	public Datetime CreatedDate;
 	public String Description;
-	public Decimal Discount;
+	public Datetime DueDate;
 	public Decimal Duration;
 	public Decimal DurationInMinutes;
 	public String DurationType;
-	public Datetime EndDate;
+	public Datetime EarliestStartTime;
 	public String GeocodeAccuracy;
-	public Decimal GrandTotal;
 	public Id Id;
-	public Boolean IsClosed;
 	public Boolean IsDeleted;
-	public Boolean IsGeneratedFromMaintenancePlan;
 	public Id LastModifiedById;
 	public User LastModifiedBy;
 	public Datetime LastModifiedDate;
 	public Datetime LastReferencedDate;
 	public Datetime LastViewedDate;
 	public Decimal Latitude;
-	public Integer LineItemCount;
-	public Id LocationId;
-	public Location Location;
 	public Decimal Longitude;
-	public Id MaintenancePlanId;
-	public MaintenancePlan MaintenancePlan;
-	public Integer MinimumCrewSize;
 	public Id OwnerId;
 	public Group Owner;
-	public Id ParentWorkOrderId;
-	public WorkOrder ParentWorkOrder;
+	public Id ParentRecordId;
+	public Account ParentRecord;
+	public String ParentRecordStatusCategory;
+	public String ParentRecordType;
 	public String PostalCode;
-	public Id Pricebook2Id;
-	public Pricebook2 Pricebook2;
-	public String Priority;
-	public Integer RecommendedCrewSize;
-	public Id ReturnOrderId;
-	public ReturnOrder ReturnOrder;
-	public Id ReturnOrderLineItemId;
-	public ReturnOrderLineItem ReturnOrderLineItem;
-	public Id RootWorkOrderId;
-	public WorkOrder RootWorkOrder;
-	public Integer ServiceAppointmentCount;
-	public String ServiceReportLanguage;
-	public Id ServiceReportTemplateId;
-	public ServiceReportLayout ServiceReportTemplate;
+	public Datetime SchedEndTime;
+	public Datetime SchedStartTime;
+	public String ServiceNote;
 	public Id ServiceTerritoryId;
 	public ServiceTerritory ServiceTerritory;
-	public Datetime StartDate;
 	public String State;
 	public String Status;
 	public String StatusCategory;
 	public String Street;
 	public String Subject;
-	public Decimal Subtotal;
-	public Date SuggestedMaintenanceDate;
 	public Datetime SystemModstamp;
-	public Decimal Tax;
-	public Decimal TotalPrice;
-	public String WorkOrderNumber;
 	public Id WorkTypeId;
 	public WorkType WorkType;
 
 	public ActivityHistory[] ActivityHistories;
 	public AttachedContentDocument[] AttachedContentDocuments;
 	public Attachment[] Attachments;
-	public WorkOrder[] ChildWorkOrders;
 	public CombinedAttachment[] CombinedAttachments;
-	public ContactRequest[] ContactRequests;
 	public ContentDocumentLink[] ContentDocumentLinks;
-	public WorkOrder[] DescendantWorkOrders;
 	public DigitalSignature[] DigitalSignatures;
 	public EmailMessage[] Emails;
 	public Event[] Events;
 	public EntitySubscription[] FeedSubscriptionsForEntity;
-	public WorkOrderFeed[] Feeds;
-	public WorkOrderHistory[] Histories;
+	public ServiceAppointmentFeed[] Feeds;
+	public ServiceAppointmentHistory[] Histories;
 	public Note[] Notes;
 	public NoteAndAttachment[] NotesAndAttachments;
 	public OpenActivity[] OpenActivities;
 	public ProcessInstance[] ProcessInstances;
 	public ProcessInstanceHistory[] ProcessSteps;
-	public ProductRequestLineItem[] ProductRequestLineItems;
-	public ProductRequest[] ProductRequests;
-	public ProductConsumed[] ProductsConsumed;
-	public ProductRequired[] ProductsRequired;
 	public RecordActionHistory[] RecordActionHistories;
 	public RecordAction[] RecordActions;
-	public ResourcePreference[] ResourcePreferences;
-	public ServiceAppointment[] ServiceAppointments;
 	public ServiceReport[] ServiceReports;
-	public WorkOrderShare[] Shares;
-	public SkillRequirement[] SkillRequirements;
+	public AssignedResource[] ServiceResources;
+	public ServiceAppointmentShare[] Shares;
 	public SurveySubject[] SurveySubjectEntities;
 	public Task[] Tasks;
-	public TimeSheetEntry[] TimeSheetEntries;
 	public TopicAssignment[] TopicAssignments;
-	public WorkOrderLineItem[] WorkOrderLineItems;
 
-	public WorkOrder clone$() {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
-	public WorkOrder clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
+	public ServiceAppointment clone$() {throw new java.lang.UnsupportedOperationException();}
+	public ServiceAppointment clone$(Boolean preserveId) {throw new java.lang.UnsupportedOperationException();}
+	public ServiceAppointment clone$(Boolean preserveId, Boolean isDeepClone) {throw new java.lang.UnsupportedOperationException();}
+	public ServiceAppointment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps) {throw new java.lang.UnsupportedOperationException();}
+	public ServiceAppointment clone$(Boolean preserveId, Boolean isDeepClone, Boolean preserveReadonlyTimestamps, Boolean preserveAutonumber) {throw new java.lang.UnsupportedOperationException();}
 }
