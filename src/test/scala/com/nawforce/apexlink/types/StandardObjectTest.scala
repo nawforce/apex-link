@@ -184,19 +184,6 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Standard field reference (ambiguous)") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("BusinessHours").get))
-    }
-  }
-
   test("Lookup SObjectField (via relationship field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->

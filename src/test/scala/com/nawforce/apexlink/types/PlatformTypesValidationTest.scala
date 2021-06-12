@@ -15,7 +15,12 @@
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
+import com.nawforce.apexlink.types.core.{
+  CLASS_NATURE,
+  ENUM_NATURE,
+  INTERFACE_NATURE,
+  TRIGGER_NATURE
+}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{DotName, Name, TypeName}
@@ -44,10 +49,19 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   test("SObject type is visible") {
     val td = PlatformTypes.get(TypeName(Name("User")), None)
     assert(td.isRight)
-    assert(
-      td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("User"),
-                                                                          Nil,
-                                                                          Some(TypeNames.Schema)))
+    assert(td.map(_.typeName).contains(TypeName(Name("User"), Nil, Some(TypeNames.Schema))))
+  }
+
+  test("Ambiguous type is SObject") {
+    val td = PlatformTypes.get(TypeName(Name("Site")), None)
+    assert(td.isRight)
+    assert(td.map(_.typeName).contains(TypeName(Name("Site"), Nil, Some(TypeNames.Schema))))
+  }
+
+  test("Ambiguous type is System") {
+    val td = PlatformTypes.get(TypeName(Name("Location")), None)
+    assert(td.isRight)
+    assert(td.map(_.typeName).contains(TypeName(Name("Location"), Nil, Some(TypeNames.System))))
   }
 
   test("All outer types are valid") {
