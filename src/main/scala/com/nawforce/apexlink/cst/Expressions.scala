@@ -15,7 +15,6 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
-import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -75,56 +74,75 @@ final case class DotExpression(expression: Expression,
     extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
-    val td = input.typeDeclarationOpt.get
 
-    // Preemptive check for a preceding namespace
-    if (target.isLeft) {
-      expression match {
-        case PrimaryExpression(primary: IdPrimary) if isNamespace(primary.id.name, td) =>
-          val typeName = TypeName(target.swap.getOrElse(throw new NoSuchElementException).name,
-                                  Nil,
-                                  Some(TypeName(primary.id.name))).intern
-          val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-          if (td.nonEmpty)
-            return ExprContext(isStatic = Some(true), td.get)
-        case _ =>
-      }
-    }
+    interceptNamespaceReference(input, context)
+      .getOrElse(
+        interceptAmbiguousMethodCall(input, context)
+          .getOrElse({
+            val inter = expression.verify(input, context)
+            if (inter.isDefined) {
+              if (inter.isStatic.contains(true) && safeNavigation) {
+                context.logError(
+                  location,
+                  "Safe navigation operator (?.) can not be used on static references")
+                ExprContext.empty
+              } else if (target.isLeft)
+                verifyWithId(inter, context)
+              else
+                verifyWithMethod(inter, input, context)
+            } else {
+              if (target.isRight) {
+                // When we can't find method we should verify args for dependency side-effects
+                target.getOrElse(null).arguments.map(_.verify(input, context))
+              }
+              ExprContext.empty
+            }
+          }))
+  }
 
-    // Intercept static call to System Type that may clash with SObject, there are currently only three of these
-    // Approval, BusinessHours & Site so we could handle non-generically if needed to bypass
+  /** Intercept static method call to BusinessHours or Site as these operate on System.* rather than Schema.* classes.
+    * This hack avoids having to pass additional context into platform type loading to disambiguate. */
+  private def interceptAmbiguousMethodCall(
+    input: ExprContext,
+    context: ExpressionVerifyContext): Option[ExprContext] = {
     if (target.isRight) {
       expression match {
-        case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
+        case PrimaryExpression(primary: IdPrimary)
+            if DotExpression.isAmbiguousName.contains(primary.id.name) && context
+              .isVar(primary.id.name)
+              .isEmpty =>
           if (findField(primary.id.name, input.typeDeclaration, context.module, None).isEmpty) {
-            val td = TypeResolver
-              .platformType(TypeName(primary.id.name), context.thisType, excludeSObjects = true)
+            val td = context
+              .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)),
+                                       context.thisType)
               .toOption
             if (td.nonEmpty) {
-              return verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context)
+              return Some(
+                verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context))
             }
           }
         case _ =>
       }
     }
+    None
+  }
 
-    val inter = expression.verify(input, context)
-    if (inter.isDefined) {
-      if (inter.isStatic.contains(true) && safeNavigation) {
-        context.logError(location,
-                         "Safe navigation operator (?.) can not be used on static references")
-        ExprContext.empty
-      } else if (target.isLeft)
-        verifyWithId(inter, context)
-      else
-        verifyWithMethod(inter, input, context)
-    } else {
-      if (target.isRight) {
-        // When we can't find method we should verify args for dependency side-effects
-        target.getOrElse(null).arguments.map(_.verify(input, context))
+  private def interceptNamespaceReference(input: ExprContext,
+                                          context: ExpressionVerifyContext): Option[ExprContext] = {
+    if (target.isLeft) {
+      expression match {
+        case PrimaryExpression(primary: IdPrimary)
+            if isNamespace(primary.id.name, input.typeDeclarationOpt.get) =>
+          val typeName = TypeName(target.swap.getOrElse(throw new NoSuchElementException).name,
+                                  Nil,
+                                  Some(TypeName(primary.id.name))).intern
+          val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+          if (td.nonEmpty)
+            return Some(ExprContext(isStatic = Some(true), td.get))
+        case _ =>
       }
-      ExprContext.empty
     }
+    None
   }
 
   private def isNamespace(name: Name, td: TypeDeclaration): Boolean = {
@@ -201,6 +219,10 @@ final case class DotExpression(expression: Expression,
         else None
       })
   }
+}
+
+object DotExpression {
+  private val isAmbiguousName = Set(Name("BusinessHours"), Name("Site"))
 }
 
 final case class ArrayExpression(expression: Expression, arrayExpression: Expression)

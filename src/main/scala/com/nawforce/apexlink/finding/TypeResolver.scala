@@ -72,19 +72,17 @@ object TypeResolver {
 
   /** Search for platform TypeDeclaration from a local or absolute typename. */
   def platformType(typeName: TypeName,
-                   from: TypeDeclaration,
-                   excludeSObjects: Boolean = false): TypeResponse = {
+                   from: TypeDeclaration): TypeResponse = {
     sobjectIntercept(from.moduleDeclaration) {
-      PlatformTypes.get(typeName, Some(from), excludeSObjects)
+      PlatformTypes.get(typeName, Some(from))
     }
   }
 
   /** Search for platform TypeDeclaration from a absolute typename. */
   def platformTypeOnly(typeName: TypeName,
-                       module: Module,
-                       excludeSObjects: Boolean = false): TypeResponse = {
+                       module: Module): TypeResponse = {
     sobjectIntercept(Some(module)) {
-      PlatformTypes.get(typeName, None, excludeSObjects)
+      PlatformTypes.get(typeName, None)
     }
   }
 

@@ -20,7 +20,7 @@ import com.nawforce.apexlink.finding.MissingType
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.names.{Name, TypeName}
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
@@ -68,9 +68,7 @@ object PlatformTypes {
    * needed. The builds over PlatformTypeDeclaration by adding support for typeName aliases, nested
    * types and namespace defaulting.
    */
-  def get(typeName: TypeName,
-          from: Option[TypeDeclaration],
-          excludeSObjects: Boolean = false): TypeResponse = {
+  def get(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
 
     def findOuterOrNestedPlatformType(localTypeName: TypeName): TypeResponse = {
       PlatformTypeDeclaration.get(localTypeName, from) match {
@@ -90,10 +88,7 @@ object PlatformTypes {
 
     val alias = typeAliasMap.getOrElse(typeName, typeName)
     findOuterOrNestedPlatformType(alias)
-      .orElse(
-        if (!excludeSObjects)
-          findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
-        else Left(MissingType(typeName)))
+      .orElse(findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema)))
       .orElse(findOuterOrNestedPlatformType(alias.wrap(TypeNames.System)))
       .map(r => { fireLoadingEvents(r); r })
   }
@@ -106,5 +101,11 @@ object PlatformTypes {
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeNames.Object -> TypeNames.InternalObject,
-    TypeNames.ApexPagesPageReference -> TypeNames.PageReference)
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference,
+    TypeName(Name("BusinessHours")) -> TypeName(Name("BusinessHours"), Nil, Some(TypeNames.Schema)),
+    TypeName(Name("Site")) -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
+    TypeName(Name("Location")) -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
+  )
 }
