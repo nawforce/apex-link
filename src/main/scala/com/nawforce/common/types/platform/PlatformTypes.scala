@@ -29,7 +29,7 @@ package com.nawforce.common.types.platform
 
 import java.lang.ref.WeakReference
 
-import com.nawforce.common.api.TypeName
+import com.nawforce.common.api.{Name, TypeName}
 import com.nawforce.common.finding.MissingType
 import com.nawforce.common.finding.TypeResolver.TypeResponse
 import com.nawforce.common.names.{TypeNames, _}
@@ -44,7 +44,7 @@ object PlatformTypes {
   lazy val sObjectTypeType: TypeDeclaration = loadType(TypeNames.SObjectType)
   lazy val sObjectTypeFieldSets: TypeDeclaration = loadType(TypeNames.SObjectTypeFieldSets)
   lazy val sObjectFieldType: TypeDeclaration = loadType(TypeNames.SObjectField)
-  lazy val sObjectFieldRowCause$: TypeDeclaration = loadType(TypeNames.SObjectFieldRowCause$)
+  lazy val sObjectFieldRowCause$ : TypeDeclaration = loadType(TypeNames.SObjectFieldRowCause$)
   lazy val typeType: TypeDeclaration = loadType(TypeNames.TypeType)
   lazy val stringType: TypeDeclaration = loadType(TypeNames.String)
   lazy val idType: TypeDeclaration = loadType(TypeNames.IdType)
@@ -103,28 +103,14 @@ object PlatformTypes {
 
     val alias = typeAliasMap.getOrElse(typeName, typeName)
 
-    // TODO: Tidy up with Either orElse
-    val firstResult = findOuterOrNestedPlatformType(alias)
-    if (firstResult.isRight) {
-      fireLoadingEvents(firstResult.getOrElse(throw new NoSuchElementException))
-      return firstResult
-    }
-
-    if (!excludeSObjects) {
-      val schemaResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))
-      if (schemaResult.isRight) {
-        fireLoadingEvents(schemaResult.getOrElse(throw new NoSuchElementException))
-        return schemaResult
-      }
-    }
-
-    val systemResult = findOuterOrNestedPlatformType(alias.wrap(TypeNames.System))
-    if (systemResult.isRight) {
-      fireLoadingEvents(systemResult.getOrElse(throw new NoSuchElementException))
-      return systemResult
-    }
-
-    firstResult
+    val td = findOuterOrNestedPlatformType(alias).orElse(
+      findOuterOrNestedPlatformType(alias.wrap(TypeNames.System)).orElse(
+        if (excludeSObjects)
+          Left(MissingType(alias))
+        else
+          findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema))))
+    td.foreach(fireLoadingEvents)
+    td
   }
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit = {
@@ -135,5 +121,11 @@ object PlatformTypes {
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeNames.Object -> TypeNames.InternalObject,
-    TypeNames.ApexPagesPageReference -> TypeNames.PageReference)
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference,
+    TypeName(Name("BusinessHours")) -> TypeName(Name("BusinessHours"), Nil, Some(TypeNames.Schema)),
+    TypeName(Name("Site")) -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
+    TypeName(Name("Location")) -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
+  )
 }

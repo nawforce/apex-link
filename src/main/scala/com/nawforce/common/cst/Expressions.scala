@@ -28,9 +28,9 @@
 package com.nawforce.common.cst
 
 import com.nawforce.common.api.{Name, PathLocation, TypeName}
-import com.nawforce.common.diagnostics.{Issue, IssueOps}
+import com.nawforce.common.diagnostics.IssueOps
 import com.nawforce.common.names.TypeNames._
-import com.nawforce.common.names.{EncodedName, TypeNames, Names, _}
+import com.nawforce.common.names.{EncodedName, Names, TypeNames, _}
 import com.nawforce.common.org.{OrgImpl, PackageImpl}
 import com.nawforce.common.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.common.types.other.AnyDeclaration
@@ -102,14 +102,19 @@ final case class DotExpression(expression: Expression,
       }
     }
 
-    // Intercept static call to System Type that may clash with SObject, there are currently only three of these
-    // Approval, BusinessHours & Site so we could handle non-generically if needed to bypass
+    // Intercept static method call to BusinessHours or Site as these operate on System.* rather than Schema.*
+    // versions. This hack avoids having to pass static context into platform type loading.
     if (target.isRight) {
       expression match {
-        case PrimaryExpression(primary: IdPrimary) if context.isVar(primary.id.name).isEmpty =>
+        case PrimaryExpression(primary: IdPrimary)
+            if DotExpression.isAmbiguousName.contains(primary.id.name) && context
+              .isVar(primary.id.name)
+              .isEmpty =>
           if (findField(primary.id.name, input.typeDeclaration, context.pkg, None).isEmpty) {
             val td = context
-              .getTypeAndAddDependency(TypeName(primary.id.name), None, excludeSObjects = true)
+              .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)),
+                                       None,
+                                       excludeSObjects = true)
               .toOption
             if (td.nonEmpty) {
               return verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context)
@@ -122,7 +127,8 @@ final case class DotExpression(expression: Expression,
     val inter = expression.verify(input, context)
     if (inter.isDefined) {
       if (inter.isStatic.contains(true) && safeNavigation) {
-        context.logError(location, "Safe navigation operator (?.) can not be used on static references")
+        context.logError(location,
+                         "Safe navigation operator (?.) can not be used on static references")
         ExprContext.empty
       } else if (target.isLeft)
         verifyWithId(inter, context)
@@ -174,18 +180,10 @@ final case class DotExpression(expression: Expression,
         if (inputType.isComplete) {
           if (inputType.isSObject) {
             if (!context.pkg.isGhostedFieldName(name)) {
-              context.log(
-                IssueOps.unknownFieldOnSObject(
-                  location,
-                  name,
-                  inputType.typeName))
+              context.log(IssueOps.unknownFieldOnSObject(location, name, inputType.typeName))
             }
           } else {
-          context.log(
-            IssueOps.unknownFieldOrType(
-              location,
-              name,
-              inputType.typeName))
+            context.log(IssueOps.unknownFieldOrType(location, name, inputType.typeName))
           }
         }
         ExprContext.empty
@@ -212,10 +210,9 @@ final case class DotExpression(expression: Expression,
                         pkg: PackageImpl,
                         staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     td.typeName match {
-      case TypeName( Names.SObjectTypeFieldSets$, _, Some(TypeNames.Internal)) => {
+      case TypeName(Names.SObjectTypeFieldSets$, _, Some(TypeNames.Internal)) =>
         td.findField(name, staticContext)
-      }
-      case _ => {
+      case _ =>
         val encodedName = EncodedName(name)
         val namespaceName = encodedName.defaultNamespace(pkg.namespace)
         td.findField(namespaceName.fullName, staticContext)
@@ -223,9 +220,12 @@ final case class DotExpression(expression: Expression,
             if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
             else None
           })
-      }
     }
   }
+}
+
+object DotExpression {
+  private val isAmbiguousName = Set(Name("BusinessHours"), Name("Site"))
 }
 
 final case class ArrayExpression(expression: Expression, arrayExpression: Expression)
