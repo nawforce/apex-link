@@ -144,9 +144,9 @@ class DocumentTest extends AnyFunSuite {
   }
 
   test("fieldset file (sfdx)") {
-    MetadataDocument(root.join("object/fieldSets/Foo.fieldset-meta.xml")) match {
+    MetadataDocument(root.join("object/fieldSets/Foo.fieldSet-meta.xml")) match {
       case Some(SObjectFieldSetDocument(path, Name("Foo")))
-          if path == root.join("object/fieldSets/Foo.fieldset-meta.xml") =>
+          if path == root.join("object/fieldSets/Foo.fieldSet-meta.xml") =>
         ()
       case x => assert(false, x)
     }

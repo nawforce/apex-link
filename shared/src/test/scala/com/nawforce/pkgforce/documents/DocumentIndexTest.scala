@@ -202,7 +202,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
 
   test("sfdx fieldset ghosts object") {
     FileSystemHelper.run(Map[String, String](
-      "pkg/Foo/fieldSets/Bar.fieldset-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>")) {
+      "pkg/Foo/fieldSets/Bar.fieldSet-meta.xml" -> "<FieldSet xmlns=\\\"http://soap.sforce.com/2006/04/metadata\\\"/>")) {
       root: PathLike =>
         val index = DocumentIndex(logger, None, root.join("pkg"))
         assert(logger.issues.isEmpty)
@@ -210,7 +210,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
           index.get(FieldSetNature).toList ==
             List(
               SObjectFieldSetDocument(
-                root.join("pkg").join("Foo").join("fieldSets").join("Bar.fieldset-meta.xml"),
+                root.join("pkg").join("Foo").join("fieldSets").join("Bar.fieldSet-meta.xml"),
                 Name("Bar"))))
         assert(
           index.get(SObjectNature).toList ==
