@@ -48,4 +48,22 @@ object TypeIdentifier {
   def fromJava(namespace: Name, typeName: TypeName): TypeIdentifier = {
     new TypeIdentifier(Option(namespace), typeName)
   }
+
+  def apply(identifier: String): Either[String, TypeIdentifier] = {
+    val parts = identifier.split(" ", 2)
+    TypeName(parts.head) match {
+      case Left(err)                            => Left(err)
+      case Right(typeName) if parts.length == 1 => Right(TypeIdentifier(None, typeName))
+      case Right(typeName) =>
+        if (parts(1).length < 3 || parts(1).head != '(' || parts(1).last != ')')
+          Left(s"Expecting brackets around namespace in '$identifier'")
+        else {
+          val namespace = Name(parts(1).substring(1, parts(1).length - 1))
+          Identifier
+            .isLegalIdentifier(namespace)
+            .map(error => Left(s"Illegal namespace '$namespace': $error"))
+            .getOrElse(Right(TypeIdentifier(Some(namespace), typeName)))
+        }
+    }
+  }
 }

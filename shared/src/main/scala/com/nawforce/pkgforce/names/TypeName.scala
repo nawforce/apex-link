@@ -30,6 +30,7 @@ package com.nawforce.pkgforce.names
 import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.immutable.ArraySeq.ofRef
+import scala.collection.mutable.ArrayBuffer
 
 /** Representation of a type name with optional type arguments.
   *
@@ -113,12 +114,81 @@ object TypeName {
     new TypeName(name, Nil, None)
   }
 
+  def apply(typeName: String): Either[String, TypeName] = {
+    buildTypeName(safeSplit(typeName, '.'), None)
+  }
+
+  private def buildTypeNames(value: String): Either[String, Seq[TypeName]] = {
+    val args =
+      safeSplit(value, ',').foldLeft(ArrayBuffer[Either[String, TypeName]]())((acc, arg) => {
+        acc.append(buildTypeName(safeSplit(arg, '.'), None))
+        acc
+      })
+
+    args
+      .collectFirst { case Left(err) => err }
+      .map(err => Left(err))
+      .getOrElse(Right(args.collect { case Right(tn) => tn }.toSeq))
+  }
+
+  @scala.annotation.tailrec
+  private def buildTypeName(parts: List[String],
+                            outer: Option[TypeName]): Either[String, TypeName] = {
+    parts match {
+      case Nil => Right(outer.get)
+      case hd :: tl if hd.contains('<') =>
+        val argSplit = hd.split("<", 2)
+        if (argSplit.length != 2 || argSplit(1).length < 2 || hd.last != '>')
+          Left(s"Unmatched '<' found in '$hd'")
+        else {
+          buildTypeNames(argSplit(1).take(argSplit(1).length - 1)) match {
+            case Right(argTypes) =>
+              val name = Name(argSplit.head)
+              val illegalError = Identifier.isLegalIdentifier(name)
+              if (illegalError.nonEmpty)
+                Left(s"Illegal identifier '$name': ${illegalError.get}")
+              else
+                buildTypeName(tl, Some(TypeName(name, argTypes, outer)))
+            case Left(err) =>
+              Left(err)
+          }
+        }
+      case hd :: tl if hd.nonEmpty =>
+        val name = Name(hd)
+        val illegalError = Identifier.isLegalIdentifier(name)
+        if (illegalError.nonEmpty)
+          Left(s"Illegal identifier at '$name': ${illegalError.get}")
+        else
+          buildTypeName(tl, Some(TypeName(name, Nil, outer)))
+      case _ :: _ =>
+        Left(s"Empty identifier found in type name")
+    }
+  }
+
+  /** Split a string at 'separator' but ignoring if within '<...>' blocks. */
+  private def safeSplit(value: String, separator: Char): List[String] = {
+    var parts: List[String] = Nil
+    var current = new StringBuffer()
+    var depth = 0
+    value.foreach {
+      case '<' => depth += 1; current.append('<')
+      case '>' => depth -= 1; current.append('>')
+      case x if x == separator && depth == 0 =>
+        parts = current.toString :: parts; current = new StringBuffer()
+      case x => current.append(x)
+    }
+    parts = current.toString :: parts
+    parts.reverse
+  }
+
   // Package private to avoid accidental use in apex-link
   private[pkgforce] val Internal: TypeName = TypeName(Names.Internal)
   private[pkgforce] val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
   private[pkgforce] val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
-  private[pkgforce] val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeName.Internal))
-  private[pkgforce] val InternalInterface: TypeName = TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val InternalObject: TypeName =
+    TypeName(Names.Object$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val InternalInterface: TypeName =
+    TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
 
   private[pkgforce] val System: TypeName = TypeName(Names.System)
   private[pkgforce] val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
