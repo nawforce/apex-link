@@ -16,7 +16,7 @@ package com.nawforce.apexlink.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.apexlink.api.{DependencyGraph, IssueOptions, Org, Package, ServerOps}
+import com.nawforce.apexlink.api.{IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.names.TypeIdentifier

@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.apexlink.api.DependencyGraph
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import io.github.shogowada.scala.jsonrpc.api

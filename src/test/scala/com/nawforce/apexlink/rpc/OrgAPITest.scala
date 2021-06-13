@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.apexlink.api.{DependencyLink, DependencyNode}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathFactory

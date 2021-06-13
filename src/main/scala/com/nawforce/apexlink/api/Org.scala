@@ -15,11 +15,11 @@
 package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexlink.rpc.DependencyGraph
 import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
-import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.workspace.Workspace
-import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
 /** A virtual Org used to present the analysis functionality in a familiar way.
   *
@@ -137,47 +137,3 @@ class IssueOptions extends FileIssueOptions {
   /** Override output default text format for issues, valid options are "json" & "pickle" */
   var format: String = ""
 }
-
-/** Dependency information for a given, typically this will be depth limited to avoid massive graphs. */
-case class DependencyGraph(nodeData: Array[DependencyNode], linkData: Array[DependencyLink])
-
-object DependencyGraph {
-  implicit val rw: RW[DependencyGraph] = macroRW
-  implicit val rwNode: RW[DependencyNode] = macroRW
-  implicit val rwLink: RW[DependencyLink] = macroRW
-  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
-  implicit val rwTypeName: RW[TypeName] = macroRW
-  implicit val rwName: RW[Name] = macroRW
-}
-
-/** Node of a dependency graph, represents some kind of type declaration. */
-case class DependencyNode(identifier: TypeIdentifier,
-                          size: Long,                           // Size of metadata in bytes
-                          nature: String,                       // Nature of types, class, interface or enum
-                          transitiveCount: Int,                 // Sum of all dependant types
-                          extending: Array[TypeIdentifier],     // Types that this type extends
-                          implementing: Array[TypeIdentifier],  // Types that this type implements
-                          using: Array[TypeIdentifier])         // Other types that this type depends on
-{
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: DependencyNode =>
-        other.canEqual(this) && doesEqual(other)
-      case _ => false
-    }
-  }
-
-  override def canEqual(that: Any): Boolean = that.isInstanceOf[DependencyNode]
-
-  private def doesEqual(other: DependencyNode): Boolean = {
-    identifier == other.identifier &&
-    size == other.size &&
-    transitiveCount == other.transitiveCount &&
-    extending.sameElements(other.extending) &&
-    implementing.sameElements(other.implementing) &&
-    using.sameElements(other.using)
-  }
-}
-
-/** Link between nodes in a dependency graph. */
-case class DependencyLink(source: Int, target: Int, nature: String)

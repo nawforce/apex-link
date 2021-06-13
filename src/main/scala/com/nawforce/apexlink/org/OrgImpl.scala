@@ -18,18 +18,10 @@ import java.io.File
 import java.util
 import java.util.jar.JarFile
 
-import com.nawforce.apexlink.api.{
-  DependencyGraph,
-  DependencyLink,
-  DependencyNode,
-  FileIssueOptions,
-  IssueOptions,
-  Org,
-  Package,
-  ServerOps
-}
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
+import com.nawforce.apexlink.rpc.{DependencyGraph, DependencyLink, DependencyNode}
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
