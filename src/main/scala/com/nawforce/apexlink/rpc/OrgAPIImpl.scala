@@ -164,19 +164,19 @@ object IdentifierLocation {
   }
 }
 
-case class IdentifierForPath(promise: Promise[Option[String]], path: String) extends APIRequest {
+case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
       val types = orgImpl.packagesByNamespace.values.flatMap(pkg => Option(pkg.getTypeOfPath(path)))
-      promise.success(types.headOption.map(_.typeName.toString()))
+      promise.success(IdentifierForPathResult(types.headOption))
     }
   }
 }
 
 object IdentifierForPath {
-  def apply(queue: OrgQueue, identifier: String): Future[Option[String]] = {
-    val promise = Promise[Option[String]]()
+  def apply(queue: OrgQueue, identifier: String): Future[IdentifierForPathResult] = {
+    val promise = Promise[IdentifierForPathResult]()
     queue.add(new IdentifierForPath(promise, identifier))
     promise.future
   }
@@ -241,7 +241,7 @@ class OrgAPIImpl extends OrgAPI {
     IdentifierLocation(OrgQueue.instance(), request.identifier)
   }
 
-  override def identifierForPath(path: String): Future[Option[String]] = {
+  override def identifierForPath(path: String): Future[IdentifierForPathResult] = {
     IdentifierForPath(OrgQueue.instance(), path)
   }
 }

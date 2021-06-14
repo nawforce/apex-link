@@ -77,6 +77,15 @@ object IdentifierRequest {
   implicit val rwName: RW[Name] = macroRW
 }
 
+case class IdentifierForPathResult(identifier: Option[TypeIdentifier])
+
+object IdentifierForPathResult {
+  implicit val rw: RW[IdentifierForPathResult] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "identifier")
   def identifier(): Future[String]
@@ -103,7 +112,7 @@ trait OrgAPI {
   def identifierLocation(identifier: IdentifierRequest): Future[IdentifierLocationResult]
 
   @api.JSONRPCMethod(name = "identifierForPath")
-  def identifierForPath(path: String): Future[Option[String]]
+  def identifierForPath(path: String): Future[IdentifierForPathResult]
 }
 
 object OrgAPI {
