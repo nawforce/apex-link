@@ -16,7 +16,7 @@ package com.nawforce.apexlink.rpc
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.nawforce.apexlink.api.{IssueOptions, Org, Package, ServerOps}
+import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.names.TypeIdentifier
@@ -30,11 +30,13 @@ trait APIRequest {
 }
 
 class OrgQueue(quiet: Boolean, path: String) { self =>
+  if (!quiet) ServerOps.setDebugLogging(Array("ALL"))
+
   val org: Org = Org.newOrg(path)
-  val packages: List[Package] = Nil
 
   private val queue = new LinkedBlockingQueue[APIRequest]()
   private val dispatcher = new APIRequestDispatcher()
+  new Thread(dispatcher).start()
 
   class APIRequestDispatcher() extends Runnable {
 
@@ -49,16 +51,13 @@ class OrgQueue(quiet: Boolean, path: String) { self =>
     }
   }
 
-  if (!quiet)
-    ServerOps.setDebugLogging(Array("ALL"))
-  new Thread(dispatcher).start()
-
   def add(request: APIRequest): Unit = {
     queue.add(request)
   }
 
   def refresh(path: String): Unit = {
-    packages.headOption.foreach(pkg => pkg.refresh(path))
+    // TODO: Can't we do better than this?
+    org.getPackages().headOption.foreach(pkg => pkg.refresh(path))
   }
 }
 
@@ -164,7 +163,8 @@ object IdentifierLocation {
   }
 }
 
-case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String) extends APIRequest {
+case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String)
+    extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
@@ -215,7 +215,7 @@ class OrgAPIImpl extends OrgAPI {
   }
 
   override def open(directory: String): Future[OpenResult] = {
-    OrgQueue.open(quiet = true, directory)
+    OrgQueue.open(quiet = false, directory)
     OpenRequest(OrgQueue.instance())
   }
 
@@ -232,12 +232,12 @@ class OrgAPIImpl extends OrgAPI {
     TypeIdentifiers(OrgQueue.instance())
   }
 
-  override def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph] = {
+  override def dependencyGraph(identifier: IdentifierRequest,
+                               depth: Int): Future[DependencyGraph] = {
     DependencyGraphRequest(OrgQueue.instance(), identifier.identifier, depth)
   }
 
-  override def identifierLocation(
-    request: IdentifierRequest): Future[IdentifierLocationResult] = {
+  override def identifierLocation(request: IdentifierRequest): Future[IdentifierLocationResult] = {
     IdentifierLocation(OrgQueue.instance(), request.identifier)
   }
 
