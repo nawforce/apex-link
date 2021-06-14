@@ -116,5 +116,6 @@ trait OrgAPI {
 }
 
 object OrgAPI {
-  def apply(): OrgAPI = new OrgAPIImpl()
+  // Just a test entry point
+  def apply(): OrgAPI = new OrgAPIImpl(true)
 }

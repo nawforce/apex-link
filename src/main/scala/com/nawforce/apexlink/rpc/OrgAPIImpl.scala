@@ -205,7 +205,7 @@ object OrgQueue {
   }
 }
 
-class OrgAPIImpl extends OrgAPI {
+class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
   override def identifier(): Future[String] = {
     Future(classOf[OrgAPIImpl].getProtectionDomain.getCodeSource.getLocation.getPath)
   }
@@ -215,7 +215,7 @@ class OrgAPIImpl extends OrgAPI {
   }
 
   override def open(directory: String): Future[OpenResult] = {
-    OrgQueue.open(quiet = false, directory)
+    OrgQueue.open(quiet, directory)
     OpenRequest(OrgQueue.instance())
   }
 

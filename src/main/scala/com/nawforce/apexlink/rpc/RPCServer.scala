@@ -33,7 +33,7 @@ class RPCTerminatedException(msg: String) extends Exception(msg)
 class RPCServer {
   private val serializer = new UpickleJSONSerializer()
   private val server = JSONRPCServer(serializer)
-  server.bindAPI[OrgAPI](new OrgAPIImpl())
+  server.bindAPI[OrgAPI](new OrgAPIImpl(quiet=false))
 
   def run(): Unit = {
     val input = new BufferedReader(new InputStreamReader(System.in))
