@@ -14,6 +14,7 @@
 package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.types.other.LabelDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names}
 import com.nawforce.pkgforce.path.PathLike
@@ -119,8 +120,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         pkg.refresh(path)
         assert(org.flush())
 
-        val labels = pkg.orderedModules.head.findModuleType(TypeNames.Label).get
-        assert(labels.fields.isEmpty)
+        assert(pkg.orderedModules.head.labels.fields.isEmpty)
       }
     }
   }
@@ -156,7 +156,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         pkg.refresh(path)
         assert(org.flush())
 
-        val labels = pkg.orderedModules.head.findModuleType(TypeNames.Label).get
+        val labels = pkg.orderedModules.head.labels
         assert(labels.fields.length == 1)
         assert(labels.fields.exists(_.name.value == "TestLabel2"))
       }

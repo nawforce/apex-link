@@ -14,7 +14,6 @@
 package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.api.IssueOptions
-import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
@@ -398,7 +397,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             |</CustomLabels>
             |""".stripMargin)
         assert(org.flush())
-        val labels = pkg.orderedModules.head.findModuleType(TypeNames.Label).get
+        val labels = pkg.orderedModules.head.labels
         assert(labels.fields.length == 1)
         assert(labels.fields.exists(_.name.value == "TestLabel2"))
       }
@@ -432,7 +431,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             |</CustomLabels>
             |""".stripMargin)
         org.flush()
-        val labels = pkg.orderedModules.head.findModuleType(TypeNames.Label).get
+        val labels = pkg.orderedModules.head.labels
         assert(labels.fields.length == 2)
         assert(labels.fields.exists(_.name.value == "TestLabel"))
         assert(labels.fields.exists(_.name.value == "TestLabel2"))

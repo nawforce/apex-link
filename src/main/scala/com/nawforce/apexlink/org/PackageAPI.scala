@@ -54,7 +54,7 @@ trait PackageAPI extends Package {
   }
 
   private[nawforce] def getTypeOfPathInternal(path: PathLike): Option[TypeId] = {
-    orderedModules.headOption.flatMap(module => {
+    getModuleOfPath(path).flatMap(module => {
       MetadataDocument(path) match {
         // Page handling is weird, they are modeled as static fields
         case Some(pd: PageDocument) =>
@@ -72,6 +72,10 @@ trait PackageAPI extends Package {
         case _ => None
       }
     })
+  }
+
+  private def getModuleOfPath(path: PathLike): Option[Module] = {
+    orderedModules.view.find(m => m.isVisibleFile(path))
   }
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {

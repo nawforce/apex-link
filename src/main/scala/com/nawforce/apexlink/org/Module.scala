@@ -60,18 +60,17 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   override def toString: String = s"Module(${index.path})"
 
+  def schemaSObjectType(): SchemaSObjectType = schemaManager
+  def any: AnyDeclaration = types(TypeNames.Any).asInstanceOf[AnyDeclaration]
+  def labels: LabelDeclaration = types(TypeNames.Label).asInstanceOf[LabelDeclaration]
+  def interviews: InterviewDeclaration = types(TypeNames.Interview).asInstanceOf[InterviewDeclaration]
+  def pages: PageDeclaration = types(TypeNames.Page).asInstanceOf[PageDeclaration]
+  def components: ComponentDeclaration = types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
+
+  /** Count of loaded types, for debug info */
   def typeCount: Int = types.size
 
-  def schemaSObjectType(): SchemaSObjectType = schemaManager
-
-  def any: AnyDeclaration = findModuleType(TypeNames.Any).get.asInstanceOf[AnyDeclaration]
-  def labels: LabelDeclaration = findModuleType(TypeNames.Label).get.asInstanceOf[LabelDeclaration]
-  def interviews: InterviewDeclaration =
-    findModuleType(TypeNames.Interview).get.asInstanceOf[InterviewDeclaration]
-  def pages: PageDeclaration = findModuleType(TypeNames.Page).get.asInstanceOf[PageDeclaration]
-  def components: ComponentDeclaration =
-    findModuleType(TypeNames.Component).get.asInstanceOf[ComponentDeclaration]
-
+  /** Test if a file is visible to this module, i.e. in scope & not ignored */
   def isVisibleFile(path: PathLike): Boolean = {
     index.isVisibleFile(path)
   }

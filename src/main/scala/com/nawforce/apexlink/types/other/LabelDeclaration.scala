@@ -19,7 +19,12 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{
+  GLOBAL_MODIFIER,
+  Modifier,
+  PRIVATE_MODIFIER,
+  STATIC_MODIFIER
+}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
@@ -46,10 +51,10 @@ object Label {
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(sources: Array[SourceInfo],
-                             override val module: Module,
-                             labels: Array[Label],
-                             nestedLabels: Array[NestedLabels])
+final class LabelDeclaration(override val module: Module,
+                             val sources: Array[SourceInfo],
+                             val labels: Array[Label],
+                             val nestedLabels: Array[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.path), module, TypeNames.Label)
     with DependentType {
 
@@ -72,8 +77,8 @@ final class LabelDeclaration(sources: Array[SourceInfo],
     val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ labelEvents.map(le =>
       Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
-    val sourceInfo = labelFileEvents.map(_.sourceInfo).distinct
-    new LabelDeclaration(sourceInfo, module, newLabels, nestedLabels)
+    val sourceInfo = (sources ++ labelFileEvents.map(_.sourceInfo)).distinct
+    new LabelDeclaration(module, sourceInfo, newLabels, nestedLabels)
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
@@ -149,18 +154,23 @@ final class GhostedLabels(module: Module, ghostedNamespace: Name)
 
 object LabelDeclaration {
 
-  /** Construct System.Label for a package. */
+  /** Construct System.Label for a module from any base info. */
   def apply(module: Module): LabelDeclaration = {
-    new LabelDeclaration(Array(), module, Array(), createPackageLabels(module))
+    module.baseModules.headOption
+      .map(_.labels)
+      .map(base => new LabelDeclaration(module, base.sources, base.labels, base.nestedLabels))
+      .getOrElse(new LabelDeclaration(module, Array(), Array(), createPackageLabels(module)))
   }
 
   // Create labels declarations for each base package
   private def createPackageLabels(module: Module): Array[NestedLabels] = {
     module.basePackages
       .map(basePkg => {
-        basePkg.orderedModules.headOption
-          .map(m => new PackageLabels(module, m.labels))
-          .getOrElse(new GhostedLabels(module, basePkg.namespace.get))
+        if (basePkg.orderedModules.isEmpty) {
+          new GhostedLabels(module, basePkg.namespace.get)
+        } else {
+          new PackageLabels(module, basePkg.orderedModules.head.labels)
+        }
       })
       .toArray
   }

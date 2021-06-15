@@ -280,6 +280,49 @@ class LabelTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Base module label protected") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"packageDirectories": [{"path": "pkg1"}, {"path": "pkg2"}]
+            |}""".stripMargin,
+        "pkg1/CustomLabels.labels" ->
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+            |    <labels>
+            |        <fullName>TestLabel</fullName>
+            |        <language>en_US</language>
+            |        <protected>true</protected>
+            |        <shortDescription>TestLabel Description</shortDescription>
+            |        <value>TestLabel Value</value>
+            |    </labels>
+            |</CustomLabels>
+            |""".stripMargin,
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+
+        val labelsTypeId = org.unmanaged
+          .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
+          .get
+          .asTypeIdentifier
+        assert(labelsTypeId.toString == "System.Label")
+        assert(
+          org.unmanaged
+            .getPathsOfType(labelsTypeId)
+            .sameElements(Array("/pkg1/CustomLabels.labels")))
+
+        val dummyTypeId =
+          org.unmanaged.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
+        assert(
+          org.unmanaged
+            .getDependencies(dummyTypeId, outerInheritanceOnly = false)
+            .sameElements(Array(labelsTypeId)))
+    }
+  }
+
   test("System reference to label") {
     FileSystemHelper.run(
       Map(
