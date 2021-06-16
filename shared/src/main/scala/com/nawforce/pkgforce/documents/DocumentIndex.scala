@@ -297,7 +297,7 @@ final class DirectoryIndexer(logger: IssueLogger,
         entries._1.foreach(addPath)
         entries._2.foreach(indexPath)
       } else {
-        LoggerOps.debug(LoggerOps.Trace, s"Ignoring directory $path")
+        LoggerOps.debug(s"Ignoring directory $path")
       }
     } else {
       addPath(path)
@@ -310,7 +310,7 @@ final class DirectoryIndexer(logger: IssueLogger,
       val dt = MetadataDocument(path)
       dt.foreach(dt => collection.add(logger, dt))
     } else {
-      LoggerOps.debug(LoggerOps.Trace, s"Ignoring file $path")
+      LoggerOps.debug(s"Ignoring file $path")
     }
   }
 

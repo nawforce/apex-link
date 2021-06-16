@@ -27,60 +27,74 @@
  */
 package com.nawforce.pkgforce.diagnostics
 
-/** Logging interface */
+/** Minimalistic logging, the best kind of logging system. */
 trait Logger {
   def info(message: String): Unit
-  def error(message: String): Unit
   def debug(message: String): Unit
 }
 
-/** Default logging support, info goes to stdout, error & debug to stderr */
+/** Default logger, sends all messages to stderr.*/
 class DefaultLogger extends Logger {
-  def info(message: String): Unit = { System.out.println(message) }
-  def error(message: String): Unit = { System.err.println("[error] " + message) }
+  def info(message: String): Unit = { System.err.println("[info] " + message) }
   def debug(message: String): Unit = { System.err.println("[debug] " + message) }
 }
 
-/** Collection of Ops functions for changing global behaviours */
+/** Collection of functions for logging and changing the logging behaviour. */
 object LoggerOps {
-  private var logging: Boolean = false
+  final val NO_LOGGING: Int = 0
+  final val INFO_LOGGING: Int = 1
+  final val DEBUG_LOGGING: Int = 2
+
+  private var loggingLevel: Integer = NO_LOGGING
   private var logger: Logger = new DefaultLogger
 
-  val Trace: String = "TRACE"
-
-  /** Set debug logging categories, only currently supported option is 'ALL', debug logging is disabled by default. */
-  def setDebugLogging(flags: Array[String]): Unit = {
-    logging = flags.contains("ALL")
+  /** Set debug logging level, one of NO_LOGGING, INFO_LOGGING or DEBUG_LOGGING. */
+  def setLoggingLevel(level: Integer): Integer = {
+    val current = loggingLevel
+    loggingLevel = level
+    current
   }
 
   /** Override the default logger */
   def setLogger(newLogger: Logger): Logger = {
-    val old = logger
+    val current = logger
     logger = newLogger
-    old
+    current
   }
 
   /** Log an information message */
-  def info(message: String): Unit = logger.info(message)
-
-  /** Log an error */
-  def error(message: String): Unit = logger.error(message)
+  def info(message: String): Unit = {
+    if (loggingLevel >= INFO_LOGGING)
+      logger.info(message)
+  }
 
   /** Log a debug message against a category */
-  def debug(category: String, message: String): Unit = {
-    if (logging)
+  def debug(message: String): Unit = {
+    if (loggingLevel >= DEBUG_LOGGING)
       logger.debug(message)
+  }
+
+  /** Time an operation and info log how long it took */
+  def infoTime[T](msg: String, show: Boolean = true, postMsg: String = "")(op: => T): T = {
+    time(info, msg, show, postMsg)(op)
   }
 
   /** Time an operation and debug log how long it took */
   def debugTime[T](msg: String, show: Boolean = true, postMsg: String = "")(op: => T): T = {
+    time(debug, msg, show, postMsg)(op)
+  }
+
+  /** Time an operation and debug log how long it took */
+  private def time[T](log: String => Unit, msg: String, show: Boolean, postMsg: String)(
+    op: => T): T = {
     val start = System.currentTimeMillis()
     try {
       op
     } finally {
       val end = System.currentTimeMillis()
       if (show)
-        LoggerOps.debug(LoggerOps.Trace, s"$msg in ${end - start}ms$postMsg")
+        log(s"$msg in ${end - start}ms$postMsg")
     }
   }
+
 }
