@@ -22,7 +22,7 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.other.{Component, Interview, Label, Page}
-import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.diagnostics.{LoggerOps, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -116,7 +116,7 @@ abstract class FullDeclaration(val source: Source,
   }
 
   def validate(withPropagation: Boolean): Unit = {
-    ServerOps.debugTime(s"Validated ${location.path}") {
+    LoggerOps.debugTime(s"Validated ${location.path}") {
       // Validate inside a parsing context as LazyBlock may call parser
       CST.sourceContext.withValue(Some(source)) {
         val context = new TypeVerifyContext(None, this, withPropagation)

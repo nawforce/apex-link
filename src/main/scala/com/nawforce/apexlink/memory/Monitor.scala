@@ -15,6 +15,7 @@ package com.nawforce.apexlink.memory
 
 import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.types.core.TypeDeclaration
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 
 object Monitor {
   val map = new SkinnyWeakSet[AnyRef]()
@@ -34,7 +35,7 @@ object Monitor {
       val duplicates = typeNames.toSeq.groupBy(identity).collect { case (t, Seq(_, _, _*)) => t }
       if (duplicates.nonEmpty) {
         duplicates.foreach(typeName => {
-          ServerOps.debug(ServerOps.Trace, s"Duplicate types found for $typeName")
+          LoggerOps.debug(s"Duplicate types found for $typeName")
         })
         duplicateTypes = new SkinnyWeakSet[TypeDeclaration]()
         duplicates.foreach(dup =>

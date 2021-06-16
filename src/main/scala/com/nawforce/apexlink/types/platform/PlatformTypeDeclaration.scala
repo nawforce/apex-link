@@ -33,8 +33,6 @@ import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-class PlatformTypeException(msg: String) extends Exception(msg)
-
 /* Platform type declaration, a wrapper around a com.nawforce.platform Java classes */
 class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDeclaration])
     extends TypeDeclaration

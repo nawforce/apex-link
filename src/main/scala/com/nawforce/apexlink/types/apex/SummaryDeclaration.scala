@@ -42,7 +42,7 @@ object DependentValidation {
         case d: TypeDependentSummary =>
           val td = findValidTypeDependent(d, module)
           if (td.isEmpty) {
-            ServerOps.debug(ServerOps.Trace, s"Rejected type dependency $dependent")
+            LoggerOps.debug(s"Rejected type dependency $dependent")
             return false
           }
         case _ => ()
@@ -82,7 +82,7 @@ object DependentValidation {
     dependents.flatMap(dependent => {
       val dep = findDependent(dependent, module)
       if (dep.isEmpty) {
-        ServerOps.debug(ServerOps.Trace, s"Rejected other dependency $dependent")
+        LoggerOps.debug(s"Rejected other dependency $dependent")
       }
       dep
     })

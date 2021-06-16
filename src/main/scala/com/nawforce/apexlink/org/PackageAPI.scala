@@ -14,11 +14,11 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{Package, ServerOps, TypeSummary}
+import com.nawforce.apexlink.api.{Package, TypeSummary}
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.apexlink.types.platform.PlatformTypeException
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
@@ -103,20 +103,14 @@ trait PackageAPI extends Package {
   }
 
   private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
-    try {
-      orderedModules.headOption.flatMap(module => {
-        module.types
-          .get(typeName)
-          .flatMap {
-            case ad: ApexDeclaration => Some(ad)
-            case _                   => None
-          }
-      })
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage)
-        None
-    }
+    orderedModules.headOption.flatMap(module => {
+      module.types
+        .get(typeName)
+        .flatMap {
+          case ad: ApexDeclaration => Some(ad)
+          case _                   => None
+        }
+    })
   }
 
   override def getSummaryOfTypeAsJSON(typeId: TypeIdentifier): String = {
@@ -148,20 +142,14 @@ trait PackageAPI extends Package {
   }
 
   private def getDependentType(typeName: TypeName): Option[DependentType] = {
-    try {
-      orderedModules.headOption.flatMap(module => {
-        module.types
-          .get(typeName)
-          .flatMap {
-            case dt: DependentType => Some(dt)
-            case _                 => None
-          }
-      })
-    } catch {
-      case ex: PlatformTypeException =>
-        ServerOps.debug(ServerOps.Trace, ex.getMessage)
-        None
-    }
+    orderedModules.headOption.flatMap(module => {
+      module.types
+        .get(typeName)
+        .flatMap {
+          case dt: DependentType => Some(dt)
+          case _                 => None
+        }
+    })
   }
 
   override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
@@ -222,14 +210,14 @@ trait PackageAPI extends Package {
     splitRequests
       .getOrElse(true, Seq())
       .foreach(r => {
-        ServerOps.debug(ServerOps.Trace, s"Removing ${r._1}")
+        LoggerOps.debug(s"Removing ${r._1}")
         try {
           refreshInternal(r._1).map(refreshResult => {
             removed += refreshResult._1
             references ++= refreshResult._2
           })
         } catch {
-          case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+          case ex: IllegalArgumentException => LoggerOps.debug(ex.getMessage)
         }
       })
     removed.foreach(references.remove)
@@ -238,14 +226,14 @@ trait PackageAPI extends Package {
     splitRequests
       .getOrElse(false, Seq())
       .foreach(r => {
-        ServerOps.debug(ServerOps.Trace, s"Refreshing ${r._1}")
+        LoggerOps.debug(s"Refreshing ${r._1}")
         try {
           refreshInternal(r._1).map(refreshResult => {
             references ++= refreshResult._2
             references.remove(refreshResult._1)
           })
         } catch {
-          case ex: IllegalArgumentException => ServerOps.debug(ServerOps.Trace, ex.getMessage)
+          case ex: IllegalArgumentException => LoggerOps.debug(ex.getMessage)
         }
       })
 

@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue
 
 import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.pkgforce.diagnostics.Issue
+import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps}
 import com.nawforce.pkgforce.names.TypeIdentifier
 
 import scala.collection.mutable.ArrayBuffer
@@ -30,7 +30,7 @@ trait APIRequest {
 }
 
 class OrgQueue(quiet: Boolean, path: String) { self =>
-  if (!quiet) ServerOps.setDebugLogging(Array("ALL"))
+  if (!quiet) LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
 
   val org: Org = Org.newOrg(path)
 

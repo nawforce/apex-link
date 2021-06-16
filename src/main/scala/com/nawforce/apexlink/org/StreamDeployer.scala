@@ -16,7 +16,6 @@ package com.nawforce.apexlink.org
 
 import java.util.concurrent.ConcurrentHashMap
 
-import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
@@ -25,7 +24,7 @@ import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
-import com.nawforce.pkgforce.diagnostics.{Issue, Location, MISSING_CATEGORY, PathLocation}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
 import com.nawforce.pkgforce.path.PathLike
@@ -49,32 +48,33 @@ import scala.reflect.ClassTag
 class StreamDeployer(module: Module,
                      events: Iterator[PackageEvent],
                      types: mutable.Map[TypeName, TypeDeclaration]) {
+  load()
 
-  private val start = java.lang.System.currentTimeMillis()
-  private val basicTypesSize = types.size
+  private def load(): Unit = {
+    val start = java.lang.System.currentTimeMillis()
+    val basicTypesSize = types.size
 
-  // Process package events, these must follow the publishing order from pkgforce
-  private val bufferedIterator = events.buffered
-  consumeLabels(bufferedIterator)
-  consumePages(bufferedIterator)
-  consumeFlows(bufferedIterator)
-  consumeComponents(bufferedIterator)
-  consumeSObjects(bufferedIterator)
-  consumeExtendedClasses(bufferedIterator)
-  consumeClasses(bufferedIterator)
-  consumeTriggers(bufferedIterator)
+    // Process package events, these must follow the publishing order from pkgforce
+    val bufferedIterator = events.buffered
+    consumeLabels(bufferedIterator)
+    consumePages(bufferedIterator)
+    consumeFlows(bufferedIterator)
+    consumeComponents(bufferedIterator)
+    consumeSObjects(bufferedIterator)
+    consumeExtendedClasses(bufferedIterator)
+    consumeClasses(bufferedIterator)
+    consumeTriggers(bufferedIterator)
+    CodeParser.clearCaches()
+    Environment.gc()
 
-  // Report progress and tidy up
-  if (types.size > basicTypesSize) {
-    val total = java.lang.System.currentTimeMillis() - start
-    val avg = total / types.size
-    ServerOps.debug(ServerOps.Trace,
-                    s"$module loaded ${types.size}" +
-                      s" types in ${total / 1000} seconds, average $avg ms/type")
+    // Report progress and tidy up
+    if (types.size > basicTypesSize) {
+      val total = java.lang.System.currentTimeMillis() - start
+      val avg = total / types.size
+      LoggerOps.info(
+        s"$module loaded ${types.size} types in ${total}ms, average $avg ms/type")
+    }
   }
-
-  CodeParser.clearCaches()
-  Environment.gc()
 
   private def consumeLabels(events: BufferedIterator[PackageEvent]): Unit = {
     val labelRelatedEvents = bufferEvents(Set(classOf[LabelFileEvent], classOf[LabelEvent]), events)
@@ -492,25 +492,26 @@ class StreamDeployer(module: Module,
     val docs = bufferEvents[ApexEvent](events).map(e => ApexClassDocument(e.path))
 
     // Load summary classes from the cache
-    ServerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
+    LoggerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
       validateSummaryClasses(docs.grouped(500).flatMap(loadClassesFromCache))
     }
 
     // Load any classes not found via cache or that have been rejected
     val missingClasses =
       docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(module.namespace)))
+    LoggerOps.debug(s"${missingClasses.length} of ${docs.length} classes not available from cache")
     parseAndValidateClasses(ArraySeq.unsafeWrapArray(missingClasses), extendedApex = false)
   }
 
   /** Parse a collection of Apex classes, insert them and validate them. */
   private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
-    ServerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
+    LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
         .flatMap(doc => {
           doc.path.readSourceData() match {
             case Left(_) => None
             case Right(data) =>
-              ServerOps.debugTime(s"Parsed ${doc.path}") {
+              LoggerOps.debugTime(s"Parsed ${doc.path}") {
                 FullDeclaration
                   .create(module, doc, data, extendedApex)
                   .map(td => {
@@ -540,7 +541,9 @@ class StreamDeployer(module: Module,
             module.pkg.org.issues.add(Issue(path, diagnostic)))
         } else {
           // Remove those dependent on non-cached so they are re-validated via loading fresh
-          types.remove(summaryClass.declaration.typeName)
+          val typeName = summaryClass.declaration.typeName
+          LoggerOps.info(s"Cached type $typeName rejected due to invalid dependencies")
+          types.remove(typeName)
         }
       })
   }
@@ -576,7 +579,7 @@ class StreamDeployer(module: Module,
     * parse each time. */
   private def consumeTriggers(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[TriggerEvent](events).map(e => ApexTriggerDocument(e.path))
-    ServerOps.debugTime(s"Parsed ${docs.length} triggers", docs.nonEmpty) {
+    LoggerOps.debugTime(s"Parsed ${docs.length} triggers", docs.nonEmpty) {
       docs
         .flatMap(doc => {
           doc.path.readSourceData() match {

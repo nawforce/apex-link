@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.runtime.json.JSON
 
 import scala.jdk.CollectionConverters._
@@ -26,20 +27,23 @@ object Check {
   final val STATUS_ISSUES: Int = 4
 
   def usage(name: String) =
-    s"Usage: $name [-json] [-verbose] [-zombie] [-depends] <directory>"
+    s"Usage: $name [-json] [-verbose|-debug] [-zombie] [-depends] <directory>"
 
   def main(name: String, args: Array[String]): Int = {
-    val flags = Set("-verbose", "-json", "-pickle", "-zombie", "-depends")
+    val flags = Set("-verbose", "-debug", "-json", "-pickle", "-zombie", "-depends")
 
     val json = args.contains("-json")
     val pickle = args.contains("-pickle")
     val verbose = !json && args.contains("-verbose")
+    val debug = !json && args.contains("-debug")
     val depends = args.contains("-depends")
     val zombie = args.contains("-zombie")
 
     ServerOps.setAutoFlush(false)
-    if (verbose)
-      ServerOps.setDebugLogging(Array("ALL"))
+    if (debug)
+      LoggerOps.setLoggingLevel(LoggerOps.DEBUG_LOGGING)
+    else if (verbose)
+      LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
 
     if (json && pickle) {
       System.err.println("-json and -pickle can not be used together")

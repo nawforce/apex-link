@@ -16,7 +16,7 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.rpc.DependencyGraph
-import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps, PathLocation}
 import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.workspace.Workspace
@@ -110,12 +110,16 @@ object Org {
 
   /** Create a new empty Org to which you can add packages for code analysis. */
   def newOrg(path: PathLike): Org = {
-    val ws = Workspace(path)
-    val org = new OrgImpl(ws.value)
-    ws.issues.foreach(org.issues.add)
-    org
+    LoggerOps.infoTime(
+      s"Org created",
+      show = true,
+      s" with autoFlush = ${ServerOps.getAutoFlush}, build = ${OrgImpl.implementationBuild}") {
+      val ws = Workspace(path)
+      val org = new OrgImpl(ws.value)
+      ws.issues.foreach(org.issues.add)
+      org
+    }
   }
-
 }
 
 /** Options available when retrieving File specific issues. */

@@ -20,7 +20,7 @@ import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core.{BlockDeclaration, _}
-import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.diagnostics.{LoggerOps, PathLocation}
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -75,7 +75,7 @@ final case class TriggerDeclaration(source: Source,
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(withPropagation: Boolean): Unit = {
-    ServerOps.debugTime(s"Validated $path") {
+    LoggerOps.debugTime(s"Validated $path") {
       nameId.validate()
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }

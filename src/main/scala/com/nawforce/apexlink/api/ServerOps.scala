@@ -14,38 +14,11 @@
 
 package com.nawforce.apexlink.api
 
-import com.nawforce.pkgforce.diagnostics.{Logger, LoggerOps}
-
 /** Collection of Ops functions for changing global behaviours */
-object ServerOps {
+object ServerOps  {
   private var lazyBlocks: Boolean = true
   private var duplicateObjectMonitor: Boolean = false
   private var autoFlush: Boolean = true
-
-  val Trace: String = "TRACE"
-
-  /** Set debug logging categories, only currently supported option is 'ALL', debug logging is disabled by default. */
-  def setDebugLogging(flags: Array[String]): Unit = {
-    LoggerOps.setDebugLogging(flags)
-  }
-
-  /** Override the default logger */
-  def setLogger(newLogger: Logger): Logger = {
-    LoggerOps.setLogger(newLogger)
-  }
-
-  /** Log an information message */
-  def info(message: String): Unit = LoggerOps.info(message)
-
-  /** Log an error */
-  def error(message: String): Unit = LoggerOps.error(message)
-
-  /** Log a debug message against a category */
-  def debug(category: String, message: String): Unit = LoggerOps.debug(category, message)
-
-  /** Time an operation and debug log how long it took */
-  def debugTime[T](msg: String, show: Boolean = true, postMsg: String = "")(op: => T): T =
-    LoggerOps.debugTime(msg, show, postMsg)(op)
 
   /** Are we using lazy blocks, this is enabled by default */
   def getLazyBlocks: Boolean = {
@@ -78,5 +51,4 @@ object ServerOps {
     autoFlush = enable
     current
   }
-
 }

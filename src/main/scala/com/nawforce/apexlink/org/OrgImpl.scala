@@ -39,7 +39,6 @@ import scala.util.hashing.MurmurHash3
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
 class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
-
   val workspace: Workspace = initWorkspace.getOrElse(new Workspace(Seq()))
 
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
@@ -50,7 +49,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   private[nawforce] val parsedCache =
     ParsedCache.create(MurmurHash3.stringHash(OrgImpl.implementationBuild)) match {
       case Right(pc) => Some(pc)
-      case Left(err) => LoggerOps.error(err); None
+      case Left(err) => LoggerOps.info(err); None
     }
 
   /** Lookup of available packages from the namespace (which must be unique), populated when packages created */
@@ -103,9 +102,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Is this Org using auto-flushing of the parsedCache */
   private val autoFlush = ServerOps.getAutoFlush
-  ServerOps.debug(
-    ServerOps.Trace,
-    s"Org created with autoFlush = $autoFlush, build = ${OrgImpl.implementationBuild}")
 
   /** The Org flusher */
   private val flusher =
