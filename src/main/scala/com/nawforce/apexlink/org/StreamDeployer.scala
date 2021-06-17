@@ -14,8 +14,6 @@
 
 package com.nawforce.apexlink.org
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
@@ -32,6 +30,7 @@ import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Environment
 
+import java.util.concurrent.ConcurrentHashMap
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
@@ -48,6 +47,8 @@ import scala.reflect.ClassTag
 class StreamDeployer(module: Module,
                      events: Iterator[PackageEvent],
                      types: mutable.Map[TypeName, TypeDeclaration]) {
+  private val classGroupSize = 500
+
   load()
 
   private def load(): Unit = {
@@ -71,8 +72,7 @@ class StreamDeployer(module: Module,
     if (types.size > basicTypesSize) {
       val total = java.lang.System.currentTimeMillis() - start
       val avg = total / types.size
-      LoggerOps.info(
-        s"$module loaded ${types.size} types in ${total}ms, average $avg ms/type")
+      LoggerOps.info(s"$module loaded ${types.size} types in ${total}ms, average $avg ms/type")
     }
   }
 
@@ -493,7 +493,7 @@ class StreamDeployer(module: Module,
 
     // Load summary classes from the cache
     LoggerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
-      validateSummaryClasses(docs.grouped(500).flatMap(loadClassesFromCache))
+      validateSummaryClasses(docs.grouped(classGroupSize).flatMap(loadClassesFromCache))
     }
 
     // Load any classes not found via cache or that have been rejected
@@ -507,19 +507,24 @@ class StreamDeployer(module: Module,
   private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
-        .flatMap(doc => {
-          doc.path.readSourceData() match {
-            case Left(_) => None
-            case Right(data) =>
-              LoggerOps.debugTime(s"Parsed ${doc.path}") {
-                FullDeclaration
-                  .create(module, doc, data, extendedApex)
-                  .map(td => {
-                    types.put(td.typeName, td)
-                    td
-                  })
-              }
-          }
+        .grouped(classGroupSize)
+        .flatMap(group => {
+          val tds = group.flatMap(doc => {
+            doc.path.readSourceData() match {
+              case Left(_) => None
+              case Right(data) =>
+                LoggerOps.debugTime(s"Parsed ${doc.path}") {
+                  FullDeclaration
+                    .create(module, doc, data, extendedApex)
+                    .map(td => {
+                      types.put(td.typeName, td)
+                      td
+                    })
+                }
+            }
+          })
+          CodeParser.clearCaches()
+          tds
         })
 
       // Validate the classes, this must be last due to mutual dependence
