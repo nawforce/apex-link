@@ -47,8 +47,6 @@ import scala.reflect.ClassTag
 class StreamDeployer(module: Module,
                      events: Iterator[PackageEvent],
                      types: mutable.Map[TypeName, TypeDeclaration]) {
-  private val classGroupSize = 500
-
   load()
 
   private def load(): Unit = {
@@ -493,7 +491,7 @@ class StreamDeployer(module: Module,
 
     // Load summary classes from the cache
     LoggerOps.debugTime(s"Loaded summary classes", docs.nonEmpty) {
-      validateSummaryClasses(docs.grouped(classGroupSize).flatMap(loadClassesFromCache))
+      validateSummaryClasses(loadClassesFromCache(docs))
     }
 
     // Load any classes not found via cache or that have been rejected
@@ -507,7 +505,7 @@ class StreamDeployer(module: Module,
   private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
-        .grouped(classGroupSize)
+        .grouped(250)
         .flatMap(group => {
           val tds = group.flatMap(doc => {
             doc.path.readSourceData() match {
@@ -523,9 +521,10 @@ class StreamDeployer(module: Module,
                 }
             }
           })
+          // Clear caches to avoid unconstrained growth, this will slow the parser a bit
           CodeParser.clearCaches()
           tds
-        })
+        }).toSeq
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())
