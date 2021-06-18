@@ -68,81 +68,53 @@ sealed abstract class Expression extends CST {
   }
 }
 
-final case class DotExpression(expression: Expression,
-                               safeNavigation: Boolean,
-                               target: Either[Id, MethodCall])
+object DotExpression {
+  def findField(name: Name,
+                td: TypeDeclaration,
+                module: Module,
+                staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+    val encodedName = EncodedName(name)
+    val namespaceName = encodedName.defaultNamespace(module.namespace)
+    td.findField(namespaceName.fullName, staticContext)
+      .orElse({
+        if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
+        else None
+      })
+  }
+}
+
+final case class DotExpressionWithId(expression: Expression, safeNavigation: Boolean, target: Id)
     extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
     interceptNamespaceReference(input, context)
-      .getOrElse(
-        interceptAmbiguousMethodCall(input, context)
-          .getOrElse({
-            val inter = expression.verify(input, context)
-            if (inter.isDefined) {
-              if (inter.isStatic.contains(true) && safeNavigation) {
-                context.logError(
-                  location,
-                  "Safe navigation operator (?.) can not be used on static references")
-                ExprContext.empty
-              } else if (target.isLeft)
-                verifyWithId(inter, context)
-              else
-                verifyWithMethod(inter, input, context)
-            } else {
-              if (target.isRight) {
-                // When we can't find method we should verify args for dependency side-effects
-                target.getOrElse(null).arguments.map(_.verify(input, context))
-              }
-              ExprContext.empty
-            }
-          }))
-  }
-
-  /** Intercept static method call to BusinessHours or Site as these operate on System.* rather than Schema.* classes.
-    * This hack avoids having to pass additional context into platform type loading to disambiguate. */
-  private def interceptAmbiguousMethodCall(
-    input: ExprContext,
-    context: ExpressionVerifyContext): Option[ExprContext] = {
-    if (target.isRight) {
-      expression match {
-        case PrimaryExpression(primary: IdPrimary)
-            if DotExpression.isAmbiguousName.contains(primary.id.name) && context
-              .isVar(primary.id.name)
-              .isEmpty =>
-          if (findField(primary.id.name, input.typeDeclaration, context.module, None).isEmpty) {
-            val td = context
-              .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)),
-                                       context.thisType)
-              .toOption
-            if (td.nonEmpty) {
-              return Some(
-                verifyWithMethod(ExprContext(isStatic = Some(true), td.get), input, context))
-            }
+      .getOrElse({
+        val inter = expression.verify(input, context)
+        if (inter.isDefined) {
+          if (inter.isStatic.contains(true) && safeNavigation) {
+            context.logError(location,
+                             "Safe navigation operator (?.) can not be used on static references")
+            ExprContext.empty
+          } else {
+            verifyWithId(inter, context)
           }
-        case _ =>
-      }
-    }
-    None
+        } else {
+          ExprContext.empty
+        }
+      })
   }
 
   private def interceptNamespaceReference(input: ExprContext,
                                           context: ExpressionVerifyContext): Option[ExprContext] = {
-    if (target.isLeft) {
-      expression match {
-        case PrimaryExpression(primary: IdPrimary)
-            if isNamespace(primary.id.name, input.typeDeclarationOpt.get) =>
-          val typeName = TypeName(target.swap.getOrElse(throw new NoSuchElementException).name,
-                                  Nil,
-                                  Some(TypeName(primary.id.name))).intern
-          val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-          if (td.nonEmpty)
-            return Some(ExprContext(isStatic = Some(true), td.get))
-        case _ =>
-      }
+    expression match {
+      case PrimaryExpression(primary: IdPrimary)
+          if isNamespace(primary.id.name, input.typeDeclarationOpt.get) =>
+        val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
+        val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+        td.map(td => ExprContext(isStatic = Some(true), td))
+      case _ => None
     }
-    None
   }
 
   private def isNamespace(name: Name, td: TypeDeclaration): Boolean = {
@@ -157,9 +129,9 @@ final case class DotExpression(expression: Expression,
 
     input.typeDeclarationOpt.get match {
       case inputType: TypeDeclaration =>
-        val name = target.swap.getOrElse(throw new NoSuchElementException).name
+        val name = target.name
         val field: Option[FieldDeclaration] =
-          findField(name, inputType, context.module, input.isStatic)
+          DotExpression.findField(name, inputType, context.module, input.isStatic)
         if (field.nonEmpty) {
           context.addDependency(field.get)
           val target = context.getTypeAndAddDependency(field.get.typeName, inputType).toOption
@@ -191,37 +163,62 @@ final case class DotExpression(expression: Expression,
         ExprContext.empty
 
       case _ =>
-        context.missingIdentifier(location,
-                                  input.typeName,
-                                  target.swap.getOrElse(throw new NoSuchElementException).name)
+        context.missingIdentifier(location, input.typeName, target.name)
         ExprContext.empty
     }
   }
+}
 
-  def verifyWithMethod(callee: ExprContext,
-                       input: ExprContext,
-                       context: ExpressionVerifyContext): ExprContext = {
+final case class DotExpressionWithMethod(expression: Expression,
+                                         safeNavigation: Boolean,
+                                         target: MethodCall)
+    extends Expression {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
-    val method = target.getOrElse(throw new NoSuchElementException)
-    method.verify(location, callee.typeDeclaration, callee.isStatic, input, context)
+    interceptAmbiguousMethodCall(input, context)
+      .getOrElse({
+        val inter = expression.verify(input, context)
+        if (inter.isDefined) {
+          if (inter.isStatic.contains(true) && safeNavigation) {
+            context.logError(location,
+                             "Safe navigation operator (?.) can not be used on static references")
+            ExprContext.empty
+          } else
+            target.verify(location, inter.typeDeclaration, inter.isStatic, input, context)
+        } else {
+          // When we can't find method we should still verify args for dependency side-effects
+          target.arguments.map(_.verify(input, context))
+          ExprContext.empty
+        }
+      })
   }
 
-  private def findField(name: Name,
-                        td: TypeDeclaration,
-                        module: Module,
-                        staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    val encodedName = EncodedName(name)
-    val namespaceName = encodedName.defaultNamespace(module.namespace)
-    td.findField(namespaceName.fullName, staticContext)
-      .orElse({
-        if (encodedName != namespaceName) td.findField(encodedName.fullName, staticContext)
-        else None
-      })
+  /** Intercept static method call to BusinessHours or Site as these operate on System.* rather than Schema.* classes.
+    * This hack avoids having to pass additional context into platform type loading to disambiguate. */
+  private def interceptAmbiguousMethodCall(
+    input: ExprContext,
+    context: ExpressionVerifyContext): Option[ExprContext] = {
+    expression match {
+      case PrimaryExpression(primary: IdPrimary)
+          if DotExpressionWithMethod.isAmbiguousName.contains(primary.id.name) &&
+            context.isVar(primary.id.name).isEmpty &&
+            DotExpression
+              .findField(primary.id.name, input.typeDeclaration, context.module, None)
+              .isEmpty =>
+        context
+          .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)),
+                                   context.thisType)
+          .toOption
+          .map(td => {
+            target.verify(location, td, Some(true), input, context)
+          })
+      case _ => None
+    }
   }
 }
 
-object DotExpression {
+object DotExpressionWithMethod {
   private val isAmbiguousName = Set(Name("BusinessHours"), Name("Site"))
 }
 
@@ -527,13 +524,19 @@ object Expression {
     val cst =
       from match {
         case expr: DotExpressionContext =>
-          DotExpression(Expression.construct(expr.expression()),
-                        CodeParser.toScala(expr.DOT()).isEmpty,
-                        CodeParser
-                          .toScala(expr.anyId())
-                          .map(id => Left(Id.constructAny(id)))
-                          .getOrElse(Right(
-                            MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get))))
+          CodeParser
+            .toScala(expr.anyId())
+            .map(id => {
+              DotExpressionWithId(Expression.construct(expr.expression()),
+                                  CodeParser.toScala(expr.DOT()).isEmpty,
+                                  Id.constructAny(id))
+            })
+            .getOrElse({
+              DotExpressionWithMethod(
+                Expression.construct(expr.expression()),
+                CodeParser.toScala(expr.DOT()).isEmpty,
+                MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get))
+            })
         case expr: ArrayExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
           ArrayExpression(Expression.construct(expressions.head),
