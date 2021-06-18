@@ -60,7 +60,10 @@ trait Org {
     */
   def isDirty(): Boolean
 
-  /** Get current issue log.
+  /** Check issue log for errors, ignores warning messages. */
+  def hasErrors(): Boolean
+
+  /** Get current issue log as a possibly very large string.
     *
     * See IssueOptions for control over what is returned.
     */
@@ -138,6 +141,6 @@ class FileIssueOptions {
 /** Options available when retrieving Org issues. */
 class IssueOptions extends FileIssueOptions {
 
-  /** Override output default text format for issues, valid options are "json" & "pickle" */
+  /** Override output default text format for issues, only supported option is "json" */
   var format: String = ""
 }

@@ -125,6 +125,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     flusher.queue(request)
   }
 
+  /** CHeck for errors in the log. */
+  override def hasErrors(): Boolean = issues.hasErrors
+
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {

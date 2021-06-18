@@ -27,28 +27,24 @@ object Check {
   final val STATUS_ISSUES: Int = 4
 
   def usage(name: String) =
-    s"Usage: $name [-json] [-verbose|-debug] [-zombie] [-depends] <directory>"
+    s"Usage: $name [-json] [-verbose] [-info|-debug] [-noflush] [-zombie] [-depends] <directory>"
 
-  def main(name: String, args: Array[String]): Int = {
-    val flags = Set("-verbose", "-debug", "-json", "-pickle", "-zombie", "-depends")
+  def main(args: Array[String]): Int = {
+    val flags = Set("-json", "-verbose", "-info", "-debug", "-noflush", "-zombie", "-depends")
 
     val json = args.contains("-json")
-    val pickle = args.contains("-pickle")
     val verbose = !json && args.contains("-verbose")
     val debug = !json && args.contains("-debug")
+    val info = !json && !debug && args.contains("-info")
     val depends = args.contains("-depends")
     val zombie = args.contains("-zombie")
+    val noFlush = args.contains("-noflush")
 
     ServerOps.setAutoFlush(false)
     if (debug)
       LoggerOps.setLoggingLevel(LoggerOps.DEBUG_LOGGING)
-    else if (verbose)
+    else if (info)
       LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
-
-    if (json && pickle) {
-      System.err.println("-json and -pickle can not be used together")
-      return STATUS_ARGS
-    }
 
     val dirs = args.filterNot(flags.contains)
     if (dirs.isEmpty) {
@@ -63,6 +59,8 @@ object Check {
 
     try {
       val org = Org.newOrg(dirs.head)
+      if (!noFlush)
+        org.flush()
       if (depends) {
         if (json) {
           writeDependenciesAsJSON(org)
@@ -71,8 +69,7 @@ object Check {
         }
         STATUS_OK
       } else {
-        val format = if (pickle) "pickle" else if (json) "json" else ""
-        writeIssues(org, format, verbose, zombie)
+        writeIssues(org, if (json) "json" else "", verbose, zombie)
       }
 
     } catch {
@@ -111,19 +108,10 @@ object Check {
                           includeZombies: Boolean): Int = {
     val issueOptions = new IssueOptions()
     issueOptions.format = format
-    issueOptions.includeWarnings = false
-    issueOptions.includeZombies = false
-    val hasErrors = org.getIssues(issueOptions).nonEmpty
-
     issueOptions.includeWarnings = includeWarnings
     issueOptions.includeZombies = includeZombies
-    val issues = org.getIssues(issueOptions)
-    // Workaround for pickle output having an extra unicode character at end of stream if just print() it
-    if (format == "pickle")
-      println(issues)
-    else
-      print(issues)
+    print(org.getIssues(issueOptions))
     System.out.flush()
-    if (hasErrors) STATUS_ISSUES else STATUS_OK
+    if (org.hasErrors()) STATUS_ISSUES else STATUS_OK
   }
 }

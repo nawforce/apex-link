@@ -505,7 +505,7 @@ class StreamDeployer(module: Module,
   private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
-        .grouped(250)
+        .grouped(500)
         .flatMap(group => {
           val tds = group.flatMap(doc => {
             doc.path.readSourceData() match {
