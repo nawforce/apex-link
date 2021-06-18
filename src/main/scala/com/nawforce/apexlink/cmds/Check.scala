@@ -29,7 +29,7 @@ object Check {
   def usage(name: String) =
     s"Usage: $name [-json] [-verbose] [-info|-debug] [-noflush] [-zombie] [-depends] <directory>"
 
-  def main(args: Array[String]): Int = {
+  def run(args: Array[String]): Int = {
     val flags = Set("-json", "-verbose", "-info", "-debug", "-noflush", "-zombie", "-depends")
 
     val json = args.contains("-json")

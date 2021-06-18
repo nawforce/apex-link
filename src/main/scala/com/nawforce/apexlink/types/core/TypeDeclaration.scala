@@ -272,7 +272,17 @@ trait AbstractTypeDeclaration {
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
-trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
+trait TypeResolving {
+  this: TypeDeclaration =>
+
+  private val typeCache = mutable.Map[TypeName, TypeResponse]()
+
+  def resolve(typeName: TypeName): TypeResponse = {
+    typeCache.getOrElseUpdate(typeName, TypeResolver(typeName, this))
+  }
+}
+
+trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder with TypeResolving {
   val paths: Array[PathLike]
   val moduleDeclaration: Option[Module]
 

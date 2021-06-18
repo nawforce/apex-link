@@ -42,7 +42,7 @@ final case class RelativeTypeName(module: Module,
   }
 
   // Returns absolute type or may fallback to relative if not found, use typeRequest for error detection
-  def typeName: TypeName = {
+  lazy val typeName: TypeName = {
     // We need the absolute type if we can get it
     typeRequest.map(_.map(_.typeName)) match {
       case Some(Right(tn)) => tn
@@ -52,21 +52,24 @@ final case class RelativeTypeName(module: Module,
 
   // TypeRequest for the relative type, None if not required
   def typeRequest: Option[TypeResponse] = {
-    if (relativeTypeName != TypeNames.Void && !module.isGhostedType(relativeTypeName)) {
+    if (relativeTypeName == TypeNames.Void)
+      return None
 
-      // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
+    // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
+    val result =
       if (relativeTypeName.outer.nonEmpty) {
         TypeResolver(relativeTypeName, module) match {
-          case Right(td) => Some(Right(td))
-          case Left(_) =>
-            Some(TypeResolver(relativeTypeName, outerTypeDeclaration))
+          case Right(td) => Right(td)
+          case Left(_)   => outerTypeDeclaration.resolve(relativeTypeName)
         }
       } else {
-        Some(TypeResolver(relativeTypeName, outerTypeDeclaration))
+        outerTypeDeclaration.resolve(relativeTypeName)
       }
-    } else {
+
+    if (result.isLeft && module.isGhostedType(relativeTypeName))
       None
-    }
+    else
+      Some(result)
   }
 
   // Recover outer types nature, bit of a hack but sometimes useful

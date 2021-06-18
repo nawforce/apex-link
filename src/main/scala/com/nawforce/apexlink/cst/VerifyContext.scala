@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
+import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{TypeError, TypeResolver}
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -128,6 +129,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
     extends HolderVerifyContext
     with VerifyContext {
 
+  private val typeCache = mutable.Map[(TypeName, TypeDeclaration), TypeResponse]()
 
   override def parent(): Option[VerifyContext] = parentContext
 
@@ -137,9 +139,8 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def getTypeFor(typeName: TypeName,
-                          from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
-    TypeResolver(typeName, from, Some(module))
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+    typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
   }
 
   override def suppressWarnings: Boolean =
