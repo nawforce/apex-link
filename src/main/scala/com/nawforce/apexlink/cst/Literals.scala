@@ -19,53 +19,69 @@ import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.runtime.parsers.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.CodeParser
 
-sealed abstract class Literal() extends CST {
+sealed abstract class Literal() {
   def getType: TypeDeclaration
 }
 
-final case class IntegerLiteral(value: String) extends Literal {
-  override def getType: TypeDeclaration =
-    if (value.endsWith("l") || value.endsWith("L"))
-      PlatformTypes.longType
-    else
-      PlatformTypes.integerType
+case object IntegerLiteral extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.integerType
 }
 
-final case class NumberLiteral(value: String) extends Literal {
-  override def getType: TypeDeclaration =
-    if (value.length() > 50)
-      PlatformTypes.doubleType
-    else
-      PlatformTypes.decimalType
+case object LongLiteral extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.longType
 }
 
-final case class StringLiteral(value: String) extends Literal {
+case object DoubleLiteral extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.doubleType
+}
+
+case object DecimalLiteral extends Literal {
+  override def getType: TypeDeclaration = PlatformTypes.decimalType
+}
+
+case object StringLiteral extends Literal {
   override def getType: TypeDeclaration = PlatformTypes.stringType
 }
 
-final case class BooleanLiteral(value: String) extends Literal {
+case object BooleanLiteral extends Literal {
   override def getType: TypeDeclaration = PlatformTypes.booleanType
 }
 
-final case class NullLiteral() extends Literal {
+case object NullLiteral extends Literal {
   override def getType: TypeDeclaration = PlatformTypes.nullType
+}
+
+object IntegerOrLongLiteral {
+  def apply(value: String): Literal = {
+    if (value.endsWith("l") || value.endsWith("L"))
+      LongLiteral
+    else
+      IntegerLiteral
+  }
+}
+
+object DoubleOrDecimalLiteral {
+  def apply(value: String): Literal = {
+    if (value.length() > 50)
+      DoubleLiteral
+    else
+      DecimalLiteral
+  }
 }
 
 object Literal {
   def construct(from: LiteralContext): Literal = {
-    val cst: Option[Literal] =
-      CodeParser
-        .toScala(from.IntegerLiteral())
-        .map(x => IntegerLiteral(CodeParser.getText(x)))
-        .orElse(
-          CodeParser.toScala(from.LongLiteral()).map(x => IntegerLiteral(CodeParser.getText(x))))
-        .orElse(
-          CodeParser.toScala(from.NumberLiteral()).map(x => NumberLiteral(CodeParser.getText(x))))
-        .orElse(
-          CodeParser.toScala(from.StringLiteral()).map(x => StringLiteral(CodeParser.getText(x))))
-        .orElse(
-          CodeParser.toScala(from.BooleanLiteral()).map(x => BooleanLiteral(CodeParser.getText(x))))
-        .orElse(Some(NullLiteral()))
-    cst.get.withContext(from)
+    CodeParser
+      .toScala(from.IntegerLiteral())
+      .map(x => IntegerOrLongLiteral(CodeParser.getText(x)))
+      .orElse(CodeParser
+        .toScala(from.LongLiteral())
+        .map(x => IntegerOrLongLiteral(CodeParser.getText(x))))
+      .orElse(CodeParser
+        .toScala(from.NumberLiteral())
+        .map(x => DoubleOrDecimalLiteral(CodeParser.getText(x))))
+      .orElse(CodeParser.toScala(from.StringLiteral()).map(_ => StringLiteral))
+      .orElse(CodeParser.toScala(from.BooleanLiteral()).map(_ => BooleanLiteral))
+      .getOrElse(NullLiteral)
   }
 }
