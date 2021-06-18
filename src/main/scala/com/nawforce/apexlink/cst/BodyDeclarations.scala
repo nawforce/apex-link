@@ -14,11 +14,16 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.finding.RelativeTypeName
+import com.nawforce.apexlink.finding.{RelativeTypeContext, RelativeTypeName}
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
+import com.nawforce.apexlink.types.apex.{
+  ApexBlockLike,
+  ApexConstructorLike,
+  ApexFieldLike,
+  ApexMethodLike
+}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
 import com.nawforce.pkgforce.modifiers.{MethodModifiers, _}
@@ -65,6 +70,7 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
 
 object ClassBodyDeclaration {
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 methodOwnerNature: MethodOwnerNature,
                 isOuter: Boolean,
@@ -81,6 +87,7 @@ object ClassBodyDeclaration {
             Seq(
               ApexMethodDeclaration.construct(
                 parser,
+                typeContext,
                 module,
                 outerTypeId,
                 MethodModifiers
@@ -107,6 +114,7 @@ object ClassBodyDeclaration {
                 Seq(
                   ApexConstructorDeclaration.construct(
                     parser,
+                    typeContext,
                     module,
                     typeName,
                     ApexModifiers.constructorModifiers(parser, modifiers, x),
@@ -242,6 +250,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
 
 object ApexMethodDeclaration {
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeId: TypeId,
                 modifiers: ModifierResults,
@@ -256,9 +265,10 @@ object ApexMethodDeclaration {
 
     new ApexMethodDeclaration(outerTypeId,
                               modifiers,
-                              RelativeTypeName(module, outerTypeId.typeName, typeName),
+                              RelativeTypeName(typeContext, typeName),
                               Id.construct(from.id()),
                               FormalParameters.construct(parser,
+                                                         typeContext,
                                                          module,
                                                          outerTypeId.typeName,
                                                          from.formalParameters()),
@@ -266,6 +276,7 @@ object ApexMethodDeclaration {
   }
 
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeId: TypeId,
                 modifiers: ModifierResults,
@@ -276,9 +287,10 @@ object ApexMethodDeclaration {
       .getOrElse(TypeNames.Void)
     new ApexMethodDeclaration(outerTypeId,
                               modifiers,
-                              RelativeTypeName(module, outerTypeId.typeName, typeName),
+                              RelativeTypeName(typeContext, typeName),
                               Id.construct(from.id()),
                               FormalParameters.construct(parser,
+                                                         typeContext,
                                                          module,
                                                          outerTypeId.typeName,
                                                          from.formalParameters()),
@@ -353,6 +365,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
 
 object ApexConstructorDeclaration {
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
                 modifiers: ModifierResults,
@@ -360,6 +373,7 @@ object ApexConstructorDeclaration {
     ApexConstructorDeclaration(modifiers,
                                QualifiedName.construct(from.qualifiedName()),
                                FormalParameters.construct(parser,
+                                                          typeContext,
                                                           module,
                                                           outerTypeName,
                                                           from.formalParameters()),
@@ -391,13 +405,15 @@ final case class FormalParameter(module: Module,
 
 object FormalParameter {
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
                 items: Array[FormalParameterContext]): Array[ParameterDeclaration] = {
-    items.map(x => FormalParameter.construct(parser, module, outerTypeName, x))
+    items.map(x => FormalParameter.construct(parser, typeContext, module, outerTypeName, x))
   }
 
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
                 from: FormalParameterContext): FormalParameter = {
@@ -406,9 +422,7 @@ object FormalParameter {
                     ApexModifiers.parameterModifiers(parser,
                                                      CodeParser.toScala(from.modifier()),
                                                      from),
-                    RelativeTypeName(module,
-                                     outerTypeName,
-                                     TypeReference.construct(from.typeRef())),
+                    RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
                     Id.construct(from.id())).withContext(from)
   }
 }
@@ -417,11 +431,13 @@ object FormalParameterList {
   val noParams: Array[ParameterDeclaration] = Array()
 
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
                 from: FormalParameterListContext): Array[ParameterDeclaration] = {
     if (from.formalParameter() != null) {
       FormalParameter.construct(parser,
+                                typeContext,
                                 module,
                                 outerTypeName,
                                 CodeParser.toScala(from.formalParameter()).toArray)
@@ -435,12 +451,13 @@ object FormalParameters {
   val noParams: Array[ParameterDeclaration] = Array()
 
   def construct(parser: CodeParser,
+                typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
                 from: FormalParametersContext): Array[ParameterDeclaration] = {
     CodeParser
       .toScala(from.formalParameterList())
-      .map(x => FormalParameterList.construct(parser, module, outerTypeName, x))
+      .map(x => FormalParameterList.construct(parser, typeContext, module, outerTypeName, x))
       .getOrElse(noParams)
   }
 }

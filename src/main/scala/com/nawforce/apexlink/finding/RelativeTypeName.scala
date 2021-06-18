@@ -17,18 +17,41 @@ package com.nawforce.apexlink.finding
 import com.nawforce.apexlink.cst.BlockVerifyContext
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{Nature, TypeDeclaration}
+import com.nawforce.apexlink.types.apex.ApexDeclaration
+import com.nawforce.apexlink.types.core.Nature
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{Name, TypeName}
+
+/** Context to aid RelativeTypeName resolve via the originating ApexDeclaration. This needs freezing after
+  * RelativeTypeNames are constructed due to the ApexDeclaration not being constructed until after its constituent
+  * parts such as constructors and methods which use RelativeTypeName.
+  */
+final class RelativeTypeContext {
+  private var contextTypeDeclaration: ApexDeclaration = _
+
+  /* Freeze the RelativeTypeContext by providing access to the enclosing Apex class. */
+  def freeze(typeDeclaration: ApexDeclaration): Unit = {
+    assert(contextTypeDeclaration == null)
+    contextTypeDeclaration = typeDeclaration
+  }
+
+  def outerTypeDeclaration: ApexDeclaration = {
+    assert(contextTypeDeclaration != null)
+    contextTypeDeclaration
+  }
+
+  /* Resolve the passed typeName relative to the context class. */
+  def resolve(typeName: TypeName): TypeResponse = {
+    assert(contextTypeDeclaration != null)
+    TypeResolver(typeName, contextTypeDeclaration)
+  }
+}
 
 /* Lazy TypeName resolver for relative types. The package & enclosing (outer) typename are used to allow
  * the relative TypeName to be converted to an absolute form. Assumes outerTypeName can always be resolved
  * against the module!
  */
-final case class RelativeTypeName(module: Module,
-                                  outerTypeName: TypeName,
-                                  relativeTypeName: TypeName) {
+final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeTypeName: TypeName) {
 
   def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
     typeRequest match {
@@ -37,7 +60,7 @@ final case class RelativeTypeName(module: Module,
         context.addDependency(td)
       case _ =>
         context.missingType(location, relativeTypeName)
-        context.addVar(name, module.any)
+        context.addVar(name, typeContext.outerTypeDeclaration.module.any)
     }
   }
 
@@ -58,25 +81,20 @@ final case class RelativeTypeName(module: Module,
     // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
     val result =
       if (relativeTypeName.outer.nonEmpty) {
-        TypeResolver(relativeTypeName, module) match {
+        TypeResolver(relativeTypeName, typeContext.outerTypeDeclaration.module) match {
           case Right(td) => Right(td)
-          case Left(_)   => outerTypeDeclaration.resolve(relativeTypeName)
+          case Left(_)   => typeContext.resolve(relativeTypeName)
         }
       } else {
-        outerTypeDeclaration.resolve(relativeTypeName)
+        typeContext.resolve(relativeTypeName)
       }
 
-    if (result.isLeft && module.isGhostedType(relativeTypeName))
+    if (result.isLeft && typeContext.outerTypeDeclaration.module.isGhostedType(relativeTypeName))
       None
     else
       Some(result)
   }
 
   // Recover outer types nature, bit of a hack but sometimes useful
-  lazy val outerNature: Nature = outerTypeDeclaration.nature
-
-  private def outerTypeDeclaration: TypeDeclaration = {
-    TypeResolver(outerTypeName, module)
-      .getOrElse(throw new NoSuchElementException)
-  }
+  def outerNature: Nature = typeContext.outerTypeDeclaration.nature
 }

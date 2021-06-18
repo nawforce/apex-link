@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration}
@@ -95,6 +96,7 @@ object ClassDeclaration {
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
+    val typeContext = new RelativeTypeContext
 
     val bodyDeclarations: Array[ClassBodyDeclaration] =
         classBodyDeclarations.flatMap(cbd =>
@@ -102,14 +104,16 @@ object ClassDeclaration {
             .map(x => Seq(ApexInitializerBlock.construct(parser,
                 ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
-            .map(x => ClassBodyDeclaration.construct(parser, module, modifiers.methodOwnerNature,
+            .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
               outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
         ).flatten.toArray
 
-    ClassDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
+    val td = ClassDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
       Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
+    typeContext.freeze(td)
+    td
   }
 
   private def getModifiers(isStatic: Option[TerminalNode]): Array[Modifier]= {
@@ -147,14 +151,18 @@ object InterfaceDeclaration {
         .map(x => TypeList.construct(x))
         .getOrElse(Array(TypeNames.InternalInterface))
 
+    val typeContext = new RelativeTypeContext()
+
     val methods: Array[ClassBodyDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
-            ApexMethodDeclaration.construct(parser, module, TypeId(module, thisType),
+            ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
               MethodModifiers.interfaceMethodModifiers(parser, CodeParser.toScala(m.modifier()), m.id(), outerTypeName.isEmpty), m)
     ).toArray
 
-    InterfaceDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
+    val td = InterfaceDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
       implementsType, methods).withContext(interfaceDeclaration)
+    typeContext.freeze(td)
+    td
   }
 }
 
