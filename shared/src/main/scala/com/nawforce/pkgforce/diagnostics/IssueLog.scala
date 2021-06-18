@@ -47,6 +47,12 @@ class IssueLog {
     log.clear()
   }
 
+  // Check log for error issues
+  def hasErrors: Boolean = {
+    log.values.exists(_.exists(issue =>
+      issue.diagnostic.category != WARNING_CATEGORY && issue.diagnostic.category != UNUSED_CATEGORY))
+  }
+
   // Add an issue
   def add(issue: Issue): Unit = {
     log.put(issue.path, issue :: log(issue.path))
@@ -197,13 +203,9 @@ class IssueLog {
   }
 
   def asString(warnings: Boolean, maxErrors: Int, format: String = ""): String = {
-    if (format == "pickle") {
-      write(getIssues)
-    } else {
-      writeMessages(if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
-                    warnings,
-                    maxErrors)
-    }
+    writeMessages(if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
+                  warnings,
+                  maxErrors)
   }
 
   def dump(): Unit = {
