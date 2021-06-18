@@ -22,12 +22,15 @@ import com.nawforce.apexlink.types.core.Nature
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
+import scala.collection.mutable
+
 /** Context to aid RelativeTypeName resolve via the originating ApexDeclaration. This needs freezing after
   * RelativeTypeNames are constructed due to the ApexDeclaration not being constructed until after its constituent
   * parts such as constructors and methods which use RelativeTypeName.
   */
 final class RelativeTypeContext {
   private var contextTypeDeclaration: ApexDeclaration = _
+  private val typeCache = mutable.Map[TypeName, TypeResponse]()
 
   /* Freeze the RelativeTypeContext by providing access to the enclosing Apex class. */
   def freeze(typeDeclaration: ApexDeclaration): Unit = {
@@ -43,7 +46,7 @@ final class RelativeTypeContext {
   /* Resolve the passed typeName relative to the context class. */
   def resolve(typeName: TypeName): TypeResponse = {
     assert(contextTypeDeclaration != null)
-    TypeResolver(typeName, contextTypeDeclaration)
+    typeCache.getOrElseUpdate(typeName, TypeResolver(typeName, contextTypeDeclaration))
   }
 }
 
