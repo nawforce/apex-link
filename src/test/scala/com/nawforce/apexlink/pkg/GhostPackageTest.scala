@@ -237,7 +237,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
         "pkg/Dummy.cls" -> "public class Dummy extends ghosted.SuperClass { {Object a = b.foo();} }")) {
       root: PathLike =>
-        createOrg(root)
+        val org = createOrg(root)
         assert(!hasIssues)
         assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
     }

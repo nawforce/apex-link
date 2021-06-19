@@ -20,7 +20,6 @@ import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
-import java.lang.ref.WeakReference
 import scala.collection.mutable
 
 object PlatformTypes {
@@ -53,7 +52,7 @@ object PlatformTypes {
 
   private val typeCache = mutable.Map[TypeName, TypeResponse]()
   private val firedTypes = mutable.Set[TypeName]()
-  private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
+  private var loadingObservers: Seq[PlatformTypeObserver] = Seq()
 
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).getOrElse(throw new NoSuchElementException)
@@ -63,9 +62,14 @@ object PlatformTypes {
     def loaded(td: PlatformTypeDeclaration): Unit
   }
 
-  def addLoadingObserver(observer: PlatformTypeObserver): Unit = {
-    loadingObservers = loadingObservers :+ new WeakReference(observer)
-    firedTypes.clear()
+  def withLoadingObserver[T](observer: PlatformTypeObserver)(op: => T): Unit = {
+    try {
+      loadingObservers = loadingObservers :+ observer
+      firedTypes.clear()
+      op
+    } finally {
+      loadingObservers = loadingObservers.filterNot(_ eq observer)
+    }
   }
 
   /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
@@ -117,8 +121,7 @@ object PlatformTypes {
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit = {
     val ptd = td.asInstanceOf[PlatformTypeDeclaration]
-    loadingObservers = loadingObservers.filterNot(_.get == null)
-    loadingObservers.foreach(wr => Option(wr.get).map(_.loaded(ptd)))
+    loadingObservers.foreach(observer => observer.loaded(ptd))
   }
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(

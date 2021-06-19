@@ -29,7 +29,7 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
   def allMethods: Array[MethodDeclaration] = methodsByName.values.flatten.toArray
 
   def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
-                 context: VerifyContext): Array[MethodDeclaration] = {
+                 context: VerifyContext): Option[MethodDeclaration] = {
     val matches = methodsByName.getOrElse((name, params.length),Array())
     val filteredMatches = staticContext match {
       case None => matches
@@ -38,11 +38,11 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
 
     val exactMatches = filteredMatches.filter(_.hasParameters(params))
     if (exactMatches.nonEmpty)
-      return Array(exactMatches.head)
+      return Some(exactMatches.head)
 
     val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.nonEmpty)
-      return Array(erasedMatches.head)
+      return Some(erasedMatches.head)
 
     val assignableMatches = filteredMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -53,9 +53,9 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
 
     if (assignableMatches.nonEmpty) {
       val maxIdentical = assignableMatches.map(_._1).max
-      assignableMatches.filter(_._1 == maxIdentical).map(_._2)
+      assignableMatches.filter(_._1 == maxIdentical).map(_._2).headOption
     } else {
-      Array()
+      None
     }
   }
 }

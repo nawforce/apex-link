@@ -171,7 +171,7 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
 
 final case class DotExpressionWithMethod(expression: Expression,
                                          safeNavigation: Boolean,
-                                         target: MethodCall)
+                                         target: MethodCallWithId)
     extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
@@ -257,8 +257,10 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
   }
 }
 
-final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expression])
-    extends Expression {
+abstract class MethodCall extends Expression
+
+final case class MethodCallWithId(target: Id, arguments: Array[Expression]) extends MethodCall {
+
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     verify(location, input.typeDeclaration, None, input, context)
   }
@@ -273,30 +275,17 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expres
     if (args.exists(!_.isDefined))
       return ExprContext.empty
 
-    target match {
-      case Right(id) =>
-        val argTypes = args.map(_.typeName)
-        val methods = callee.findMethod(id.name, argTypes, staticContext, context)
-        methods.foreach(context.addDependency)
-        if (methods.isEmpty) {
-          if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
-            if (argTypes.isEmpty)
-              context.logError(
-                location,
-                s"No matching method found for '${id.name}' on '${callee.typeName}' taking no arguments")
-            else
-              context.logError(
-                location,
-                s"No matching method found for '${id.name}' on '${callee.typeName}' " +
-                  s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
-          }
-          ExprContext.empty
-        } else if (methods.head.typeName != TypeNames.Void && !context.module.isGhostedType(
-                     methods.head.typeName)) {
-          val td = context.getTypeAndAddDependency(methods.head.typeName, context.thisType)
+    val argTypes = args.map(_.typeName)
+    callee
+      .findMethod(target.name, argTypes, staticContext, context)
+      .map(method => {
+        context.addDependency(method)
+        if (method.typeName != TypeNames.Void) {
+          val td = context.getTypeAndAddDependency(method.typeName, context.thisType)
           td match {
             case Left(error) =>
-              context.log(error.asIssue(location))
+              if (!context.module.isGhostedType(method.typeName))
+                context.log(error.asIssue(location))
               ExprContext.empty
             case Right(td) =>
               ExprContext(isStatic = Some(false), td)
@@ -305,36 +294,53 @@ final case class MethodCall(target: Either[Boolean, Id], arguments: Array[Expres
           // TODO: How to error if attempt to use return
           ExprContext.empty
         }
-      case Left(_) =>
-        // TODO:
+      })
+      .getOrElse({
+        if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
+          if (argTypes.isEmpty)
+            context.logError(
+              location,
+              s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
+          else
+            context.logError(
+              location,
+              s"No matching method found for '${target.name}' on '${callee.typeName}' " +
+                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+        }
         ExprContext.empty
-    }
+      })
+  }
+}
+
+final case class MethodCallCtor(isSuper: Boolean, arguments: Array[Expression]) extends MethodCall {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    // TODO
+    ExprContext.empty
   }
 }
 
 object MethodCall {
   def construct(from: MethodCallContext): MethodCall = {
-    val caller = CodeParser
+    CodeParser
       .toScala(from.id())
-      .map(id => Right(Id.construct(id)))
-      .getOrElse(Left(CodeParser.toScala(from.THIS()).nonEmpty))
-
-    MethodCall(caller,
-               CodeParser
-                 .toScala(from.expressionList())
-                 .map(el =>
-                   CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
-                 .getOrElse(Expression.emptyExpressions))
+      .map(id => {
+        MethodCallWithId(Id.construct(id), expressions(from.expressionList()))
+      })
+      .getOrElse({
+        MethodCallCtor(CodeParser.toScala(from.SUPER()).nonEmpty,
+                       expressions(from.expressionList()))
+      })
   }
 
-  def construct(from: DotMethodCallContext): MethodCall = {
-    val caller = Right(Id.constructAny(from.anyId()))
-    MethodCall(caller,
-               CodeParser
-                 .toScala(from.expressionList())
-                 .map(el =>
-                   CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
-                 .getOrElse(Expression.emptyExpressions))
+  def construct(from: DotMethodCallContext): MethodCallWithId = {
+    MethodCallWithId(Id.constructAny(from.anyId()), expressions(from.expressionList()))
+  }
+
+  private def expressions(from: ExpressionListContext) = {
+    CodeParser
+      .toScala(from)
+      .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
+      .getOrElse(Expression.emptyExpressions)
   }
 }
 

@@ -40,7 +40,7 @@ final case class Interview(module: Module, path: Option[PathLike], interviewName
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -73,7 +73,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
   }
 

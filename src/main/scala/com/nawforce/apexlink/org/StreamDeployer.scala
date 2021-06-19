@@ -54,15 +54,17 @@ class StreamDeployer(module: Module,
     val basicTypesSize = types.size
 
     // Process package events, these must follow the publishing order from pkgforce
-    val bufferedIterator = events.buffered
-    consumeLabels(bufferedIterator)
-    consumePages(bufferedIterator)
-    consumeFlows(bufferedIterator)
-    consumeComponents(bufferedIterator)
-    consumeSObjects(bufferedIterator)
-    consumeExtendedClasses(bufferedIterator)
-    consumeClasses(bufferedIterator)
-    consumeTriggers(bufferedIterator)
+    PlatformTypes.withLoadingObserver(module.schemaSObjectType()) {
+      val bufferedIterator = events.buffered
+      consumeLabels(bufferedIterator)
+      consumePages(bufferedIterator)
+      consumeFlows(bufferedIterator)
+      consumeComponents(bufferedIterator)
+      consumeSObjects(bufferedIterator)
+      consumeExtendedClasses(bufferedIterator)
+      consumeClasses(bufferedIterator)
+      consumeTriggers(bufferedIterator)
+    }
     CodeParser.clearCaches()
     Environment.gc()
 
@@ -524,7 +526,8 @@ class StreamDeployer(module: Module,
           // Clear caches to avoid unconstrained growth, this will slow the parser a bit
           CodeParser.clearCaches()
           tds
-        }).toSeq
+        })
+        .toSeq
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())

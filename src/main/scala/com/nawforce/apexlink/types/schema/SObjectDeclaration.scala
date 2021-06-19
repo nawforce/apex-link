@@ -46,7 +46,8 @@ final case class SObjectDeclaration(paths: Array[PathLike],
                                     sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
-    extends DependentType with SObjectFieldFinder {
+    extends DependentType
+    with SObjectFieldFinder {
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
@@ -91,7 +92,7 @@ final case class SObjectDeclaration(paths: Array[PathLike],
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(true)) {
       val customMethods = sobjectNature match {
         case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
@@ -100,7 +101,7 @@ final case class SObjectDeclaration(paths: Array[PathLike],
       }
       val customMethod = customMethods.get((name, params.length))
       if (customMethod.nonEmpty)
-        return customMethod.toArray
+        return customMethod
     }
     defaultFindMethod(name, params, staticContext, verifyContext)
   }
@@ -108,12 +109,12 @@ final case class SObjectDeclaration(paths: Array[PathLike],
   def defaultFindMethod(name: Name,
                         params: Array[TypeName],
                         staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Array[MethodDeclaration] = {
-    val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
-    if (clone.nonEmpty)
-      clone.toArray
-    else
-      PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
+                        verifyContext: VerifyContext): Option[MethodDeclaration] = {
+    cloneMethods
+      .get((name, params.length, staticContext.contains(true)))
+      .orElse({
+        PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
+      })
   }
 
   private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {

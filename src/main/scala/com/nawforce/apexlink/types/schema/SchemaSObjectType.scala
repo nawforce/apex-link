@@ -19,7 +19,12 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
@@ -42,14 +47,11 @@ final case class SchemaSObjectType(module: Module)
     extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.SObjectType)
     with PlatformTypes.PlatformTypeObserver {
 
-  /** Cache of SObject accessible via SObjectType.<name> */
+  /** Cache of SObject accessible via SObjectType name */
   private val sobjectFields: mutable.Map[Name, Option[FieldDeclaration]] = mutable.Map()
 
-  /** Observe loading of platform types so we can inject generic handlers as needed. */
-  PlatformTypes.addLoadingObserver(this)
-
   /** Callback for loading of Platform Type that may be SObjects so we can hoist correct describe structure around
-    * them. FUTURE: This is a bit over general as any module referencing will cause *all* modules to handle */
+    * them. */
   override def loaded(td: PlatformTypeDeclaration): Unit = {
     if (td.isSObject) {
       add(td.name, td.typeName, hasFieldSets = true)
@@ -112,7 +114,7 @@ final case class SchemaSObjectType(module: Module)
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -151,7 +153,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -166,7 +168,7 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
       TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
-    TypeResolver(TypeName(sobjectName), module ).toOption match {
+    TypeResolver(TypeName(sobjectName), module).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields
           .map(field =>
@@ -197,11 +199,11 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(false)) {
       val method = methodMap.get((name, params.length))
       if (method.nonEmpty)
-        return method.toArray
+        return method
     }
     super.findMethod(name, params, staticContext, verifyContext)
   }
@@ -231,7 +233,9 @@ final case class SObjectFields(sobjectName: Name, module: Module)
     val shareTypeName = if (typeName.isShare) Some(typeName) else None
     TypeResolver(TypeName(sobjectName), module).toOption match {
       case Some(sobject: TypeDeclaration) =>
-        sobject.fields.map(field => (field.name, field.getSObjectField(shareTypeName, Some(module)))).toMap
+        sobject.fields
+          .map(field => (field.name, field.getSObjectField(shareTypeName, Some(module))))
+          .toMap
       case _ => Map()
     }
   }
@@ -266,7 +270,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectFieldType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -305,7 +309,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)
   }
 }

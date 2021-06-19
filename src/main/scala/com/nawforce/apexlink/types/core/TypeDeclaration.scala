@@ -268,7 +268,7 @@ trait AbstractTypeDeclaration {
   def findMethod(name: Name,
                  params: Array[TypeName],
                  staticContext: Option[Boolean],
-                 verifyContext: VerifyContext): Array[MethodDeclaration]
+                 verifyContext: VerifyContext): Option[MethodDeclaration]
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
@@ -348,7 +348,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   override def findMethod(name: Name,
                           params: Array[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Array[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
