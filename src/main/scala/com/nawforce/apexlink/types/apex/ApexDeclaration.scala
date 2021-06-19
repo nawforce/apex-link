@@ -138,7 +138,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def interfaceDeclarations: Array[TypeDeclaration] =
     interfaces.flatMap(i => TypeResolver(i, this).toOption)
 
-  override def isComplete: Boolean = {
+  override lazy val isComplete: Boolean = {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 

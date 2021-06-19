@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexFieldLike}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
@@ -89,44 +88,53 @@ final case class IdPrimary(id: Id) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.typeDeclarationOpt.nonEmpty)
 
-    val td = context.isVar(id.name)
-    if (td.nonEmpty)
-      return ExprContext(isStatic = Some(false), td.get)
+    isVarReference(context)
+      .getOrElse(
+        isFieldReference(input, context)
+          .getOrElse(isTypeReference(context).getOrElse({
+            if (input.typeDeclaration.isComplete)
+              context.missingIdentifier(location, input.typeName, id.name)
+            ExprContext.empty
+          })))
+  }
 
-    input.typeDeclarationOpt.get match {
-      case td: TypeDeclaration =>
-        val name = id.name
-        val staticContext = Some(true).filter(input.isStatic.contains)
-        val field = findField(name, td, staticContext)
-        if (field.nonEmpty && isAccessible(td, field.get, staticContext)) {
-          context.addDependency(field.get)
-          val target = context.getTypeAndAddDependency(field.get.typeName, td).toOption
-          if (target.isEmpty) {
+  private def isVarReference(context: ExpressionVerifyContext): Option[ExprContext] = {
+    context
+      .isVar(id.name)
+      .map(varType => {
+        ExprContext(isStatic = Some(false), varType)
+      })
+  }
+
+  private def isFieldReference(input: ExprContext,
+                               context: ExpressionVerifyContext): Option[ExprContext] = {
+    val td = input.typeDeclaration
+    val staticContext = Some(true).filter(input.isStatic.contains)
+
+    val field = findField(id.name, td, staticContext)
+    if (field.nonEmpty && isAccessible(td, field.get, staticContext)) {
+      context.addDependency(field.get)
+      Some(
+        context
+          .getTypeAndAddDependency(field.get.typeName, td)
+          .toOption
+          .map(target => {
+            ExprContext(isStatic = Some(false), target)
+          })
+          .getOrElse({
             context.missingType(location, field.get.typeName)
-            return ExprContext.empty
-          }
-          return ExprContext(isStatic = Some(false), target.get)
-        }
-
-        val typeRef = td.findLocalType(TypeName(id.name))
-        if (typeRef.nonEmpty) {
-          return ExprContext(isStatic = Some(true), typeRef.get)
-        }
-
-        if (!td.isComplete)
-          return ExprContext.empty
-
-      case _ => ()
+            ExprContext.empty
+          }))
+    } else {
+      None
     }
+  }
 
-    val absTd = TypeResolver(TypeName(id.name), context.thisType)
-    if (absTd.isRight) {
-      context.addDependency(absTd.getOrElse(throw new NoSuchElementException))
-      return ExprContext(isStatic = Some(true), absTd.getOrElse(throw new NoSuchElementException))
+  private def isTypeReference(context: ExpressionVerifyContext): Option[ExprContext] = {
+    context.getTypeAndAddDependency(TypeName(id.name), context.thisType) match {
+      case Right(td) => Some(ExprContext(isStatic = Some(true), td))
+      case _         => None
     }
-
-    context.missingIdentifier(location, input.typeName, id.name)
-    ExprContext.empty
   }
 
   private def findField(name: Name,
