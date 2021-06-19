@@ -14,13 +14,14 @@
 
 package com.nawforce.apexlink.types.platform
 
-import java.lang.ref.WeakReference
-
 import com.nawforce.apexlink.finding.MissingType
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, TypeName}
+
+import java.lang.ref.WeakReference
+import scala.collection.mutable
 
 object PlatformTypes {
   lazy val nullType: TypeDeclaration = loadType(TypeNames.Null)
@@ -50,6 +51,10 @@ object PlatformTypes {
   lazy val apexComponent: TypeDeclaration = loadType(TypeNames.ApexComponent)
   lazy val chatterComponent: TypeDeclaration = loadType(TypeNames.ChatterComponent)
 
+  private val typeCache = mutable.Map[TypeName, TypeResponse]()
+  private val firedTypes = mutable.Set[TypeName]()
+  private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
+
   private def loadType(typeName: TypeName): TypeDeclaration = {
     PlatformTypeDeclaration.get(typeName, None).getOrElse(throw new NoSuchElementException)
   }
@@ -58,10 +63,9 @@ object PlatformTypes {
     def loaded(td: PlatformTypeDeclaration): Unit
   }
 
-  private var loadingObservers: Seq[WeakReference[PlatformTypeObserver]] = Seq()
-
   def addLoadingObserver(observer: PlatformTypeObserver): Unit = {
     loadingObservers = loadingObservers :+ new WeakReference(observer)
+    firedTypes.clear()
   }
 
   /* Get a type, in general don't call this direct, use TypeRequest which will delegate here if
@@ -86,11 +90,29 @@ object PlatformTypes {
       }
     }
 
-    val alias = typeAliasMap.getOrElse(typeName, typeName)
-    findOuterOrNestedPlatformType(alias)
-      .orElse(findOuterOrNestedPlatformType(alias.wrap(TypeNames.Schema)))
-      .orElse(findOuterOrNestedPlatformType(alias.wrap(TypeNames.System)))
-      .map(r => { fireLoadingEvents(r); r })
+    def findType(localTypeName: TypeName): TypeResponse = {
+      findOuterOrNestedPlatformType(localTypeName)
+        .orElse(findOuterOrNestedPlatformType(localTypeName.wrap(TypeNames.Schema)))
+        .orElse(findOuterOrNestedPlatformType(localTypeName.wrap(TypeNames.System)))
+    }
+
+    val response =
+      if (typeName.isNonGeneric) {
+        typeCache.getOrElseUpdate(typeName, findType(typeAliasMap.getOrElse(typeName, typeName)))
+      } else {
+        findType(typeAliasMap.getOrElse(typeName, typeName))
+      }
+
+    response match {
+      case Right(td) =>
+        if (!firedTypes.contains(td.typeName)) {
+          fireLoadingEvents(td)
+          firedTypes.add(td.typeName)
+        }
+      case _ => ()
+    }
+
+    response
   }
 
   private def fireLoadingEvents(td: TypeDeclaration): Unit = {
@@ -106,6 +128,5 @@ object PlatformTypes {
     TypeName(Name("Site")) -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
     TypeName(Name("Location")) -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
     TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
-    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
-  )
+    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System)))
 }

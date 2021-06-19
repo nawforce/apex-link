@@ -177,6 +177,9 @@ package object names {
     def isBatchable: Boolean =
       typeName.name == Names.Batchable && typeName.outer.contains(TypeNames.Database)
 
+    def isNonGeneric: Boolean =
+      typeName.params.isEmpty && typeName.outer.forall(_.isNonGeneric)
+
     def equalsIgnoreParams(other: TypeName): Boolean = {
       typeName.name == other.name &&
       typeName.params.size == other.params.size &&
