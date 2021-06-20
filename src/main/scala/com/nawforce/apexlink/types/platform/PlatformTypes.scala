@@ -62,7 +62,7 @@ object PlatformTypes {
     def loaded(td: PlatformTypeDeclaration): Unit
   }
 
-  def withLoadingObserver[T](observer: PlatformTypeObserver)(op: => T): Unit = {
+  def withLoadingObserver[T](observer: PlatformTypeObserver)(op: => T): T = {
     try {
       loadingObservers = loadingObservers :+ observer
       firedTypes.clear()

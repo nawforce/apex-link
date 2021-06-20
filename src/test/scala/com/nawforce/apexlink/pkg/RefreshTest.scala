@@ -97,25 +97,24 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Refresh resolves missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
-            "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(
-          org.issues.getMessages("/pkg/Foo.cls")
-            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+        Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}", "pkg/Bar.cls" -> "public class Bar {}")) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          assert(
+            org.issues.getMessages("/pkg/Foo.cls")
+              == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
-        refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
-        assert(org.flush())
-        assert(!org.issues.hasMessages)
+          refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
+          assert(org.flush())
+          assert(!org.issues.hasMessages)
       }
     }
   }
 
   test("Dependencies created") {
     withManualFlush {
-      FileSystemHelper.run(
-        Map("pkg/Foo.cls" -> "public class Foo {}", "pkg/Bar.cls" -> "public class Bar {}")) {
+      FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}", "pkg/Bar.cls" -> "public class Bar {}")) {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
@@ -196,13 +195,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid trigger refresh") {
     withManualFlush {
-      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
-          assert(org.flush())
-          assert(!org.issues.hasMessages)
+      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
       }
     }
   }
@@ -222,15 +220,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid trigger refresh with changes") {
     withManualFlush {
-      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          refresh(pkg,
-                  root.join("pkg/Foo.trigger"),
-                  "trigger Foo on Account (before insert) {Object a;}")
-          assert(org.flush())
-          assert(!org.issues.hasMessages)
+      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {Object a;}")
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
       }
     }
   }
@@ -274,28 +269,26 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Trigger dependencies created") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}",
-            "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        refresh(pkg,
-                root.join("pkg/Foo.trigger"),
-                "trigger Foo on Account (before insert) {Bar b;}")
-        assert(org.flush())
+        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}", "pkg/Bar.cls" -> "public class Bar {}")) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {Bar b;}")
+          assert(org.flush())
 
-        val fooTypeId =
-          pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
-        val barTypeId =
-          pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+          val fooTypeId =
+            pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
+          val barTypeId =
+            pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-        assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
-        assert(
-          pkg
-            .getDependencies(fooTypeId, outerInheritanceOnly = false)
-            .sameElements(Array(barTypeId)))
+          assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+          assert(
+            pkg
+              .getDependencies(fooTypeId, outerInheritanceOnly = false)
+              .sameElements(Array(barTypeId)))
 
-        assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-        assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+          assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
+          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
       }
     }
   }
@@ -314,9 +307,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
         val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
-        refresh(pkg2,
-                root.join("pkg2/Foo.trigger"),
-                "trigger Foo on Account (before insert) {pkg1.Bar b;}")
+        refresh(pkg2, root.join("pkg2/Foo.trigger"), "trigger Foo on Account (before insert) {pkg1.Bar b;}")
         assert(org.flush())
 
         val fooTypeId =
@@ -338,8 +329,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid label upsert") {
     withManualFlush {
-      FileSystemHelper.run(Map(
-        "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) {
+      FileSystemHelper.run(
+        Map("CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
@@ -451,18 +442,17 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             |    </labels>
             |</CustomLabels>
             |""".stripMargin,
-            "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          assert(!org.issues.hasMessages)
+            "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
 
-          refresh(pkg,
-                  root.join("CustomLabels.labels"),
-                  "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
-          assert(org.flush())
-          assert(
-            org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        refresh(pkg,
+                root.join("CustomLabels.labels"),
+                "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
       }
     }
   }
@@ -470,9 +460,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map(
-          "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
-          "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+        Map("CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+            "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(
@@ -547,9 +536,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test2.flow-meta.xml"), "")
         assert(org.flush())
-        assert(
-          pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"),
-                                                                                  Name("Test2")))
+        assert(pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
       }
     }
   }
@@ -605,9 +592,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage2.page"), " ")
         assert(org.flush())
-        assert(
-          pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("TestPage"),
-                                                                        Name("TestPage2")))
+        assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
       }
     }
   }
@@ -683,8 +668,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -701,8 +685,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -719,8 +702,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -737,12 +719,10 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Bar__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Bar__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -751,7 +731,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
-        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
@@ -767,8 +747,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -777,7 +756,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
-        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
@@ -793,8 +772,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
       }
     }
   }
@@ -803,7 +781,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
-        val pkg = org.unmanaged.asInstanceOf[PackageImpl]
+        val pkg = org.unmanaged
         assert(!org.issues.hasMessages)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
@@ -819,8 +797,41 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(!org.issues.hasMessages)
         assert(
           pkg.orderedModules.head.types
-            .get(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
-            .nonEmpty)
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Valid custom object class dependent") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+            "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
+
+        refresh(pkg, root.join("Foo__c.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n")
+      }
+    }
+  }
+
+  test("Valid custom object class dependent (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__c.object" -> customObject("Foo", Seq()),
+            "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n")
+
+        refresh(pkg, root.join("Foo__c.object"), customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        assert(org.flush())
+        assert(!org.issues.hasMessages)
       }
     }
   }

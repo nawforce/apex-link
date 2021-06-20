@@ -191,8 +191,8 @@ trait PackageAPI extends Package {
 
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
-  def refreshInternal(path: PathLike): Option[(TypeId, Set[TypeId])] = {
-    modules.find(_.isVisibleFile(path)).map(_.refreshInternal(path))
+  def refreshInternal(path: PathLike): Seq[(TypeId, Set[TypeId])] = {
+    modules.find(_.isVisibleFile(path)).map(_.refreshInternal(path)).getOrElse(Seq())
   }
 
   def refreshBatched(refreshRequests: Seq[RefreshRequest]): Boolean = {

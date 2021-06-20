@@ -27,6 +27,7 @@ import com.nawforce.apexlink.types.apex.{
 }
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
+import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
 import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.pkgforce.documents._
@@ -38,8 +39,7 @@ import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable
 
-class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module])
-    extends TypeFinder {
+class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
 
   val namespace: Option[Name] = pkg.namespace
   val baseModules: Seq[Module] = dependents.reverse
@@ -52,20 +52,22 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   def freeze(): Unit = {
     // FUTURE: Have return types, currently can't be done because class loading code needs access to in-flight types
     upsertMetadata(AnyDeclaration(this))
-    upsertMetadata(schemaSObjectType())
-    upsertMetadata(schemaSObjectType(), Some(TypeName(schemaSObjectType().name)))
+    upsertMetadata(schemaSObjectType)
+    upsertMetadata(schemaSObjectType, Some(TypeName(schemaSObjectType.name)))
 
     new StreamDeployer(this, PackageStream.eventStream(index), types)
   }
 
   override def toString: String = s"Module(${index.path})"
 
-  def schemaSObjectType(): SchemaSObjectType = schemaManager
+  def schemaSObjectType: SchemaSObjectType = schemaManager
   def any: AnyDeclaration = types(TypeNames.Any).asInstanceOf[AnyDeclaration]
   def labels: LabelDeclaration = types(TypeNames.Label).asInstanceOf[LabelDeclaration]
-  def interviews: InterviewDeclaration = types(TypeNames.Interview).asInstanceOf[InterviewDeclaration]
+  def interviews: InterviewDeclaration =
+    types(TypeNames.Interview).asInstanceOf[InterviewDeclaration]
   def pages: PageDeclaration = types(TypeNames.Page).asInstanceOf[PageDeclaration]
-  def components: ComponentDeclaration = types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
+  def components: ComponentDeclaration =
+    types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
 
   /** Count of loaded types, for debug info */
   def typeCount: Int = types.size
@@ -172,22 +174,14 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
    * if needed. This is the fallback handling for the TypeFinder which performs local searching for types, so this is
    * only useful if you know local searching is not required. */
   def findType(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
-
-    var td = findPackageType(typeName).map(Right(_))
-    if (td.nonEmpty)
-      return td.get
-
-    if (namespace.nonEmpty) {
-      td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
-      if (td.nonEmpty)
-        return td.get
-    }
-
-    // From may be used to locate type variable types so must be accurate even for a platform type request
-    TypeResolver.platformType(typeName, from)
+    findType(typeName, Some(from))
   }
 
   def findType(typeName: TypeName): TypeResponse = {
+    findType(typeName, None)
+  }
+
+  private def findType(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
 
     var td = findPackageType(typeName).map(Right(_))
     if (td.nonEmpty)
@@ -200,7 +194,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     }
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
-    TypeResolver.platformTypeOnly(typeName, this)
+    from.map(TypeResolver.platformType(typeName, _)).orElse(Some(TypeResolver.platformTypeOnly(typeName, this))).get
   }
 
   // Find locally, or fallback to a searching base packages
@@ -225,8 +219,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       .headOption
       .orElse(
         basePackages.view
-          .flatMap(pkg =>
-            pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
+          .flatMap(pkg => pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
           .headOption)
   }
 
@@ -240,8 +233,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     if (declaration.nonEmpty)
       return declaration
 
-    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(
-          TypeNames.Schema))) {
+    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeNames.Schema))) {
       val encName = EncodedName(typeName.name).defaultNamespace(namespace)
       if (encName.ext.nonEmpty) {
         return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))
@@ -252,40 +244,51 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
-  def refreshInternal(path: PathLike): (TypeId, Set[TypeId]) = {
-    checkPathInPackageOrThrow(path)
-    val dt = MetadataDocument(path).getOrElse(
-      throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
-    val sourceOpt = resolveSource(path)
-    val typeId = TypeId(this, dt.typeName(namespace))
+  def refreshInternal(path: PathLike): Seq[(TypeId, Set[TypeId])] = {
+    PlatformTypes.withLoadingObserver(schemaSObjectType) {
 
-    // If we have source & it's not changed then ignore
-    if (sourceOpt.exists(
-          s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
-      return (typeId, Set.empty)
+      checkPathInPackageOrThrow(path)
+      val dt = MetadataDocument(path).getOrElse(
+        throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
+      val sourceOpt = resolveSource(path)
+      val typeId = TypeId(this, dt.typeName(namespace))
 
-    // Update internal document tracking
-    index.upsert(new LocalLogger(pkg.org.issues), dt)
-    if (sourceOpt.isEmpty)
-      index.remove(dt)
+      // If we have source & it's not changed then ignore
+      if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
+        return Seq((typeId, Set.empty))
 
-    // Clear errors as might fail to create type
-    pkg.org.issues.pop(dt.path.toString)
+      // Update internal document tracking
+      index.upsert(new LocalLogger(pkg.org.issues), dt)
+      if (sourceOpt.isEmpty)
+        index.remove(dt)
 
-    // Create type & forward holders to limit need for invalidation chaining
-    val newType = createType(dt, sourceOpt)
-    val typeName = newType.map(_.typeName).getOrElse(dt.typeName(namespace))
-    val existingType = getDependentType(typeName)
-    val holders = existingType
-      .map(_.getTypeDependencyHolders)
-      .getOrElse(DependentType.emptyTypeDependencyHolders)
-    newType.foreach(_.updateTypeDependencyHolders(holders))
+      // Clear errors as might fail to create type
+      pkg.org.issues.pop(dt.path.toString)
 
-    // Update and validate
-    replaceType(typeName, newType)
-    newType.foreach(_.validate())
+      // Create type & forward holders to limit need for invalidation chaining
+      val newTypes = createTypes(dt, sourceOpt)
+      if (newTypes.nonEmpty) {
+        createTypes(dt, sourceOpt).map(newType => {
+          val existingType = getDependentType(newType.typeName)
+          val holders = existingType
+            .map(_.getTypeDependencyHolders)
+            .getOrElse(DependentType.emptyTypeDependencyHolders)
+          newType.updateTypeDependencyHolders(holders)
 
-    (typeId, holders.toSet)
+          // Update and validate
+          replaceType(newType.typeName, Some(newType))
+          newType.validate()
+          (typeId, holders.toSet)
+        })
+      } else {
+        val existingType = getDependentType(typeId.typeName)
+        val holders = existingType
+          .map(_.getTypeDependencyHolders)
+          .getOrElse(DependentType.emptyTypeDependencyHolders)
+        types.remove(typeId.typeName)
+        Seq((typeId, holders.toSet))
+      }
+    }
   }
 
   private def getDependentType(typeName: TypeName): Option[DependentType] = {
@@ -297,51 +300,48 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       }
   }
 
-  private def createType(dt: MetadataDocument,
-                         source: Option[SourceData]): Option[DependentType] = {
+  private def createTypes(dt: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
     dt match {
       case doc: ExtendedApexDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false))
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false)).toSeq
       case doc: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false))
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false)).toSeq
       case _: ApexTriggerDocument =>
-        source.flatMap(s => TriggerDeclaration.create(this, dt.path, s))
+        source.flatMap(s => TriggerDeclaration.create(this, dt.path, s)).toSeq
       case doc: SObjectDocument =>
-        refreshSObject(doc.typeName(namespace), doc.path.parent)
+        refreshSObject(doc.path.parent)
       case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
         val sObjectDir = dt.path.parent.parent
         MetadataDocument(sObjectDir.join(s"${sObjectDir.basename}.object-meta.xml")) match {
-          case Some(doc: SObjectDocument) =>
-            refreshSObject(doc.typeName(namespace), sObjectDir)
-          case _ => None
+          case Some(_: SObjectDocument) => refreshSObject(sObjectDir)
+          case _                        => Seq()
         }
       case _: LabelsDocument =>
         val events = LabelGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        Some(LabelDeclaration(this).merge(stream))
+        Seq(LabelDeclaration(this).merge(stream))
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        Some(PageDeclaration(this).merge(stream))
+        Seq(PageDeclaration(this).merge(stream))
       case _: ComponentDocument =>
         val events = ComponentGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        Some(ComponentDeclaration(this).merge(stream))
+        Seq(ComponentDeclaration(this).merge(stream))
       case _: FlowDocument =>
         val events = FlowGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
-        Some(InterviewDeclaration(this).merge(stream))
+        Seq(InterviewDeclaration(this).merge(stream))
     }
   }
 
-  private def refreshSObject(typeName: TypeName, sObjectPath: PathLike): Option[DependentType] = {
-    val logger = new LocalLogger(pkg.org.issues)
-    val events = SObjectGenerator.iterator(DocumentIndex(logger, namespace, sObjectPath))
-    new StreamDeployer(this, events, this.types)
-    types.get(typeName) match {
-      case Some(dt: DependentType) => Some(dt)
-      case _                       => None
-    }
+  private def refreshSObject(sObjectPath: PathLike): Seq[DependentType] = {
+    val deployer = new SObjectDeployer(this)
+    val sobjects = deployer.createSObjects(
+      SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
+
+    sobjects.foreach(schemaSObjectType.add)
+    sobjects.toIndexedSeq
   }
 
   private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {

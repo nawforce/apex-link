@@ -269,4 +269,23 @@ class DeleteTest extends AnyFunSuite with TestHelper {
       }
     }
   }
+
+  /*
+  test("Valid custom object class dependent (removal)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+            "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasMessages)
+
+        removeAndRefresh(pkg, root.join("Foo__c.object"))
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n")
+      }
+    }
+  }
+   */
 }

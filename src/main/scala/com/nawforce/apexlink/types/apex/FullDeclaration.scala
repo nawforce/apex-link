@@ -22,6 +22,7 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.other.{Component, Interview, Label, Page}
+import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.{LoggerOps, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
@@ -186,6 +187,8 @@ abstract class FullDeclaration(val source: Source,
     dependents.foreach {
       case ad: ApexClassDeclaration =>
         dependsOn.add(ad.outerTypeId)
+      case co: SObjectDeclaration =>
+        dependsOn.add(co.typeId)
       case _: Label =>
         dependsOn.add(TypeId(module, TypeNames.Label))
       case _: Interview =>
