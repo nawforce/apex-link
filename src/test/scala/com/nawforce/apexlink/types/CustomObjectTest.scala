@@ -187,7 +187,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasMessages)
       assert(
         packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
-          packagedSObject("pkg2", "pkg1__Foo__c").get))
+          packagedSObject("pkg1", "pkg1__Foo__c").get))
     }
   }
 
@@ -248,7 +248,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasMessages)
       assert(
         packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
-          packagedSObject("pkg2", "pkg1__Foo__c").get))
+          packagedSObject("pkg1", "pkg1__Foo__c").get))
     }
   }
 

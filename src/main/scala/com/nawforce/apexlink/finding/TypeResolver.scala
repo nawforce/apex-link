@@ -104,17 +104,6 @@ object TypeResolver {
                                             _isComplete = true)
             m.upsertMetadata(td)
             Right(td)
-          case Right(base) if base.isSObject && !base.moduleDeclaration.contains(m) =>
-            val td = new SObjectDeclaration(Array(),
-                                            m,
-                                            base.typeName,
-                                            base.asInstanceOf[SObjectDeclaration].sobjectNature,
-                                            Array(),
-                                            Array(),
-                                            base.fields,
-                                            _isComplete = true)
-            m.upsertMetadata(td)
-            Right(td)
           case x => x
         }
       })
