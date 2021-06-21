@@ -133,8 +133,9 @@ class SObjectDeployer(module: Module) {
                                          location: PathLocation): Unit = {
 
     val created = createdSObjects.get(targetTypeName)
-    if (created.isEmpty && module.isGhostedType(targetTypeName)) {
-      createdSObjects.put(targetTypeName, GhostSObjectDeclaration(module, targetTypeName))
+    if (module.isGhostedType(targetTypeName)) {
+      if (created.isEmpty)
+        createdSObjects.put(targetTypeName, GhostSObjectDeclaration(module, targetTypeName))
       return
     }
 

@@ -52,7 +52,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
     extends SObjectLikeDeclaration
-    with SObjectFieldFinder {
+    with SObjectFieldFinder with SObjectMethods {
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
@@ -112,40 +112,6 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
         return customMethod
     }
     defaultFindMethod(name, params, staticContext, verifyContext)
-  }
-
-  def defaultFindMethod(name: Name,
-                        params: Array[TypeName],
-                        staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Option[MethodDeclaration] = {
-    cloneMethods
-      .get((name, params.length, staticContext.contains(true)))
-      .orElse({
-        PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
-      })
-  }
-
-  private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
-    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
-    val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeNames.Boolean)
-    val preserveReadOnlyTimestamps =
-      CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
-    val preserveAutonumber =
-      CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(None, Name("clone"), typeName, Array()),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId)),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone)),
-        CustomMethodDeclaration(None,
-                                Name("clone"),
-                                typeName,
-                                Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-        CustomMethodDeclaration(
-          None,
-          Name("clone"),
-          typeName,
-          Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
-      .map(m => ((m.name, m.parameters.length, m.isStatic), m))
-      .toMap
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
