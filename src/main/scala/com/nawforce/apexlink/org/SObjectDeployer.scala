@@ -49,7 +49,7 @@ class SObjectDeployer(module: Module) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
 
       // Construct doc from name as the file might not actually exist in SFDX
-      val doc = MetadataDocument(PathFactory(sObjectEvent.name.value+".object"))
+      val doc = MetadataDocument(PathFactory(sObjectEvent.name.value + ".object"))
       assert(doc.exists(_.isInstanceOf[SObjectLike]))
       val encodedName = EncodedName(doc.get.name).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
@@ -73,7 +73,7 @@ class SObjectDeployer(module: Module) {
       val created = doc
         .map {
           case doc: SObjectDocument if doc.name.value.endsWith("__c") =>
-            createCustomObject(sources, sObjectEvent, encodedName, typeName, fields, fieldSets, sharingReasons)
+            createCustomObject(sources, sObjectEvent, typeName, fields, fieldSets, sharingReasons)
           case _: SObjectDocument =>
             createReplacementSObject(sources, typeName, PlatformObjectNature, fields, fieldSets, sharingReasons)
           case _: PlatformEventDocument =>
@@ -163,7 +163,6 @@ class SObjectDeployer(module: Module) {
 
   private def createCustomObject(sources: Array[SourceInfo],
                                  event: SObjectEvent,
-                                 encodedName: EncodedName,
                                  typeName: TypeName,
                                  fields: Array[FieldDeclaration],
                                  fieldSets: Array[Name],
@@ -174,12 +173,16 @@ class SObjectDeployer(module: Module) {
       case Some("Hierarchy") => HierarchyCustomSettingsNature
       case _                 => CustomObjectNature
     }
-    if (encodedName.namespace == module.namespace)
-      createNewSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
-    else if (module.isGhostedType(typeName))
+
+    if (module.isGhostedType(typeName))
       Array(extendExistingSObject(None, sources, typeName, customObjectNature, fields, fieldSets, sharingReasons))
-    else
-      createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+    else {
+      val sobjectType = resolveBaseType(typeName)
+      if (sobjectType.nonEmpty)
+        createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+      else
+        createNewSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+    }
   }
 
   /** Create a new SObject along withs it's supporting objects. */
@@ -254,7 +257,7 @@ class SObjectDeployer(module: Module) {
       createReplacementSObject(sources, TypeNames.Task, nature, fields, fieldSets, sharingReasons) ++
         createReplacementSObject(sources, TypeNames.Event, nature, fields, fieldSets, sharingReasons)
     } else {
-      val sobjectType = TypeResolver(typeName, module).toOption
+      val sobjectType = resolveBaseType(typeName)
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
             superClass.typeName == TypeNames.SObject)) {
         OrgImpl.logError(PathLocation(sources.head.path.toString, Location.empty),
@@ -263,6 +266,20 @@ class SObjectDeployer(module: Module) {
       }
       Array(extendExistingSObject(sobjectType, sources, typeName, nature, fields, fieldSets, sharingReasons))
     }
+  }
+
+  /** Search for a type in dependent modules. Note. this skips the SObject handling in TypeFinder deliberately. */
+  private def resolveBaseType(typeName: TypeName): Option[TypeDeclaration] = {
+    val td = module.baseModules.headOption.flatMap(_.findType(typeName).toOption)
+    if (td.nonEmpty)
+      return td
+
+    val pkgTd = module.basePackages.headOption.flatMap(basePkg =>
+      basePkg.modules.headOption.flatMap(_.findType(typeName).toOption))
+    if (pkgTd.nonEmpty)
+      return pkgTd
+
+    PlatformTypes.get(typeName, None).toOption
   }
 
   /** Create an SObject by extending a base SObject with new fields, fieldSets and sharing reasons. If you don't pass
