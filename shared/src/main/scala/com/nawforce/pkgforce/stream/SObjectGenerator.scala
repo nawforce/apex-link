@@ -33,15 +33,19 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLException, XMLFactory}
+import com.nawforce.runtime.xml.XMLDocument
 
 import scala.collection.mutable
 
-final case class SObjectEvent(path: PathLike, customSettingsType: Option[String])
+final case class SObjectEvent(sourceInfo: Option[SourceInfo], name: Name, customSettingsType: Option[String])
     extends PackageEvent
-final case class CustomFieldEvent(name: Name, rawType: Name, referenceTo: Option[(Name, Name)])
+final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],
+                                  name: Name,
+                                  rawType: Name,
+                                  referenceTo: Option[(Name, Name)])
     extends PackageEvent
-final case class FieldsetEvent(name: Name) extends PackageEvent
-final case class SharingReasonEvent(name: Name) extends PackageEvent
+final case class FieldsetEvent(sourceInfo: Option[SourceInfo], name: Name) extends PackageEvent
+final case class SharingReasonEvent(sourceInfo: Option[SourceInfo], name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
   * present to collect the SFDX fields, fieldSets and sharingRules. */
@@ -62,7 +66,7 @@ object SObjectGenerator {
       found = false
       eventsByName.foreach(kv => {
         val depends = kv._2
-          .collect { case CustomFieldEvent(_, _, Some((referenceTo, _))) => referenceTo }
+          .collect { case CustomFieldEvent(_, _, _, Some((referenceTo, _))) => referenceTo }
           .filter(eventsByName.contains)
         if (depends.forall(d => emitted.contains(d))) {
           eventsByName.remove(kv._1)
@@ -83,26 +87,28 @@ object SObjectGenerator {
     val path = if (document.path.exists) Some(document.path) else None
 
     // Which makes extracting the customSettingsType more fun
-    val parsed = path.map(XMLFactory.parse)
+    val sourceData = path.flatMap(_.readSourceData().toOption)
+    val sourceInfo = sourceData.map(source => SourceInfo(path.get, source))
+    val parsed = sourceData.map(source => XMLDocument(path.get, source))
     val customSettingsType = (parsed map {
       case Right(doc) => extractCustomSettingsType(doc)
       case _          => IssuesAnd(None)
     }).getOrElse(IssuesAnd(None))
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(document.path, customSettingsType.value)) ++
+    Iterator(SObjectEvent(sourceInfo, document.name, customSettingsType.value)) ++
       IssuesEvent.iterator(customSettingsType.issues) ++
       (parsed match {
         case Some(Left(issue)) => IssuesEvent.iterator(Seq(issue))
         case Some(Right(root)) =>
           val rootElement = root.rootElement
-          rootElement.getChildren("fields").flatMap(field => createField(field, path.get)) ++
+          rootElement.getChildren("fields").flatMap(field => createField(None, field, path.get)) ++
             rootElement
               .getChildren("fieldSets")
-              .flatMap(field => createFieldSet(field, path.get)) ++
+              .flatMap(field => createFieldSet(None, field, path.get)) ++
             rootElement
               .getChildren("sharingReasons")
-              .flatMap(field => createSharingReason(field, path.get))
+              .flatMap(field => createSharingReason(None, field, path.get))
 
         case None => Iterator()
       }) ++
@@ -142,7 +148,9 @@ object SObjectGenerator {
                     createSharingReason)
   }
 
-  private def createField(elem: XMLElementLike, path: PathLike): Iterator[PackageEvent] = {
+  private def createField(sourceInfo: Option[SourceInfo],
+                          elem: XMLElementLike,
+                          path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
       val name = Name(elem.getSingleChildAsString("fullName").trim)
 
@@ -163,32 +171,40 @@ object SObjectGenerator {
       // Create additional fields & lookup relationships for special fields
       val target = rawType match {
         case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
-          Some((Name(elem.getSingleChildAsString("referenceTo").trim),
-            Name(elem.getSingleChildAsString("relationshipName").trim)))
+          Some(
+            (Name(elem.getSingleChildAsString("referenceTo").trim),
+             Name(elem.getSingleChildAsString("relationshipName").trim)))
         case _ => None
       }
 
-      Iterator(CustomFieldEvent(name, Name(rawType), target))
+      Iterator(CustomFieldEvent(sourceInfo, name, Name(rawType), target))
     }
   }
 
-  private def createFieldSet(elem: XMLElementLike, path: PathLike): Iterator[PackageEvent] = {
+  private def createFieldSet(sourceInfo: Option[SourceInfo],
+                             elem: XMLElementLike,
+                             path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
-      Iterator(FieldsetEvent(Name(elem.getSingleChildAsString("fullName"))))
+      Iterator(FieldsetEvent(sourceInfo, Name(elem.getSingleChildAsString("fullName"))))
     }
   }
 
-  private def createSharingReason(elem: XMLElementLike, path: PathLike): Iterator[PackageEvent] = {
+  private def createSharingReason(sourceInfo: Option[SourceInfo],
+                                  elem: XMLElementLike,
+                                  path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
-      Iterator(SharingReasonEvent(Name(elem.getSingleChildAsString("fullName"))))
+      Iterator(
+        SharingReasonEvent(sourceInfo: Option[SourceInfo],
+                           Name(elem.getSingleChildAsString("fullName"))))
     }
   }
 
-  private def collectMetadata(
-    path: PathLike,
-    suffix: String,
-    rootElement: String,
-    op: (XMLElementLike, PathLike) => Iterator[PackageEvent]): Iterator[PackageEvent] = {
+  private def collectMetadata(path: PathLike,
+                              suffix: String,
+                              rootElement: String,
+                              op: (Option[SourceInfo],
+                                   XMLElementLike,
+                                   PathLike) => Iterator[PackageEvent]): Iterator[PackageEvent] = {
     if (!path.isDirectory)
       return Iterator()
 
@@ -200,11 +216,17 @@ object SObjectGenerator {
           .flatMap(entry => {
             val filePath = path.join(entry)
             catchXMLExceptions(filePath) {
-              XMLFactory.parse(filePath) match {
-                case Left(issue) => IssuesEvent.iterator(Seq(issue))
-                case Right(root) =>
-                  root.rootElement.checkIsOrThrow(rootElement)
-                  op(root.rootElement, filePath)
+              filePath.readSourceData() match {
+                case Left(err) =>
+                  IssuesEvent.iterator(
+                    Seq(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))))
+                case Right(sourceData) =>
+                  XMLFactory.parse(filePath) match {
+                    case Left(issue) => IssuesEvent.iterator(Seq(issue))
+                    case Right(root) =>
+                      root.rootElement.checkIsOrThrow(rootElement)
+                      op(Some(SourceInfo(filePath, sourceData)), root.rootElement, filePath)
+                  }
               }
             }
           })
