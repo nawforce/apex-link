@@ -23,7 +23,7 @@ import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.stream._
 
 import scala.collection.mutable.ArrayBuffer
@@ -48,15 +48,18 @@ class SObjectDeployer(module: Module) {
     while (objectsEvents.hasNext) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
 
-      val doc = MetadataDocument(sObjectEvent.path)
+      // Construct doc from name as the file might not actually exist in SFDX
+      val doc = MetadataDocument(PathFactory(sObjectEvent.name.value+".object"))
       assert(doc.exists(_.isInstanceOf[SObjectLike]))
       val encodedName = EncodedName(doc.get.name).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
 
       val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
+      val fieldSetEvents = bufferEvents[FieldsetEvent](objectsEvents)
+      val sharingReasonEvents = bufferEvents[SharingReasonEvent](objectsEvents)
       val fields = fieldEvents.flatMap(createCustomField)
-      val fieldSets = bufferEvents[FieldsetEvent](objectsEvents).map(_.name)
-      val sharingReasons = bufferEvents[SharingReasonEvent](objectsEvents).map(_.name)
+      val fieldSets = fieldSetEvents.map(_.name)
+      val sharingReasons = sharingReasonEvents.map(_.name)
 
       // As there may be cyclic referencing between SObjects, we save these for later processing
       referenceFields.addAll(fieldEvents.collect {
@@ -64,20 +67,21 @@ class SObjectDeployer(module: Module) {
           (e, sObjectEvent, typeName)
       })
 
+      val sources =
+        (Seq(sObjectEvent.sourceInfo) ++ fieldEvents.map(_.sourceInfo) ++ fieldSetEvents.map(_.sourceInfo) ++ sharingReasonEvents
+          .map(_.sourceInfo)).flatten.toArray
       val created = doc
         .map {
           case doc: SObjectDocument if doc.name.value.endsWith("__c") =>
-            // Custom SObject or Custom Setting
-            createCustomObject(sObjectEvent, encodedName, typeName, fields, fieldSets, sharingReasons)
-          case doc: SObjectDocument =>
-            // Platform SObject
-            createReplacementSObject(doc.path, typeName, PlatformObjectNature, fields, fieldSets, sharingReasons)
+            createCustomObject(sources, sObjectEvent, encodedName, typeName, fields, fieldSets, sharingReasons)
+          case _: SObjectDocument =>
+            createReplacementSObject(sources, typeName, PlatformObjectNature, fields, fieldSets, sharingReasons)
           case _: PlatformEventDocument =>
-            createSObjectLike(typeName, PlatformEventNature, platformEventFields(typeName, fields))
+            createSObjectLike(sources, typeName, PlatformEventNature, platformEventFields(typeName, fields))
           case _: CustomMetadataDocument =>
-            createSObjectLike(typeName, CustomMetadataNature, customMetadataFields(typeName, fields))
+            createSObjectLike(sources, typeName, CustomMetadataNature, customMetadataFields(typeName, fields))
           case _: BigObjectDocument =>
-            createSObjectLike(typeName, BigObjectNature, fields)
+            createSObjectLike(sources, typeName, BigObjectNature, fields)
         }
       created.foreach(_.foreach(sobject => createdSObjects.put(sobject.typeName, sobject)))
     }
@@ -89,13 +93,14 @@ class SObjectDeployer(module: Module) {
       val refTypeName = schemaTypeNameOf(referenceTo)
       val reverseFieldName =
         EncodedName(relationshipName).defaultNamespace(module.namespace).fullName
+      val sourceInfo = fieldObject._1.sourceInfo.orElse(fieldObject._2.sourceInfo)
 
       addReferenceFieldToSObject(createdSObjects,
-          refTypeName,
+                                 refTypeName,
                                  reverseFieldName,
                                  fieldObject._1.name,
                                  fieldObject._3,
-                                 PathLocation(fieldObject._2.path.toString, Location(0)))
+                                 PathLocation(sourceInfo.map(_.path).get.toString, Location(0)))
     })
 
     createdSObjects.values.toArray
@@ -121,7 +126,7 @@ class SObjectDeployer(module: Module) {
   }
 
   private def addReferenceFieldToSObject(createdSObjects: mutable.Map[TypeName, SObjectDeclaration],
-                                          targetTypeName: TypeName,
+                                         targetTypeName: TypeName,
                                          targetFieldName: Name,
                                          originatingFieldName: Name,
                                          originatingTypeName: TypeName,
@@ -139,16 +144,16 @@ class SObjectDeployer(module: Module) {
       }
 
       createdSObjects.put(td.typeName,
-        extendExistingSObject(Some(td),
-                            Array(),
-                            td.typeName,
-                            sobjectNature,
-                            Array(
-                              CustomFieldDeclaration(targetFieldName,
-                                                     TypeNames.recordSetOf(originatingTypeName),
-                                                     None)),
-                            Array(),
-                            Array()))
+                          extendExistingSObject(Some(td),
+                                                Array(),
+                                                td.typeName,
+                                                sobjectNature,
+                                                Array(
+                                                  CustomFieldDeclaration(targetFieldName,
+                                                                         TypeNames.recordSetOf(originatingTypeName),
+                                                                         None)),
+                                                Array(),
+                                                Array()))
     })
   }
 
@@ -156,13 +161,13 @@ class SObjectDeployer(module: Module) {
     TypeName(EncodedName(name).defaultNamespace(module.namespace).fullName, Nil, Some(TypeNames.Schema))
   }
 
-  private def createCustomObject(event: SObjectEvent,
+  private def createCustomObject(sources: Array[SourceInfo],
+                                 event: SObjectEvent,
                                  encodedName: EncodedName,
                                  typeName: TypeName,
                                  fields: Array[FieldDeclaration],
                                  fieldSets: Array[Name],
                                  sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
-    val path = event.path
 
     val customObjectNature = event.customSettingsType match {
       case Some("List")      => ListCustomSettingNature
@@ -170,15 +175,15 @@ class SObjectDeployer(module: Module) {
       case _                 => CustomObjectNature
     }
     if (encodedName.namespace == module.namespace)
-      createNewSObject(path, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+      createNewSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
     else if (module.isGhostedType(typeName))
-      Array(extendExistingSObject(None, Array(path), typeName, customObjectNature, fields, fieldSets, sharingReasons))
+      Array(extendExistingSObject(None, sources, typeName, customObjectNature, fields, fieldSets, sharingReasons))
     else
-      createReplacementSObject(path, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+      createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
   }
 
   /** Create a new SObject along withs it's supporting objects. */
-  private def createNewSObject(path: PathLike,
+  private def createNewSObject(sources: Array[SourceInfo],
                                typeName: TypeName,
                                nature: SObjectNature,
                                fields: Array[FieldDeclaration],
@@ -186,10 +191,10 @@ class SObjectDeployer(module: Module) {
                                sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
     Array(
           // FUTURE: Check fields & when these should be available
-          createShare(typeName, sharingReasons),
-          createFeed(typeName),
-          createHistory(typeName),
-          new SObjectDeclaration(Array(path),
+          createShare(sources, typeName, sharingReasons),
+          createFeed(sources, typeName),
+          createHistory(sources, typeName),
+          new SObjectDeclaration(sources,
                                  module,
                                  typeName,
                                  nature,
@@ -200,8 +205,10 @@ class SObjectDeployer(module: Module) {
 
   }
 
-  private def createShare(typeName: TypeName, sharingReasons: Array[Name]): SObjectDeclaration = {
-    SObjectDeclaration(Array.empty,
+  private def createShare(sources: Array[SourceInfo],
+                          typeName: TypeName,
+                          sharingReasons: Array[Name]): SObjectDeclaration = {
+    SObjectDeclaration(sources,
                        module,
                        typeName.withNameReplace("__c$", "__Share"),
                        CustomObjectNature,
@@ -211,8 +218,8 @@ class SObjectDeployer(module: Module) {
                        _isComplete = true)
   }
 
-  private def createFeed(typeName: TypeName): SObjectDeclaration = {
-    SObjectDeclaration(Array.empty,
+  private def createFeed(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
+    SObjectDeclaration(sources,
                        module,
                        typeName.withNameReplace("__c$", "__Feed"),
                        CustomObjectNature,
@@ -222,8 +229,8 @@ class SObjectDeployer(module: Module) {
                        _isComplete = true)
   }
 
-  private def createHistory(typeName: TypeName): SObjectDeclaration = {
-    SObjectDeclaration(PathLike.emptyPaths,
+  private def createHistory(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
+    SObjectDeclaration(sources,
                        module,
                        typeName.withNameReplace("__c$", "__History"),
                        CustomObjectNature,
@@ -235,7 +242,7 @@ class SObjectDeployer(module: Module) {
 
   /** Create an SObject to replace some existing SObject so that it can be extended. If no existing can be found then
     * an error is raised and the operation is new SObject is not created. */
-  private def createReplacementSObject(path: PathLike,
+  private def createReplacementSObject(sources: Array[SourceInfo],
                                        typeName: TypeName,
                                        nature: SObjectNature,
                                        fields: Array[FieldDeclaration],
@@ -244,23 +251,24 @@ class SObjectDeployer(module: Module) {
 
     if (typeName == TypeNames.Activity) {
       // Fake Activity as applying to Task & Event, how bizarre is that
-      createReplacementSObject(path, TypeNames.Task, nature, fields, fieldSets, sharingReasons) ++
-        createReplacementSObject(path, TypeNames.Event, nature, fields, fieldSets, sharingReasons)
+      createReplacementSObject(sources, TypeNames.Task, nature, fields, fieldSets, sharingReasons) ++
+        createReplacementSObject(sources, TypeNames.Event, nature, fields, fieldSets, sharingReasons)
     } else {
       val sobjectType = TypeResolver(typeName, module).toOption
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
             superClass.typeName == TypeNames.SObject)) {
-        OrgImpl.logError(PathLocation(path.toString, Location.empty), s"No SObject declaration found for '$typeName'")
+        OrgImpl.logError(PathLocation(sources.head.path.toString, Location.empty),
+                         s"No SObject declaration found for '$typeName'")
         return Array()
       }
-      Array(extendExistingSObject(sobjectType, Array(path), typeName, nature, fields, fieldSets, sharingReasons))
+      Array(extendExistingSObject(sobjectType, sources, typeName, nature, fields, fieldSets, sharingReasons))
     }
   }
 
   /** Create an SObject by extending a base SObject with new fields, fieldSets and sharing reasons. If you don't pass
     * a base object than this will extend System.SObject. */
   private def extendExistingSObject(base: Option[TypeDeclaration],
-                                    paths: Array[PathLike],
+                                    sources: Array[SourceInfo],
                                     typeName: TypeName,
                                     nature: SObjectNature,
                                     fields: Array[FieldDeclaration],
@@ -295,7 +303,7 @@ class SObjectDeployer(module: Module) {
       .foldLeft(base.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) => acc + sharingReason)
       .toArray
 
-    new SObjectDeclaration(paths,
+    new SObjectDeclaration(sources,
                            module,
                            typeName,
                            nature,
@@ -307,11 +315,12 @@ class SObjectDeployer(module: Module) {
 
   /** Create a type declaration for a SObjectLike, such as a platform event. This just defaults a couple of fields
     * and make the new type declaration available in the module. */
-  private def createSObjectLike(typeName: TypeName,
+  private def createSObjectLike(sources: Array[SourceInfo],
+                                typeName: TypeName,
                                 nature: SObjectNature,
                                 fields: Array[FieldDeclaration]): Array[SObjectDeclaration] = {
     Array(
-      new SObjectDeclaration(Array.empty,
+      new SObjectDeclaration(sources,
                              module,
                              typeName,
                              nature,

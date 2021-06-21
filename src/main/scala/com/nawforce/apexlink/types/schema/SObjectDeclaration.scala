@@ -21,11 +21,13 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.documents.SourceInfo
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
+import scala.util.hashing.MurmurHash3
 
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature
@@ -38,7 +40,7 @@ case object BigObjectNature extends SObjectNature("BigObject")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
 
-final case class SObjectDeclaration(paths: Array[PathLike],
+final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     module: Module,
                                     typeName: TypeName,
                                     sobjectNature: SObjectNature,
@@ -51,6 +53,9 @@ final case class SObjectDeclaration(paths: Array[PathLike],
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
+
+  override val paths: Array[PathLike] = sources.map(_.path)
+  val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None

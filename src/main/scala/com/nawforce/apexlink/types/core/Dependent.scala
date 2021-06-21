@@ -107,7 +107,7 @@ trait DependencyHolder extends Dependent {
         case o: SObjectDeclaration =>
           if (o.sobjectNature != PlatformObjectNature)
             // TODO: Calculate source hash
-            Some(TypeDependentSummary(o.typeId.asTypeIdentifier, 0))
+            Some(TypeDependentSummary(o.typeId.asTypeIdentifier, o.sourceHash))
           else
             None
       }

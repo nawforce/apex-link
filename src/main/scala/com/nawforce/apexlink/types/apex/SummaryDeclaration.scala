@@ -20,6 +20,7 @@ import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.other._
+import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
@@ -52,8 +53,7 @@ object DependentValidation {
   }
 
   /* Find a valid type dependency, to be valid it must carry correct hash and have valid dependencies itself */
-  def findValidTypeDependent(dependent: TypeDependentSummary,
-                             module: Module): Option[TypeDeclaration] = {
+  def findValidTypeDependent(dependent: TypeDependentSummary, module: Module): Option[TypeDeclaration] = {
 
     // Fallback to outer type if we are given an inner to find
     def findSummaryType(typeId: TypeId): Option[TypeDeclaration] = {
@@ -68,9 +68,9 @@ object DependentValidation {
           case d: LabelDeclaration     => d.sourceHash == dependent.sourceHash
           case d: InterviewDeclaration => d.sourceHash == dependent.sourceHash
           case d: PageDeclaration      => d.sourceHash == dependent.sourceHash
-          case d: ComponentDeclaration =>
-            d.sourceHash == dependent.sourceHash
-          case _ => true
+          case d: ComponentDeclaration => d.sourceHash == dependent.sourceHash
+          case d: SObjectDeclaration   => d.sourceHash == dependent.sourceHash
+          case _                       => true
         })
     })
   }
@@ -115,8 +115,7 @@ object DependentValidation {
   }
 
   /* Find a method dependency */
-  def findDependent(dependent: MethodDependentSummary,
-                    module: Module): Option[MethodDeclaration] = {
+  def findDependent(dependent: MethodDependentSummary, module: Module): Option[MethodDeclaration] = {
     val name = Name(dependent.name)
 
     TypeId(module, dependent.typeId).flatMap(typeId => {
@@ -129,8 +128,7 @@ object DependentValidation {
   }
 
   /* Find an outer or inner type from namespace mapping to a package */
-  private def findExactDependentType(typeName: TypeName,
-                                     module: Module): Option[TypeDeclaration] = {
+  private def findExactDependentType(typeName: TypeName, module: Module): Option[TypeDeclaration] = {
     findDependentType(typeName, module).flatMap(td => {
       if (td.typeName != typeName) {
         td.nestedTypes.find(_.typeName == typeName)
@@ -150,6 +148,7 @@ object DependentValidation {
       case Right(d: InterviewDeclaration) => Some(d)
       case Right(d: PageDeclaration)      => Some(d)
       case Right(d: ComponentDeclaration) => Some(d)
+      case Right(d: SObjectDeclaration)   => Some(d)
       case Right(_)                       => None
     }
   }
@@ -200,19 +199,14 @@ class SummaryMethod(val module: Module,
   override def hasBlock: Boolean = methodSummary.hasBlock
 }
 
-class SummaryBlock(val module: Module, blockSummary: BlockSummary)
-    extends ApexBlockLike
-    with SummaryDependencyHandler {
+class SummaryBlock(val module: Module, blockSummary: BlockSummary) extends ApexBlockLike with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = blockSummary.dependents.map(_.intern)
 
   override val isStatic: Boolean = blockSummary.isStatic
 }
 
-class SummaryField(val module: Module,
-                   path: PathLike,
-                   val outerTypeId: TypeId,
-                   fieldSummary: FieldSummary)
+class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, fieldSummary: FieldSummary)
     extends ApexFieldLike
     with SummaryDependencyHandler {
 
@@ -260,8 +254,7 @@ class SummaryDeclaration(val path: PathLike,
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: Array[TypeName] = typeSummary.interfaces
   override val nestedTypes: Array[TypeDeclaration] = {
-    typeSummary.nestedTypes.map(nt =>
-      new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
+    typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
   }
 
   private val _blocks: Array[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, _))
@@ -343,6 +336,7 @@ class SummaryDeclaration(val path: PathLike,
         case d: InterviewDeclaration => localDependencies.add(d.typeId)
         case d: PageDeclaration      => localDependencies.add(d.typeId)
         case d: ComponentDeclaration => localDependencies.add(d.typeId)
+        case d: SObjectDeclaration   => localDependencies.add(d.typeId)
         case _: ApexFieldLike        => ()
         case _: ApexMethodLike       => ()
         case _: Label                => ()
@@ -380,9 +374,7 @@ class SummaryDeclaration(val path: PathLike,
   }
 }
 
-case class SummaryApex(module: Module,
-                       declaration: SummaryDeclaration,
-                       diagnostics: Array[Diagnostic])
+case class SummaryApex(module: Module, declaration: SummaryDeclaration, diagnostics: Array[Diagnostic])
 
 object SummaryApex {
   def apply(path: PathLike, module: Module, data: Array[Byte]): SummaryApex = {
