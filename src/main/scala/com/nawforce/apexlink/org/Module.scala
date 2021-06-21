@@ -340,7 +340,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     val sobjects = deployer.createSObjects(
       SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
 
-    sobjects.foreach(schemaSObjectType.add)
+    sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
     sobjects.toIndexedSeq
   }
 

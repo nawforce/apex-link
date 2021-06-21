@@ -39,8 +39,8 @@ class TransitiveCollector(org: Org) {
     var current = 0
     while (current < deps.size) {
       pkg
-        .map(pkg => {
-          pkg.getDependencies(deps(current), outerInheritanceOnly = false)
+        .flatMap(pkg => {
+          Option(pkg.getDependencies(deps(current), outerInheritanceOnly = false))
         })
         .getOrElse(Array[TypeIdentifier]())
         .filterNot(depsSeen.contains)

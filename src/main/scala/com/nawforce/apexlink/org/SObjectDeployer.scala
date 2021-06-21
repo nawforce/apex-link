@@ -37,12 +37,12 @@ import scala.collection.{BufferedIterator, mutable}
   */
 class SObjectDeployer(module: Module) {
 
-  def createSObjects(events: BufferedIterator[PackageEvent]): Array[SObjectDeclaration] = {
+  def createSObjects(events: BufferedIterator[PackageEvent]): Array[SObjectLikeDeclaration] = {
     val objectsEvents = bufferEvents(
       Set(classOf[SObjectEvent], classOf[CustomFieldEvent], classOf[FieldsetEvent], classOf[SharingReasonEvent]),
       events).iterator.buffered
 
-    val createdSObjects = mutable.Map[TypeName, SObjectDeclaration]()
+    val createdSObjects = mutable.Map[TypeName, SObjectLikeDeclaration]()
     val referenceFields = ArrayBuffer[(CustomFieldEvent, SObjectEvent, TypeName)]()
 
     while (objectsEvents.hasNext) {
@@ -125,14 +125,20 @@ class SObjectDeployer(module: Module) {
     }
   }
 
-  private def addReferenceFieldToSObject(createdSObjects: mutable.Map[TypeName, SObjectDeclaration],
+  private def addReferenceFieldToSObject(createdSObjects: mutable.Map[TypeName, SObjectLikeDeclaration],
                                          targetTypeName: TypeName,
                                          targetFieldName: Name,
                                          originatingFieldName: Name,
                                          originatingTypeName: TypeName,
                                          location: PathLocation): Unit = {
 
-    val td = createdSObjects.get(targetTypeName).orElse(TypeResolver(targetTypeName, module).toOption)
+    val created = createdSObjects.get(targetTypeName)
+    if (created.isEmpty && module.isGhostedType(targetTypeName)) {
+      createdSObjects.put(targetTypeName, GhostSObjectDeclaration(module, targetTypeName))
+      return
+    }
+
+    val td = created.orElse(TypeResolver(targetTypeName, module).toOption)
     if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(targetTypeName)) {
       OrgImpl.logError(location, s"Lookup object $targetTypeName does not exist for field '$originatingFieldName'")
     }

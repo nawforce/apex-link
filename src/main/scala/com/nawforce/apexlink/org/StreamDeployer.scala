@@ -95,7 +95,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       .createSObjects(events)
       .foreach(sobject => {
         types.put(sobject.typeName, sobject)
-        module.schemaSObjectType.add(sobject)
+        module.schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true)
       })
   }
 

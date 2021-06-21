@@ -32,6 +32,7 @@ import scala.util.hashing.MurmurHash3
 sealed abstract class SObjectNature(val nature: String) {
   override def toString: String = nature
 }
+
 case object ListCustomSettingNature extends SObjectNature("List")
 case object HierarchyCustomSettingsNature extends SObjectNature("Hierarchy")
 case object CustomObjectNature extends SObjectNature("CustomObject")
@@ -39,6 +40,8 @@ case object CustomMetadataNature extends SObjectNature("CustomMetadata")
 case object BigObjectNature extends SObjectNature("BigObject")
 case object PlatformObjectNature extends SObjectNature("PlatformObject")
 case object PlatformEventNature extends SObjectNature("PlatformEvent")
+
+trait SObjectLikeDeclaration extends DependentType
 
 final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     module: Module,
@@ -48,7 +51,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
-    extends DependentType
+    extends SObjectLikeDeclaration
     with SObjectFieldFinder {
 
   override val moduleDeclaration: Option[Module] = Some(module)
@@ -179,6 +182,6 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 object SObjectDeclaration {
   val globalModifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
 
-  private lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
+  lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length), m)).toMap
 }

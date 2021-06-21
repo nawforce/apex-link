@@ -618,4 +618,28 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Ghosted custom object field visible") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" ->
+          """{
+            |"namespace": "pkg",
+            |"packageDirectories": [{"path": "pkg"}],
+            |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
+            |}""".stripMargin,
+        "pkg/Foo__c/Foo__c.object-meta.xml" -> customObject("Foo",
+                                                        Seq(("Bar__c", Some("Lookup"), Some("ghosted__Bar__c")))),
+        "pkg/Dummy.cls" ->
+          """
+            |public class Dummy {
+            |{
+            | ghosted__Bar__c record;
+            | String hello = record.field__c;
+            |}
+            |}""".stripMargin)) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+    }
+  }
+
 }
