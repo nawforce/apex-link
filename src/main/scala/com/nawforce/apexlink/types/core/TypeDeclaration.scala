@@ -90,8 +90,7 @@ trait FieldDeclaration extends DependencyHolder {
   }
 
   // Create an SObjectField version of this field
-  def getSObjectField(shareTypeName: Option[TypeName],
-                      module: Option[Module]): CustomFieldDeclaration = {
+  def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
     def preloadSObject(typeName: TypeName): TypeResponse = {
       module.map(m => TypeResolver(typeName, m)).getOrElse(PlatformTypes.get(typeName, None))
     }
@@ -104,12 +103,14 @@ trait FieldDeclaration extends DependencyHolder {
     } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       if (shareTypeName.nonEmpty && name == Names.RowCause)
-        CustomFieldDeclaration(name,
-                               TypeNames.sObjectFieldRowCause$(shareTypeName.get),
-                               None,
-                               asStatic = true)
+        CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)
       else
         CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
+    } else if (name.value.endsWith("__r") && typeName.isRecordSet) {
+      // Relationship field that needs unwrapping
+      val targetSObject = typeName.params.head
+      preloadSObject(targetSObject)
+      CustomFieldDeclaration(name, TypeNames.sObjectFields$(targetSObject), None, asStatic = true)
     } else {
       // Otherwise must be a SObject, but if Platform it might need loading
       preloadSObject(typeName)
@@ -203,9 +204,7 @@ trait MethodDeclaration extends DependencyHolder {
           z =>
             (z._1.typeName == z._2) ||
               (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
-              (z._2.isSObjectList && z._1.typeName.isList && isSObject(
-                module,
-                z._1.typeName.params.head)) ||
+              (z._2.isSObjectList && z._1.typeName.isList && isSObject(module, z._1.typeName.params.head)) ||
               (z._1.typeName == TypeNames.SObject && isSObject(module, z._2)) ||
               (z._1.typeName.isList && z._1.typeName.params.head == TypeNames.String &&
                 z._2.isList && z._2.params.head == TypeNames.IdType))
@@ -246,9 +245,7 @@ trait MethodDeclaration extends DependencyHolder {
     serialise(shapeOnly = false, None, hasBlock = true)
   }
 
-  protected def serialise(shapeOnly: Boolean,
-                          range: Option[Location],
-                          hasBlock: Boolean): MethodSummary = {
+  protected def serialise(shapeOnly: Boolean, range: Option[Location], hasBlock: Boolean): MethodSummary = {
     MethodSummary(if (shapeOnly) None else range,
                   name.toString,
                   modifiers.map(_.toString).sorted,
@@ -352,8 +349,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(
-          true)) {
+    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
       findMethod(name, params, Some(false), verifyContext)
     } else {
       found
@@ -399,18 +395,16 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
           Some(id)
         }
       case argument =>
-        OrgImpl.logError(
-          argument.location,
-          s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+        OrgImpl.logError(argument.location,
+                         s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
         None
     }
 
     if (validArgs.length == arguments.length) {
       val duplicates = validArgs.groupBy(_.name).collect { case (_, Array(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        OrgImpl.logError(
-          duplicates.head.location,
-          s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
+        OrgImpl.logError(duplicates.head.location,
+                         s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
       }
     }
   }

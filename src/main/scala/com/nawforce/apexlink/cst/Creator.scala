@@ -295,6 +295,7 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
 
+    // FUTURE: Validate the expressions are assignable to 'creating'
     parts.foreach(_.verify(input, context))
 
     val creating = createdName.verify(context)
@@ -317,8 +318,6 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
           OrgImpl.log(error.asIssue(location))
         ExprContext.empty
       case Right(_) =>
-        // FUTURE: Validate the expressions are assignable to 'creating'
-        parts.foreach(_.verify(input, context))
         creating
     }
   }

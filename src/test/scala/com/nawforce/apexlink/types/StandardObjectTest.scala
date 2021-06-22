@@ -20,8 +20,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Not a standard object") {
-    FileSystemHelper.run(
-      Map("Foo.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+    FileSystemHelper.run(Map("Foo.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
@@ -31,8 +30,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Not a sObject") {
-    FileSystemHelper.run(
-      Map("String.object" -> customObject("String", Seq(("Bar__c", Some("Text"), None))))) {
+    FileSystemHelper.run(Map("String.object" -> customObject("String", Seq(("Bar__c", Some("Text"), None))))) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
@@ -43,13 +41,13 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("UserRecordAccess available") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {Account a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get, unmanagedSObject("UserRecordAccess").get))
+      Map("Dummy.cls" -> "public class Dummy { {Account a; Boolean x = a.UserRecordAccess.HasDeleteAccess;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(
+          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get,
+                                                                              unmanagedSObject("UserRecordAccess").get))
     }
   }
 
@@ -60,9 +58,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
@@ -75,9 +71,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         org.issues.getMessages("/Dummy.cls") ==
           "Missing: line 1 at 33-41: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
@@ -124,38 +118,31 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("RecordTypeId field") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {Account a; a.RecordTypeId = '';} }")) {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Account a; a.RecordTypeId = '';} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("Account").get))
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Standard field reference") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.Name.getDescribe();} }",
-    )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Contract").get))
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.Name.getDescribe();} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Contract").get))
     }
   }
 
   test("Standard field reference via fields") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.fields.Name.getDescribe();} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Contract").get))
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.fields.Name.getDescribe();} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Contract").get))
     }
   }
 
@@ -166,21 +153,18 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Contract").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Contract").get))
     }
   }
 
   test("Standard field reference via SObjectType fields (alt)") {
-    FileSystemHelper.run(Map("Dummy.cls" ->
-      "public class Dummy { {Object a = Contract.SObjectType.fields.BillingCity.getDescribe();} }",
-    )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Contract").get))
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
+        "public class Dummy { {Object a = Contract.SObjectType.fields.BillingCity.getDescribe();} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Contract").get))
     }
   }
 
@@ -191,46 +175,44 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
       assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get))
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Opportunity").get,
+                                                                            unmanagedSObject("Account").get))
     }
   }
 
   test("Lookup SObjectField (via id field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.AccountId.Name;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get))
+        "public class Dummy { {SObjectField a = Opportunity.AccountId.Name;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Opportunity").get,
+                                                                            unmanagedSObject("Account").get))
     }
   }
 
   test("Lookup SObjectField (via non-lookup id field)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.ContractId.Name;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(
-          org.issues.getMessages("/Dummy.cls") ==
-            "Missing: line 1 at 39-66: Unknown field or type 'Name' on 'Schema.SObjectField'\n")
+        "public class Dummy { {SObjectField a = Opportunity.ContractId.Name;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages("/Dummy.cls") ==
+          "Missing: line 1 at 39-66: Unknown field or type 'Name' on 'Schema.SObjectField'\n")
     }
   }
 
   test("Lookup SObjectField (passed to method)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {func(Opportunity.Account);} void func(SObjectField a) {}}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("Opportunity").get, unmanagedSObject("Account").get,
+        "public class Dummy { {func(Opportunity.Account);} void func(SObjectField a) {}}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
+          unmanagedSObject("Opportunity").get,
+          unmanagedSObject("Account").get,
           unmanagedClass("Dummy").get.methods.find(_.name.value == "func").get))
     }
   }
@@ -242,9 +224,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
@@ -257,23 +237,36 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         org.issues.getMessages("/Dummy.cls") ==
           "Missing: line 1 at 39-53: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Lookup related list") {
     FileSystemHelper.run(
-      Map(
-        "Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
-        "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r;} }",
+      Map("Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
       assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get, unmanagedSObject("Foo__c").get))
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get,
+                                                                            unmanagedSObject("Foo__c").get))
+    }
+  }
+
+  test("Lookup related list to field") {
+    FileSystemHelper.run(
+      Map(
+        "Foo__c.object" -> customObject("Foo",
+                                        Seq(("Lookup__c", Some("Lookup"), Some("Account")),
+                                            ("Bar__c", Some("Text"), None))),
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r.Bar__c;} }",
+      )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasMessages)
+      assert(
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get,
+                                                                            unmanagedSObject("Foo__c").get))
     }
   }
 
@@ -286,8 +279,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg2"}],
             |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
             |}""".stripMargin,
-        "pkg1/Foo__c.object" -> customObject("Foo",
-                                             Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
+        "pkg1/Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
         "pkg2/Dummy.cls" -> "public class Dummy { {SObjectField a = Account.pkg1__Lookup__r;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
@@ -299,77 +291,66 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Object describable") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Unknown Object describe error") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }")) {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
           org.issues.getMessages("/Dummy.cls") ==
             "Missing: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
 
   test("Field describable") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Field describable via Object") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contact.SObjectType.Fields.Fax;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Contact").get))
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contact.SObjectType.Fields.Fax;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasMessages)
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Contact").get))
     }
   }
 
   test("Unknown Field describe error") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Foo;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Foo;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Unknown FieldSet describe error") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.Foo;} }",
-      )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(org.issues.getMessages("/Dummy.cls") ==
-        "Missing: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.Foo;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
@@ -381,9 +362,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
@@ -395,39 +374,31 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-          unmanagedSObject("Account").get))
+      assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Schema sObject access describable") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {SObjectType a = Schema.Account.SObjectType;} }")) {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {SObjectType a = Schema.Account.SObjectType;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
-            unmanagedSObject("Account").get))
+        assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("SObjectField reference on standard object") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public static SObjectField a = Account.SObjectField.Fax;}")) {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public static SObjectField a = Account.SObjectField.Fax;}")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
-            unmanagedSObject("Account").get))
+        assert(unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
   }
 
   test("Standard field without a type") {
-    FileSystemHelper.run(
-      Map("Account.object" -> customObject("Account", Seq(("AccountNumber", None, None))))) {
+    FileSystemHelper.run(Map("Account.object" -> customObject("Account", Seq(("AccountNumber", None, None))))) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasMessages)
@@ -435,21 +406,19 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Custom field without a type") {
-    FileSystemHelper.run(
-      Map("Account.object" -> customObject("Account", Seq(("AccountNumber__c", None, None))))) {
+    FileSystemHelper.run(Map("Account.object" -> customObject("Account", Seq(("AccountNumber__c", None, None))))) {
       root: PathLike =>
         val org = createOrg(root)
         // TODO: This is showing two errors, event stream handling should fix this
         assert(
           org.issues
             .getMessages(root.join("Account.object").toString)
-            .startsWith(
-              "Error: line 5: Expecting element 'fields' to have a single 'type' child element\n"))
+            .startsWith("Error: line 5: Expecting element 'fields' to have a single 'type' child element\n"))
     }
   }
 
   test("Standard RowClause") {
-      FileSystemHelper.run(
+    FileSystemHelper.run(
       Map("Dummy.cls" ->
         """
             | public class Dummy {
@@ -458,9 +427,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-        assert(
-          unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
-            unmanagedSObject("AccountShare").get))
+      assert(unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(unmanagedSObject("AccountShare").get))
     }
   }
 
@@ -475,17 +442,14 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
-          unmanagedSObject("AccountShare").get))
+      assert(unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(unmanagedSObject("AccountShare").get))
     }
   }
 
   test("Sfdx Custom RowClause") {
     FileSystemHelper.run(
       Map("Account/Account.object-meta.xml" -> customObject("Account", Seq()),
-          "Account/sharingReasons/MyReason__c.sharingReason-meta.xml" -> customSharingReason(
-            "MyReason__c"),
+          "Account/sharingReasons/MyReason__c.sharingReason-meta.xml" -> customSharingReason("MyReason__c"),
           "Dummy.cls" ->
             """
           | public class Dummy {
@@ -494,9 +458,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
           |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasMessages)
-      assert(
-        unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(
-          unmanagedSObject("AccountShare").get))
+      assert(unmanagedClass("Dummy").get.fields.head.dependencies().toSet == Set(unmanagedSObject("AccountShare").get))
     }
   }
 }
