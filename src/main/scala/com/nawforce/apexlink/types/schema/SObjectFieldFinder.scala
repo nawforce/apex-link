@@ -61,8 +61,8 @@ trait SObjectFieldFinder {
                               shareTypeName: Option[TypeName],
                               module: Option[Module]): FieldDeclaration = {
     field match {
-      /* Id suffix fields of platform types should be handled as relationship field */
-      case field: PlatformField if field.name.value.endsWith("Id") && field.name.value.length > 2 =>
+      /* Relationship 'Id' fields can be used in place of the actual relationship field as must be typed as such */
+      case field: PlatformField if isRelationshipField(field) =>
         val relationshipField = findFieldSObject(Name(field.name.value.dropRight(2)), Some(true))
         relationshipField match {
           case Some(
@@ -82,4 +82,19 @@ trait SObjectFieldFinder {
         field.getSObjectField(shareTypeName, module)
     }
   }
+
+  /** As general rule relationship fields are typed differently and can be recognised by having an Id suffix on the
+    * name, of course there has to be exceptions... **/
+  private def isRelationshipField(field: PlatformField): Boolean = {
+    if (field.name.value.endsWith("Id") && field.name.value.length >2) {
+      !SObjectFieldFinder.nonRelationshipIdFields.contains((typeName, field.name))
+    } else {
+      false
+    }
+  }
+}
+
+object SObjectFieldFinder {
+  val nonRelationshipIdFields: Set[(TypeName, Name)] =
+    Set((TypeName(Name("Opportunity"), Nil, Some(TypeNames.Schema)), Name("ContractId")))
 }

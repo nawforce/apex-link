@@ -209,6 +209,18 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Lookup SObjectField (via non-lookup id field)") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" ->
+        "public class Dummy { {SObjectField a = Opportunity.ContractId.Name;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org.issues.getMessages("/Dummy.cls") ==
+            "Missing: line 1 at 39-66: Unknown field or type 'Name' on 'Schema.SObjectField'\n")
+    }
+  }
+
   test("Lookup SObjectField (passed to method)") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
