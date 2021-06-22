@@ -108,20 +108,20 @@ class SObjectDeployer(module: Module) {
 
   private def createCustomField(field: CustomFieldEvent): Array[FieldDeclaration] = {
     val fieldType = SObjectDeployer.platformTypeOfFieldType(field).typeName
-    val name = EncodedName(field.name).defaultNamespace(module.namespace)
+    val name = EncodedName(field.name).defaultNamespace(module.namespace).fullName
     val fieldDeclaration =
-      CustomFieldDeclaration(name.fullName, fieldType, field.referenceTo.map(to => schemaTypeNameOf(to._1)))
+      CustomFieldDeclaration(name, fieldType, field.referenceTo.map(to => schemaTypeNameOf(to._1)))
 
     // Create additional fields & lookup relationships for special fields types
     field.rawType.value match {
       case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
         val refTypeName = schemaTypeNameOf(field.referenceTo.get._1)
 
-        Array(fieldDeclaration, CustomFieldDeclaration(field.name.replaceAll("__c$", "__r"), refTypeName, None))
+        Array(fieldDeclaration, CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
       case "Location" =>
         Array(fieldDeclaration,
-              CustomFieldDeclaration(field.name.replaceAll("__c$", "__latitude__s"), TypeNames.Double, None),
-              CustomFieldDeclaration(field.name.replaceAll("__c$", "__longitude__s"), TypeNames.Double, None))
+              CustomFieldDeclaration(name.replaceAll("__c$", "__latitude__s"), TypeNames.Double, None),
+              CustomFieldDeclaration(name.replaceAll("__c$", "__longitude__s"), TypeNames.Double, None))
       case _ => Array(fieldDeclaration)
     }
   }
