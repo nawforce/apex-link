@@ -108,8 +108,9 @@ class SObjectDeployer(module: Module) {
 
   private def createCustomField(field: CustomFieldEvent): Array[FieldDeclaration] = {
     val fieldType = SObjectDeployer.platformTypeOfFieldType(field).typeName
+    val name = EncodedName(field.name).defaultNamespace(module.namespace)
     val fieldDeclaration =
-      CustomFieldDeclaration(field.name, fieldType, field.referenceTo.map(to => schemaTypeNameOf(to._1)))
+      CustomFieldDeclaration(name.fullName, fieldType, field.referenceTo.map(to => schemaTypeNameOf(to._1)))
 
     // Create additional fields & lookup relationships for special fields types
     field.rawType.value match {
