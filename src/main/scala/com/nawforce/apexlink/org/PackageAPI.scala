@@ -117,8 +117,7 @@ trait PackageAPI extends Package {
     Option(getSummaryOfType(typeId)).map(summary => write(summary)).orNull
   }
 
-  override def getDependencies(typeId: TypeIdentifier,
-                               outerInheritanceOnly: Boolean): Array[TypeIdentifier] = {
+  override def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(ad => {
@@ -142,14 +141,13 @@ trait PackageAPI extends Package {
   }
 
   private def getDependentType(typeName: TypeName): Option[DependentType] = {
-    orderedModules.headOption.flatMap(module => {
-      module.types
-        .get(typeName)
-        .flatMap {
-          case dt: DependentType => Some(dt)
+    orderedModules.view
+      .find(_.types.contains(typeName))
+      .flatMap(module =>
+        module.types(typeName) match {
+          case td: DependentType => Some(td)
           case _                 => None
-        }
-    })
+      })
   }
 
   override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
@@ -165,8 +163,7 @@ trait PackageAPI extends Package {
   /** Get a array of type identifiers from this packages modules. */
   override def getTypeIdentifiers: Array[TypeIdentifier] = {
     modules
-      .foldLeft(Set[TypeIdentifier]())((acc, module) =>
-        acc ++ module.getMetadataDefinedTypeIdentifiers)
+      .foldLeft(Set[TypeIdentifier]())((acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers)
       .toArray
   }
 
