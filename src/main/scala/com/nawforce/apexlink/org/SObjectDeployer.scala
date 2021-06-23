@@ -300,35 +300,29 @@ class SObjectDeployer(module: Module) {
                                     fieldSets: Array[Name],
                                     sharingReasons: Array[Name]): SObjectDeclaration = {
 
-    implicit class TypeDeclarationOps(td: TypeDeclaration) {
-      def fieldSets: Array[Name] = {
-        td match {
-          case td: SObjectDeclaration => td.fieldSets
-          case _                      => Array()
-        }
-      }
-
-      def sharingReasons: Array[Name] = {
-        td match {
-          case td: SObjectDeclaration => td.sharingReasons
-          case _                      => Array()
-        }
+    // FUTURE: Add type for platform sobjects so we don't need this hackery
+    def asSObject: Option[SObjectDeclaration] = {
+      if (base.nonEmpty && base.get.isInstanceOf[SObjectDeclaration])
+        base.map(_.asInstanceOf[SObjectDeclaration])
+      else {
+        None
       }
     }
 
     val extend = base.getOrElse(PlatformTypes.sObjectType)
+    val combinedSources = asSObject.map(_.sources).getOrElse(Array()) ++ sources
     val combinedField = fields
       .foldLeft(extend.fields.map(field => (field.name, field)).toMap)((acc, field) => acc + (field.name -> field))
       .values
       .toArray
     val combinedFieldsets = fieldSets
-      .foldLeft(base.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
+      .foldLeft(asSObject.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
       .toArray
     val combinedSharingReasons = sharingReasons
-      .foldLeft(base.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) => acc + sharingReason)
+      .foldLeft(asSObject.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) => acc + sharingReason)
       .toArray
 
-    new SObjectDeclaration(sources,
+    new SObjectDeclaration(combinedSources,
                            module,
                            typeName,
                            nature,
