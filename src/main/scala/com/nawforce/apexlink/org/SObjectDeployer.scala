@@ -146,22 +146,26 @@ class SObjectDeployer(module: Module) {
     }
 
     td.map(td => {
+      // IF the field exists we don't want to overwrite locally declared
       val sobjectNature = td match {
-        case _: PlatformTypeDeclaration => PlatformObjectNature
-        case decl: SObjectDeclaration   => decl.sobjectNature
+        case pt: PlatformTypeDeclaration if !pt.fields.exists(_.name == targetFieldName) => Some(PlatformObjectNature)
+        case so: SObjectDeclaration if !so.fields.exists(_.name == targetFieldName)      => Some(so.sobjectNature)
+        case _                                                                           => None
       }
 
-      createdSObjects.put(td.typeName,
-                          extendExistingSObject(Some(td),
-                                                Array(),
-                                                td.typeName,
-                                                sobjectNature,
-                                                Array(
-                                                  CustomFieldDeclaration(targetFieldName,
-                                                                         TypeNames.recordSetOf(originatingTypeName),
-                                                                         None)),
-                                                Array(),
-                                                Array()))
+      sobjectNature.map(nature => {
+        createdSObjects.put(td.typeName,
+                            extendExistingSObject(Some(td),
+                                                  Array(),
+                                                  td.typeName,
+                                                  nature,
+                                                  Array(
+                                                    CustomFieldDeclaration(targetFieldName,
+                                                                           TypeNames.recordSetOf(originatingTypeName),
+                                                                           None)),
+                                                  Array(),
+                                                  Array()))
+      })
     })
   }
 
