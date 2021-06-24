@@ -272,13 +272,15 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
 
   /** Intercept field lookup to provide fieldSets on demand. */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    sobjectFieldSets
-      .get(name)
-      .orElse(if (module.isGhostedFieldName(name)) {
-        Some(CustomFieldDeclaration(name, TypeNames.FieldSet, None))
-      } else {
-        None
-      })
+    // Name might be namespaced already, although that is unusual
+    val encodedName = EncodedName(name)
+    if (encodedName.namespace.isEmpty || encodedName.namespace == module.namespace) {
+      sobjectFieldSets.get(encodedName.name)
+    } else if (module.isGhostedFieldName(name)) {
+      Some(CustomFieldDeclaration(name, TypeNames.FieldSet, None))
+    } else {
+      None
+    }
   }
 
   /** Intercept method lookup to provide Map() function. */
