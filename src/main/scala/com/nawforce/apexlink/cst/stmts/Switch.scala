@@ -18,7 +18,7 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.core.{ENUM_NATURE, TypeDeclaration}
-import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.names.{EncodedName, TypeName}
 import com.nawforce.runtime.parsers.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -141,7 +141,7 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
   }
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.addVar(ids(1).name, ids.head.location, TypeName(ids.head.name))
+    context.addVar(ids(1).name, ids.head.location, EncodedName(ids.head.name).asTypeName)
   }
 }
 
