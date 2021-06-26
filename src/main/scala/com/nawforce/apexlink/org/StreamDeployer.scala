@@ -184,12 +184,16 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
         val localAccum = new ConcurrentHashMap[TypeName, SummaryApex]()
 
         classes.par.foreach(doc => {
-          val data = doc.path.readBytes()
-          val value = parsedCache.get(data.getOrElse(throw new NoSuchElementException), pkgContext)
-          val ad = value.map(v => SummaryApex(doc.path, module, v))
-          if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
-            localAccum.put(ad.get.declaration.typeName, ad.get)
-          }
+          doc.path
+            .readBytes()
+            .toOption
+            .map(data => {
+              val value = parsedCache.get(pkgContext, doc.name.value, data)
+              val ad = value.map(v => SummaryApex(doc.path, module, v))
+              if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
+                localAccum.put(ad.get.declaration.typeName, ad.get)
+              }
+            })
         })
 
         localAccum.entrySet.forEach(kv => {
