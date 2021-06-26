@@ -34,8 +34,8 @@ import upickle.default.{macroRW, ReadWriter => RW, _}
 import scala.util.hashing.MurmurHash3
 
 // Key of cache entries, update version if the format changes
-final case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Array[Byte]) {
-  lazy val hashParts: Array[String] = {
+final case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Int) {
+  def hashParts: Array[String] = {
     val hash = MurmurHash3.bytesHash(writeBinary(this))
     val asHex = hash.toHexString
     val keyString = "0" * (8 - asHex.length) + asHex
@@ -47,7 +47,7 @@ final case class CacheKey(version: Int, packageContext: PackageContext, sourceKe
       case other: CacheKey =>
         other.version == version &&
           other.packageContext == packageContext &&
-          other.sourceKey.sameElements(sourceKey)
+          other.sourceKey == sourceKey
       case _ => false
     }
   }
@@ -55,6 +55,11 @@ final case class CacheKey(version: Int, packageContext: PackageContext, sourceKe
 
 object CacheKey {
   implicit val rw: RW[CacheKey] = macroRW
+
+  def apply(version: Int, packageContext: PackageContext, name: String, contents: Array[Byte]): CacheKey = {
+    val keyHash = MurmurHash3.arrayHash(contents, MurmurHash3.stringHash(name))
+    CacheKey(version, packageContext, keyHash)
+  }
 }
 
 // Package details used in key to ensure error messages will be accurate
@@ -90,8 +95,8 @@ final class ParsedCache(val path: PathLike, version: Int) {
   expire()
 
   /** Upsert a key -> value pair, ignores storage errors */
-  def upsert(key: Array[Byte], value: Array[Byte], packageContext: PackageContext): Unit = {
-    val cacheKey = CacheKey(version, packageContext, key)
+  def upsert(packageContext: PackageContext, name: String, contents: Array[Byte], value: Array[Byte]): Unit = {
+    val cacheKey = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
@@ -102,8 +107,8 @@ final class ParsedCache(val path: PathLike, version: Int) {
   }
 
   /** Recover a value from a key */
-  def get(key: Array[Byte], packageContext: PackageContext): Option[Array[Byte]] = {
-    val cacheKey = CacheKey(version, packageContext, key)
+  def get(packageContext: PackageContext, name: String, contents: Array[Byte]): Option[Array[Byte]] = {
+    val cacheKey = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
     val outer = path.join(hashParts.head)
     if (outer.isDirectory) {

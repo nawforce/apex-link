@@ -78,71 +78,84 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
 
   test("empty key insert/recover") {
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("".getBytes, "Hello".getBytes(), emptyPackageContext)
-    assert(cache.get("".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
-    assert(cache.get("Foo".getBytes, emptyPackageContext).isEmpty)
+    cache.upsert(emptyPackageContext, "", Array(), "Hello".getBytes())
+    assert(cache.get(emptyPackageContext, "", Array()).get.sameElements("Hello".getBytes()))
+    assert(cache.get(emptyPackageContext, "Foo", Array()).isEmpty)
+    assert(cache.get(emptyPackageContext, "", "Foo".getBytes).isEmpty)
   }
 
-  test("key insert/recover") {
+  test("key insert/recover on name") {
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
-    assert(cache.get("".getBytes, emptyPackageContext).isEmpty)
-    assert(cache.get("Foo".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
+    cache.upsert(emptyPackageContext, "Foo", Array(), "Hello".getBytes())
+    assert(cache.get(emptyPackageContext, "", Array()).isEmpty)
+    assert(cache.get(emptyPackageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
+  }
+
+  test("key insert/recover on content") {
+    val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
+    cache.upsert(emptyPackageContext, "", "Foo".getBytes(), "Hello".getBytes())
+    assert(cache.get(emptyPackageContext, "", Array()).isEmpty)
+    assert(
+      cache.get(emptyPackageContext, "", "Foo".getBytes()).get.sameElements("Hello".getBytes()))
   }
 
   test("overwrite entry") {
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
-    assert(cache.get("Foo".getBytes, emptyPackageContext).get.sameElements("Hello".getBytes()))
-    cache.upsert("Foo".getBytes, "Goodbye".getBytes(), emptyPackageContext)
-    assert(cache.get("Foo".getBytes, emptyPackageContext).get.sameElements("Goodbye".getBytes()))
+    cache.upsert(emptyPackageContext, "Foo", Array(), "Hello".getBytes())
+    assert(cache.get(emptyPackageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
+    cache.upsert(emptyPackageContext, "Foo", Array(), "Goodbye".getBytes())
+    assert(cache.get(emptyPackageContext, "Foo", Array()).get.sameElements("Goodbye".getBytes()))
   }
 
   test("key insert/recover wrong packageContext") {
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("Foo".getBytes, "Hello".getBytes(), emptyPackageContext)
-    assert(cache.get("Foo".getBytes, PackageContext(Some(""), Array(), Array())).isEmpty)
-    assert(cache.get("Foo".getBytes, PackageContext(Some("Foo"), Array(), Array())).isEmpty)
+    cache.upsert(emptyPackageContext, "Foo", Array(), "Hello".getBytes())
+    assert(cache.get(PackageContext(Some(""), Array(), Array()), "Foo", Array()).isEmpty)
+    assert(cache.get(PackageContext(Some("Foo"), Array(), Array()), "Foo", Array()).isEmpty)
   }
 
   test("key insert/recover with namespaced packageContext") {
     val packageContext = PackageContext(Some("test"), Array(), Array())
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("Foo".getBytes, "Hello".getBytes(), packageContext)
-    assert(cache.get("".getBytes, packageContext).isEmpty)
-    assert(cache.get("Foo".getBytes, packageContext).get.sameElements("Hello".getBytes()))
+    cache.upsert(packageContext, "Foo", Array(), "Hello".getBytes())
+    assert(cache.get(packageContext, "", Array()).isEmpty)
+    assert(cache.get(packageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
   }
 
   test("key insert/recover with bad packageContext") {
     val packageContext =
       PackageContext(Some("test"), Array("ghosted1", "ghosted2"), Array("analysed1", "analysed2"))
     val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
-    cache.upsert("Foo".getBytes, "Hello".getBytes(), packageContext)
-    assert(cache.get("Foo".getBytes, packageContext).get.sameElements("Hello".getBytes()))
+    cache.upsert(packageContext, "Foo", Array(), "Hello".getBytes())
+    assert(cache.get(packageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
     assert(
       cache
-        .get("Foo".getBytes,
-             PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2")))
+        .get(PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2")),
+             "Foo",
+             Array())
         .isEmpty)
     assert(
       cache
-        .get("Foo".getBytes,
-             PackageContext(Some("test"),
+        .get(PackageContext(Some("test"),
                             Array("ghosted2", "ghosted1"),
-                            Array("analysed1", "analysed2")))
+                            Array("analysed1", "analysed2")),
+             "Foo",
+             Array())
         .isEmpty)
     assert(
       cache
-        .get("Foo".getBytes,
-             PackageContext(Some("test"), Array("ghosted2", "ghosted1"), Array("analysed2")))
+        .get(PackageContext(Some("test"), Array("ghosted2", "ghosted1"), Array("analysed2")),
+             "Foo",
+             Array())
         .isEmpty)
     assert(
       cache
-        .get("Foo".getBytes,
-             PackageContext(Some("test"),
+        .get(PackageContext(Some("test"),
                             Array("ghosted1", "analysed1"),
-                            Array("ghosted1", "analysed2")))
+                            Array("ghosted1", "analysed2")),
+             "Foo",
+             Array())
         .isEmpty)
-    assert(cache.get("Foo".getBytes, PackageContext(Some("test"), Array(), Array())).isEmpty)
+    assert(cache.get(PackageContext(Some("test"), Array(), Array()), "Foo", Array()).isEmpty)
   }
 }
