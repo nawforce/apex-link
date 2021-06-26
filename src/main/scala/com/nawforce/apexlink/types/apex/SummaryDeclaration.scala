@@ -120,10 +120,16 @@ object DependentValidation {
 
     TypeId(module, dependent.typeId).flatMap(typeId => {
       findExactDependentType(typeId.typeName, typeId.module)
-        .flatMap(
-          _.methods.find(m =>
-            m.name == name &&
-              m.parameters.map(_.typeName).sameElements(dependent.parameterTypes)))
+        .flatMap {
+          case td: ApexClassDeclaration =>
+            td.methodMap.findMethod(name, dependent.parameterTypes)
+
+          case td: TypeDeclaration =>
+            td.methods.find(
+              m =>
+                m.name == name &&
+                  m.parameters.map(_.typeName).sameElements(dependent.parameterTypes))
+        }
     })
   }
 

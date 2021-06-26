@@ -26,8 +26,20 @@ import scala.collection.mutable
 final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue])
   extends AssignableSupport {
 
-  def allMethods: Array[MethodDeclaration] = methodsByName.values.flatten.toArray
+  /** Return all available methods */
+  lazy val allMethods: Array[MethodDeclaration] = {
+    val buffer = new mutable.ArrayBuffer[MethodDeclaration]()
+    methodsByName.values.foreach(methods => buffer.addAll(methods))
+    buffer.toArray
+  }
 
+  /** Find a method, without concern for the calling context. */
+  def findMethod(name: Name, params: Array[TypeName]): Option[MethodDeclaration] = {
+    methodsByName.getOrElse((name, params.length),Array()).find(method =>
+      method.parameters.map(_.typeName).sameElements(params))
+  }
+
+  /** Find a method, suitable for use from the given context */
   def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Option[MethodDeclaration] = {
     val matches = methodsByName.getOrElse((name, params.length),Array())
