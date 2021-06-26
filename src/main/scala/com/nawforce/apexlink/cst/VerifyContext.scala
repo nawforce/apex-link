@@ -45,11 +45,10 @@ trait VerifyContext {
   def addDependency(dependent: Dependent): Unit
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
-  def getTypeFor(typeName: TypeName, from: TypeDeclaration): Either[TypeError, TypeDeclaration]
+  def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
   /* Helper to locate a relative or absolute type and add as dependency if found */
-  def getTypeAndAddDependency(typeName: TypeName,
-                              from: TypeDeclaration): Either[TypeError, TypeDeclaration]
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
   def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
 
@@ -81,7 +80,7 @@ trait HolderVerifyContext {
   def dependencies: SkinnySet[Dependent] = _dependencies
 
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
-  def getTypeFor(typeName: TypeName, from: TypeDeclaration): Either[TypeError, TypeDeclaration]
+  def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
   /* Record a dependency, we only store for some elements currently */
   def addDependency(dependent: Dependent): Unit = {
@@ -112,13 +111,28 @@ trait HolderVerifyContext {
   }
 
   /* Find a type and if found log that as a dependency */
-  def getTypeAndAddDependency(typeName: TypeName,
-                              from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
-    val result = getTypeFor(typeName, from)
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration, usingModule: Module): TypeResponse = {
+    val result =
+      getTypeFor(typeName, from) match {
+        case Left(err) => Left(err)
+        case Right(td) =>
+          // Check for an 'extended' version of same type in current module. really only applies to SObjects
+          // but important for cache invalidation handling that we use current module version
+          if (!td.moduleDeclaration.contains(usingModule)) {
+            usingModule.findModuleType(td.typeName) match {
+              case Some(moduleTd) => Right(moduleTd)
+              case _              => Right(td)
+            }
+          } else {
+            Right(td)
+          }
+      }
+
     result.foreach(td => {
       addDependency(td)
-      td.typeName.params.foreach(getTypeAndAddDependency(_, from))
+      td.typeName.params.foreach(getTypeAndAddDependency(_, from, usingModule))
     })
+
     result
   }
 }
@@ -144,8 +158,7 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
   }
 
   override def suppressWarnings: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(
-      _.suppressWarnings)
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
 
   def shouldPropagateDependencies: Boolean = propagateDependencies
 
@@ -153,10 +166,13 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
     if (shouldPropagateDependencies)
       typeDeclaration.propagateDependencies()
   }
+
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+    super.getTypeAndAddDependency(typeName, from, module)
+  }
 }
 
-class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
-                                   classBodyDeclaration: ClassBodyDeclaration)
+class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
     extends HolderVerifyContext
     with VerifyContext {
 
@@ -168,20 +184,22 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getTypeFor(typeName: TypeName,
-                          from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
     parentContext.getTypeFor(typeName, from)
   }
 
   override def suppressWarnings: Boolean =
-    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(
-      _.suppressWarnings)
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
 
   def shouldPropagateDependencies: Boolean = parentContext.shouldPropagateDependencies
 
   def propagateDependencies(): Unit = {
     if (parentContext.shouldPropagateDependencies)
       classBodyDeclaration.propagateDependencies()
+  }
+
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+    super.getTypeAndAddDependency(typeName, from, parentContext.module)
   }
 }
 
@@ -199,14 +217,11 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
-  override def getTypeFor(typeName: TypeName,
-                          from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
     parentContext.getTypeFor(typeName, from)
   }
 
-  override def getTypeAndAddDependency(
-    typeName: TypeName,
-    from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
     parentContext.getTypeAndAddDependency(typeName, from)
   }
 
@@ -241,8 +256,7 @@ class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boo
   override val isStatic: Boolean = isStaticContext
 }
 
-class InnerBlockVerifyContext(parentContext: BlockVerifyContext)
-    extends BlockVerifyContext(parentContext) {
+class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
 
   override def isStatic: Boolean = parentContext.isStatic
 
@@ -263,14 +277,11 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
-  override def getTypeFor(typeName: TypeName,
-                          from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
     parentContext.getTypeFor(typeName, from)
   }
 
-  override def getTypeAndAddDependency(
-    typeName: TypeName,
-    from: TypeDeclaration): Either[TypeError, TypeDeclaration] = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
     parentContext.getTypeAndAddDependency(typeName, from)
   }
 
