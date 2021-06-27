@@ -14,6 +14,8 @@
 
 package com.nawforce.apexlink.api
 
+import com.nawforce.apexlink.names.TypeIdentifiers.TypeIdentifierUtils
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Location}
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import upickle.default.{macroRW, ReadWriter => RW}
@@ -140,10 +142,13 @@ case class ConstructorSummary(idRange: Option[Location],
 case class MethodSummary(idRange: Option[Location],
                          name: String,
                          modifiers: Array[String],
-                         typeName: TypeName,
+                         var typeName: TypeName,
                          parameters: Array[ParameterSummary],
                          hasBlock: Boolean,
                          dependents: Array[DependentSummary]) {
+
+  typeName = typeName.intern
+
   override def equals(that: Any): Boolean = {
     that match {
       case other: MethodSummary => other.canEqual(this) && doesEqual(other)
@@ -165,25 +170,34 @@ case class MethodSummary(idRange: Option[Location],
 }
 
 /** Summary of a constructor or method parameters*/
-case class ParameterSummary(name: String, typeName: TypeName)
+case class ParameterSummary(name: String, var typeName: TypeName) {
+  typeName = typeName.intern
+}
 
 /** Dependency information interface for detailing types of dependency */
 sealed trait DependentSummary
 
 /** Dependency information for a type */
 @upickle.implicits.key("Type")
-case class TypeDependentSummary(typeId: TypeIdentifier, sourceHash: Int) extends DependentSummary
+case class TypeDependentSummary(var typeId: TypeIdentifier, sourceHash: Int) extends DependentSummary {
+  typeId = typeId.intern
+}
 
 /** Dependency information for a field */
 @upickle.implicits.key("Field")
-case class FieldDependentSummary(typeId: TypeIdentifier, name: String) extends DependentSummary
+case class FieldDependentSummary(var typeId: TypeIdentifier, name: String) extends DependentSummary {
+  typeId = typeId.intern
+}
 
 /** Dependency information for a method */
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(typeId: TypeIdentifier,
+case class MethodDependentSummary(var typeId: TypeIdentifier,
                                   name: String,
                                   parameterTypes: Array[TypeName])
     extends DependentSummary {
+
+  typeId = typeId.intern
+
   override def equals(that: Any): Boolean = {
     that match {
       case other: MethodDependentSummary => other.canEqual(this) && doesEqual(other)

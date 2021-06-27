@@ -15,7 +15,8 @@
 package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.Names.NameUtils
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
 import com.nawforce.pkgforce.documents._
@@ -47,9 +48,7 @@ object Page {
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(sources: Array[SourceInfo],
-                                 override val module: Module,
-                                 pages: Array[Page])
+final case class PageDeclaration(sources: Array[SourceInfo], override val module: Module, pages: Array[Page])
     extends BasicTypeDeclaration(pages.map(p => p.path).distinct, module, TypeNames.Page)
     with DependentType {
 

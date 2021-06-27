@@ -14,7 +14,8 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.names.TypeName
@@ -43,9 +44,7 @@ trait AssignableSupport {
     }
   }
 
-  private def isAssignableGeneric(toType: TypeName,
-                                  fromType: TypeDeclaration,
-                                  context: VerifyContext): Boolean = {
+  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType == fromType.typeName) {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
@@ -65,9 +64,7 @@ trait AssignableSupport {
     }
   }
 
-  private def isSObjectListAssignment(toType: TypeName,
-                                      fromType: TypeDeclaration,
-                                      context: VerifyContext): Boolean = {
+  private def isSObjectListAssignment(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType.isList && fromType.typeName.isList &&
         fromType.typeName.params.head == TypeNames.SObject &&
         toType.params.head != TypeNames.SObject) {
@@ -94,27 +91,22 @@ trait AssignableSupport {
     }
   }
 
-  def couldBeEqual(toType: TypeDeclaration,
-                   fromType: TypeDeclaration,
-                   context: VerifyContext): Boolean = {
-    isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName,
-                                                                     toType,
-                                                                     context)
+  def couldBeEqual(toType: TypeDeclaration, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
+    isAssignable(toType.typeName, fromType, context) || isAssignable(fromType.typeName, toType, context)
   }
 }
 
 object AssignableSupport {
-  private lazy val baseAssignable: Set[(TypeName, TypeName)] = Set(
-    (TypeNames.Long, TypeNames.Integer),
-    (TypeNames.Decimal, TypeNames.Integer),
-    (TypeNames.Double, TypeNames.Integer),
-    (TypeNames.Decimal, TypeNames.Long),
-    (TypeNames.Double, TypeNames.Long),
-    (TypeNames.Double, TypeNames.Decimal),
-    (TypeNames.Decimal, TypeNames.Double),
-    (TypeNames.IdType, TypeNames.String),
-    (TypeNames.String, TypeNames.IdType),
-    (TypeNames.Datetime, TypeNames.Date))
+  private lazy val baseAssignable: Set[(TypeName, TypeName)] = Set((TypeNames.Long, TypeNames.Integer),
+                                                                   (TypeNames.Decimal, TypeNames.Integer),
+                                                                   (TypeNames.Double, TypeNames.Integer),
+                                                                   (TypeNames.Decimal, TypeNames.Long),
+                                                                   (TypeNames.Double, TypeNames.Long),
+                                                                   (TypeNames.Double, TypeNames.Decimal),
+                                                                   (TypeNames.Decimal, TypeNames.Double),
+                                                                   (TypeNames.IdType, TypeNames.String),
+                                                                   (TypeNames.String, TypeNames.IdType),
+                                                                   (TypeNames.Datetime, TypeNames.Date))
 }
 
 abstract class Operation extends AssignableSupport {
@@ -161,13 +153,11 @@ abstract class Operation extends AssignableSupport {
     Operation.arithmeticOps.get((leftType, rightType))
   }
 
-  def getArithmeticAddSubtractAssigmentResult(leftType: TypeName,
-                                              rightType: TypeName): Option[TypeDeclaration] = {
+  def getArithmeticAddSubtractAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
     Operation.arithmeticAddSubtractAssigmentOps.get((leftType, rightType))
   }
 
-  def getArithmeticMultiplyDivideAssigmentResult(leftType: TypeName,
-                                                 rightType: TypeName): Option[TypeDeclaration] = {
+  def getArithmeticMultiplyDivideAssigmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
     Operation.arithmeticMultiplyDivideAssigmentOps.get((leftType, rightType))
   }
 
@@ -175,8 +165,7 @@ abstract class Operation extends AssignableSupport {
     Operation.bitwiseOps.get((leftType, rightType))
   }
 
-  def getBitwiseAssignmentResult(leftType: TypeName,
-                                 rightType: TypeName): Option[TypeDeclaration] = {
+  def getBitwiseAssignmentResult(leftType: TypeName, rightType: TypeName): Option[TypeDeclaration] = {
     Operation.bitwiseAssignmentOps.get((leftType, rightType))
   }
 }
@@ -240,8 +229,7 @@ object Operation {
         (TypeNames.Time, TypeNames.Long) -> PlatformTypes.timeType,
     )
 
-  private lazy val arithmeticMultiplyDivideAssigmentOps
-    : Map[(TypeName, TypeName), TypeDeclaration] = Map(
+  private lazy val arithmeticMultiplyDivideAssigmentOps: Map[(TypeName, TypeName), TypeDeclaration] = Map(
     (TypeNames.Integer, TypeNames.Integer) -> PlatformTypes.integerType,
     (TypeNames.Long, TypeNames.Integer) -> PlatformTypes.longType,
     (TypeNames.Long, TypeNames.Long) -> PlatformTypes.longType,
@@ -282,8 +270,7 @@ case object AssignmentOperation extends Operation {
       Right(leftContext)
     } else {
       isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)
-      Left(
-        s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
+      Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
     }
   }
 }
@@ -311,26 +298,21 @@ case object CompareOperation extends Operation {
 
     if (isNumericKind(leftContext.typeName)) {
       if (!isNumericKind(rightContext.typeName)) {
-        return Left(
-          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
     } else if (isStringKind(leftContext.typeName)) {
       if (!isStringKind(rightContext.typeName))
-        return Left(
-          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     } else if (isDateKind(leftContext.typeName)) {
       if (!isDateKind(rightContext.typeName)) {
-        return Left(
-          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
     } else if (isTimeKind(leftContext.typeName)) {
       if (!isTimeKind(rightContext.typeName)) {
-        return Left(
-          s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+        return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
       }
     } else {
-      return Left(
-        s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
+      return Left(s"Comparing incompatible types '${leftContext.typeName}' and '${rightContext.typeName}'")
     }
     Right(ExprContext(isStatic = Some(false), PlatformTypes.booleanType))
   }
@@ -343,11 +325,9 @@ case object ExactEqualityOperation extends Operation {
                       context: VerifyContext): Either[String, ExprContext] = {
 
     if (isNonReferenceKind(leftContext.typeName)) {
-      Left(
-        s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
+      Left(s"Exact equality/inequality requires is not supported on non-reference types '${leftContext.typeName}'")
     } else if (isNonReferenceKind(rightContext.typeName)) {
-      Left(
-        s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
+      Left(s"Exact equality/inequality requires is not supported on non-reference types '${rightContext.typeName}'")
     } else if (leftContext.typeName == rightContext.typeName ||
                leftContext.typeName == TypeNames.InternalObject ||
                rightContext.typeName == TypeNames.InternalObject ||
@@ -478,8 +458,7 @@ case object ConditionalOperation extends Operation {
       getCommonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)
         .map(td => Right(ExprContext(isStatic = Some(false), td)))
         .getOrElse({
-          Left(
-            s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
+          Left(s"Incompatible types in ternary operation '${leftContext.typeName}' and '${rightContext.typeName}'")
         })
     }
   }

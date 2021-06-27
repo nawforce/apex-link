@@ -15,8 +15,9 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.names._
-import com.nawforce.apexlink.org.SObjectDeployer.standardCustomObjectFields
+import com.nawforce.apexlink.names.Names.NameUtils
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
@@ -317,7 +318,7 @@ class SObjectDeployer(module: Module) {
     val extend = base.getOrElse(PlatformTypes.sObjectType)
     val combinedSources = asSObject.map(_.sources).getOrElse(Array()) ++ sources
     val combinedFields =
-      (standardCustomObjectFields ++ extend.fields ++ fields).map(field => (field.name, field)).toMap.values.toArray
+      (SObjectDeployer.standardCustomObjectFields ++ extend.fields ++ fields).map(field => (field.name, field)).toMap.values.toArray
     val combinedFieldsets = fieldSets
       .foldLeft(asSObject.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
       .toArray

@@ -381,14 +381,14 @@ class SummaryDeclaration(val path: PathLike,
 
     // Use outermost of each to get top-level dependencies
     localDependencies.foreach(dependentTypeName => {
-      getOutermostDeclaration(dependentTypeName.typeName).foreach(dependsOn.add)
+      getOutermostDeclaration(dependentTypeName.typeName, typeCache).foreach(dependsOn.add)
     })
   }
 
-  private def getOutermostDeclaration(typeName: TypeName): Option[TypeId] = {
-    TypeResolver(typeName, module) match {
+  private def getOutermostDeclaration(typeName: TypeName, typeCache: TypeCache): Option[TypeId] = {
+    typeCache.getOrElseUpdate((typeName, module), TypeResolver(typeName, module)) match {
       case Right(d: ApexClassDeclaration) =>
-        d.outerTypeName.map(getOutermostDeclaration).getOrElse(Some(d.typeId))
+        d.outerTypeName.map(typeName => getOutermostDeclaration(typeName, typeCache)).getOrElse(Some(d.typeId))
       case Right(d: LabelDeclaration)     => Some(d.typeId)
       case Right(d: InterviewDeclaration) => Some(d.typeId)
       case Right(d: PageDeclaration)      => Some(d.typeId)

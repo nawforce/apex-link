@@ -16,7 +16,8 @@ package com.nawforce.apexlink.types.platform
 
 import com.nawforce.apexlink.finding.MissingType
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, TypeName}
 

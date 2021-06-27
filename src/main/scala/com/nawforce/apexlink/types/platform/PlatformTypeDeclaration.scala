@@ -14,12 +14,10 @@
 
 package com.nawforce.apexlink.types.platform
 
-import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
-import java.util
-
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, WrongTypeArguments}
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.schema.SObjectFieldFinder
@@ -29,6 +27,8 @@ import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runforce.Internal.Object$
 
+import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
+import java.util
 import scala.collection.immutable.{ArraySeq, HashMap}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._

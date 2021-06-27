@@ -16,13 +16,8 @@ package com.nawforce.apexlink.types.platform
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, TypeError, TypeResolver}
-import com.nawforce.apexlink.names._
-import com.nawforce.apexlink.types.core.{
-  FieldDeclaration,
-  MethodDeclaration,
-  ParameterDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
+import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 

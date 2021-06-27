@@ -13,7 +13,7 @@
  */
 package com.nawforce.apexlink.finding
 
-import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike

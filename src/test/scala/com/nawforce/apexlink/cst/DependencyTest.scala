@@ -14,7 +14,8 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike

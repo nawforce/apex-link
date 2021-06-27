@@ -14,7 +14,8 @@
 package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.api.{IssueOptions, ServerOps}
-import com.nawforce.apexlink.names.{TypeNames, _}
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}

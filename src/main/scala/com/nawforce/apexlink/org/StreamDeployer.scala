@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
-import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.other._
@@ -25,7 +25,6 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.runtime.platform.Environment
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.immutable.ArraySeq
@@ -59,7 +58,6 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       consumeTriggers(bufferedIterator)
     }
     CodeParser.clearCaches()
-    Environment.gc()
 
     // Report progress and tidy up
     if (types.size > basicTypesSize) {

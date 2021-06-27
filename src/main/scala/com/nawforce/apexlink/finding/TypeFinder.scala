@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.finding
 
-import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{DotName, TypeName}

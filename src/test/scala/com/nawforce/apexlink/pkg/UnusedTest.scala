@@ -13,7 +13,7 @@
  */
 package com.nawforce.apexlink.pkg
 
-import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{OrgImpl, PackageImpl}
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
