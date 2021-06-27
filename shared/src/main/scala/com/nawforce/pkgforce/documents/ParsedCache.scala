@@ -56,7 +56,10 @@ final case class CacheKey(version: Int, packageContext: PackageContext, sourceKe
 object CacheKey {
   implicit val rw: RW[CacheKey] = macroRW
 
-  def apply(version: Int, packageContext: PackageContext, name: String, contents: Array[Byte]): CacheKey = {
+  def apply(version: Int,
+            packageContext: PackageContext,
+            name: String,
+            contents: Array[Byte]): CacheKey = {
     val keyHash = MurmurHash3.arrayHash(contents, MurmurHash3.stringHash(name))
     CacheKey(version, packageContext, keyHash)
   }
@@ -64,8 +67,8 @@ object CacheKey {
 
 // Package details used in key to ensure error messages will be accurate
 final case class PackageContext(namespace: Option[String],
-                          ghostedPackages: Array[String],
-                          analysedPackages: Array[String]) {
+                                ghostedPackages: Array[String],
+                                analysedPackages: Array[String]) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: PackageContext =>
@@ -92,7 +95,10 @@ object CacheEntry {
 final class ParsedCache(val path: PathLike, version: Int) {
 
   /** Upsert a key -> value pair, ignores storage errors */
-  def upsert(packageContext: PackageContext, name: String, contents: Array[Byte], value: Array[Byte]): Unit = {
+  def upsert(packageContext: PackageContext,
+             name: String,
+             contents: Array[Byte],
+             value: Array[Byte]): Unit = {
     val cacheKey = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
     path.createDirectory(hashParts.head) match {
@@ -104,7 +110,9 @@ final class ParsedCache(val path: PathLike, version: Int) {
   }
 
   /** Recover a value from a key */
-  def get(packageContext: PackageContext, name: String, contents: Array[Byte]): Option[Array[Byte]] = {
+  def get(packageContext: PackageContext,
+          name: String,
+          contents: Array[Byte]): Option[Array[Byte]] = {
     val cacheKey = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
     val outer = path.join(hashParts.head)
@@ -124,22 +132,17 @@ final class ParsedCache(val path: PathLike, version: Int) {
   /** Expire old entries in the cache */
   def expire(): Unit = expire(path, System.currentTimeMillis() - ParsedCache.EXPIRE_WINDOW)
 
-  private def expire(path: PathLike, minTimeStamp: Long): Unit = {
-    path.directoryList() match {
-      case Left(_) => ()
-      case Right(names) =>
-        names.foreach(name => {
-          val pathEntry = path.join(name)
-          if (pathEntry.isDirectory) {
-            expire(pathEntry, minTimeStamp)
-          } else {
-            pathEntry.lastModified() match {
-              case Some(ts) if ts < minTimeStamp =>
-                pathEntry.delete()
-              case _ => ()
-            }
-          }
-        })
+  private def expire(path: PathLike, minTimeStamp: Long): Boolean = {
+    val (files, directories) = path.splitDirectoryEntries()
+
+    val deletedFiles =
+      files.filter(f => f.lastModified().exists(_ < minTimeStamp)).count(_.delete().isEmpty)
+    val deletedDirectories = directories.map(d => expire(d, minTimeStamp)).count(_ == true)
+
+    if (deletedFiles == files.length && deletedDirectories == directories.length) {
+      path.delete().isEmpty
+    } else {
+      false
     }
   }
 
@@ -198,7 +201,7 @@ object ParsedCache {
       cacheDir.parent.createDirectory(cacheDir.basename) match {
         case Left(err) =>
           Left(s"Cache directory '$cacheDir' does not exist and can not be created, error '$err'")
-        case Right(created) => Right(new ParsedCache(created,version))
+        case Right(created) => Right(new ParsedCache(created, version))
       }
     }
   }
