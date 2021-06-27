@@ -14,17 +14,13 @@
 
 package com.nawforce.apexlink.types.other
 
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{
-  GLOBAL_MODIFIER,
-  Modifier,
-  PRIVATE_MODIFIER,
-  STATIC_MODIFIER
-}
+import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
@@ -81,7 +77,7 @@ final class LabelDeclaration(override val module: Module,
     new LabelDeclaration(module, sourceInfo, newLabels, nestedLabels)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     // Labels depend on labels from dependent packages
     nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))
   }

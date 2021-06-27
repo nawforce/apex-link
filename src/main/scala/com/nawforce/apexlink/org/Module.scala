@@ -15,16 +15,10 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst.UnusedLog
-import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
+import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.{TypeNames, _}
-import com.nawforce.apexlink.types.apex.{
-  ApexClassDeclaration,
-  ApexDeclaration,
-  ApexFullDeclaration,
-  FullDeclaration,
-  TriggerDeclaration
-}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
@@ -159,10 +153,11 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   // Add dependencies for Apex types to a map
   def populateDependencies(dependencies: java.util.Map[String, Array[String]]): Unit = {
+    val typeCache = new TypeCache()
     types.values.foreach {
       case td: ApexClassDeclaration =>
         val depends = mutable.Set[TypeId]()
-        td.collectDependenciesByTypeName(depends)
+        td.collectDependenciesByTypeName(depends, typeCache)
         depends.remove(td.typeId)
         if (depends.nonEmpty)
           dependencies.put(td.typeName.toString, depends.map(_.typeName.toString).toArray)

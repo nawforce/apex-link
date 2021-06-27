@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.cst.VerifyContext
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, PackageImpl}
 import com.nawforce.apexlink.types.core._
@@ -77,7 +78,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     nestedInterviews.foreach(ni => ni.interviewTypeId.foreach(dependsOn.add))
   }
 

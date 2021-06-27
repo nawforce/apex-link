@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.types.other
 
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
@@ -71,7 +72,7 @@ final case class PageDeclaration(sources: Array[SourceInfo],
     new PageDeclaration(sourceInfo, module, newPages)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
   }
 }

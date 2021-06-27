@@ -16,6 +16,7 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -110,7 +111,7 @@ final case class TriggerDeclaration(source: Source,
       depends = Some(context.dependencies)
       context.propagateDependencies()
       if (withPropagation)
-        propagateOuterDependencies()
+        propagateOuterDependencies(new TypeCache())
     }
   }
 
@@ -118,7 +119,7 @@ final case class TriggerDeclaration(source: Source,
     depends.map(_.toIterable).getOrElse(Array().toIterable)
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     depends.foreach(_.toIterable.foreach {
       case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
       case _                        => ()

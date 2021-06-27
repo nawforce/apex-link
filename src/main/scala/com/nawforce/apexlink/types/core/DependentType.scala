@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.types.core
 
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.Module
 
@@ -49,7 +50,7 @@ trait DependentType extends TypeDeclaration {
   }
 
   /** Collect set of TypeNames that this declaration is dependent on */
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit
 
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
     if (typeId != this.typeId) {
@@ -60,9 +61,9 @@ trait DependentType extends TypeDeclaration {
   }
 
   // Update holders on outer dependencies
-  def propagateOuterDependencies(): Unit = {
+  def propagateOuterDependencies(typeCache: TypeCache): Unit = {
     val dependsOn = mutable.Set[TypeId]()
-    collectDependenciesByTypeName(dependsOn)
+    collectDependenciesByTypeName(dependsOn, typeCache)
     dependsOn.foreach(dependentTypeName =>
       getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(this.typeId)))
   }

@@ -16,6 +16,7 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
@@ -37,11 +38,13 @@ object DependentValidation {
 
   /* Test if all Type dependencies are valid. Ignore other types of dependency since these can't be checked */
   def areTypeDependenciesValid(dependents: Array[DependentSummary], module: Module): Boolean = {
+    val typeCache = new TypeCache()
+
     // Horrible iteration, could this be @tailrec
     for (dependent <- dependents) {
       dependent match {
         case d: TypeDependentSummary =>
-          val td = findValidTypeDependent(d, module)
+          val td = findValidTypeDependent(d, module, typeCache)
           if (td.isEmpty) {
             LoggerOps.debug(s"Rejected type dependency $dependent")
             return false
@@ -53,12 +56,14 @@ object DependentValidation {
   }
 
   /* Find a valid type dependency, to be valid it must carry correct hash and have valid dependencies itself */
-  def findValidTypeDependent(dependent: TypeDependentSummary, module: Module): Option[TypeDeclaration] = {
+  private def findValidTypeDependent(dependent: TypeDependentSummary,
+                                     module: Module,
+                                     typeCache: TypeCache): Option[TypeDeclaration] = {
 
     // Fallback to outer type if we are given an inner to find
     def findSummaryType(typeId: TypeId): Option[TypeDeclaration] = {
-      findDependentType(typeId.typeName, typeId.module)
-        .orElse(typeId.typeName.outer.flatMap(findDependentType(_, typeId.module)))
+      findDependentType(typeId.typeName, typeId.module, typeCache)
+        .orElse(typeId.typeName.outer.flatMap(findDependentType(_, typeId.module, typeCache)))
     }
 
     TypeId(module, dependent.typeId).flatMap(typeId => {
@@ -78,9 +83,9 @@ object DependentValidation {
   /* Collect actual dependents from DependentSummary entries. This must run against full package metadata since the
    * dependents may be inherited elements coming from other types in the package.
    */
-  def getDependents(dependents: Array[DependentSummary], module: Module): Array[Dependent] = {
+  def getDependents(dependents: Array[DependentSummary], module: Module, typeCache: TypeCache): Array[Dependent] = {
     dependents.flatMap(dependent => {
-      val dep = findDependent(dependent, module)
+      val dep = findDependent(dependent, module, typeCache)
       if (dep.isEmpty) {
         LoggerOps.debug(s"Rejected other dependency $dependent")
       }
@@ -88,38 +93,44 @@ object DependentValidation {
     })
   }
 
-  def findDependent(dependent: DependentSummary, module: Module): Option[Dependent] = {
+  private def findDependent(dependent: DependentSummary, module: Module, typeCache: TypeCache): Option[Dependent] = {
     dependent match {
-      case d: TypeDependentSummary   => findDependent(d, module)
-      case d: FieldDependentSummary  => findDependent(d, module)
-      case d: MethodDependentSummary => findDependent(d, module)
+      case d: TypeDependentSummary   => findDependent(d, module, typeCache)
+      case d: FieldDependentSummary  => findDependent(d, module, typeCache)
+      case d: MethodDependentSummary => findDependent(d, module, typeCache)
       case _                         => None
     }
   }
 
   /* Find a type dependency, no need to check this as should have been done via areTypeDependenciesValid */
-  def findDependent(dependent: TypeDependentSummary, module: Module): Option[TypeDeclaration] = {
+  private def findDependent(dependent: TypeDependentSummary,
+                            module: Module,
+                            typeCache: TypeCache): Option[TypeDeclaration] = {
     TypeId(module, dependent.typeId).flatMap(typeId => {
-      findDependentType(typeId.typeName, typeId.module)
+      findDependentType(typeId.typeName, typeId.module, typeCache)
     })
   }
 
   /* Find a field dependency */
-  def findDependent(dependent: FieldDependentSummary, module: Module): Option[FieldDeclaration] = {
+  private def findDependent(dependent: FieldDependentSummary,
+                            module: Module,
+                            typeCache: TypeCache): Option[FieldDeclaration] = {
     val name = Name(dependent.name)
 
     TypeId(module, dependent.typeId).flatMap(typeId => {
-      findExactDependentType(typeId.typeName, typeId.module)
+      findExactDependentType(typeId.typeName, typeId.module, typeCache)
         .flatMap(_.fields.find(_.name == name))
     })
   }
 
   /* Find a method dependency */
-  def findDependent(dependent: MethodDependentSummary, module: Module): Option[MethodDeclaration] = {
+  private def findDependent(dependent: MethodDependentSummary,
+                            module: Module,
+                            typeCache: TypeCache): Option[MethodDeclaration] = {
     val name = Name(dependent.name)
 
     TypeId(module, dependent.typeId).flatMap(typeId => {
-      findExactDependentType(typeId.typeName, typeId.module)
+      findExactDependentType(typeId.typeName, typeId.module, typeCache)
         .flatMap {
           case td: ApexClassDeclaration =>
             td.methodMap.findMethod(name, dependent.parameterTypes)
@@ -134,8 +145,10 @@ object DependentValidation {
   }
 
   /* Find an outer or inner type from namespace mapping to a package */
-  private def findExactDependentType(typeName: TypeName, module: Module): Option[TypeDeclaration] = {
-    findDependentType(typeName, module).flatMap(td => {
+  private def findExactDependentType(typeName: TypeName,
+                                     module: Module,
+                                     typeCache: TypeCache): Option[TypeDeclaration] = {
+    findDependentType(typeName, module, typeCache).flatMap(td => {
       if (td.typeName != typeName) {
         td.nestedTypes.find(_.typeName == typeName)
       } else {
@@ -145,9 +158,9 @@ object DependentValidation {
   }
 
   /* Find an Apex type declaration from a module */
-  private def findDependentType(typeName: TypeName, module: Module): Option[TypeDeclaration] = {
-
-    TypeResolver(typeName, module) match {
+  private def findDependentType(typeName: TypeName, module: Module, typeCache: TypeCache): Option[TypeDeclaration] = {
+    val response = typeCache.getOrElseUpdate((typeName, module), TypeResolver(typeName, module))
+    response match {
       case Left(_)                        => None
       case Right(d: ApexClassDeclaration) => Some(d)
       case Right(d: LabelDeclaration)     => Some(d)
@@ -164,17 +177,26 @@ object DependentValidation {
 trait SummaryDependencyHandler extends DependencyHolder {
   val module: Module
   val dependents: Array[DependentSummary]
+  private var _dependents: Option[Seq[Dependent]] = None
 
-  // Check any type dependencies are valid
+  /** Check all type dependencies are valid. */
   def areTypeDependenciesValid: Boolean =
     DependentValidation.areTypeDependenciesValid(dependents, module)
 
-  // Get all dependents, this list is only valid if areTypeDependenciesValid returns true
-  override lazy val dependencies: Seq[Dependent] =
-    DependentValidation.getDependents(dependents, module).toIndexedSeq
+  /** Get all the dependents, this list is only valid if areTypeDependenciesValid returns true, see also
+    * [[populateDependencies]]. */
+  override lazy val dependencies: Seq[Dependent] = populateDependencies(new TypeCache())
 
-  // For summary types we defer propagation of internal dependencies as they are only needed for
-  // unused analysis currently but we don't want to re-execute them every time.
+  /** Manually populate the dependencies. Using this is optional but can improve performance due to type caching. */
+  def populateDependencies(typeCache: TypeCache): Seq[Dependent] = {
+    if (_dependents.isEmpty) {
+      _dependents = Some(DependentValidation.getDependents(dependents, module, typeCache).toIndexedSeq)
+    }
+    _dependents.get
+  }
+
+  /** For summary types we defer propagation of internal dependencies as they are only needed for unused analysis
+    * currently but we don't want to re-execute them every time. */
   override def propagateDependencies(): Unit = propagated
   private lazy val propagated: Boolean = { super.propagateDependencies(); true }
 }
@@ -303,7 +325,7 @@ class SummaryDeclaration(val path: PathLike,
   }
 
   override def validate(): Unit = {
-    propagateOuterDependencies()
+    propagateOuterDependencies(new TypeCache())
   }
 
   override def propagateAllDependencies(): Unit = {
@@ -333,7 +355,7 @@ class SummaryDeclaration(val path: PathLike,
     true
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     val localDependencies = mutable.Set[TypeId]()
     def collect(dependents: Seq[Dependent]): Unit = {
       dependents.foreach({
@@ -351,14 +373,14 @@ class SummaryDeclaration(val path: PathLike,
     }
 
     // Collect them all
-    collect(dependencies)
-    _blocks.foreach(x => collect(x.dependencies))
-    _localFields.foreach(x => collect(x.dependencies))
-    _constructors.foreach(x => collect(x.dependencies))
-    _localMethods.foreach(x => collect(x.dependencies))
+    collect(populateDependencies(typeCache))
+    _blocks.foreach(x => collect(x.populateDependencies(typeCache)))
+    _localFields.foreach(x => collect(x.populateDependencies(typeCache)))
+    _constructors.foreach(x => collect(x.populateDependencies(typeCache)))
+    _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
     nestedTypes
       .collect { case x: SummaryDeclaration => x }
-      .foreach(_.collectDependenciesByTypeName(dependsOn))
+      .foreach(_.collectDependenciesByTypeName(dependsOn, typeCache))
 
     // Use outermost of each to get top-level dependencies
     localDependencies.foreach(dependentTypeName => {

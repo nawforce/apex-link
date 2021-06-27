@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.types.other
 
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, PackageImpl}
 import com.nawforce.apexlink.types.core._
@@ -84,7 +85,7 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
   // Propagate dependencies to nested
   nestedComponents.foreach(_.addTypeDependencyHolder(typeId))
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
 

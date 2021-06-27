@@ -20,6 +20,8 @@ import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTy
 import com.nawforce.apexlink.types.schema.{PlatformObjectNature, SObjectDeclaration}
 import com.nawforce.pkgforce.names.TypeName
 
+import scala.collection.mutable
+
 /** Various forms of TypeDeclaration searches. There are broadly three types of searches used, a local typename can
   * be resolved  given a starting declaration to search from. Absolute type names can be resolved against module types,
   * either in a passed module or a dependent module of that. And absolute types names may also match against platform
@@ -31,6 +33,7 @@ import com.nawforce.pkgforce.names.TypeName
   */
 object TypeResolver {
   type TypeResponse = Either[TypeError, TypeDeclaration]
+  type TypeCache = mutable.HashMap[(TypeName, Module), TypeResponse]
 
   /* Search for TypeDeclaration from a absolute typename from given modules perspective. */
   def apply(typeName: TypeName, module: Module): TypeResponse = {

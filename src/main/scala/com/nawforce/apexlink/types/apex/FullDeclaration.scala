@@ -16,6 +16,7 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -125,7 +126,7 @@ abstract class FullDeclaration(val source: Source,
         clearMethodMap()
         verify(context)
         if (withPropagation)
-          propagateOuterDependencies()
+          propagateOuterDependencies(new TypeCache())
 
         // Re-validation may update diagnostics which now need flushing
         flushedToCache = false
@@ -181,7 +182,7 @@ abstract class FullDeclaration(val source: Source,
     setDepends(context.dependencies)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     dependents.foreach {

@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.org
 
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
@@ -156,11 +157,12 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   /** Validate summary classes & log diagnostics, those with any invalid dependents are discarded. */
   private def validateSummaryClasses(summaryClasses: Iterator[SummaryApex]): Unit = {
+    val typeCache = new TypeCache()
     summaryClasses
       .foreach(summaryClass => {
         if (summaryClass.declaration.hasValidDependencies) {
-          // Validate (just for dependency propagation as these are summaries)
-          summaryClass.declaration.validate()
+          // Re-establish outer dependencies, others are deferred until we need unused analysis
+          summaryClass.declaration.propagateOuterDependencies(typeCache)
 
           // Report any (existing) diagnostics
           val path = summaryClass.declaration.path.toString

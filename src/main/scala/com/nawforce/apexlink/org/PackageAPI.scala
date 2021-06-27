@@ -16,6 +16,7 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.api.{Package, TypeSummary}
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.pkgforce.diagnostics.LoggerOps
@@ -129,8 +130,9 @@ trait PackageAPI extends Package {
               })
               .toArray
           } else {
+            val typeCache = new TypeCache()
             val dependencies = mutable.Set[TypeId]()
-            ad.collectDependenciesByTypeName(dependencies)
+            ad.collectDependenciesByTypeName(dependencies, typeCache)
             dependencies.map(_.asTypeIdentifier).toArray
           }
         })

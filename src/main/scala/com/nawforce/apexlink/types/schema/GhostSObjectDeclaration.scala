@@ -15,6 +15,7 @@ package com.nawforce.apexlink.types.schema
 
 import com.nawforce.apexlink.cst.VerifyContext
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
@@ -42,7 +43,7 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
     TypeResolver(superClass.get, this).toOption
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId]): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
     // TODO: Should you be able to depend on a ghost?
   }
 
