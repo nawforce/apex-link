@@ -91,9 +91,6 @@ object CacheEntry {
 /* Parsed class cache */
 final class ParsedCache(val path: PathLike, version: Int) {
 
-  /** Auto expire before use */
-  expire()
-
   /** Upsert a key -> value pair, ignores storage errors */
   def upsert(packageContext: PackageContext, name: String, contents: Array[Byte], value: Array[Byte]): Unit = {
     val cacheKey = CacheKey(version, packageContext, name, contents)
