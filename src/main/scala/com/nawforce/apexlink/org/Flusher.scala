@@ -28,6 +28,7 @@ case class RefreshRequest(pkg: PackageImpl, path: PathLike)
 class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
   protected val lock = new ReentrantLock(true)
   protected val refreshQueue = new mutable.Queue[RefreshRequest]()
+  private var expired = false
 
   def isDirty: Boolean = {
     lock.synchronized { refreshQueue.nonEmpty }
@@ -56,6 +57,10 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
           packages.foreach(pkg => {
             pkg.flush(pc)
           })
+          if (!expired) {
+            pc.expire()
+            expired = true
+          }
         })
 
         Monitor.reportDuplicateTypes()
