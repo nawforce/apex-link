@@ -38,18 +38,18 @@ import scala.collection.mutable
 
 final case class Path(native: java.nio.file.Path) extends PathLike {
 
-  override lazy val basename: String = {
+  override def basename: String = {
     val filename = native.getFileName
     if (filename == null) "" else filename.toString
   }
-  override lazy val parent: Path = join("..")
-  override lazy val exists: Boolean = Files.exists(native)
-  override lazy val isRoot: Boolean = this.toString == parent.toString
-  override lazy val isDirectory: Boolean = Files.isDirectory(native)
-  override lazy val isFile: Boolean = Files.isRegularFile(native)
-  override lazy val size: Long = if (isFile) Files.size(native) else 0
+  override def parent: Path = join("..")
+  override def exists: Boolean = Files.exists(native)
+  override def isRoot: Boolean = this.toString == parent.toString
+  override def isDirectory: Boolean = Files.isDirectory(native)
+  override def isFile: Boolean = Files.isRegularFile(native)
+  override def size: Long = if (isFile) Files.size(native) else 0
 
-  override lazy val toString: String = native.toString
+  override def toString: String = native.toString
 
   override def join(arg: String): Path = {
     Path(native.resolve(arg).normalize())

@@ -39,23 +39,23 @@ import scala.scalajs.js.JSConverters._
 
 final case class Path private (path: String) extends PathLike {
 
-  private lazy val pathObject = io.scalajs.nodejs.path.Path.parse(path)
-  private lazy val stat = {
+  private val pathObject = io.scalajs.nodejs.path.Path.parse(path)
+  private def stat = {
     try {
       Some(io.scalajs.nodejs.fs.Fs.statSync(path))
     } catch {
       case _: js.JavaScriptException => None
     }
   }
-  override val native: Any = path
+  override def native: Any = path
 
-  override lazy val basename: String = pathObject.base.toOption.get
-  override lazy val parent: Path = join("..")
-  override lazy val exists: Boolean = stat.nonEmpty
-  override lazy val isRoot: Boolean = this.toString == parent.toString
-  override lazy val isDirectory: Boolean = stat.exists(_.isDirectory())
-  override lazy val isFile: Boolean = stat.exists(_.isFile())
-  override lazy val size: Long = stat.map(_.size.toLong).getOrElse(0)
+  override def basename: String = pathObject.base.toOption.get
+  override def parent: Path = join("..")
+  override def exists: Boolean = stat.nonEmpty
+  override def isRoot: Boolean = this.toString == parent.toString
+  override def isDirectory: Boolean = stat.exists(_.isDirectory())
+  override def isFile: Boolean = stat.exists(_.isFile())
+  override def size: Long = stat.map(_.size.toLong).getOrElse(0)
 
   override def join(arg: String): Path = {
     if (io.scalajs.nodejs.path.Path.isAbsolute(arg))

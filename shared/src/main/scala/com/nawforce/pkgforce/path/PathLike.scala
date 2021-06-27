@@ -33,28 +33,28 @@ import com.nawforce.runtime.parsers.SourceData
 abstract class PathLike {
 
   // All paths have a base, it may be empty for root paths
-  val basename: String
+  def basename: String
 
   // All paths have a parent, it may be the same path for root paths
-  val parent: PathLike
+  def parent: PathLike
 
   // Is anything present at path
-  val exists: Boolean
+  def exists: Boolean
 
   // Is this the root
-  val isRoot: Boolean
+  def isRoot: Boolean
 
   // Is this a directory
-  val isDirectory: Boolean
+  def isDirectory: Boolean
 
   // Is this a regular file
-  val isFile: Boolean
+  def isFile: Boolean
 
   // Size of regular file, returns 0 otherwise
-  val size: Long
+  def size: Long
 
   // As native representation, platform specific escape
-  val native: Any
+  def native: Any
 
   // Join some new text to end of path & normalise
   def join(arg: String): PathLike
