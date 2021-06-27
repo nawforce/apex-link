@@ -57,12 +57,17 @@ object SourceData {
 
 case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) extends SourceData {
   val hash: Int = MurmurHash3.bytesHash(source)
+  private lazy val isASCII = UTF8Decode.isASCII(source, offset, length)
 
   override def subdata(startChar: Int, stopChar: Int): ByteArraySourceData = {
-    val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)
-    val endOffset = UTF8Decode.getCharOffsetFrom(source, startOffset, stopChar - startChar)
-    val subLength = endOffset - startOffset
-    ByteArraySourceData(source, startOffset, subLength)
+    if (isASCII) {
+      ByteArraySourceData(source, offset+startChar, stopChar-startChar)
+    } else {
+      val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)
+      val endOffset = UTF8Decode.getCharOffsetFrom(source, startOffset, stopChar - startChar)
+      val subLength = endOffset - startOffset
+      ByteArraySourceData(source, startOffset, subLength)
+    }
   }
 
   def asInsensitiveStream: CaseInsensitiveInputStream = {

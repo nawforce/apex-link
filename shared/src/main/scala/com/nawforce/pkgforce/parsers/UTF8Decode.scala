@@ -31,6 +31,17 @@ import java.nio.charset.StandardCharsets
 
 object UTF8Decode {
 
+  def isASCII(buffer: Array[Byte], offset: Int, length: Int): Boolean = {
+    var at = offset
+    val limit = offset + length
+    while (at < limit) {
+      if (buffer(at) >= 0x80)
+        return false
+      at += 1
+    }
+    true
+  }
+
   def getCharOffsetFrom(buffer: Array[Byte], offset: Int, charCount: Int): Int = {
     var remaining = charCount
     var at = offset
