@@ -35,7 +35,7 @@ object UTF8Decode {
     var at = offset
     val limit = offset + length
     while (at < limit) {
-      if (buffer(at) >= 0x80)
+      if ((0xFF & buffer(at).asInstanceOf[Int]) >= 0x80)
         return false
       at += 1
     }
