@@ -63,9 +63,9 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
     // Report progress and tidy up
     if (types.size > basicTypesSize) {
-      val total = java.lang.System.currentTimeMillis() - start
+      val total = (java.lang.System.currentTimeMillis() - start).toDouble
       val avg = total / types.size
-      LoggerOps.info(s"$module loaded ${types.size} types in ${total}ms, average $avg ms/type")
+      LoggerOps.info(f"$module loaded ${types.size} types in ${total}ms, average $avg%.1f ms/type")
     }
   }
 
@@ -160,7 +160,8 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     val typeCache = new TypeCache()
     summaryClasses
       .foreach(summaryClass => {
-        if (summaryClass.declaration.hasValidDependencies) {
+        if (summaryClass.declaration.hasValidDependencies(typeCache)) {
+
           // Re-establish outer dependencies, others are deferred until we need unused analysis
           summaryClass.declaration.propagateOuterDependencies(typeCache)
 

@@ -37,10 +37,7 @@ import scala.collection.mutable
 object DependentValidation {
 
   /* Test if all Type dependencies are valid. Ignore other types of dependency since these can't be checked */
-  def areTypeDependenciesValid(dependents: Array[DependentSummary], module: Module): Boolean = {
-    val typeCache = new TypeCache()
-
-    // Horrible iteration, could this be @tailrec
+  def areTypeDependenciesValid(dependents: Array[DependentSummary], module: Module, typeCache: TypeCache): Boolean = {
     for (dependent <- dependents) {
       dependent match {
         case d: TypeDependentSummary =>
@@ -180,8 +177,8 @@ trait SummaryDependencyHandler extends DependencyHolder {
   private var _dependents: Option[Seq[Dependent]] = None
 
   /** Check all type dependencies are valid. */
-  def areTypeDependenciesValid: Boolean =
-    DependentValidation.areTypeDependenciesValid(dependents, module)
+  def areTypeDependenciesValid(typeCache: TypeCache): Boolean =
+    DependentValidation.areTypeDependenciesValid(dependents, module, typeCache)
 
   /** Get all the dependents, this list is only valid if areTypeDependenciesValid returns true, see also
     * [[populateDependencies]]. */
@@ -340,13 +337,13 @@ class SummaryDeclaration(val path: PathLike,
     nestedTypes.foreach(_.propagateDependencies())
   }
 
-  def hasValidDependencies: Boolean =
-    areTypeDependenciesValid &&
-      _blocks.forall(b => b.areTypeDependenciesValid) &&
-      _localFields.forall(f => f.areTypeDependenciesValid) &&
-      _constructors.forall(c => c.areTypeDependenciesValid) &&
-      _localMethods.forall(m => m.areTypeDependenciesValid) &&
-      nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies)
+  def hasValidDependencies(typeCache: TypeCache): Boolean =
+    areTypeDependenciesValid(typeCache) &&
+      _blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
+      _localFields.forall(f => f.areTypeDependenciesValid(typeCache)) &&
+      _constructors.forall(c => c.areTypeDependenciesValid(typeCache)) &&
+      _localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
+      nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies(typeCache))
 
   override def propagateDependencies(): Unit = propagated
   private lazy val propagated: Boolean = {
