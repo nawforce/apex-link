@@ -36,6 +36,7 @@ object Names extends CleanableCache {
   private var nameCache = mutable.HashMap[String, Name]()
 
   def apply(name: String): Name = cache(name)
+  def apply(name: Name): Name = cache(name.value)
   def safeApply(name: String): Option[Name] = Option(name).filterNot(_.isEmpty).map(n => Name(n))
 
   private def cache(value: String): Name = {
