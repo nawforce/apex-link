@@ -206,7 +206,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
 
-  override val idLocation: Option[PathLocation] = Some(id.location)
+  override def idLocation: Option[PathLocation] = Some(id.location)
   override def nameRange: PathLocation = id.location
   override val name: Name = id.name
   override def hasBlock: Boolean = block.nonEmpty
@@ -235,6 +235,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
       case Some(Left(error)) => OrgImpl.log(error.asIssue(id.location))
       case Some(Right(td))   => context.addDependency(td)
       case _                 => ()
+
     }
 
     formalParameters.foreach(_.verify(context))
@@ -356,7 +357,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
 
     val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
     formalParameters.foreach(param =>
-      blockContext.addVar(param.name, param.location, param.typeName))
+      blockContext.addVar(param.name, param.id.location, param.typeName))
     block.verify(blockContext)
     setDepends(context.dependencies)
     context.propagateDependencies()
@@ -386,15 +387,14 @@ final case class FormalParameter(module: Module,
                                  modifiers: ModifierResults,
                                  relativeTypeName: RelativeTypeName,
                                  id: Id)
-    extends CST
-    with ParameterDeclaration {
+    extends ParameterDeclaration {
 
   override val name: Name = id.name
 
   override def typeName: TypeName = relativeTypeName.typeName
 
   def addVar(context: BlockVerifyContext): Unit = {
-    relativeTypeName.addVar(location, id.name, context: BlockVerifyContext)
+    relativeTypeName.addVar(id.location, id.name, context: BlockVerifyContext)
   }
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
@@ -423,7 +423,7 @@ object FormalParameter {
                                                      CodeParser.toScala(from.modifier()),
                                                      from),
                     RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
-                    Id.construct(from.id())).withContext(from)
+                    Id.construct(from.id()))
   }
 }
 

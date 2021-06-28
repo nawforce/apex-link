@@ -306,7 +306,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-38: No type declaration found for 'Bar'\n")
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 37-38: No type declaration found for 'Bar'\n")
     }
   }
 

@@ -147,7 +147,7 @@ class DependencyTest extends AnyFunSuite with TestHelper {
 
   test("Unknown method parameter") {
     val tds = typeDeclarations(Map("Dummy.cls" -> "public class Dummy { void func(A a) {} }"))
-    assert(dummyIssues == "Missing: line 1 at 31-34: No type declaration found for 'A'\n")
+    assert(dummyIssues == "Missing: line 1 at 33-34: No type declaration found for 'A'\n")
     assert(tds.head.methods.find(_.name == Name("func")).get.dependencies().isEmpty)
   }
 

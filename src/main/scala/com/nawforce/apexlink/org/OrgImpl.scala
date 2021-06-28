@@ -17,7 +17,6 @@ package com.nawforce.apexlink.org
 import java.io.File
 import java.util
 import java.util.jar.JarFile
-
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
@@ -29,6 +28,7 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
+import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
@@ -93,6 +93,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       // Finally, freeze everything
       val all = packages ++ unmanaged
       all.foreach(_.freeze())
+      CodeParser.clearCaches()
       all
     }
   }
