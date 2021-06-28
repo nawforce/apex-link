@@ -36,6 +36,8 @@ sealed case class Issue(path: String, diagnostic: Diagnostic) {
 }
 
 object Issue {
+  val emptyArray: Array[Issue] = Array.empty
+
   implicit val rw: RW[Issue] = macroRW
 
   implicit val ordering: Ordering[Issue] = Ordering

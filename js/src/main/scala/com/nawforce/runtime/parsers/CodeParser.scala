@@ -104,13 +104,16 @@ object CodeParser {
 
   // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {
-    if (context.childCount == 0) return ""
-
-    val builder = new StringBuilder
-    for (i <- 0 until context.childCount) {
-      builder.append(context.getChild(i).text)
+    context.childCount match {
+      case 0 => ""
+      case 1 => context.getChild(0).text
+      case _ =>
+        val builder = new StringBuilder
+        for (i <- 0 until context.childCount) {
+          builder.append(context.getChild(i).text)
+        }
+        builder.toString
     }
-    builder.toString
   }
 
   // Helper for JS Portability
