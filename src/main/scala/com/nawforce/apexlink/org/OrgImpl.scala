@@ -52,6 +52,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       case Left(err) => LoggerOps.info(err); None
     }
 
+  /** Is this Org using auto-flushing of the parsedCache. */
+  private val autoFlush = ServerOps.getAutoFlush
+
+  /** The Org flusher. */
+  private val flusher =
+    if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
+
   /** Lookup of available packages from the namespace (which must be unique), populated when packages created */
   var packagesByNamespace: Map[Option[Name], PackageImpl] = _
 
@@ -98,16 +105,15 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
   }
 
+  /** After loading packages we want to flush, but flushing depends on the package list being available. */
+  private val initialFlush =
+    if (autoFlush)
+      flusher.refreshAndFlush()
+
   /** All orgs have an unmanaged package, it has to be the last entry in 'packages'. */
   val unmanaged: PackageImpl = packages.last
 
-  /** Is this Org using auto-flushing of the parsedCache */
-  private val autoFlush = ServerOps.getAutoFlush
-
-  /** The Org flusher */
-  private val flusher =
-    if (autoFlush) new CacheFlusher(this, parsedCache) else new Flusher(this, parsedCache)
-
+  /** Get all loaded packages. */
   def getPackages(): Array[Package] = packages.toArray[Package]
 
   /** Check to see if cache has been flushed */
@@ -132,9 +138,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings,
-                                         options.maxErrorsPerFile,
-                                         options.format)
+      reportableIssues(options).asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
     }
   }
 
@@ -222,13 +226,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       val nodeData = depWalker
         .walk(identifier, depth)
         .map(n => {
-          DependencyNode(n.id,
-                         nodeFileSize(n.id),
-                         n.nature,
-                         n.transitiveCount,
-                         n.extending,
-                         n.implementing,
-                         n.using)
+          DependencyNode(n.id, nodeFileSize(n.id), n.nature, n.transitiveCount, n.extending, n.implementing, n.using)
         })
 
       val nodeIndex = nodeData.map(_.identifier).zipWithIndex.toMap
@@ -240,8 +238,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         def safeLink(nature: String)(identifier: TypeIdentifier): Unit = {
           nodeIndex
             .get(identifier)
-            .foreach(target =>
-              if (source != target) linkData += DependencyLink(source, target, nature))
+            .foreach(target => if (source != target) linkData += DependencyLink(source, target, nature))
         }
 
         n.extending.foreach(safeLink("extends"))
