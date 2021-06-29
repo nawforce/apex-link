@@ -27,7 +27,7 @@ final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclarati
   extends AssignableSupport {
 
   /** Return all available methods */
-  lazy val allMethods: Array[MethodDeclaration] = {
+  def allMethods: Array[MethodDeclaration] = {
     val buffer = new mutable.ArrayBuffer[MethodDeclaration]()
     methodsByName.values.foreach(methods => buffer.addAll(methods))
     buffer.toArray

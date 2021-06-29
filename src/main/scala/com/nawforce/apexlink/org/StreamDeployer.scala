@@ -24,7 +24,6 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
 import com.nawforce.pkgforce.stream._
-import com.nawforce.runtime.parsers.CodeParser
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.immutable.ArraySeq
@@ -57,7 +56,6 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       consumeClasses(bufferedIterator)
       consumeTriggers(bufferedIterator)
     }
-    CodeParser.clearCaches()
 
     // Report progress and tidy up
     if (types.size > basicTypesSize) {
@@ -123,30 +121,22 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   }
 
   /** Parse a collection of Apex classes, insert them and validate them. */
-  private def parseAndValidateClasses(docs: Seq[ClassDocument], extendedApex: Boolean): Unit = {
+  private def parseAndValidateClasses(docs: ArraySeq[ClassDocument], extendedApex: Boolean): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
-        .grouped(500)
-        .flatMap(group => {
-          val tds = group.flatMap(doc => {
-            doc.path.readSourceData() match {
-              case Left(_) => None
-              case Right(data) =>
-                LoggerOps.debugTime(s"Parsed ${doc.path}") {
-                  FullDeclaration
-                    .create(module, doc, data, extendedApex)
-                    .map(td => {
-                      types.put(td.typeName, td)
-                      td
-                    })
-                }
-            }
-          })
-          // Clear caches to avoid unconstrained growth, this will slow the parser a bit
-          CodeParser.clearCaches()
-          tds
+        .flatMap(doc =>
+          doc.path.readSourceData() match {
+            case Left(_) => None
+            case Right(data) =>
+              LoggerOps.debugTime(s"Parsed ${doc.path}") {
+                FullDeclaration
+                  .create(module, doc, data, extendedApex)
+                  .map(td => {
+                    types.put(td.typeName, td)
+                    td
+                  })
+              }
         })
-        .toSeq
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())
