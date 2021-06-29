@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.rpc.DependencyGraph
+import com.nawforce.apexlink.rpc.{DependencyGraph, LocationLink}
 import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps, PathLocation}
 import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
@@ -102,6 +102,13 @@ trait Org {
     * TypeIdentifier. The root node of the search is always returned if it can be found. Depths > 0 will include
     * additional nodes. */
   def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph
+
+  /** Locate a definition from a file position.
+    *
+    * This will attempt to locate the definition of a symbol at the provided line & offset in the path. The returned
+    * location provides information of the extent of the symbols used for the search as well as the file and extent
+    * of the found definition. If no symbol can be found that links to a definition it returns null. */
+  def getDefinition(path: String, line: Int, offset: Int): LocationLink
 }
 
 object Org {
