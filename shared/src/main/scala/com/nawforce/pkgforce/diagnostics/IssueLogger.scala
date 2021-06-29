@@ -85,11 +85,13 @@ sealed trait ParserIssueLogger extends IssueLogger {
 
 /** Logger using a specific CodaParser */
 class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
-  private val issueLog = new ArrayBuffer[Issue]()
+  private var issueLog: ArrayBuffer[Issue] = _
 
-  def isEmpty: Boolean = issueLog.isEmpty
+  def isEmpty: Boolean = issueLog == null
 
   override def log(issue: Issue): Unit = {
+    if (issueLog == null)
+      issueLog = new ArrayBuffer[Issue]()
     issueLog.append(issue)
   }
 
@@ -97,5 +99,10 @@ class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
     parser.getPathAndLocation(context)
   }
 
-  def issues: Array[Issue] = issueLog.toArray
+  def issues: Array[Issue] = {
+    if (isEmpty)
+      Issue.emptyArray
+    else
+      issueLog.toArray
+  }
 }
