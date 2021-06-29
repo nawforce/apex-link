@@ -55,4 +55,12 @@ class TypeIdentifierTest extends AnyFunSuite {
     assert(TypeIdentifier.apply("Foo ( )") == Left("Illegal namespace ' ': can only use characters A-Z, a-z, 0-9 or _"))
     assert(TypeIdentifier.apply("Foo (ns_)") == Left("Illegal namespace 'ns_': can not start or end with '_'"))
   }
+
+  test("toString") {
+    assert(TypeIdentifier.apply("Foo").toOption.get.toString == "Foo")
+    assert(TypeIdentifier.apply("Foo.Bar").toOption.get.toString == "Foo.Bar")
+    assert(TypeIdentifier.apply("Foo.Bar (ns)").toOption.get.toString == "Foo.Bar (ns)")
+    assert(TypeIdentifier.apply("ns.Foo.Bar (ns)").toOption.get.toString == "Foo.Bar (ns)")
+  }
+
 }

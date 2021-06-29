@@ -37,7 +37,11 @@ import upickle.default.{macroRW, ReadWriter => RW}
 final case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
 
   override def toString: String = {
-    typeName.toString + namespace.map(n => s" (${n.toString})").getOrElse("")
+    var typeNameAsString = typeName.toString
+    if (namespace.nonEmpty && typeNameAsString.startsWith(namespace.get.value + '.'))
+      typeNameAsString =
+        typeNameAsString.takeRight(typeNameAsString.length - namespace.get.value.length - 1)
+    typeNameAsString + namespace.map(n => s" (${n.toString})").getOrElse("")
   }
 }
 
