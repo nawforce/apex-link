@@ -168,7 +168,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       packages
         .filterNot(_.isGhosted)
         .foreach(pkg => {
-          allIssues.merge(pkg.orderedModules.head.reportUnused())
+          pkg.orderedModules.foreach(module => {
+            allIssues.merge(module.reportUnused())
+          })
         })
       allIssues
     } else {
