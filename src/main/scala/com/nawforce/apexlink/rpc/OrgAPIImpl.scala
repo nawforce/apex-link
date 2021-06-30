@@ -57,7 +57,7 @@ class OrgQueue(quiet: Boolean, path: String) { self =>
 
   def refresh(path: String): Unit = {
     // TODO: Can't we do better than this?
-    org.getPackages().headOption.foreach(pkg => pkg.refresh(path))
+    org.getPackages().foreach(pkg => pkg.refresh(path))
   }
 }
 
