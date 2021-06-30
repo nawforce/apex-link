@@ -89,6 +89,19 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
        else s"<${params.map(_.toString).mkString(", ")}>")
   }
 
+  private[pkgforce] def withOuter(newOuter: Option[TypeName]): TypeName = {
+    if (newOuter != outer)
+      TypeName(name, params, newOuter)
+    else
+      this
+  }
+
+  private[pkgforce] def withTail(newOuter: TypeName): TypeName = {
+    if (outer.isEmpty)
+      withOuter(Some(newOuter))
+    else
+      TypeName(name, params, Some(outer.get.withTail(newOuter)))
+  }
 }
 
 object TypeName {

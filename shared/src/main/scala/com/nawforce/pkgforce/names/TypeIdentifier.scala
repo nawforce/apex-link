@@ -38,10 +38,13 @@ final case class TypeIdentifier(namespace: Option[Name], typeName: TypeName) {
 
   override def toString: String = {
     var typeNameAsString = typeName.toString
-    if (namespace.nonEmpty && typeNameAsString.startsWith(namespace.get.value + '.'))
+    if (namespace.nonEmpty && typeNameAsString.startsWith(namespace.get.value + '.')) {
       typeNameAsString =
         typeNameAsString.takeRight(typeNameAsString.length - namespace.get.value.length - 1)
-    typeNameAsString + namespace.map(n => s" (${n.toString})").getOrElse("")
+      typeNameAsString + namespace.map(n => s" (${n.toString})").getOrElse("")
+    } else {
+      typeNameAsString + namespace.map(n => s" [${n.toString}]").getOrElse("")
+    }
   }
 }
 
@@ -59,14 +62,21 @@ object TypeIdentifier {
       case Left(err)                            => Left(err)
       case Right(typeName) if parts.length == 1 => Right(TypeIdentifier(None, typeName))
       case Right(typeName) =>
-        if (parts(1).length < 3 || parts(1).head != '(' || parts(1).last != ')')
+        if (parts(1).length < 3 ||
+            (parts(1).head != '(' && parts(1).head != '[') ||
+            (parts(1).last != ')' && parts(1).last != ']'))
           Left(s"Expecting brackets around namespace in '$identifier'")
         else {
           val namespace = Name(parts(1).substring(1, parts(1).length - 1))
+          val namespacedTypeName =
+            if (parts(1).head == '(')
+              typeName.withTail(TypeName(namespace))
+            else
+              typeName
           Identifier
             .isLegalIdentifier(namespace)
             .map(error => Left(s"Illegal namespace '$namespace': $error"))
-            .getOrElse(Right(TypeIdentifier(Some(namespace), typeName)))
+            .getOrElse(Right(TypeIdentifier(Some(namespace), namespacedTypeName)))
         }
     }
   }
