@@ -81,13 +81,12 @@ trait PackageAPI extends Package {
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.namespace == namespace) {
-      orderedModules.headOption
+      orderedModules
         .flatMap(module => {
           module.types
             .get(typeId.typeName)
             .map(td => td.paths.map(_.toString))
-        })
-        .getOrElse(Array())
+        }).headOption.getOrElse(Array())
     } else {
       Array()
     }
@@ -95,23 +94,15 @@ trait PackageAPI extends Package {
 
   override def getSummaryOfType(typeId: TypeIdentifier): TypeSummary = {
     if (typeId != null && typeId.namespace == namespace) {
-      getApexDeclaration(typeId.typeName)
-        .map(_.summary)
+      orderedModules
+        .flatMap(_.types.get(typeId.typeName))
+        .filter(_.isInstanceOf[ApexDeclaration])
+        .map(_.asInstanceOf[ApexDeclaration].summary)
+        .headOption
         .orNull
     } else {
       null
     }
-  }
-
-  private def getApexDeclaration(typeName: TypeName): Option[ApexDeclaration] = {
-    orderedModules.headOption.flatMap(module => {
-      module.types
-        .get(typeName)
-        .flatMap {
-          case ad: ApexDeclaration => Some(ad)
-          case _                   => None
-        }
-    })
   }
 
   override def getSummaryOfTypeAsJSON(typeId: TypeIdentifier): String = {
