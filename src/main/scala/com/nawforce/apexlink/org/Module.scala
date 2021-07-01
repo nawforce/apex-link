@@ -264,7 +264,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       // Create type & forward holders to limit need for invalidation chaining
       val newTypes = createTypes(dt, sourceOpt)
       if (newTypes.nonEmpty) {
-        createTypes(dt, sourceOpt).map(newType => {
+        newTypes.map(newType => {
           val existingType = getDependentType(newType.typeName)
           val holders = existingType
             .map(_.getTypeDependencyHolders)
