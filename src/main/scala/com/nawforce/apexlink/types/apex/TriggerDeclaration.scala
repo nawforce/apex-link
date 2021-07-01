@@ -75,7 +75,7 @@ final case class TriggerDeclaration(source: Source,
   private var depends: Option[SkinnySet[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
-  override def validate(withPropagation: Boolean): Unit = {
+  override def validate(): Unit = {
     LoggerOps.debugTime(s"Validated $path") {
       nameId.validate()
 
@@ -85,7 +85,7 @@ final case class TriggerDeclaration(source: Source,
           OrgImpl.logError(objectNameId.location,
                            s"Duplicate trigger case for '${triggerCase.name}'"))
 
-      val context = new TypeVerifyContext(None, this, withPropagation)
+      val context = new TypeVerifyContext(None, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, this)
 
       tdOpt match {
@@ -110,8 +110,7 @@ final case class TriggerDeclaration(source: Source,
 
       depends = Some(context.dependencies)
       context.propagateDependencies()
-      if (withPropagation)
-        propagateOuterDependencies(new TypeCache())
+      propagateOuterDependencies(new TypeCache())
     }
   }
 

@@ -15,8 +15,8 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.finding.{TypeError, TypeResolver}
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex._
@@ -137,9 +137,7 @@ trait HolderVerifyContext {
   }
 }
 
-class TypeVerifyContext(parentContext: Option[VerifyContext],
-                        typeDeclaration: ApexDeclaration,
-                        propagateDependencies: Boolean)
+class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration)
     extends HolderVerifyContext
     with VerifyContext {
 
@@ -157,14 +155,12 @@ class TypeVerifyContext(parentContext: Option[VerifyContext],
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
   }
 
-  override def suppressWarnings: Boolean =
+  override def suppressWarnings: Boolean = {
     typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
-
-  def shouldPropagateDependencies: Boolean = propagateDependencies
+  }
 
   def propagateDependencies(): Unit = {
-    if (shouldPropagateDependencies)
-      typeDeclaration.propagateDependencies()
+    typeDeclaration.propagateDependencies()
   }
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
@@ -188,14 +184,12 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
     parentContext.getTypeFor(typeName, from)
   }
 
-  override def suppressWarnings: Boolean =
+  override def suppressWarnings: Boolean = {
     classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
-
-  def shouldPropagateDependencies: Boolean = parentContext.shouldPropagateDependencies
+  }
 
   def propagateDependencies(): Unit = {
-    if (parentContext.shouldPropagateDependencies)
-      classBodyDeclaration.propagateDependencies()
+    classBodyDeclaration.propagateDependencies()
   }
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
