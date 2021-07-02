@@ -111,13 +111,6 @@ trait ApexDeclaration extends TypeDeclaration with DependentType {
 }
 
 trait ApexFullDeclaration extends ApexDeclaration {
-  // Specialised validation with option to turn off propagation
-  def validate(withPropagation: Boolean): Unit
-
-  override def validate(): Unit = {
-    validate(withPropagation = true)
-  }
-
   def summary(shapeOnly: Boolean): TypeSummary
 }
 

@@ -118,16 +118,15 @@ abstract class FullDeclaration(val source: Source,
     // Not needed, dependencies are propagated by default during validation
   }
 
-  def validate(withPropagation: Boolean): Unit = {
+  override def validate(): Unit = {
     LoggerOps.debugTime(s"Validated ${location.path}") {
       // Validate inside a parsing context as LazyBlock may call parser
       CST.sourceContext.withValue(Some(source)) {
-        val context = new TypeVerifyContext(None, this, withPropagation)
+        val context = new TypeVerifyContext(None, this)
         modifierIssues.foreach(context.log)
         clearMethodMap()
         verify(context)
-        if (withPropagation)
-          propagateOuterDependencies(new TypeCache())
+        propagateOuterDependencies(new TypeCache())
 
         // Re-validation may update diagnostics which now need flushing
         flushedToCache = false
