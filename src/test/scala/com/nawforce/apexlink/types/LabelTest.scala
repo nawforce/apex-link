@@ -201,7 +201,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
 
         val labels1TypeId =
           pkg1.getTypeOfPathInternal(root.join("pkg1/CustomLabels.labels")).get.asTypeIdentifier
-        assert(labels1TypeId.toString == "System.Label (pkg1)")
+        assert(labels1TypeId.toString == "System.Label [pkg1]")
         assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
         assert(pkg1.getDependencies(labels1TypeId, outerInheritanceOnly = false).isEmpty)
 
@@ -211,7 +211,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           pkg2
             .getDependencies(dummyTypeId, outerInheritanceOnly = false)
             .map(_.toString)
-            .sameElements(Array("System.Label (pkg2)")))
+            .sameElements(Array("System.Label [pkg2]")))
 
         val label2TypeId =
           TypeIdentifier.fromJava(Name("pkg2"),
@@ -258,7 +258,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
           .get
           .asTypeIdentifier
-        assert(labels1TypeId.toString == "System.Label (pkg1)")
+        assert(labels1TypeId.toString == "System.Label [pkg1]")
         assert(pkg1.getPathsOfType(labels1TypeId).sameElements(Array("/pkg1/CustomLabels.labels")))
         assert(pkg2.getTypeOfPathInternal(root.join("CustomLabels.labels")).isEmpty)
 
@@ -408,12 +408,12 @@ class LabelTest extends AnyFunSuite with TestHelper {
         .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
         .get
         .asTypeIdentifier
-      assert(label1Type.toString == "System.Label (pkg1)")
+      assert(label1Type.toString == "System.Label [pkg1]")
       val label2Type = pkg2
         .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
         .get
         .asTypeIdentifier
-      assert(label2Type.toString == "System.Label (pkg2)")
+      assert(label2Type.toString == "System.Label [pkg2]")
 
       assert(pkg1.getDependencies(label1Type, outerInheritanceOnly = false).isEmpty)
       assert(pkg2.getDependencyHolders(label2Type).isEmpty)
@@ -474,12 +474,12 @@ class LabelTest extends AnyFunSuite with TestHelper {
           .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
           .get
           .asTypeIdentifier
-        assert(label1Type.toString == "System.Label (pkg1)")
+        assert(label1Type.toString == "System.Label [pkg1]")
         val label2Type = pkg2
           .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
           .get
           .asTypeIdentifier
-        assert(label2Type.toString == "System.Label (pkg2)")
+        assert(label2Type.toString == "System.Label [pkg2]")
         val secondaryType = pkg2
           .getTypeOfPathInternal(root.join("pkg2").join("Secondary.labels"))
           .get
@@ -548,7 +548,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
           .get
           .asTypeIdentifier
-        assert(label1Type.toString == "System.Label (pkg1)")
+        assert(label1Type.toString == "System.Label [pkg1]")
         val secondaryType = pkg1
           .getTypeOfPathInternal(root.join("pkg1").join("Secondary.labels"))
           .get
@@ -559,7 +559,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           .getTypeOfPathInternal(root.join("pkg2").join("CustomLabels.labels"))
           .get
           .asTypeIdentifier
-        assert(label2Type.toString == "System.Label (pkg2)")
+        assert(label2Type.toString == "System.Label [pkg2]")
         val dummyTypeId =
           pkg2.getTypeOfPathInternal(root.join("pkg2/Dummy.cls")).get.asTypeIdentifier
 
