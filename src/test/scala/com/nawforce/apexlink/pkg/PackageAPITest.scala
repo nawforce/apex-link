@@ -83,7 +83,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           pkg
             .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
             .get
-            .toString == "__sfdc_trigger/test/Foo (test)")
+            .toString == "__sfdc_trigger/test/Foo [test]")
         assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
         assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
         assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
@@ -145,7 +145,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         assert(dummyType.toString == "Dummy (test)")
         assert(pkg.getPathsOfType(dummyType).sameElements(Array("/pkg/classes/Dummy.cls")))
 
-        assert(fooType.toString == "__sfdc_trigger/test/Foo (test)")
+        assert(fooType.toString == "__sfdc_trigger/test/Foo [test]")
         assert(pkg.getPathsOfType(fooType).sameElements(Array("/pkg/triggers/Foo.trigger")))
     }
   }
@@ -881,8 +881,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
         assert(
           org.getTypeIdentifiers.map(_.toString).toSet == Set[String](
-            "__sfdc_trigger/test/Foo (test)",
-            "Schema.Account (test)",
+            "__sfdc_trigger/test/Foo [test]",
+            "Schema.Account [test]",
             "Dummy (test)"))
     }
   }
