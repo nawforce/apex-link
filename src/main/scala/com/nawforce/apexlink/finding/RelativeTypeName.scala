@@ -17,6 +17,7 @@ package com.nawforce.apexlink.finding
 import com.nawforce.apexlink.cst.BlockVerifyContext
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.Nature
 import com.nawforce.pkgforce.diagnostics.PathLocation
@@ -29,24 +30,28 @@ import scala.collection.mutable
   * parts such as constructors and methods which use RelativeTypeName.
   */
 final class RelativeTypeContext {
-  private var contextTypeDeclaration: ApexDeclaration = _
+  var contextTypeDeclaration: ApexDeclaration = _
   private val typeCache = mutable.Map[TypeName, TypeResponse]()
 
-  /* Freeze the RelativeTypeContext by providing access to the enclosing Apex class. */
+  /** Freeze the RelativeTypeContext by providing access to the enclosing Apex class. */
   def freeze(typeDeclaration: ApexDeclaration): Unit = {
     assert(contextTypeDeclaration == null)
     contextTypeDeclaration = typeDeclaration
   }
 
-  def outerTypeDeclaration: ApexDeclaration = {
-    assert(contextTypeDeclaration != null)
-    contextTypeDeclaration
-  }
-
-  /* Resolve the passed typeName relative to the context class. */
+  /** Resolve the passed typeName relative to the context class. */
   def resolve(typeName: TypeName): TypeResponse = {
-    assert(contextTypeDeclaration != null)
-    typeCache.getOrElseUpdate(typeName, TypeResolver(typeName, contextTypeDeclaration))
+    typeCache.getOrElseUpdate(
+      typeName, {
+        if (typeName.outer.nonEmpty) {
+          TypeResolver(typeName, contextTypeDeclaration.module) match {
+            case Right(td) => Right(td)
+            case Left(_)   => TypeResolver(typeName, contextTypeDeclaration)
+          }
+        } else {
+          TypeResolver(typeName, contextTypeDeclaration)
+        }
+      })
   }
 }
 
@@ -56,48 +61,37 @@ final class RelativeTypeContext {
  */
 final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeTypeName: TypeName) {
 
+  /** Is this the magical void? */
+  def isVoid: Boolean = {
+    relativeTypeName == TypeNames.Void
+  }
+
+  /* Obtain raw resolve response for the relative type, beware there is no type for Void */
+  def resolve: TypeResponse = {
+    typeContext.resolve(relativeTypeName)
+  }
+
+  /* Obtain absolute type or fallback to relative if not found. */
+  def typeName: TypeName = {
+    if (isVoid) return TypeNames.Void
+    typeContext.resolve(relativeTypeName) match {
+      case Right(td) => td.typeName
+      case _         => relativeTypeName
+    }
+  }
+
+  /** Helper for introducing formal parameters into a block context. */
   def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
-    typeRequest match {
-      case Some(Right(td)) =>
+    typeContext.resolve(relativeTypeName) match {
+      case Right(td) =>
         context.addVar(name, td)
         context.addDependency(td)
       case _ =>
         context.missingType(location, relativeTypeName)
-        context.addVar(name, typeContext.outerTypeDeclaration.module.any)
+        context.addVar(name, typeContext.contextTypeDeclaration.module.any)
     }
   }
 
-  // Returns absolute type or may fallback to relative if not found, use typeRequest for error detection
-  lazy val typeName: TypeName = {
-    // We need the absolute type if we can get it
-    typeRequest.map(_.map(_.typeName)) match {
-      case Some(Right(tn)) => tn
-      case _               => relativeTypeName
-    }
-  }
-
-  // TypeRequest for the relative type, None if not required
-  def typeRequest: Option[TypeResponse] = {
-    if (relativeTypeName == TypeNames.Void)
-      return None
-
-    // Simulation of a bug, the type resolves against package, ignoring outer, sometimes..
-    val result =
-      if (relativeTypeName.outer.nonEmpty) {
-        TypeResolver(relativeTypeName, typeContext.outerTypeDeclaration.module) match {
-          case Right(td) => Right(td)
-          case Left(_)   => typeContext.resolve(relativeTypeName)
-        }
-      } else {
-        typeContext.resolve(relativeTypeName)
-      }
-
-    if (result.isLeft && typeContext.outerTypeDeclaration.module.isGhostedType(relativeTypeName))
-      None
-    else
-      Some(result)
-  }
-
-  // Recover outer types nature, bit of a hack but sometimes useful
-  def outerNature: Nature = typeContext.outerTypeDeclaration.nature
+  /** Helper for obtaining the nature of the outer type. */
+  def outerNature: Nature = typeContext.contextTypeDeclaration.nature
 }
