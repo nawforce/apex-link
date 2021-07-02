@@ -37,11 +37,11 @@ object CompilationUnit {
   }
 }
 
-final case class ClassDeclaration(_source: Source, _module: Module, _typeName: TypeName,
+final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                   _outerTypeName: Option[TypeName], _id: Id,
                                   _modifiers: ModifierResults, _extendsType: Option[TypeName],
                                   _implementsTypes: Array[TypeName], _bodyDeclarations: Array[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
+  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
     _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
@@ -110,7 +110,7 @@ object ClassDeclaration {
           .orElse(throw new CSTException())
         ).flatten.toArray
 
-    val td = ClassDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
+    val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
       Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
     typeContext.freeze(td)
     td
@@ -122,10 +122,10 @@ object ClassDeclaration {
 
 }
 
-final case class InterfaceDeclaration(_source: Source, _module: Module, _typeName: TypeName,
+final case class InterfaceDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                       _outerTypeName: Option[TypeName], _id: Id, _modifiers: ModifierResults,
                                       _implementsTypes: Array[TypeName], _bodyDeclarations: Array[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeName, _outerTypeName, _id, _modifiers, None, _implementsTypes,
+  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, _implementsTypes,
     _bodyDeclarations) {
 
   override val nature: Nature = INTERFACE_NATURE
@@ -159,17 +159,17 @@ object InterfaceDeclaration {
               MethodModifiers.interfaceMethodModifiers(parser, CodeParser.toScala(m.modifier()), m.id(), outerTypeName.isEmpty), m)
     ).toArray
 
-    val td = InterfaceDeclaration(parser.source, module, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
+    val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
       implementsType, methods).withContext(interfaceDeclaration)
     typeContext.freeze(td)
     td
   }
 }
 
-final case class EnumDeclaration(_source: Source, _module: Module, _typeName: TypeName,
+final case class EnumDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                  _outerTypeName: Option[TypeName], _id: Id,
                                  _modifiers:ModifierResults, _bodyDeclarations: Array[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeName,
+  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeName,
     _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
@@ -214,6 +214,6 @@ object EnumDeclaration {
       ).withContext(constant)
     }).toArray
 
-    EnumDeclaration(parser.source, module, thisType, outerTypeName, id, typeModifiers, fields).withContext(enumDeclaration)
+    EnumDeclaration(parser.source, module, new RelativeTypeContext() ,thisType, outerTypeName, id, typeModifiers, fields).withContext(enumDeclaration)
   }
 }

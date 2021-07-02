@@ -23,7 +23,7 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
 import scala.collection.mutable
 
-final case class MethodMap(methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue])
+final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue])
   extends AssignableSupport {
 
   /** Return all available methods */
@@ -81,7 +81,7 @@ object MethodMap {
     "system.string tostring()")
 
   def empty(): MethodMap = {
-    new MethodMap(Map(), Nil)
+    new MethodMap(0, Map(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation],
@@ -118,7 +118,11 @@ object MethodMap {
       checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
-    new MethodMap(workingMap.toMap, errors.toList)
+    // Only Apex class types are replaceable and hence have deep hashes
+    td match {
+      case td: ApexClassDeclaration => new MethodMap(td.deepHash, workingMap.toMap, errors.toList)
+      case td: TypeDeclaration => new MethodMap(0, workingMap.toMap, errors.toList)
+    }
   }
 
   private def mergeInterfaces(workingMap: WorkingMap, interfaces: Array[TypeDeclaration]): Unit = {

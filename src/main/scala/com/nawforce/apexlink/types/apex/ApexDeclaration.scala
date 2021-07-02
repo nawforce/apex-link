@@ -21,14 +21,11 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{
-  GLOBAL_MODIFIER,
-  ISTEST_ANNOTATION,
-  TEST_METHOD_MODIFIER,
-  TEST_SETUP_ANNOTATION
-}
+import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+
+import scala.util.hashing.MurmurHash3
 
 /** Apex block core features, be they full or summary style */
 trait ApexBlockLike extends BlockDeclaration {
@@ -136,6 +133,14 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def interfaceDeclarations: Array[TypeDeclaration] =
     interfaces.flatMap(i => TypeResolver(i, this).toOption)
 
+  /** Obtain a source hash for this class and all it's ancestors */
+  def deepHash: Int = {
+    MurmurHash3.arrayHash(
+      Array(this.sourceHash) ++
+        superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash).toArray ++
+        interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash))
+  }
+
   override lazy val isComplete: Boolean = {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
@@ -179,8 +184,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
     _methodMap.get
   }
 
-  protected def clearMethodMap(): Unit = {
-    _methodMap = None
+  protected def resetMethodMapIfInvalid(): Unit = {
+    if (_methodMap.exists(_.deepHash != deepHash)) {
+      _methodMap = None
+    }
   }
 
   private var _methodMap: Option[MethodMap] = None
@@ -191,12 +198,11 @@ trait ApexClassDeclaration extends ApexDeclaration {
       case Some(at: ApexClassDeclaration) =>
         MethodMap(this, Some(nameLocation), at.methodMap, allMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(
-          this,
-          Some(nameLocation),
-          MethodMap(td, None, MethodMap.empty(), td.methods, TypeDeclaration.emptyTypeDeclarations),
-          allMethods,
-          interfaceDeclarations)
+        MethodMap(this,
+                  Some(nameLocation),
+                  MethodMap(td, None, MethodMap.empty(), td.methods, TypeDeclaration.emptyTypeDeclarations),
+                  allMethods,
+                  interfaceDeclarations)
       case _ =>
         MethodMap(this, Some(nameLocation), MethodMap.empty(), allMethods, interfaceDeclarations)
     }
@@ -223,20 +229,16 @@ trait ApexClassDeclaration extends ApexDeclaration {
       .filterNot(_.hasHolders)
       .map(
         field =>
-          new Issue(field.nameRange.path,
-                    Diagnostic(UNUSED_CATEGORY,
-                               field.nameRange.location,
-                               s"Unused Field or Property '${field.name}'"))) ++
+          new Issue(
+            field.nameRange.path,
+            Diagnostic(UNUSED_CATEGORY, field.nameRange.location, s"Unused Field or Property '${field.name}'"))) ++
       localMethods
         .flatMap {
           case am: ApexMethodLike if !am.isUsed => Some(am)
           case _                                => None
         }
-        .map(
-          method =>
-            new Issue(method.nameRange.path,
-                      Diagnostic(UNUSED_CATEGORY,
-                                 method.nameRange.location,
-                                 s"Unused Method '${method.signature}'")))
+        .map(method =>
+          new Issue(method.nameRange.path,
+                    Diagnostic(UNUSED_CATEGORY, method.nameRange.location, s"Unused Method '${method.signature}'")))
   }
 }

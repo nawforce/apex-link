@@ -16,6 +16,7 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.apexlink.names.TypeNames
@@ -39,6 +40,7 @@ import scala.collection.mutable
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
 abstract class FullDeclaration(val source: Source,
                                val module: Module,
+                               val typeContext: RelativeTypeContext,
                                override val typeName: TypeName,
                                override val outerTypeName: Option[TypeName],
                                val id: Id,
@@ -124,7 +126,6 @@ abstract class FullDeclaration(val source: Source,
       CST.sourceContext.withValue(Some(source)) {
         val context = new TypeVerifyContext(None, this)
         modifierIssues.foreach(context.log)
-        clearMethodMap()
         verify(context)
         propagateOuterDependencies(new TypeCache())
 
@@ -135,6 +136,10 @@ abstract class FullDeclaration(val source: Source,
   }
 
   protected def verify(context: TypeVerifyContext): Unit = {
+    // Method maps & relative type contexts may be invalidated by changes to super classes/interfaces
+    resetMethodMapIfInvalid()
+    typeContext.resetIfInvalid()
+
     // Check for name/path mismatch on outer types
     if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.cls")) {
       context.logError(id.location,
