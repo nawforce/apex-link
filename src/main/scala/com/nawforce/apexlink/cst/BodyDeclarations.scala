@@ -212,8 +212,9 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
 
     if (!returnTypeName.isVoid) {
       returnTypeName.resolve match {
-        case Left(error) => OrgImpl.log(error.asIssue(id.location))
-        case Right(td)   => context.addDependency(td)
+        case Some(Left(error)) => OrgImpl.log(error.asIssue(id.location))
+        case Some(Right(td))   => context.addDependency(td)
+        case None => ()
       }
     }
 

@@ -50,10 +50,10 @@ final class RelativeTypeContext {
     }
   }
 
-  /** Resolve the passed typeName relative to the context class. */
-  def resolve(typeName: TypeName): TypeResponse = {
+  /** Resolve the passed typeName relative to the context class, returns None for ghosted types. */
+  def resolve(typeName: TypeName): Option[TypeResponse] = {
     val cached = typeCache.get(typeName)
-    if (cached.nonEmpty) return Right(cached.get)
+    if (cached.nonEmpty) return Some(Right(cached.get))
 
     val response =
       // Workaround a stupid bug where the wrong type is returned sometimes...
@@ -71,10 +71,11 @@ final class RelativeTypeContext {
     response match {
       case Right(td: ApexClassDeclaration) if td.typeName != typeName =>
         typeCache.put(typeName, td)
-      case _ => ()
+        Some(response)
+      case Left(_) if contextTypeDeclaration.module.isGhostedType(typeName) =>
+        None
+      case x => Some(x)
     }
-
-    response
   }
 }
 
@@ -90,7 +91,7 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
   }
 
   /* Obtain raw resolve response for the relative type, beware there is no type for Void */
-  def resolve: TypeResponse = {
+  def resolve: Option[TypeResponse] = {
     typeContext.resolve(relativeTypeName)
   }
 
@@ -98,15 +99,15 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
   def typeName: TypeName = {
     if (isVoid) return TypeNames.Void
     typeContext.resolve(relativeTypeName) match {
-      case Right(td) => td.typeName
-      case _         => relativeTypeName
+      case Some(Right(td)) => td.typeName
+      case _               => relativeTypeName
     }
   }
 
   /** Helper for introducing formal parameters into a block context. */
   def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
     typeContext.resolve(relativeTypeName) match {
-      case Right(td) =>
+      case Some(Right(td)) =>
         context.addVar(name, td)
         context.addDependency(td)
       case _ =>

@@ -58,9 +58,7 @@ object Check {
     }
 
     try {
-      Thread.sleep(30*1000)
       val org = Org.newOrg(dirs.head)
-      Thread.sleep(30*1000)
       if (!noFlush)
         org.flush()
       if (depends) {
