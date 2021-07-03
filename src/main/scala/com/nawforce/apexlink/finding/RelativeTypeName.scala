@@ -14,9 +14,10 @@
 
 package com.nawforce.apexlink.finding
 
-import com.nawforce.apexlink.cst.BlockVerifyContext
+import com.nawforce.apexlink.cst.{BlockVerifyContext, VerifyContext}
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.core.Nature
 import com.nawforce.pkgforce.diagnostics.PathLocation
@@ -79,17 +80,27 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
     relativeTypeName == TypeNames.Void
   }
 
-  /* Obtain raw resolve response for the relative type, beware there is no type for Void */
-  def resolve: Option[TypeResponse] = {
-    typeContext.resolve(relativeTypeName)
-  }
-
-  /* Obtain absolute type or fallback to relative if not found. */
+  /** Obtain absolute type or fallback to relative if not found. */
   def typeName: TypeName = {
     if (isVoid) return TypeNames.Void
     typeContext.resolve(relativeTypeName) match {
       case Some(Right(td)) => td.typeName
       case _               => relativeTypeName
+    }
+  }
+
+  /** Helper for creating a dependence on a relative type name. */
+  def dependOn(location: PathLocation, context: VerifyContext): Unit = {
+    if (relativeTypeName != TypeNames.Void) {
+      typeContext.resolve(relativeTypeName) match {
+        case Some(Left(error)) =>
+          OrgImpl.log(error.asIssue(location))
+        case Some(Right(td)) =>
+          context.addDependency(td)
+          td.typeName.params.foreach(typeName =>
+            context.getTypeAndAddDependency(typeName, typeContext.contextTypeDeclaration))
+        case None => ()
+      }
     }
   }
 

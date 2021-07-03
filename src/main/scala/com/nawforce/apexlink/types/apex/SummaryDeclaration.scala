@@ -393,7 +393,7 @@ class SummaryDeclaration(val path: PathLike,
       case Right(d: InterviewDeclaration) => Some(d.typeId)
       case Right(d: PageDeclaration)      => Some(d.typeId)
       case Right(d: ComponentDeclaration) => Some(d.typeId)
-      case Right(_)                       => None
+      case Right(d: SObjectDeclaration)   => Some(d.typeId)
       case Left(_)                        => None
     }
   }

@@ -210,14 +210,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
         context.logError(id.location, s"Modifier '${modifiers.head.name}' is not supported on interface methods")
     }
 
-    if (!returnTypeName.isVoid) {
-      returnTypeName.resolve match {
-        case Some(Left(error)) => OrgImpl.log(error.asIssue(id.location))
-        case Some(Right(td))   => context.addDependency(td)
-        case None => ()
-      }
-    }
-
+    returnTypeName.dependOn(id.location, context)
     formalParameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
