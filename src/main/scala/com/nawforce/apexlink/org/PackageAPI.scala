@@ -236,15 +236,20 @@ trait PackageAPI extends Package {
    * they are needed to re-establish the dependency graph. This is not done recursively as the full type should
    * be of the exact same shape as the summary it replaces. */
   private def reValidate(references: Set[TypeId]): Unit = {
-    references.foreach(typeId => {
-      typeId.module.packageType(typeId.typeName).foreach {
-        case ref: SummaryDeclaration =>
+
+    val tds = references.flatMap(typeId =>
+      typeId.module.packageType(typeId.typeName) match {
+        case Some(ref: SummaryDeclaration) =>
+          // Replace direct use summary types, no need to revalidate these
           refreshInternal(ref.path)
-        case ref =>
-          ref.paths.foreach(p => org.issues.pop(p.toString))
-          ref.validate()
+          None
+        case x => x
       }
-    })
+    )
+
+    // Everything else needs re-validation
+    tds.foreach(_.preReValidate())
+    tds.foreach(_.validate())
   }
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {

@@ -313,6 +313,9 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       .flatMap(typeName => TypeResolver(typeName, this).toOption)
       .getOrElse(this)
 
+  /** Called before validate() when a type is about to be re-validated to allow for cached state cleaning. */
+  def preReValidate(): Unit = {}
+
   def validate(): Unit
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {

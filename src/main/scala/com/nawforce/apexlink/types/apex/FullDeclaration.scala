@@ -135,11 +135,14 @@ abstract class FullDeclaration(val source: Source,
     }
   }
 
-  protected def verify(context: TypeVerifyContext): Unit = {
+  override def preReValidate(): Unit = {
     // Method maps & relative type contexts may be invalidated by changes to super classes/interfaces
     resetMethodMapIfInvalid()
-    typeContext.resetIfInvalid()
+    typeContext.reset()
+    nestedTypes.foreach(_.preReValidate())
+  }
 
+  protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
     if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.cls")) {
       context.logError(id.location,
