@@ -248,7 +248,10 @@ trait PackageAPI extends Package {
     )
 
     // Everything else needs re-validation
-    tds.foreach(_.preReValidate())
+    tds.foreach(td => {
+      td.paths.foreach(path => org.issues.pop(path.toString))
+      td.preReValidate()
+    })
     tds.foreach(_.validate())
   }
 
