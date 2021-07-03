@@ -152,8 +152,8 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       if (options.includeZombies) {
         propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
-          Option(pkg.getTypeOfPath(path))
-            .flatMap(typeId => pkg.modules.head.findModuleType(typeId.typeName))
+          pkg.getTypeOfPathInternal(PathFactory(path))
+            .flatMap(typeId => typeId.module.findModuleType(typeId.typeName))
             .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
         })
       }
