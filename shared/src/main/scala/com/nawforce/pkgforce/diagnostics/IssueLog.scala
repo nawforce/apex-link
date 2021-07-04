@@ -28,7 +28,6 @@
 package com.nawforce.pkgforce.diagnostics
 
 import com.nawforce.runtime.json.JSON
-import upickle.default.write
 
 import scala.collection.mutable
 
@@ -39,54 +38,55 @@ class IssueLog {
   private val log = mutable.HashMap[String, List[Issue]]() withDefaultValue List()
   private val possibleMissing = mutable.HashSet[String]()
 
-  // Access all issues
+  /** Access all issues. */
   def getIssues: Map[String, List[Issue]] = log.toMap
 
-  // Clear the log
+  /** Clear the log. */
   def clear(): Unit = {
     log.clear()
   }
 
-  // Check log for error issues
-  def hasErrors: Boolean = {
-    log.values.exists(_.exists(issue =>
-      issue.diagnostic.category != WARNING_CATEGORY && issue.diagnostic.category != UNUSED_CATEGORY))
-  }
+  /** Do we have any issues, of any category. */
+  def hasMessages: Boolean = log.nonEmpty
 
-  // Add an issue
+  /** Do we have any issues with an error category.*/
+  def hasErrors: Boolean =
+    log.values.exists(_.exists(issue => DiagnosticCategory.isErrorType(issue.diagnostic.category)))
+
+  /** Do we have any issues with an error or warning category.*/
+  def hasErrorsOrWarnings: Boolean =
+    log.values.exists(_.exists(issue =>
+      DiagnosticCategory.isErrorOrWarningType(issue.diagnostic.category)))
+
+  /** Add an issue. */
   def add(issue: Issue): Unit = {
     log.put(issue.path, issue :: log(issue.path))
     if (issue.diagnostic.category == MISSING_CATEGORY)
       possibleMissing.add(issue.path)
   }
 
-  // Do we have any issues
-  def hasMessages: Boolean = log.nonEmpty
-
-  // Extract & remove issues for a specific path
+  /** Extract & remove issues for a specific path. */
   def pop(path: String): List[Issue] = {
     val issues = log.getOrElse(path, Nil)
     log.remove(path)
     issues
   }
 
-  // Replace issues for a specific path
+  /** Replace issues for a specific path. */
   def push(path: String, issues: List[Issue]): Unit = {
     if (issues.nonEmpty)
       log.put(path, issues)
   }
 
-  // Merge in issues for another log
-  def merge(issueLog: IssueLog): Unit = {
+  /** Merge in issues for another log. */
+  def merge(issueLog: IssueLog): Unit =
     issueLog.log.foreach(kv => kv._2.foreach(add))
-  }
 
-  // Get issues for a specific file in Diagnostic form
-  def getDiagnostics(path: String): List[Diagnostic] = {
+  /** Get issues for a specific file in Diagnostic form. */
+  def getDiagnostics(path: String): List[Diagnostic] =
     log.getOrElse(path, Nil).map(_.diagnostic)
-  }
 
-  // Get paths that have a MISSING_CATEGORY issue
+  /** Get paths that have a MISSING_CATEGORY issue. */
   def getMissing: Seq[String] = {
     val missing = new mutable.ArrayBuffer[String]()
     possibleMissing.foreach(possible => {

@@ -34,21 +34,34 @@ sealed class DiagnosticCategory(val value: String)
 
 case object SYNTAX_CATEGORY extends DiagnosticCategory("Syntax")
 case object ERROR_CATEGORY extends DiagnosticCategory("Error")
-case object WARNING_CATEGORY extends DiagnosticCategory("Warning")
 case object MISSING_CATEGORY extends DiagnosticCategory("Missing")
+case object WARNING_CATEGORY extends DiagnosticCategory("Warning")
 case object UNUSED_CATEGORY extends DiagnosticCategory("Unused")
 case class UNKNOWN_CATEGORY(_value: String) extends DiagnosticCategory(_value)
 
 object DiagnosticCategory {
   def apply(value: String): DiagnosticCategory = {
     value match {
+      case SYNTAX_CATEGORY.value  => SYNTAX_CATEGORY
       case ERROR_CATEGORY.value   => ERROR_CATEGORY
-      case WARNING_CATEGORY.value => WARNING_CATEGORY
       case MISSING_CATEGORY.value => MISSING_CATEGORY
+      case WARNING_CATEGORY.value => WARNING_CATEGORY
       case UNUSED_CATEGORY.value  => UNUSED_CATEGORY
       case _                      => UNKNOWN_CATEGORY(value)
     }
   }
+
+  def isErrorType(category: DiagnosticCategory): Boolean = {
+    category match {
+      case SYNTAX_CATEGORY  => true
+      case ERROR_CATEGORY   => true
+      case MISSING_CATEGORY => true
+      case _                => false
+    }
+  }
+
+  def isErrorOrWarningType(category: DiagnosticCategory): Boolean =
+    category == WARNING_CATEGORY || isErrorType(category)
 
   implicit val rw: RW[DiagnosticCategory] = macroRW
 }
