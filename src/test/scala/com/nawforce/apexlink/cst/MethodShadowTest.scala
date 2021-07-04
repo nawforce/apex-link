@@ -67,6 +67,13 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
       "")
   }
 
+  test("Duplicate Override of public virtual") {
+    testMethods(
+      Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} public override void func() {} }",
+        "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"),
+      "Error: line 1 at 92-96: Method 'func' is a duplicate of an existing method in this class\n")
+  }
+
   test("Override of public virtual (with protected)") {
     testMethods(
       Map(

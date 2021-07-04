@@ -223,22 +223,35 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   def unused(): Array[Issue] = {
-    // Hack: Unused calculation requires a methodMap for shadow support
+    // Hack: Unused calculation requires a methodMap as its establishes shadow relationships
     methodMap
-    localFields
-      .filterNot(_.hasHolders)
-      .map(
-        field =>
-          new Issue(
-            field.nameRange.path,
-            Diagnostic(UNUSED_CATEGORY, field.nameRange.location, s"Unused Field or Property '${field.name}'"))) ++
-      localMethods
-        .flatMap {
-          case am: ApexMethodLike if !am.isUsed => Some(am)
-          case _                                => None
-        }
-        .map(method =>
-          new Issue(method.nameRange.path,
-                    Diagnostic(UNUSED_CATEGORY, method.nameRange.location, s"Unused Method '${method.signature}'")))
+
+    val unused = {
+      nestedTypes
+        .collect { case ad: ApexClassDeclaration => ad }
+        .flatMap(ad => ad.unused()) ++
+        localFields
+          .filterNot(_.hasHolders)
+          .map(
+            field =>
+              new Issue(
+                field.nameRange.path,
+                Diagnostic(UNUSED_CATEGORY, field.nameRange.location, s"Unused Field or Property '${field.name}'"))) ++
+        localMethods
+          .flatMap {
+            case am: ApexMethodLike if !am.isUsed => Some(am)
+            case _                                => None
+          }
+          .map(method =>
+            new Issue(method.nameRange.path,
+                      Diagnostic(UNUSED_CATEGORY, method.nameRange.location, s"Unused Method '${method.signature}'")))
+    }
+
+    if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
+      Array(
+        new Issue(nameLocation.path, Diagnostic(UNUSED_CATEGORY, nameLocation.location, s"Type '$typeName' is unused")))
+    } else {
+      unused
+    }
   }
 }
