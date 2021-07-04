@@ -101,7 +101,7 @@ object MethodMap {
       mergeInterfaces(workingMap, interfaces)
     }
 
-    // Add statics is they are not being shadowed by an instance method
+    // Add statics if they are not being shadowed by an instance method
     localMethods.filter(_.isStatic).foreach(method => {
       val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Array())
@@ -196,12 +196,10 @@ object MethodMap {
 
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
                                   isComplete: Boolean, errors: mutable.Buffer[Issue]): Unit = {
-    assert(!method.isStatic)
-
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
 
-    // Find a match, FUTURE: the use isTest is over general for allowing private matches but there is a problem with
+    // Find a match, FUTURE: the use of isTest is over general for allowing private matches but there is a problem with
     // using @TestVisible instead with Cumulus codebase that I don't yet understand.
     val matched = methods.find(_.hasSameParameters(method)) match {
       case Some(am: MethodDeclaration)
@@ -212,7 +210,12 @@ object MethodMap {
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
       lazy val isSpecial = specialMethodSignature.contains(matchedMethod.signature.toLowerCase())
-      if (matchedMethod.typeName != method.typeName && !isSpecial) {
+
+      if (isDuplicate(matchedMethod, method)) {
+        setMethodError(method,
+          s"Method '${method.name}' is a duplicate of an existing method in this class", errors)
+      }
+      else if (matchedMethod.typeName != method.typeName && !isSpecial) {
           setMethodError(method,
             s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
             errors, isWarning = true)
@@ -248,4 +251,12 @@ object MethodMap {
       case _ => false
     }
   }
+
+  private def isDuplicate(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
+    (m1, m2) match {
+      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.outerTypeId == am2.outerTypeId
+      case _ => false
+    }
+  }
+
 }
