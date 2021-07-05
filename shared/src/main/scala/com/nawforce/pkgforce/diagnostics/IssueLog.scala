@@ -163,10 +163,12 @@ class IssueLog {
   private def writeMessages(writer: MessageWriter,
                             path: String,
                             warnings: Boolean,
+                            unused: Boolean,
                             maxErrors: Int): Unit = {
     val messages = log
       .getOrElse(path, List())
       .filterNot(!warnings && _.diagnostic.category == WARNING_CATEGORY)
+      .filterNot(!unused && _.diagnostic.category == UNUSED_CATEGORY)
     if (messages.nonEmpty) {
       writer.startDocument(path)
       var count = 0
@@ -186,30 +188,24 @@ class IssueLog {
     }
   }
 
-  def getMessages(path: String, showPath: Boolean = false, maxErrors: Int = 10): String = {
-    val writer: MessageWriter = new TextMessageWriter(showPath = showPath)
-    writeMessages(writer, path, warnings = true, maxErrors)
+  def getMessages(path: String, unused: Boolean = false): String = {
+    val writer: MessageWriter = new TextMessageWriter(false)
+    writeMessages(writer, path, warnings = true, unused, maxErrors = 10)
     writer.output
   }
 
-  private def writeMessages(writer: MessageWriter, warnings: Boolean, maxErrors: Int): String = {
+  def asString(includeWarnings: Boolean,
+               includeUnused: Boolean,
+               maxErrors: Int,
+               format: String = ""): String = {
+    val writer = if (format == "json") new JSONMessageWriter() else new TextMessageWriter()
     writer.startOutput()
     log.keys.toSeq
       .sortBy(_.toString)
       .foreach(path => {
-        writeMessages(writer, path, warnings, maxErrors)
+        writeMessages(writer, path, includeWarnings, includeUnused, maxErrors)
       })
     writer.output
-  }
-
-  def asString(warnings: Boolean, maxErrors: Int, format: String = ""): String = {
-    writeMessages(if (format == "json") new JSONMessageWriter() else new TextMessageWriter(),
-                  warnings,
-                  maxErrors)
-  }
-
-  def dump(): Unit = {
-    println(asString(warnings = true, maxErrors = 100))
   }
 }
 
