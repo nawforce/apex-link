@@ -214,7 +214,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     returnTypeName.dependOn(id.location, context)
     formalParameters.foreach(_.verify(context))
 
-    context.withOuterBlockVerifyContext(modifiers.contains(STATIC_MODIFIER)) { blockContext =>
+    context.withOuterBlockVerifyContext(modifiers.contains(STATIC_MODIFIER), noUnused = true) { blockContext =>
       formalParameters.foreach(param => param.addVar(blockContext))
       block.foreach(_.verify(blockContext))
     }
@@ -293,11 +293,10 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val staticContext = if (isStatic) Some(true) else None
 
-    context.withOuterBlockVerifyContext(modifiers.contains(STATIC_MODIFIER)) { blockContext =>
-      variableDeclarator.verify(ExprContext(staticContext, context.thisType), blockContext)
-    }
-
+    variableDeclarator.verify(ExprContext(staticContext, context.thisType),
+      new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     setDepends(context.dependencies)
+
     context.propagateDependencies()
   }
 }
@@ -332,7 +331,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     formalParameters.foreach(_.verify(context))
 
-    context.withOuterBlockVerifyContext(isStatic = false) { blockContext =>
+    context.withOuterBlockVerifyContext(isStatic = false, noUnused = true) { blockContext =>
       formalParameters.foreach(param => blockContext.addVar(param.name, param.id.location, param.typeName))
       block.verify(blockContext)
     }

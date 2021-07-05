@@ -72,12 +72,13 @@ trait VerifyContext {
       OrgImpl.log(issue)
   }
 
-  def withOuterBlockVerifyContext[T](isStatic: Boolean)(op: OuterBlockVerifyContext => T): T = {
+  def withOuterBlockVerifyContext[T](isStatic: Boolean, noUnused: Boolean = false)(op: OuterBlockVerifyContext => T): T = {
     val context = new OuterBlockVerifyContext(this, isStatic)
     try {
       op(context)
     } finally {
-      context.report()
+      if (!noUnused)
+        context.report()
     }
   }
 }
