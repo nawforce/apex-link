@@ -30,7 +30,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         assert(pkg.getTypeOfPath(null) == null)
         assert(pkg.getTypeOfPath("") == null)
@@ -65,7 +65,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         assert(pkg.getTypeOfPath(null) == null)
         assert(pkg.getTypeOfPath("") == null)
@@ -97,7 +97,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val dummyType =
           pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
@@ -127,7 +127,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val dummyType =
           pkg
@@ -154,7 +154,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
       val pkg = org.unmanaged
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       val typeLike =
         pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
@@ -178,7 +178,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
       val pkg = org.packagesByNamespace(Some(Name("test")))
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       val typeLike =
         pkg
@@ -206,12 +206,12 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
             "pkg/classes/Dummy.cls" -> "@isTest puBlic class Dummy {}")) { root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
         org.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.packagesByNamespace(Some(Name("test")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         val typeLike =
           pkg2
@@ -240,7 +240,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val typeLike = pkg
           .getTypeOfPathInternal(root.join("triggers").join("Dummy.trigger"))
@@ -267,7 +267,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val typeLike = pkg
           .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Dummy.trigger"))
@@ -286,7 +286,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("classes/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
       val org = createOrg(root)
       val pkg = org.unmanaged
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       val fooTypeLike =
         pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
@@ -303,7 +303,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val fooTypeLike =
           pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
@@ -334,7 +334,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       {
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val fooTypeLike =
           pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
@@ -569,7 +569,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       val fooTypeLike =
         pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
@@ -595,13 +595,13 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             "pkg1/Foo.cls" -> "global virtual class Foo {}",
             "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
         org.flush()
 
         val org2 = createOrg(root)
         val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         val fooTypeLike =
           pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
@@ -639,7 +639,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       val fooTypeLike =
         pkg1.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
@@ -665,13 +665,13 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             "pkg1/Foo.cls" -> "global virtual class Foo {}",
             "pkg2/Bar.cls" -> "public class Bar extends pkg1.Foo {}")) { root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
         org.flush()
 
         val org2 = createOrg(root)
         val pkg21 = org2.packagesByNamespace(Some(Name("pkg1")))
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         val fooTypeLike =
           pkg21.getTypeOfPathInternal(root.join("pkg1").join("Foo.cls")).get.asTypeIdentifier
@@ -700,7 +700,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val fooTypeLike =
           pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
@@ -716,7 +716,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val barTypeLike =
           pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
@@ -737,7 +737,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         val barTypeLike =
           pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
@@ -754,7 +754,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   test("location of type") {
     FileSystemHelper.run(Map("classes/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       assert(
         org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) ==
@@ -772,7 +772,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
         "test/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       assert(org
         .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy")))) == null)
@@ -794,7 +794,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
         "test/Dummy.cls" -> "public class Dummy {class Inner {}}")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) == null)
       assert(
@@ -816,7 +816,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
         assert(
@@ -835,7 +835,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
         "test/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
 
       assert(
         org
@@ -856,7 +856,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         assert(
           org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo",
@@ -877,7 +877,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
 
         assert(
           org.getTypeIdentifiers.map(_.toString).toSet == Set[String](

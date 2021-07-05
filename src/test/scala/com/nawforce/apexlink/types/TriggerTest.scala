@@ -23,7 +23,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) { }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -43,7 +43,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
         "Stupid__c.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"><fullName>Stupid</fullName></CustomObject>",
         "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -63,7 +63,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
       Map("Dummy.trigger" -> "trigger Dummy on Account (before insert) {Object a = this;}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -75,7 +75,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
           |     System.debug(a.Id);
           |}""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -84,7 +84,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
       "Dummy.trigger" -> "trigger Dummy on Account (before insert) {public static String a='';}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 }

@@ -14,9 +14,6 @@
 
 package com.nawforce.apexlink.org
 
-import java.io.File
-import java.util
-import java.util.jar.JarFile
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
@@ -30,6 +27,9 @@ import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 import com.nawforce.runtime.parsers.CodeParser
 
+import java.io.File
+import java.util
+import java.util.jar.JarFile
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
 import scala.util.hashing.MurmurHash3
@@ -138,7 +138,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings, options.maxErrorsPerFile, options.format)
+      reportableIssues(options).asString(options.includeWarnings, options.includeZombies, options.maxErrorsPerFile, options.format)
     }
   }
 

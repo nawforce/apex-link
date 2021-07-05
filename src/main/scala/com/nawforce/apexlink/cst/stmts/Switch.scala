@@ -164,9 +164,10 @@ object WhenValue {
 
 final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
-    val bc = new InnerBlockVerifyContext(context)
-    whenValue.verify(bc)
-    block.verify(bc)
+    context.withInnerBlockVerifyContext() { blockContext =>
+      whenValue.verify(blockContext)
+      block.verify(blockContext)
+    }
   }
 }
 

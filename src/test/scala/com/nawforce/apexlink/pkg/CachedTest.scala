@@ -57,7 +57,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
     FileSystemHelper.run(Map("Bar.cls" -> bar, "Foo.cls" -> foo)) { root: PathLike =>
       // Cache classes
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
       val pkg = org.unmanaged
       assertIsFullDeclaration(pkg, "Bar")
       assertIsFullDeclaration(pkg, "Foo")
@@ -65,7 +65,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
       // Reload from cache
       val org2 = createOrg(root)
-      assert(!org2.issues.hasMessages)
+      assert(!org2.issues.hasErrorsOrWarnings)
       val pkg2 = org2.unmanaged
       assertIsSummaryDeclaration(pkg2, "Bar")
       assertIsSummaryDeclaration(pkg2, "Foo")
@@ -76,7 +76,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       root.join("Foo.cls").delete()
       val org3 = createOrg(root)
       val pkg3 = org3.unmanaged
-      assert(!org3.issues.hasMessages)
+      assert(!org3.issues.hasErrorsOrWarnings)
       assertIsFullDeclaration(pkg3, "Bar")
       assertIsNotDeclaration(pkg3, "Foo")
       org3.flush()
@@ -85,7 +85,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       root.createFile("Foo.cls", foo)
       val org4 = createOrg(root)
       val pkg4 = org4.unmanaged
-      assert(!org4.issues.hasMessages)
+      assert(!org4.issues.hasErrorsOrWarnings)
       assertIsSummaryDeclaration(pkg4, "Bar")
       assertIsFullDeclaration(pkg4, "Foo")
       org4.flush()
@@ -224,12 +224,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
@@ -273,12 +273,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
         assert(
@@ -297,7 +297,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
         // Still summary as Dummy does not *directly* depend on pkg1 labels
         assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(!org3.issues.hasMessages)
+        assert(!org3.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -325,12 +325,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
@@ -357,12 +357,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
@@ -394,12 +394,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
         assert(
@@ -427,12 +427,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
@@ -465,12 +465,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
         assert(
@@ -488,7 +488,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
         // Still summary as Dummy does not *directly* depend on pkg1 pages
         assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(!org3.issues.hasMessages)
+        assert(!org3.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -498,12 +498,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg2, "Dummy")
         assert(
@@ -535,12 +535,12 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
-        assert(!org1.issues.hasMessages)
+        assert(!org1.issues.hasErrorsOrWarnings)
         org1.flush()
 
         val org2 = createOrg(root)
         val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
 
         assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
         assert(
@@ -576,7 +576,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
             |}""".stripMargin)) { root: PathLike =>
       val org1 = createOrg(root)
       val pkg1 = org1.unmanaged
-      assert(!org1.issues.hasMessages)
+      assert(!org1.issues.hasErrorsOrWarnings)
       assert(
         pkg1.orderedModules.head
           .reportUnused()
@@ -588,7 +588,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       val pkg2 = org2.unmanaged
 
       {
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
         val options = new IssueOptions()
         options.includeZombies = true
         assert(org2.getIssues(options) == "")
@@ -597,7 +597,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       pkg2.refresh(root.join("MyConcrete.cls"))
 
       {
-        assert(!org2.issues.hasMessages)
+        assert(!org2.issues.hasErrorsOrWarnings)
         val options = new IssueOptions()
         options.includeZombies = true
         assert(org2.getIssues(options) == "")

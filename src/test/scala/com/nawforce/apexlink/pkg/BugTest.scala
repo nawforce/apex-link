@@ -35,7 +35,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -44,7 +44,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       "public class Dummy {{ DescribeFieldResult a; List<Schema.PicklistEntry> b = a.getPicklistValues();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -53,7 +53,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy {{ DescribeFieldResult a; Integer b = a.getByteLength();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -62,7 +62,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy {{String b = Site.getName();}}")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -71,7 +71,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" -> "public class Dummy {{Site a; SObjectType b = a.getSObjectType();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -80,7 +80,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" -> "public class Dummy {{SObjectType b = Account.getSobjectType();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -88,7 +88,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{Dummy a,b; b = a.clone();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -97,7 +97,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" -> "public class Dummy {String Matcher; {Matcher.capitalize();}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -108,7 +108,7 @@ class BugTest extends AnyFunSuite with TestHelper {
         "SuperClass.cls" -> "public virtual class SuperClass {public static void func() {}}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -123,7 +123,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -140,7 +140,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -153,7 +153,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -166,7 +166,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -181,7 +181,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -189,7 +189,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Decimal a; Double b; a+=b; } }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -198,7 +198,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -214,7 +214,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -227,7 +227,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -241,7 +241,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -254,7 +254,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -267,7 +267,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -279,7 +279,7 @@ class BugTest extends AnyFunSuite with TestHelper {
           |}
           |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -296,8 +296,8 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
-      assert(!org.unmanaged.orderedModules.head.reportUnused().hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(!org.unmanaged.orderedModules.head.reportUnused().hasErrorsOrWarnings)
     }
   }
 
@@ -316,7 +316,7 @@ class BugTest extends AnyFunSuite with TestHelper {
           "MyInterface.cls" -> "public interface MyInterface {void foo(String a);}")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -324,7 +324,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public final static String a;} ")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -339,7 +339,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -349,7 +349,7 @@ class BugTest extends AnyFunSuite with TestHelper {
         s"""public class Dummy { { Iterable<Id> a; a = new List<Id>(); } }
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasMessages)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 

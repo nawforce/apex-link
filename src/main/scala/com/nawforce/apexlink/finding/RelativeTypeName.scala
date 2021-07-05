@@ -108,11 +108,11 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
   def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
     typeContext.resolve(relativeTypeName) match {
       case Some(Right(td)) =>
-        context.addVar(name, td)
+        context.addVar(name, Some(location), td)
         context.addDependency(td)
       case _ =>
         context.missingType(location, relativeTypeName)
-        context.addVar(name, typeContext.contextTypeDeclaration.module.any)
+        context.addVar(name, None, typeContext.contextTypeDeclaration.module.any)
     }
   }
 

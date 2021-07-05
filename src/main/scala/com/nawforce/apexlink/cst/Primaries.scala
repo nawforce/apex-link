@@ -100,7 +100,7 @@ final case class IdPrimary(id: Id) extends Primary {
 
   private def isVarReference(context: ExpressionVerifyContext): Option[ExprContext] = {
     context
-      .isVar(id.name)
+      .isVar(id.name, markUsed = true)
       .map(varType => {
         ExprContext(isStatic = Some(false), varType)
       })

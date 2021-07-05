@@ -25,7 +25,7 @@ class PageTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -35,7 +35,7 @@ class PageTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -64,7 +64,7 @@ class PageTest extends AnyFunSuite with TestHelper {
         "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -80,7 +80,7 @@ class PageTest extends AnyFunSuite with TestHelper {
         "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 

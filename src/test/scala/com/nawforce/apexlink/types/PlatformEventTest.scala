@@ -48,7 +48,7 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -58,7 +58,7 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 

@@ -139,7 +139,7 @@ trait TestHelper {
       .map(_.asInstanceOf[SObjectDeclaration])
   }
 
-  def hasIssues: Boolean = defaultOrg.issues.hasMessages
+  def hasIssues: Boolean = defaultOrg.issues.hasErrorsOrWarnings
 
   def dummyIssues: String = defaultOrg.issues.getMessages("/Dummy.cls")
 

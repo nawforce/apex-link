@@ -100,9 +100,10 @@ final case class TriggerDeclaration(source: Source,
           module.upsertMetadata(tc)
 
           try {
-            val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
-            blockContext.addVar(Names.Trigger, tc)
-            block.verify(blockContext)
+            context.withOuterBlockVerifyContext(isStatic = false) { blockContext =>
+              blockContext.addVar(Names.Trigger, None, tc)
+              block.verify(blockContext)
+            }
           } finally {
             module.removeMetadata(tc)
           }

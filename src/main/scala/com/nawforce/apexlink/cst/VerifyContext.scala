@@ -23,7 +23,7 @@ import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
-import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 
@@ -70,6 +70,15 @@ trait VerifyContext {
   def log(issue: Issue): Unit = {
     if (!suppressWarnings)
       OrgImpl.log(issue)
+  }
+
+  def withOuterBlockVerifyContext[T](isStatic: Boolean)(op: OuterBlockVerifyContext => T): T = {
+    val context = new OuterBlockVerifyContext(this, isStatic)
+    try {
+      op(context)
+    } finally {
+      context.report()
+    }
   }
 }
 
@@ -151,21 +160,18 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   override def superType: Option[TypeDeclaration] = typeDeclaration.superClassDeclaration
 
-  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
-  }
 
-  override def suppressWarnings: Boolean = {
+  override def suppressWarnings: Boolean =
     typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
-  }
 
-  def propagateDependencies(): Unit = {
+  def propagateDependencies(): Unit =
     typeDeclaration.propagateDependencies()
-  }
 
-  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)
-  }
+
 }
 
 class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
@@ -180,26 +186,23 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
 
   override def superType: Option[TypeDeclaration] = parentContext.superType
 
-  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
-  }
 
-  override def suppressWarnings: Boolean = {
+  override def suppressWarnings: Boolean =
     classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
-  }
 
-  def propagateDependencies(): Unit = {
+  def propagateDependencies(): Unit =
     classBodyDeclaration.propagateDependencies()
-  }
 
-  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, parentContext.module)
-  }
 }
 
 abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyContext {
 
-  private val vars = mutable.Map[Name, TypeDeclaration]()
+  private val vars = mutable.Map[Name, (TypeDeclaration, Option[PathLocation])]()
+  private val usedVars = mutable.Set[Name]()
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -211,24 +214,24 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
-  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
-  }
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
+
+  def getVar(name: Name, markUsed: Boolean): Option[TypeDeclaration] = {
+    val td = vars.get(name)
+    if (td.nonEmpty && markUsed)
+      usedVars.add(name)
+    td.map(_._1)
   }
 
-  def getVar(name: Name): Option[TypeDeclaration] = {
-    vars.get(name)
-  }
-
-  def addVar(name: Name, typeDeclaration: TypeDeclaration): Unit = {
-    vars.put(name, typeDeclaration)
-  }
+  def addVar(name: Name, location: Option[PathLocation], typeDeclaration: TypeDeclaration): Unit =
+    vars.put(name, (typeDeclaration, location))
 
   def addVar(name: Name, location: PathLocation, typeName: TypeName): Unit = {
-    if (getVar(name).nonEmpty) {
+    if (getVar(name, markUsed = false).nonEmpty) {
       logError(location, s"Duplicate variable '$name'")
     }
 
@@ -236,10 +239,29 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     if (td.isEmpty)
       missingType(location, typeName)
 
-    vars.put(name, td.getOrElse(module.any))
+    vars.put(name, td.map((_, Some(location))).getOrElse((module.any, None)))
   }
 
   def isStatic: Boolean
+
+  def withInnerBlockVerifyContext[T]()(op: InnerBlockVerifyContext => T): T = {
+    val context = new InnerBlockVerifyContext(this)
+    try {
+      op(context)
+    } finally {
+      context.report()
+    }
+  }
+
+  def report(): Unit = {
+    vars
+      .filter(v => !usedVars.contains(v._1) && v._2._2.nonEmpty)
+      .foreach(v => {
+        val location = v._2._2.get
+        log(new Issue(location.path,
+            Diagnostic(UNUSED_CATEGORY, location.location, s"Unused local variable '${v._1}'")))
+      })
+  }
 }
 
 class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
@@ -254,9 +276,8 @@ class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVe
 
   override def isStatic: Boolean = parentContext.isStatic
 
-  override def getVar(name: Name): Option[TypeDeclaration] = {
-    super.getVar(name).orElse(parentContext.getVar(name))
-  }
+  override def getVar(name: Name, markUsed: Boolean): Option[TypeDeclaration] =
+    super.getVar(name, markUsed).orElse(parentContext.getVar(name, markUsed))
 }
 
 class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyContext {
@@ -271,17 +292,15 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
 
   override def addDependency(dependent: Dependent): Unit = parentContext.addDependency(dependent)
 
-  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
-  }
 
-  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse = {
+  override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
-  }
 
-  def isVar(name: Name): Option[TypeDeclaration] = parentContext.getVar(name)
+  def isVar(name: Name, markUsed: Boolean = false): Option[TypeDeclaration] =
+    parentContext.getVar(name, markUsed: Boolean)
 
-  def defaultNamespace(name: Name): Name = {
+  def defaultNamespace(name: Name): Name =
     EncodedName(name).defaultNamespace(module.namespace).fullName
-  }
 }

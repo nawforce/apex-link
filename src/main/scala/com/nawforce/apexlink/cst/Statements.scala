@@ -14,8 +14,6 @@
 
 package com.nawforce.apexlink.cst
 
-import java.lang.ref.WeakReference
-
 import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.cst.stmts.SwitchStatement
 import com.nawforce.apexlink.org.OrgImpl
@@ -23,6 +21,8 @@ import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}
+
+import java.lang.ref.WeakReference
 
 trait Statement {
   def verify(context: BlockVerifyContext): Unit
@@ -34,8 +34,9 @@ trait Block extends Statement
 // Standard eager block
 final case class EagerBlock(statements: Seq[Statement]) extends Block {
   override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new InnerBlockVerifyContext(context)
-    statements.foreach(s => s.verify(blockContext))
+    context.withInnerBlockVerifyContext() { blockContext =>
+      statements.foreach(s => s.verify(blockContext))
+    }
   }
 }
 
@@ -46,8 +47,9 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
   private var reParsed = false
 
   override def verify(context: BlockVerifyContext): Unit = {
-    val blockContext = new InnerBlockVerifyContext(context)
-    statements().foreach(s => s.verify(blockContext))
+    context.withInnerBlockVerifyContext() { blockContext =>
+      statements().foreach(s => s.verify(blockContext))
+    }
   }
 
   def statements(): Seq[Statement] = {
@@ -133,10 +135,12 @@ final case class IfStatement(expression: Expression, statements: Seq[Statement])
     var stmtContext = new InnerBlockVerifyContext(context)
     statements.foreach(stmt => {
       if (stmt.isInstanceOf[Block]) {
+        stmtContext.report()
         stmtContext = new InnerBlockVerifyContext(stmtContext)
       }
       stmt.verify(stmtContext)
     })
+    stmtContext.report()
   }
 }
 
@@ -150,12 +154,13 @@ object IfStatement {
 
 final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
-    val forContext = new InnerBlockVerifyContext(context)
-    control.verify(forContext)
-
-    val loopContext = new InnerBlockVerifyContext(forContext)
-    control.addVars(loopContext)
-    statement.verify(loopContext)
+    context.withInnerBlockVerifyContext() { forContext =>
+      control.verify(forContext)
+      forContext.withInnerBlockVerifyContext() { loopContext =>
+        control.addVars(loopContext)
+        statement.verify(loopContext)
+      }
+    }
   }
 }
 
@@ -336,9 +341,10 @@ object TryStatement {
 final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, id: String, block: Block) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     modifiers.issues.foreach(context.log)
-    val blockContext = new InnerBlockVerifyContext(context)
-    blockContext.addVar(Name(id), qname.location, qname.asTypeName())
-    block.verify(blockContext)
+    context.withInnerBlockVerifyContext() { blockContext =>
+      blockContext.addVar(Name(id), qname.location, qname.asTypeName())
+      block.verify(blockContext)
+    }
   }
 }
 

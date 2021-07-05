@@ -51,7 +51,7 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")) {
       root: PathLike =>
         val org = Org.newOrg(root).asInstanceOf[OrgImpl]
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 }

@@ -68,8 +68,7 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
     getters.foreach(_.verify(context, isStatic))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      context.logError(location,
-                       "Properties must have either a single 'get' and/or a single 'set' block")
+      context.logError(location, "Properties must have either a single 'get' and/or a single 'set' block")
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
@@ -106,28 +105,27 @@ sealed abstract class PropertyBlock extends CST {
   def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit
 }
 
-final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block])
-    extends PropertyBlock {
+final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
-    block.foreach(_.verify(new OuterBlockVerifyContext(context, isStatic)))
+    block.foreach(blk =>
+      context.withOuterBlockVerifyContext(isStatic) { blockContext =>
+        blk.verify(blockContext)
+    })
   }
 }
 
-final case class SetterPropertyBlock(modifiers: ModifierResults,
-                                     typeName: TypeName,
-                                     block: Option[Block])
+final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block])
     extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
-    val bc = new OuterBlockVerifyContext(context, isStatic)
-    bc.addVar(Name("value"), location, typeName)
-    block.foreach(_.verify(bc))
+    context.withOuterBlockVerifyContext(isStatic) { blockContext =>
+      blockContext.addVar(Name("value"), location, typeName)
+      block.foreach(_.verify(blockContext))
+    }
   }
 }
 
 object PropertyBlock {
-  def construct(parser: CodeParser,
-                propertyBlockContext: PropertyBlockContext,
-                typeName: TypeName): PropertyBlock = {
+  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
     val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
       parser,
       CodeParser.toScala(propertyBlockContext.modifier()),
@@ -137,12 +135,9 @@ object PropertyBlock {
       val setter = CodeParser.toScala(propertyBlockContext.setter())
 
       if (getter.nonEmpty) {
-        GetterPropertyBlock(modifiers,
-                            Block.constructOption(parser, CodeParser.toScala(getter.get.block())))
+        GetterPropertyBlock(modifiers, Block.constructOption(parser, CodeParser.toScala(getter.get.block())))
       } else if (setter.nonEmpty) {
-        SetterPropertyBlock(modifiers,
-                            typeName,
-                            Block.constructOption(parser, CodeParser.toScala(setter.get.block())))
+        SetterPropertyBlock(modifiers, typeName, Block.constructOption(parser, CodeParser.toScala(setter.get.block())))
       } else {
         throw new CSTException()
       }

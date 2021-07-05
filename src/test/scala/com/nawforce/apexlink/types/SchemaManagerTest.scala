@@ -43,7 +43,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -53,7 +53,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -69,7 +69,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasMessages)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 }
