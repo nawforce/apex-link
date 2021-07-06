@@ -14,13 +14,12 @@
 
 package com.nawforce.apexlink.rpc
 
-import java.util.concurrent.LinkedBlockingQueue
-
-import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
+import com.nawforce.apexlink.api.{IssueOptions, Org}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps}
 import com.nawforce.pkgforce.names.TypeIdentifier
 
+import java.util.concurrent.LinkedBlockingQueue
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -51,14 +50,11 @@ class OrgQueue(quiet: Boolean, path: String) { self =>
     }
   }
 
-  def add(request: APIRequest): Unit = {
+  def add(request: APIRequest): Unit =
     queue.add(request)
-  }
 
-  def refresh(path: String): Unit = {
-    // TODO: Can't we do better than this?
-    org.getPackages().foreach(pkg => pkg.refresh(path))
-  }
+  def refresh(path: String): Unit =
+    Option(org.getPackageForPath(path)).foreach(_.refresh(path))
 }
 
 case class OpenRequest(promise: Promise[OpenResult]) extends APIRequest {
@@ -81,9 +77,7 @@ object OpenRequest {
   }
 }
 
-case class GetIssues(promise: Promise[GetIssuesResult],
-                     includeWarnings: Boolean,
-                     includeZombies: Boolean)
+case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean, includeZombies: Boolean)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
@@ -104,9 +98,7 @@ case class GetIssues(promise: Promise[GetIssuesResult],
 }
 
 object GetIssues {
-  def apply(queue: OrgQueue,
-            includeWarnings: Boolean,
-            includeZombies: Boolean): Future[GetIssuesResult] = {
+  def apply(queue: OrgQueue, includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult] = {
     val promise = Promise[GetIssuesResult]()
     queue.add(new GetIssues(promise, includeWarnings, includeZombies))
     promise.future
@@ -130,9 +122,7 @@ object TypeIdentifiers {
   }
 }
 
-case class DependencyGraphRequest(promise: Promise[DependencyGraph],
-                                  identifier: TypeIdentifier,
-                                  depth: Int)
+case class DependencyGraphRequest(promise: Promise[DependencyGraph], identifier: TypeIdentifier, depth: Int)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(queue.org.getDependencyGraph(identifier, depth))
@@ -147,8 +137,7 @@ object DependencyGraphRequest {
   }
 }
 
-case class IdentifierLocation(promise: Promise[IdentifierLocationResult],
-                              identifier: TypeIdentifier)
+case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: TypeIdentifier)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(IdentifierLocationResult(queue.org.getIdentifierLocation(identifier)))
@@ -163,8 +152,7 @@ object IdentifierLocation {
   }
 }
 
-case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String)
-    extends APIRequest {
+case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
@@ -219,8 +207,7 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     OpenRequest(OrgQueue.instance())
   }
 
-  override def getIssues(includeWarnings: Boolean,
-                         includeZombies: Boolean): Future[GetIssuesResult] = {
+  override def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult] = {
     GetIssues(OrgQueue.instance(), includeWarnings, includeZombies)
   }
 
@@ -232,8 +219,7 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     TypeIdentifiers(OrgQueue.instance())
   }
 
-  override def dependencyGraph(identifier: IdentifierRequest,
-                               depth: Int): Future[DependencyGraph] = {
+  override def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph] = {
     DependencyGraphRequest(OrgQueue.instance(), identifier.identifier, depth)
   }
 
