@@ -70,14 +70,15 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
     modifiers.contains(GLOBAL_MODIFIER)
   }
 
-  /* Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
-  def isUsed: Boolean = {
+  /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
+  def isUsed(module: Module): Boolean = {
     isEntry || hasHolders ||
     shadows.exists({
-      case am: ApexMethodLike   => am.isUsed
+      case am: ApexMethodLike   => am.isUsed(module)
       case _: MethodDeclaration => true
       case _                    => false
-    })
+    }) ||
+    parameters.exists(parameter => module.isGhostedType(parameter.typeName))
   }
 
   def summary(shapeOnly: Boolean): MethodSummary = {
@@ -239,8 +240,8 @@ trait ApexClassDeclaration extends ApexDeclaration {
                 Diagnostic(UNUSED_CATEGORY, field.nameRange.location, s"Unused Field or Property '${field.name}'"))) ++
         localMethods
           .flatMap {
-            case am: ApexMethodLike if !am.isUsed => Some(am)
-            case _                                => None
+            case am: ApexMethodLike if !am.isUsed(module) => Some(am)
+            case _                                        => None
           }
           .map(method =>
             new Issue(method.nameRange.path,
