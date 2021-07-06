@@ -40,6 +40,10 @@ trait PackageAPI extends Package {
     }
   }
 
+  override def isPackagePath(path: String): Boolean = {
+    getPackageModule(PathFactory(path)).nonEmpty
+  }
+
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
     orderedModules.headOption
       .flatMap(module =>

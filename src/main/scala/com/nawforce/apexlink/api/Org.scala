@@ -73,7 +73,13 @@ trait Org {
     *
     * See file issues.
     */
-  def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue]
+  def getFileIssues(path: String, options: FileIssueOptions): Array[Issue]
+
+  /** Get the package containing the path.
+    *
+    * Returns null if no package handling this file is found or the file is not a recognised metadata type.
+    **/
+  def getPackageForPath(path: String): Package
 
   /** Get a list of type identifiers available in the org across all packages. This is not all available type
     * identifiers, but just those that will make most sense to list in an IDE for selection.

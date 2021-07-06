@@ -178,6 +178,10 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
   }
 
+  def getPackageForPath(path: String): Package = {
+    packages.find(_.isPackagePath(path)).orNull
+  }
+
   private def propagateAllDependencies(): Unit = {
     // This is lazy evaluated in classes so safe to call again
     packages.foreach(pkg => {
@@ -260,6 +264,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int): LocationLink = {
+
     null
   }
 }
