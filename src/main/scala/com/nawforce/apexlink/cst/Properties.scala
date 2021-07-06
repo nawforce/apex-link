@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.types.apex.ApexFieldLike
-import com.nawforce.apexlink.types.core.TypeId
+import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -58,14 +58,14 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
       .getOrElse(visibility.getOrElse(PRIVATE_MODIFIER))
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    val propType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-    if (propType.isEmpty)
+    val propertyType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+    if (propertyType.isEmpty)
       context.missingType(id.location, typeName)
 
     val setters = propertyBlocks.filter(_.isInstanceOf[SetterPropertyBlock])
-    setters.foreach(_.verify(context, isStatic))
+    propertyType.foreach(td => setters.foreach(_.verify(context, isStatic, td)))
     val getters = propertyBlocks.filter(_.isInstanceOf[GetterPropertyBlock])
-    getters.foreach(_.verify(context, isStatic))
+    propertyType.foreach(td => getters.foreach(_.verify(context, isStatic, td)))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
       context.logError(location, "Properties must have either a single 'get' and/or a single 'set' block")
@@ -102,11 +102,11 @@ object ApexPropertyDeclaration {
 }
 
 sealed abstract class PropertyBlock extends CST {
-  def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit
+  def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit
 }
 
 final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
+  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
     block.foreach(blk =>
       context.withOuterBlockVerifyContext(isStatic) { blockContext =>
         blk.verify(blockContext)
@@ -116,9 +116,9 @@ final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[B
 
 final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block])
     extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean): Unit = {
+  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
     context.withOuterBlockVerifyContext(isStatic) { blockContext =>
-      blockContext.addVar(Name("value"), location, typeName)
+      blockContext.addVar(Name("value"), None, propertyType)
       block.foreach(_.verify(blockContext))
     }
   }
