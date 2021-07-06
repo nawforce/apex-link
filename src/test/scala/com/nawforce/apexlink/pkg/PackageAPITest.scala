@@ -23,32 +23,44 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PackageAPITest extends AnyFunSuite with TestHelper {
 
+  test("Is package file") {
+    FileSystemHelper.run(Map("pkg/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createOrg(root.join("pkg"))
+      val pkg = org.unmanaged
+      assert(pkg.isPackagePath(root.join("pkg/Dummy.cls").toString))
+      assert(pkg.isPackagePath(root.join("pkg/something/Dummy.cls").toString))
+      assert(pkg.isPackagePath(root.join("pkg/Dummy2.cls").toString))
+      assert(pkg.isPackagePath(root.join("pkg/Dummy2.labels").toString))
+      assert(pkg.isPackagePath(root.join("pkg/Dummy2.labels-meta.xml").toString))
+      assert(!pkg.isPackagePath(root.join("pkg/Dummy.cls2").toString))
+      assert(!pkg.isPackagePath(root.join("Dummy.cls").toString))
+    }
+  }
+
   test("type of path") {
     FileSystemHelper.run(
       Map("classes/Dummy.cls" -> "public class Dummy {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        assert(pkg.getTypeOfPath(null) == null)
-        assert(pkg.getTypeOfPath("") == null)
+      assert(pkg.getTypeOfPath(null) == null)
+      assert(pkg.getTypeOfPath("") == null)
 
-        assert(
-          pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.toString == "Dummy")
-        assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.toString == "Dummy")
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
 
-        assert(
-          pkg
-            .getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
-            .get
-            .toString == "__sfdc_trigger/Foo")
-        assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
+      assert(
+        pkg
+          .getTypeOfPathInternal(root.join("triggers").join("Foo.trigger"))
+          .get
+          .toString == "__sfdc_trigger/Foo")
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
     }
   }
 
@@ -61,56 +73,54 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}]
           |}""".stripMargin,
         "pkg/classes/Dummy.cls" -> "public class Dummy {}",
-        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.packagesByNamespace(Some(Name("test")))
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        assert(pkg.getTypeOfPath(null) == null)
-        assert(pkg.getTypeOfPath("") == null)
+      assert(pkg.getTypeOfPath(null) == null)
+      assert(pkg.getTypeOfPath("") == null)
 
-        assert(
-          pkg
-            .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
-            .get
-            .toString == "Dummy (test)")
-        assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
+      assert(
+        pkg
+          .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+          .get
+          .toString == "Dummy (test)")
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy2.cls")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("classes2").join("Dummy.cls")).isEmpty)
 
-        assert(
-          pkg
-            .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
-            .get
-            .toString == "__sfdc_trigger/test/Foo [test]")
-        assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
-        assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
+      assert(
+        pkg
+          .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
+          .get
+          .toString == "__sfdc_trigger/test/Foo [test]")
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo2.trigger")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.object")).isEmpty)
+      assert(pkg.getTypeOfPathInternal(root.join("triggers2").join("Foo2.trigger")).isEmpty)
     }
   }
 
   test("path of type") {
     FileSystemHelper.run(
       Map("classes/Dummy.cls" -> "public class Dummy {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val dummyType =
-          pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
-        val fooType =
-          pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
+      val dummyType =
+        pkg.getTypeOfPathInternal(root.join("classes").join("Dummy.cls")).get.asTypeIdentifier
+      val fooType =
+        pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-        assert(pkg.getPathsOfType(null).isEmpty)
+      assert(pkg.getPathsOfType(null).isEmpty)
 
-        assert(dummyType.toString == "Dummy")
-        assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
+      assert(dummyType.toString == "Dummy")
+      assert(pkg.getPathsOfType(dummyType).sameElements(Array("/classes/Dummy.cls")))
 
-        assert(fooType.toString == "__sfdc_trigger/Foo")
-        assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
+      assert(fooType.toString == "__sfdc_trigger/Foo")
+      assert(pkg.getPathsOfType(fooType).sameElements(Array("/triggers/Foo.trigger")))
     }
   }
 
@@ -123,30 +133,29 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}]
           |}""".stripMargin,
         "pkg/classes/Dummy.cls" -> "public class Dummy {}",
-        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.packagesByNamespace(Some(Name("test")))
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val dummyType =
-          pkg
-            .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
-            .get
-            .asTypeIdentifier
-        val fooType =
-          pkg
-            .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
-            .get
-            .asTypeIdentifier
+      val dummyType =
+        pkg
+          .getTypeOfPathInternal(root.join("pkg").join("classes").join("Dummy.cls"))
+          .get
+          .asTypeIdentifier
+      val fooType =
+        pkg
+          .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Foo.trigger"))
+          .get
+          .asTypeIdentifier
 
-        assert(pkg.getPathsOfType(null).isEmpty)
+      assert(pkg.getPathsOfType(null).isEmpty)
 
-        assert(dummyType.toString == "Dummy (test)")
-        assert(pkg.getPathsOfType(dummyType).sameElements(Array("/pkg/classes/Dummy.cls")))
+      assert(dummyType.toString == "Dummy (test)")
+      assert(pkg.getPathsOfType(dummyType).sameElements(Array("/pkg/classes/Dummy.cls")))
 
-        assert(fooType.toString == "__sfdc_trigger/test/Foo [test]")
-        assert(pkg.getPathsOfType(fooType).sameElements(Array("/pkg/triggers/Foo.trigger")))
+      assert(fooType.toString == "__sfdc_trigger/test/Foo [test]")
+      assert(pkg.getPathsOfType(fooType).sameElements(Array("/pkg/triggers/Foo.trigger")))
     }
   }
 
@@ -235,8 +244,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("summary of trigger") {
-    FileSystemHelper.run(
-      Map("triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
+    FileSystemHelper.run(Map("triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
       root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
@@ -263,22 +271,21 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             |"namespace": "test",
             |"packageDirectories": [{"path": "pkg"}]
             |}""".stripMargin,
-        "pkg/triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.packagesByNamespace(Some(Name("test")))
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg/triggers/Dummy.trigger" -> "trigger Dummy on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.packagesByNamespace(Some(Name("test")))
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val typeLike = pkg
-          .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Dummy.trigger"))
-          .get
-          .asTypeIdentifier
-        val summary = pkg.getSummaryOfType(typeLike)
+      val typeLike = pkg
+        .getTypeOfPathInternal(root.join("pkg").join("triggers").join("Dummy.trigger"))
+        .get
+        .asTypeIdentifier
+      val summary = pkg.getSummaryOfType(typeLike)
 
-        assert(summary.name == "__sfdc_trigger/test/Dummy")
-        assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
-        assert(summary.idRange.contains(Location(1, 8, 1, 13)))
-        assert(summary.modifiers.isEmpty)
+      assert(summary.name == "__sfdc_trigger/test/Dummy")
+      assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
+      assert(summary.idRange.contains(Location(1, 8, 1, 13)))
+      assert(summary.modifiers.isEmpty)
     }
   }
 
@@ -374,15 +381,15 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("Superclass dependency") {
-    fooHoldsBarCached(Map("classes/Foo.cls" -> "public virtual class Foo {}",
-                          "classes/Bar.cls" -> "public class Bar extends Foo {}"),
-                      outerInheritanceOnly = true)
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public virtual class Foo {}", "classes/Bar.cls" -> "public class Bar extends Foo {}"),
+      outerInheritanceOnly = true)
   }
 
   test("Interface dependency") {
-    fooHoldsBarCached(Map("classes/Foo.cls" -> "public interface Foo {}",
-                          "classes/Bar.cls" -> "public class Bar implements Foo {}"),
-                      outerInheritanceOnly = true)
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public interface Foo {}", "classes/Bar.cls" -> "public class Bar implements Foo {}"),
+      outerInheritanceOnly = true)
   }
 
   test("Block dependency") {
@@ -392,15 +399,12 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("Field type dependency") {
-    fooHoldsBarCached(
-      Map("classes/Foo.cls" -> "public class Foo {}",
-          "classes/Bar.cls" -> "public class Bar {Foo a;}"))
+    fooHoldsBarCached(Map("classes/Foo.cls" -> "public class Foo {}", "classes/Bar.cls" -> "public class Bar {Foo a;}"))
   }
 
   test("Field expression dependency") {
     fooHoldsBarCached(
-      Map("classes/Foo.cls" -> "public class Foo {}",
-          "classes/Bar.cls" -> "public class Bar {Object a = new Foo();}"))
+      Map("classes/Foo.cls" -> "public class Foo {}", "classes/Bar.cls" -> "public class Bar {Object a = new Foo();}"))
   }
 
   test("Method type dependency") {
@@ -423,8 +427,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
   test("Constructor argument dependency") {
     fooHoldsBarCached(
-      Map("classes/Foo.cls" -> "public class Foo {}",
-          "classes/Bar.cls" -> "public class Bar { Bar(Foo a){} }"))
+      Map("classes/Foo.cls" -> "public class Foo {}", "classes/Bar.cls" -> "public class Bar { Bar(Foo a){} }"))
   }
 
   test("Constructor body dependency") {
@@ -532,15 +535,15 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("Method argument dependency (from nested)") {
-    fooHoldsBarCached(Map(
-      "classes/Foo.cls" -> "public class Foo {}",
-      "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(Foo a){return null;} }}"))
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public class Foo {}",
+          "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(Foo a){return null;} }}"))
   }
 
   test("Method body dependency (from nested)") {
-    fooHoldsBarCached(Map(
-      "classes/Foo.cls" -> "public class Foo {}",
-      "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(){return new Foo();} }}"))
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public class Foo {}",
+          "classes/Bar.cls" -> "public class Bar {public class Baz {Object func(){return new Foo();} }}"))
   }
 
   test("Constructor argument dependency (from nested)") {
@@ -550,9 +553,9 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("Constructor body dependency (from nested)") {
-    fooHoldsBarCached(Map(
-      "classes/Foo.cls" -> "public class Foo {}",
-      "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(){Object a = new Foo();} }}"))
+    fooHoldsBarCached(
+      Map("classes/Foo.cls" -> "public class Foo {}",
+          "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(){Object a = new Foo();} }}"))
   }
 
   test("Unmanaged to Managed Dependency") {
@@ -696,58 +699,55 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   }
 
   test("Trigger with no block") {
-    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val fooTypeLike =
-          pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
+      val fooTypeLike =
+        pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
     }
   }
 
   test("Trigger with block") {
     FileSystemHelper.run(
       Map("classes/Bar.cls" -> "public class Bar {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val barTypeLike =
-          pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
-        val fooTypeLike =
-          pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeLike =
+        pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeLike =
+        pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-        assert(
-          pkg
-            .getDependencies(fooTypeLike, outerInheritanceOnly = false)
-            .sameElements(Array(barTypeLike)))
+      assert(
+        pkg
+          .getDependencies(fooTypeLike, outerInheritanceOnly = false)
+          .sameElements(Array(barTypeLike)))
     }
   }
 
   test("Trigger with block with namespace") {
     FileSystemHelper.run(
       Map("classes/Bar.cls" -> "public class Bar {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        val barTypeLike =
-          pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
-        val fooTypeLike =
-          pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
+      val barTypeLike =
+        pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
+      val fooTypeLike =
+        pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-        assert(
-          pkg
-            .getDependencies(fooTypeLike, outerInheritanceOnly = false)
-            .sameElements(Array(barTypeLike)))
+      assert(
+        pkg
+          .getDependencies(fooTypeLike, outerInheritanceOnly = false)
+          .sameElements(Array(barTypeLike)))
     }
   }
 
@@ -774,12 +774,12 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
 
-      assert(org
-        .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy")))) == null)
+      assert(
+        org
+          .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy")))) == null)
       assert(
         org.getIdentifierLocation(
-          TypeIdentifier(Some(Name("test")),
-                         TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))) ==
+          TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))) ==
           PathLocation("/test/Dummy.cls", Location(1, 13, 1, 18)))
     }
   }
@@ -799,29 +799,25 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) == null)
       assert(
         org.getIdentifierLocation(
-          TypeIdentifier(Some(Name("test")),
-                         TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy")))))) == null)
+          TypeIdentifier(Some(Name("test")), TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy")))))) == null)
       assert(
         org.getIdentifierLocation(
           TypeIdentifier(
             Some(Name("test")),
-            TypeName(Name("Inner"),
-                     Nil,
-                     Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))))) ==
+            TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))))) ==
           PathLocation("/test/Dummy.cls", Location(1, 26, 1, 31)))
     }
   }
 
   test("location of trigger") {
-    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+    FileSystemHelper.run(Map("triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
-        assert(
-          org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))) ==
-            PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
+      assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
+      assert(
+        org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))) ==
+          PathLocation("/triggers/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
 
@@ -841,11 +837,9 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         org
           .getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("Foo")))) == null)
       assert(
-        org.getIdentifierLocation(
-          TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/Foo")))) == null)
+        org.getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/Foo")))) == null)
       assert(
-        org.getIdentifierLocation(
-          TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/test/Foo")))) ==
+        org.getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/test/Foo")))) ==
           PathLocation("/test/Foo.trigger", Location(1, 8, 1, 11)))
     }
   }
@@ -853,15 +847,12 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   test("typeIdentifiers") {
     FileSystemHelper.run(
       Map("classes/Dummy.cls" -> "public class Dummy {}",
-          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        assert(
-          org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo",
-                                                                      "Schema.Account",
-                                                                      "Dummy"))
+      assert(
+        org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Schema.Account", "Dummy"))
     }
   }
 
@@ -874,16 +865,14 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}]
             |}""".stripMargin,
         "pkg/classes/Dummy.cls" -> "public class Dummy {}",
-        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg/triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
 
-        assert(
-          org.getTypeIdentifiers.map(_.toString).toSet == Set[String](
-            "__sfdc_trigger/test/Foo [test]",
-            "Schema.Account [test]",
-            "Dummy (test)"))
+      assert(
+        org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/test/Foo [test]",
+                                                                    "Schema.Account [test]",
+                                                                    "Dummy (test)"))
     }
   }
 

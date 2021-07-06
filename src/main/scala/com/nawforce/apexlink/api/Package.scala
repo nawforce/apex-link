@@ -60,6 +60,12 @@ trait Package {
     */
   def getTypeIdentifier(typeName: TypeName): TypeIdentifier
 
+  /** Test if a metadata file path is part of this package.
+    *
+    * Return null if this either not a recognised metadata file type or it is not part of this package.
+    */
+  def isPackagePath(path: String) : Boolean
+
   /** Get a Type from the path of a metadata file.
     *
     * Returns a null if the path does not identify metadata that creates a Type within the current package.

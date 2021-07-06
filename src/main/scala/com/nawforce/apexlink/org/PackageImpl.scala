@@ -19,6 +19,7 @@ import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
 
@@ -57,6 +58,14 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /** Is this or any base package of this a ghost package. */
   lazy val hasGhosted: Boolean = isGhosted || basePackages.exists(_.hasGhosted)
+
+  /** Find module for a path. */
+  def getPackageModule(path: PathLike): Option[Module] = {
+     orderedModules.find(_.isVisibleFile(path)) match {
+       case Some(module) if MetadataDocument(path).nonEmpty => Some(module)
+       case _ => None
+     }
+  }
 
   /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {
