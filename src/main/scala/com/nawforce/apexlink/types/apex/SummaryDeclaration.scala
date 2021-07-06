@@ -394,7 +394,8 @@ class SummaryDeclaration(val path: PathLike,
       case Right(d: PageDeclaration)      => Some(d.typeId)
       case Right(d: ComponentDeclaration) => Some(d.typeId)
       case Right(d: SObjectDeclaration)   => Some(d.typeId)
-      case _                              => assert(false); None
+      case Right(_)                       => assert(false); None
+      case Left(_)                        => None
     }
   }
 }
