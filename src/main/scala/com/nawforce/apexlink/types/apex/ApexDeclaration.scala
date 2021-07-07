@@ -21,7 +21,7 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
@@ -72,7 +72,7 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
 
   /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
   def isUsed(module: Module): Boolean = {
-    isEntry || hasHolders ||
+    isEntry || hasHolders || modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) ||
     shadows.exists({
       case am: ApexMethodLike   => am.isUsed(module)
       case _: MethodDeclaration => true
@@ -91,6 +91,14 @@ trait ApexFieldLike extends FieldDeclaration {
   val outerTypeId: TypeId
   val nameRange: PathLocation
   val idTarget: Option[TypeName] = None
+
+  def isEntry: Boolean = {
+    modifiers.contains(GLOBAL_MODIFIER)
+  }
+
+  def isUsed: Boolean = {
+    isEntry || hasHolders || modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION)
+  }
 
   def summary(shapeOnly: Boolean): FieldSummary = {
     serialise(shapeOnly, Some(nameRange.location))
@@ -224,6 +232,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   def unused(): Array[Issue] = {
+    // Block at class level
+    if (modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION))
+      return Issue.emptyArray
+
     // Hack: Unused calculation requires a methodMap as its establishes shadow relationships
     methodMap
 
@@ -232,7 +244,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
         .collect { case ad: ApexClassDeclaration => ad }
         .flatMap(ad => ad.unused()) ++
         localFields
-          .filterNot(_.hasHolders)
+          .flatMap {
+            case af: ApexFieldLike if !af.isUsed => Some(af)
+            case _                               => None
+          }
           .map(
             field =>
               new Issue(

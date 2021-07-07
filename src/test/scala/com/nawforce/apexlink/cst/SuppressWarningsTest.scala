@@ -14,7 +14,8 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.TestHelper
+import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class SuppressWarningsTest extends AnyFunSuite with TestHelper {
@@ -30,18 +31,139 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
     assert(!hasIssues)
   }
 
+  test("Outer Suppress (with args)") {
+    typeDeclaration(
+      "@SuppressWarnings('PMD') public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    assert(!hasIssues)
+  }
+
   test("Inner Suppress") {
     typeDeclaration(
       "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
     assert(!hasIssues)
   }
 
-  // TODO: This should work
-  /*
+  test("Inner Suppress (with args)") {
+    typeDeclaration(
+      "public class Dummy {@SuppressWarnings('PMD') class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+    assert(!hasIssues)
+  }
+
   test("Method Suppress") {
-    typeDeclaration("public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}")
-    defaultOrg.issues.dumpMessages(false)
-    assert(!defaultOrg.issues.hasMessages)
-  }*/
+    typeDeclaration(
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}")
+    assert(!hasIssues)
+  }
+
+  test("Method Suppress (with args)") {
+    typeDeclaration(
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') void foo(){ Integer b = a[null].b;}}}")
+    assert(!hasIssues)
+  }
+
+  test("Field Suppress") {
+    typeDeclaration(
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings Integer b = a[null].b;}}")
+    assert(!hasIssues)
+  }
+
+  test("Field Suppress (with args)") {
+    typeDeclaration(
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') Integer b = a[null].b;}}")
+    assert(!hasIssues)
+  }
+
+  test("Unused method suppress") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "@SuppressWarnings public class Dummy {void foo() {}}",
+          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
+      )) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
+
+  test("Unused method suppress (on method)") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings void foo() {}}",
+          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
+      )) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
+
+  test("Unused field suppress") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "@SuppressWarnings public class Dummy {String foo;}",
+          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
+      )) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
+
+  test("Unused field suppress (on field)") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings String foo;}",
+          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
+      )) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
+
+  test("Unused inner class suppress") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings class Inner {} }",
+          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
+      )) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
+
+  test("Unused outer class suppress") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings public class Dummy {}")) { root: PathLike =>
+      createOrg(root)
+      withOrg(org => {
+        assert(
+          org.unmanaged.orderedModules.head
+            .reportUnused()
+            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .isEmpty)
+      })
+    }
+  }
 
 }
