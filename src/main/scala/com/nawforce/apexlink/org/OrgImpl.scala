@@ -226,9 +226,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       })
   }
 
-  def getDependencyGraph(identifier: TypeIdentifier, depth: Integer): DependencyGraph = {
+  def getDependencyGraph(identifier: TypeIdentifier, depth: Integer, apexOnly: Boolean): DependencyGraph = {
     OrgImpl.current.withValue(this) {
-      val depWalker = new DownWalker(this)
+      val depWalker = new DownWalker(this, apexOnly)
       val nodeData = depWalker
         .walk(identifier, depth)
         .map(n => {

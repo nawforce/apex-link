@@ -53,7 +53,8 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     baseFields: Array[FieldDeclaration],
                                     _isComplete: Boolean)
     extends SObjectLikeDeclaration
-    with SObjectFieldFinder with SObjectMethods {
+    with SObjectFieldFinder
+    with SObjectMethods {
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
@@ -80,7 +81,9 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 
   override def validate(): Unit = {}
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     // TODO: Can depend on other SObjects
   }
 
@@ -129,20 +132,16 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(
-      CustomMethodDeclaration(None,
-                              Name("getAll"),
-                              TypeNames.mapOf(TypeNames.String, typeName),
-                              Array()),
-      CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
-      CustomMethodDeclaration(None,
-                              Name("getInstance"),
-                              typeName,
-                              Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
-      CustomMethodDeclaration(None,
-                              Name("getValues"),
-                              typeName,
-                              Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+    Seq(CustomMethodDeclaration(None, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
+        CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
+        CustomMethodDeclaration(None,
+                                Name("getInstance"),
+                                typeName,
+                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+        CustomMethodDeclaration(None,
+                                Name("getValues"),
+                                typeName,
+                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 }
 

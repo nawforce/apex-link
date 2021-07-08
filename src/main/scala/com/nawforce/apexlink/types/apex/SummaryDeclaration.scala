@@ -352,20 +352,19 @@ class SummaryDeclaration(val path: PathLike,
     true
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     val localDependencies = mutable.Set[TypeId]()
     def collect(dependents: Seq[Dependent]): Unit = {
       dependents.foreach({
-        case d: ApexClassDeclaration => localDependencies.add(d.typeId)
-        case d: LabelDeclaration     => localDependencies.add(d.typeId)
-        case d: InterviewDeclaration => localDependencies.add(d.typeId)
-        case d: PageDeclaration      => localDependencies.add(d.typeId)
-        case d: ComponentDeclaration => localDependencies.add(d.typeId)
-        case d: SObjectDeclaration   => localDependencies.add(d.typeId)
-        case _: ApexFieldLike        => ()
-        case _: ApexMethodLike       => ()
-        case _: Label                => ()
-        case _: Page                 => ()
+        case d: ApexClassDeclaration              => localDependencies.add(d.typeId)
+        case d: LabelDeclaration if !apexOnly     => localDependencies.add(d.typeId)
+        case d: InterviewDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: PageDeclaration if !apexOnly      => localDependencies.add(d.typeId)
+        case d: ComponentDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: SObjectDeclaration if !apexOnly   => localDependencies.add(d.typeId)
+        case _                                    => ()
       })
     }
 
@@ -377,7 +376,7 @@ class SummaryDeclaration(val path: PathLike,
     _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
     nestedTypes
       .collect { case x: SummaryDeclaration => x }
-      .foreach(_.collectDependenciesByTypeName(dependsOn, typeCache))
+      .foreach(_.collectDependenciesByTypeName(dependsOn, apexOnly, typeCache))
 
     // Use outermost of each to get top-level dependencies
     localDependencies.foreach(dependentTypeName => {

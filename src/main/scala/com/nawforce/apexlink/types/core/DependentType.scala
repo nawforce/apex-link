@@ -50,7 +50,7 @@ trait DependentType extends TypeDeclaration {
   }
 
   /** Collect set of TypeNames that this declaration is dependent on */
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit
+  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit
 
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
     if (typeId != this.typeId) {
@@ -63,7 +63,7 @@ trait DependentType extends TypeDeclaration {
   // Update holders on outer dependencies
   def propagateOuterDependencies(typeCache: TypeCache): Unit = {
     val dependsOn = mutable.Set[TypeId]()
-    collectDependenciesByTypeName(dependsOn, typeCache)
+    collectDependenciesByTypeName(dependsOn, apexOnly = false, typeCache)
     dependsOn.foreach(dependentTypeName =>
       getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(this.typeId)))
   }

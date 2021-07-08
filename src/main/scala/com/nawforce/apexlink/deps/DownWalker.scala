@@ -16,8 +16,10 @@ package com.nawforce.apexlink.deps
 
 import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.pkgforce.names.{Name, Names, TypeIdentifier}
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /** Dependency information collected */
@@ -29,36 +31,40 @@ case class NodeData(id: TypeIdentifier,
                     using: Array[TypeIdentifier])
 
 /** Downstream dependency walker. Collects information on the dependencies of a type. */
-class DownWalker(org: Org) {
+class DownWalker(org: Org, apexOnly: Boolean) {
 
   private val packagesByNamespace =
     org.getPackages().map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
 
-  private val transitiveCollector = new TransitiveCollector(org)
+  private val transitiveCollector = new TransitiveCollector(org, apexOnly)
 
   /* Collect information on dependencies of the passed type. The walk depth can be limited but the result will always
    * include the root node information as the first element of the returned Array.
    */
   def walk(id: TypeIdentifier, depth: Int): Array[NodeData] = {
-    val collected = new ArrayBuffer[NodeData]()
+    val collectedNodes = new ArrayBuffer[NodeData]()
+    val collectedIds = new mutable.HashSet[TypeIdentifier]()
     createNode(id)
       .map(root => {
-        collected += root
-        walkNode(collected.head, collected, depth)
-        collected.toArray
+        collectedNodes += root
+        collectedIds += root.id
+        walkNode(collectedNodes.head, collectedNodes, collectedIds, depth)
+        collectedNodes.toArray
       })
       .getOrElse(Array())
   }
 
   private def walkNode(node: NodeData,
                        collector: ArrayBuffer[NodeData],
+                       collected: mutable.Set[TypeIdentifier],
                        depth: Int): Unit = {
     if (depth == 0) return
     (node.extending ++ node.implementing ++ node.using).foreach(id => {
-      if (!collector.exists(n => n.id == id)) {
+      if (!collected.contains(id)) {
+        collected.add(id)
         createNode(id).foreach(node => {
           collector.append(node)
-          walkNode(node, collector, depth - 1)
+          walkNode(node, collector, collected, depth - 1)
         })
       }
     })
@@ -68,13 +74,14 @@ class DownWalker(org: Org) {
     org
       .asInstanceOf[OrgImpl]
       .findTypeIdentifier(id)
+      .filter(td => !apexOnly || td.isInstanceOf[ApexDeclaration])
       .map(td => {
         val pkg = td.moduleDeclaration.map(_.pkg)
 
         val inherits =
           pkg
             .flatMap(pkg => {
-              Option(pkg.getDependencies(id, outerInheritanceOnly = true))
+              Option(pkg.getDependencies(id, outerInheritanceOnly = true, apexOnly))
             })
             .getOrElse(Array[TypeIdentifier]())
             .toSet
@@ -84,17 +91,12 @@ class DownWalker(org: Org) {
         val all =
           pkg
             .flatMap(pkg => {
-              Option(pkg.getDependencies(id, outerInheritanceOnly = false))
+              Option(pkg.getDependencies(id, outerInheritanceOnly = false, apexOnly))
             })
             .getOrElse(Array[TypeIdentifier]())
         val uses = all.filterNot(inherits.contains)
 
-        NodeData(id,
-                       nature(id),
-                       transitiveCollector.count(id),
-                       extending.toArray,
-                       implementing.toArray,
-                       uses)
+        NodeData(id, nature(id), transitiveCollector.count(id), extending.toArray, implementing.toArray, uses)
       })
   }
 

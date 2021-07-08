@@ -109,9 +109,7 @@ abstract class FullDeclaration(val source: Source,
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
       val diagnostics = module.pkg.org.issues.getDiagnostics(location.path).toArray
-      pc.upsert(context, name.value, source.asUTF8,
-                writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)),
-                )
+      pc.upsert(context, name.value, source.asUTF8, writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)))
       flushedToCache = true
     }
   }
@@ -145,8 +143,7 @@ abstract class FullDeclaration(val source: Source,
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
     if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.cls")) {
-      context.logError(id.location,
-                       s"Type name '${id.name}' does not match file name '${path.basename}'")
+      context.logError(id.location, s"Type name '${id.name}' does not match file name '${path.basename}'")
     }
 
     // Check super class is visible
@@ -159,19 +156,16 @@ abstract class FullDeclaration(val source: Source,
       } else if (superClassDeclaration.get.modifiers
                    .intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER))
                    .isEmpty) {
-        OrgImpl.logError(
-          id.location,
-          s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+        OrgImpl.logError(id.location,
+                         s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
       }
     }
 
     // Check for duplicate nested types
     val duplicateNestedType =
       (this +: nestedTypes).toSeq.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
-    duplicateNestedType.foreach(
-      td =>
-        OrgImpl.logError(td.asInstanceOf[apex.FullDeclaration].location,
-                         s"Duplicate type name '${td.name.toString}'"))
+    duplicateNestedType.foreach(td =>
+      OrgImpl.logError(td.asInstanceOf[apex.FullDeclaration].location, s"Duplicate type name '${td.name.toString}'"))
 
     // Check interfaces are visible
     interfaces.foreach(interface => {
@@ -190,23 +184,19 @@ abstract class FullDeclaration(val source: Source,
     setDepends(context.dependencies)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     dependents.foreach {
-      case ad: ApexClassDeclaration =>
-        dependsOn.add(ad.outerTypeId)
-      case co: SObjectDeclaration =>
-        dependsOn.add(co.typeId)
-      case _: Label =>
-        dependsOn.add(TypeId(module, TypeNames.Label))
-      case _: Interview =>
-        dependsOn.add(TypeId(module, TypeNames.Interview))
-      case _: Page =>
-        dependsOn.add(TypeId(module, TypeNames.Page))
-      case _: Component =>
-        dependsOn.add(TypeId(module, TypeNames.Component))
-      case _ => ()
+      case ad: ApexClassDeclaration            => dependsOn.add(ad.outerTypeId)
+      case co: SObjectDeclaration if !apexOnly => dependsOn.add(co.typeId)
+      case _: Label if !apexOnly               => dependsOn.add(TypeId(module, TypeNames.Label))
+      case _: Interview if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Interview))
+      case _: Page if !apexOnly                => dependsOn.add(TypeId(module, TypeNames.Page))
+      case _: Component if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Component))
+      case _                                   => ()
     }
   }
 
@@ -241,10 +231,7 @@ abstract class FullDeclaration(val source: Source,
 }
 
 object FullDeclaration {
-  def create(module: Module,
-             doc: ClassDocument,
-             data: SourceData,
-             extendedApex: Boolean): Option[FullDeclaration] = {
+  def create(module: Module, doc: ClassDocument, data: SourceData, extendedApex: Boolean): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
     parser.parseClass() match {
       case Left(issues) =>
@@ -255,10 +242,7 @@ object FullDeclaration {
     }
   }
 
-  def construct(parser: CodeParser,
-                module: Module,
-                name: Name,
-                typeDecl: TypeDeclarationContext): FullDeclaration = {
+  def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val thisType = TypeName(name).withNamespace(module.namespace)
@@ -267,37 +251,34 @@ object FullDeclaration {
       .toScala(typeDecl.classDeclaration())
       .map(
         cd =>
-          ClassDeclaration.construct(
-            parser,
-            module,
-            thisType,
-            None,
-            ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
-            cd))
+          ClassDeclaration.construct(parser,
+                                     module,
+                                     thisType,
+                                     None,
+                                     ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
+                                     cd))
       .orElse(
         CodeParser
           .toScala(typeDecl.interfaceDeclaration())
           .map(
             id =>
-              InterfaceDeclaration.construct(
-                parser,
-                module,
-                thisType,
-                None,
-                ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
-                id)))
+              InterfaceDeclaration.construct(parser,
+                                             module,
+                                             thisType,
+                                             None,
+                                             ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
+                                             id)))
       .orElse(
         CodeParser
           .toScala(typeDecl.enumDeclaration())
           .map(
             ed =>
-              EnumDeclaration.construct(
-                parser,
-                module,
-                thisType,
-                None,
-                ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
-                ed)))
+              EnumDeclaration.construct(parser,
+                                        module,
+                                        thisType,
+                                        None,
+                                        ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
+                                        ed)))
 
     if (cst.isEmpty)
       throw new CSTException()

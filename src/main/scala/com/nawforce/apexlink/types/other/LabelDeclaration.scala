@@ -29,10 +29,7 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Label being represented as a static field. */
-case class Label(outerTypeId: Option[TypeId],
-                 location: Option[PathLocation],
-                 name: Name,
-                 isProtected: Boolean)
+case class Label(outerTypeId: Option[TypeId], location: Option[PathLocation], name: Name, isProtected: Boolean)
     extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Label.modifiers
   override lazy val typeName: TypeName = TypeNames.String
@@ -68,8 +65,7 @@ final class LabelDeclaration(override val module: Module,
     merge(stream.labelsFiles, stream.labels)
   }
 
-  def merge(labelFileEvents: Array[LabelFileEvent],
-            labelEvents: Array[LabelEvent]): LabelDeclaration = {
+  def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ labelEvents.map(le =>
       Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
@@ -77,9 +73,12 @@ final class LabelDeclaration(override val module: Module,
     new LabelDeclaration(module, sourceInfo, newLabels, nestedLabels)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     // Labels depend on labels from dependent packages
-    nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))
+    if (!apexOnly)
+      nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))
   }
 
   /** Report on unused labels */
@@ -87,12 +86,9 @@ final class LabelDeclaration(override val module: Module,
     labels
       .filterNot(_.hasHolders)
       .filterNot(_.location.isEmpty)
-      .map(
-        label =>
-          new Issue(label.location.get.path,
-                    Diagnostic(UNUSED_CATEGORY,
-                               label.location.get.location,
-                               s"Label '$typeName.${label.name}'")))
+      .map(label =>
+        new Issue(label.location.get.path,
+                  Diagnostic(UNUSED_CATEGORY, label.location.get.location, s"Label '$typeName.${label.name}'")))
   }
 }
 
@@ -108,10 +104,9 @@ trait NestedLabels extends TypeDeclaration {
   * controller here.
   */
 private final class PackageLabels(module: Module, labelDeclaration: LabelDeclaration)
-    extends InnerBasicTypeDeclaration(
-      PathLike.emptyPaths,
-      module,
-      TypeName(labelDeclaration.module.namespace.get, Nil, Some(TypeNames.Label)))
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+                                      module,
+                                      TypeName(labelDeclaration.module.namespace.get, Nil, Some(TypeNames.Label)))
     with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)

@@ -26,16 +26,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
-  def assertIsNotDeclaration(pkg: PackageImpl,
-                             name: String,
-                             namespace: Option[Name] = None): Unit = {
-    assert(
-      pkg.orderedModules.head.findModuleType(TypeName(Name(name)).withNamespace(namespace)).isEmpty)
+  def assertIsNotDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
+    assert(pkg.orderedModules.head.findModuleType(TypeName(Name(name)).withNamespace(namespace)).isEmpty)
   }
 
-  def assertIsFullDeclaration(pkg: PackageImpl,
-                              name: String,
-                              namespace: Option[Name] = None): Unit = {
+  def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head
         .findModuleType(TypeName(Name(name)).withNamespace(namespace))
@@ -43,9 +38,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         .isInstanceOf[FullDeclaration])
   }
 
-  def assertIsSummaryDeclaration(pkg: PackageImpl,
-                                 name: String,
-                                 namespace: Option[Name] = None): Unit = {
+  def assertIsSummaryDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head
         .findModuleType(TypeName(Name(name)).withNamespace(namespace))
@@ -108,51 +101,35 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
   }
 
   test("Cached interface") {
-    cacheTest("public interface Bar {}",
-              "public class Foo implements Bar {}",
-              "public interface Bar {/* Changed */}")
+    cacheTest("public interface Bar {}", "public class Foo implements Bar {}", "public interface Bar {/* Changed */}")
   }
 
   test("Cached field type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {Bar field;}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {Bar field;}", "public class Bar {/* Changed */}")
   }
 
   test("Cached field expr type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {Object field = new Bar();}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {Object field = new Bar();}", "public class Bar {/* Changed */}")
   }
 
   test("Cached method return type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {Bar func() {return null;}}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {Bar func() {return null;}}", "public class Bar {/* Changed */}")
   }
 
   test("Cached method parameter type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {void func(Bar a) {}}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {void func(Bar a) {}}", "public class Bar {/* Changed */}")
   }
 
   test("Cached method body type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {void func() {Bar a;}}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {void func() {Bar a;}}", "public class Bar {/* Changed */}")
   }
 
   test("Cached constructor parameter type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {Foo(Bar a) {}}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {Foo(Bar a) {}}", "public class Bar {/* Changed */}")
   }
 
   test("Cached constructor body type") {
-    cacheTest("public class Bar {}",
-              "public class Foo {Foo() {Bar a;}}",
-              "public class Bar {/* Changed */}")
+    cacheTest("public class Bar {}", "public class Foo {Foo() {Bar a;}}", "public class Bar {/* Changed */}")
   }
 
   test("Cached nested type super class") {
@@ -169,40 +146,42 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
   test("Missing error is not cached") {
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "public class Foo extends Bar {}",
-          "pkg2/Foo.cls" -> "public class Foo extends Bar {}")) { root: PathLike =>
-      // Setup as cached
-      val org = createOrg(root.join("pkg1"))
-      val pkg = org.unmanaged
-      assertIsFullDeclaration(pkg, "Foo")
-      assert(
-        org.getIssues(new IssueOptions()) == "/pkg1/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
+      Map("pkg1/Foo.cls" -> "public class Foo extends Bar {}", "pkg2/Foo.cls" -> "public class Foo extends Bar {}")) {
+      root: PathLike =>
+        // Setup as cached
+        val org = createOrg(root.join("pkg1"))
+        val pkg = org.unmanaged
+        assertIsFullDeclaration(pkg, "Foo")
+        assert(
+          org.getIssues(new IssueOptions()) == "/pkg1/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
 
-      val org2 = createOrg(root.join("pkg2"))
-      val pkg2 = org2.unmanaged
-      assertIsFullDeclaration(pkg2, "Foo")
-      assert(
-        org2.getIssues(new IssueOptions()) == "/pkg2/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
+        val org2 = createOrg(root.join("pkg2"))
+        val pkg2 = org2.unmanaged
+        assertIsFullDeclaration(pkg2, "Foo")
+        assert(
+          org2.getIssues(new IssueOptions()) == "/pkg2/Foo.cls\nMissing: line 1 at 13-16: No type declaration found for 'Bar'\n")
     }
   }
 
   test("General error is cached") {
     FileSystemHelper.run(
-      Map("pkg1/Foo.cls" -> "public class Foo {{bar();}}",
-          "pkg2/Foo.cls" -> "public class Foo {{bar();}}")) { root: PathLike =>
-      // Setup as cached
-      val org = createOrg(root.join("pkg1"))
-      val pkg = org.unmanaged
-      assertIsFullDeclaration(pkg, "Foo")
-      assert(org.getIssues(new IssueOptions()) ==
-        "/pkg1/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
-      org.flush()
+      Map("pkg1/Foo.cls" -> "public class Foo {{bar();}}", "pkg2/Foo.cls" -> "public class Foo {{bar();}}")) {
+      root: PathLike =>
+        // Setup as cached
+        val org = createOrg(root.join("pkg1"))
+        val pkg = org.unmanaged
+        assertIsFullDeclaration(pkg, "Foo")
+        assert(
+          org.getIssues(new IssueOptions()) ==
+            "/pkg1/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
+        org.flush()
 
-      val org2 = createOrg(root.join("pkg2"))
-      val pkg2 = org2.unmanaged
-      assertIsSummaryDeclaration(pkg2, "Foo")
-      assert(org2.getIssues(new IssueOptions()) ==
-        "/pkg2/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
+        val org2 = createOrg(root.join("pkg2"))
+        val pkg2 = org2.unmanaged
+        assertIsSummaryDeclaration(pkg2, "Foo")
+        assert(
+          org2.getIssues(new IssueOptions()) ==
+            "/pkg2/Foo.cls\nError: line 1 at 19-24: No matching method found for 'bar' on 'Foo' taking no arguments\n")
     }
   }
 
@@ -221,30 +200,27 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel;} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg2 = org2.unmanaged
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg2, "Dummy")
-        assert(
-          pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2
+        .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false, apexOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
-        root.createFile("CustomLabels.labels",
-                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+      root.createFile("CustomLabels.labels", "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-        val org3 = createOrg(root)
-        val pkg3 = org3.unmanaged
-        assertIsFullDeclaration(pkg3, "Dummy")
-        assert(org3.getIssues(new IssueOptions()) ==
+      val org3 = createOrg(root)
+      val pkg3 = org3.unmanaged
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(
+        org3.getIssues(new IssueOptions()) ==
           "/Dummy.cls\nMissing: line 1 at 33-55: Unknown field or type 'TestLabel' on 'System.Label'\n")
     }
   }
@@ -270,34 +246,32 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+        "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
-        assert(
-          pkg22
-            .getDependencies(
-              TypeIdentifier(Some(Name("pkg2")),
-                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-              outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Label))))
+      assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
+      assert(
+        pkg22
+          .getDependencies(TypeIdentifier(Some(Name("pkg2")),
+                                          TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+                           outerInheritanceOnly = false,
+                           apexOnly = false)
+          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Label))))
 
-        root.createFile("pkg1/CustomLabels.labels",
-                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+      root.createFile("pkg1/CustomLabels.labels", "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-        val org3 = createOrg(root)
-        val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
+      val org3 = createOrg(root)
+      val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
 
-        // Still summary as Dummy does not *directly* depend on pkg1 labels
-        assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(!org3.issues.hasErrorsOrWarnings)
+      // Still summary as Dummy does not *directly* depend on pkg1 labels
+      assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
+      assert(!org3.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -322,39 +296,35 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           |    </labels>
           |</CustomLabels>
           |""".stripMargin,
-        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+        "Dummy.cls" -> "public class Dummy { {String a = System.label.TestLabel2;} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg2 = org2.unmanaged
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg2, "Dummy")
-        assert(
-          pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2
+        .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false, apexOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Label))))
 
-        root.createFile("AltLabels.labels",
-                        "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+      root.createFile("AltLabels.labels", "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
 
-        val org3 = createOrg(root)
-        val pkg3 = org3.unmanaged
-        assertIsFullDeclaration(pkg3, "Dummy")
-        assert(org3.getIssues(new IssueOptions()) ==
+      val org3 = createOrg(root)
+      val pkg3 = org3.unmanaged
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(
+        org3.getIssues(new IssueOptions()) ==
           "/Dummy.cls\nMissing: line 1 at 33-56: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
 
   test("Flow dependency is cached") {
-    FileSystemHelper.run(
-      Map(
-        "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
         assert(!org1.issues.hasErrorsOrWarnings)
@@ -368,7 +338,8 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         assert(
           pkg2
             .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false)
+                             outerInheritanceOnly = false,
+                             apexOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Interview))))
 
         root.join("Test.flow-meta.xml").delete()
@@ -376,8 +347,9 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         val org3 = createOrg(root)
         val pkg3 = org3.unmanaged
         assertIsFullDeclaration(pkg3, "Dummy")
-        assert(org3.getIssues(new IssueOptions()) ==
-          "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
+        assert(
+          org3.getIssues(new IssueOptions()) ==
+            "/Dummy.cls\nMissing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
     }
   }
 
@@ -404,10 +376,10 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
         assert(
           pkg22
-            .getDependencies(
-              TypeIdentifier(Some(Name("pkg2")),
-                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-              outerInheritanceOnly = false)
+            .getDependencies(TypeIdentifier(Some(Name("pkg2")),
+                                            TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+                             outerInheritanceOnly = false,
+                             apexOnly = false)
             .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Interview))))
 
         root.join("pkg1/Test.flow-meta.xml").delete()
@@ -416,15 +388,15 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
 
         assertIsFullDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(org3.getIssues(new IssueOptions()) ==
-          "/pkg2/Dummy.cls\nMissing: line 1 at 45-69: No type declaration found for 'Flow.Interview.pkg1.Test'\n")
+        assert(
+          org3.getIssues(new IssueOptions()) ==
+            "/pkg2/Dummy.cls\nMissing: line 1 at 45-69: No type declaration found for 'Flow.Interview.pkg1.Test'\n")
     }
   }
 
   test("Page dependency is cached") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
+      Map("TestPage.page" -> "", "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
       root: PathLike =>
         val org1 = createOrg(root)
         assert(!org1.issues.hasErrorsOrWarnings)
@@ -438,7 +410,8 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
         assert(
           pkg2
             .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false)
+                             outerInheritanceOnly = false,
+                             apexOnly = false)
             .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
 
         root.join("TestPage.page").delete()
@@ -462,62 +435,59 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
           |}""".stripMargin,
         "pkg1/TestPage.page" -> "",
-        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
-        assert(
-          pkg22
-            .getDependencies(
-              TypeIdentifier(Some(Name("pkg2")),
-                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-              outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Page))))
+      assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
+      assert(
+        pkg22
+          .getDependencies(TypeIdentifier(Some(Name("pkg2")),
+                                          TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+                           outerInheritanceOnly = false,
+                           apexOnly = false)
+          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Page))))
 
-        root.join("pkg1/TestPage.page").delete()
+      root.join("pkg1/TestPage.page").delete()
 
-        val org3 = createOrg(root)
-        val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
+      val org3 = createOrg(root)
+      val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
 
-        // Still summary as Dummy does not *directly* depend on pkg1 pages
-        assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(!org3.issues.hasErrorsOrWarnings)
+      // Still summary as Dummy does not *directly* depend on pkg1 pages
+      assertIsSummaryDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
+      assert(!org3.issues.hasErrorsOrWarnings)
     }
   }
 
   test("Component dependency is cached") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg2 = org2.unmanaged
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg2, "Dummy")
-        assert(
-          pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(None, TypeNames.Component))))
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2
+        .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false, apexOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Component))))
 
-        root.join("Test.component").delete()
+      root.join("Test.component").delete()
 
-        val org3 = createOrg(root)
-        val pkg3 = org3.unmanaged
-        assertIsFullDeclaration(pkg3, "Dummy")
-        assert(org3.getIssues(new IssueOptions()) ==
+      val org3 = createOrg(root)
+      val pkg3 = org3.unmanaged
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(
+        org3.getIssues(new IssueOptions()) ==
           "/Dummy.cls\nMissing: line 1 at 40-54: No type declaration found for 'Component.Test'\n")
     }
   }
@@ -532,32 +502,32 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Test.component" -> "<apex:component/>",
-        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg22 = org2.packagesByNamespace(Some(Name("pkg2")))
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
-        assert(
-          pkg22
-            .getDependencies(
-              TypeIdentifier(Some(Name("pkg2")),
-                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
-              outerInheritanceOnly = false)
-            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Component))))
+      assertIsSummaryDeclaration(pkg22, "Dummy", Some(Name("pkg2")))
+      assert(
+        pkg22
+          .getDependencies(TypeIdentifier(Some(Name("pkg2")),
+                                          TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
+                           outerInheritanceOnly = false,
+                           apexOnly = false)
+          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Component))))
 
-        root.join("pkg1/Test.component").delete()
+      root.join("pkg1/Test.component").delete()
 
-        val org3 = createOrg(root)
-        val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
+      val org3 = createOrg(root)
+      val pkg32 = org3.packagesByNamespace(Some(Name("pkg2")))
 
-        assertIsFullDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
-        assert(org3.getIssues(new IssueOptions()) ==
+      assertIsFullDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
+      assert(
+        org3.getIssues(new IssueOptions()) ==
           "/pkg2/Dummy.cls\nMissing: line 1 at 40-59: No type declaration found for 'Component.pkg1.Test'\n")
     }
   }

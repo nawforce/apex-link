@@ -127,14 +127,14 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           val barTypeId =
             pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-          assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+          assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
           assert(
             pkg
-              .getDependencies(fooTypeId, outerInheritanceOnly = false)
+              .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
               .sameElements(Array(barTypeId)))
 
-          assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+          assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
       }
     }
   }
@@ -162,14 +162,14 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val fooTypeId =
           pkg2.getTypeOfPathInternal(root.join("pkg2").join("Foo.cls")).get.asTypeIdentifier
 
-        assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
+        assert(pkg2.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
         assert(
           pkg2
-            .getDependencies(fooTypeId, outerInheritanceOnly = false)
+            .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(barTypeId)))
 
-        assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
       }
     }
   }
@@ -281,14 +281,14 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           val barTypeId =
             pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-          assert(pkg.getDependencyHolders(fooTypeId).isEmpty)
+          assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
           assert(
             pkg
-              .getDependencies(fooTypeId, outerInheritanceOnly = false)
+              .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
               .sameElements(Array(barTypeId)))
 
-          assert(pkg.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+          assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
       }
     }
   }
@@ -315,14 +315,14 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val barTypeId =
           pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
 
-        assert(pkg2.getDependencyHolders(fooTypeId).isEmpty)
+        assert(pkg2.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
         assert(
           pkg2
-            .getDependencies(fooTypeId, outerInheritanceOnly = false)
+            .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(barTypeId)))
 
-        assert(pkg1.getDependencyHolders(barTypeId).sameElements(Array(fooTypeId)))
-        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false).isEmpty)
+        assert(pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
       }
     }
   }

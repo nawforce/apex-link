@@ -43,7 +43,9 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
     TypeResolver(superClass.get, this).toOption
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     // TODO: Should you be able to depend on a ghost?
   }
 

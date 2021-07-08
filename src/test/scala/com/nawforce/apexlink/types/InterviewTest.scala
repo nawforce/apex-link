@@ -31,8 +31,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
   }
 
   test("Custom flow (MDAPI)") {
-    FileSystemHelper.run(
-      Map("Test.flow" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
+    FileSystemHelper.run(Map("Test.flow" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -41,29 +40,27 @@ class InterviewTest extends AnyFunSuite with TestHelper {
 
   test("Custom flow (SFDX)") {
     FileSystemHelper.run(
-      Map("Test.flow-meta.xml" -> "",
-          "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      Map("Test.flow-meta.xml" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
   test("Missing flow") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        // TODO: This should be a missing issue
-        assert(
-          org.issues.getMessages("/Dummy.cls") ==
-            "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      // TODO: This should be a missing issue
+      assert(
+        org.issues.getMessages("/Dummy.cls") ==
+          "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
     }
   }
 
   test("Create flow") {
-    FileSystemHelper.run(
-      Map(
-        "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -87,10 +84,9 @@ class InterviewTest extends AnyFunSuite with TestHelper {
   }
 
   test("Create flow (namespaced but without namespace)") {
-    FileSystemHelper.run(
-      Map(
-        "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
+    FileSystemHelper.run(Map(
+      "Test.flow-meta.xml" -> "",
+      "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -134,17 +130,17 @@ class InterviewTest extends AnyFunSuite with TestHelper {
         val interviewType2 = TypeIdentifier.fromJava(Name("pkg2"), TypeNames.Interview)
         assert(
           pkg2
-            .getDependencies(interviewType2, outerInheritanceOnly = false)
+            .getDependencies(interviewType2, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(interviewType1)))
-        assert(pkg1.getDependencyHolders(interviewType1).sameElements(Array(interviewType2)))
+        assert(pkg1.getDependencyHolders(interviewType1, apexOnly = false).sameElements(Array(interviewType2)))
 
         val dummyType =
           pkg2.getTypeOfPathInternal(root.join("pkg2").join("Dummy.cls")).get.asTypeIdentifier
         assert(
           pkg2
-            .getDependencies(dummyType, outerInheritanceOnly = false)
+            .getDependencies(dummyType, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(interviewType2)))
-        assert(pkg2.getDependencyHolders(interviewType2).sameElements(Array(dummyType)))
+        assert(pkg2.getDependencyHolders(interviewType2, apexOnly = false).sameElements(Array(dummyType)))
     }
   }
 
@@ -161,9 +157,8 @@ class InterviewTest extends AnyFunSuite with TestHelper {
 
   test("Start flow") {
     FileSystemHelper.run(
-      Map(
-        "Test.flow-meta.xml" -> "",
-        "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }")) {
+      Map("Test.flow-meta.xml" -> "",
+          "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)

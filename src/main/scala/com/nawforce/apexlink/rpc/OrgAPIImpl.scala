@@ -125,7 +125,7 @@ object TypeIdentifiers {
 case class DependencyGraphRequest(promise: Promise[DependencyGraph], identifier: TypeIdentifier, depth: Int)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-    promise.success(queue.org.getDependencyGraph(identifier, depth))
+    promise.success(queue.org.getDependencyGraph(identifier, depth, apexOnly = true))
   }
 }
 

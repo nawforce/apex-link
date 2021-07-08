@@ -30,13 +30,10 @@ import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(module: Module, path: Option[PathLike], interviewName: Name)
-    extends InnerBasicTypeDeclaration(path.toArray,
-                                      module,
-                                      TypeName(interviewName, Nil, Some(TypeNames.Interview))) {
+    extends InnerBasicTypeDeclaration(path.toArray, module, TypeName(interviewName, Nil, Some(TypeNames.Interview))) {
 
   override val superClass: Option[TypeName] = Some(TypeNames.Interview)
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(
-    PlatformTypes.interviewType)
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
 
   override def findMethod(name: Name,
                           params: Array[TypeName],
@@ -78,19 +75,20 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
-    nestedInterviews.foreach(ni => ni.interviewTypeId.foreach(dependsOn.add))
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
+    if (!apexOnly)
+      nestedInterviews.foreach(ni => ni.interviewTypeId.foreach(dependsOn.add))
   }
 
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = module.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(
-    nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
-      extends InnerBasicTypeDeclaration(
-        PathLike.emptyPaths,
-        module,
-        TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
+  class NamespaceDeclaration(nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+      extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+                                        module,
+                                        TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedInterviews
 
     def merge(events: Array[FlowEvent]): NamespaceDeclaration = {
@@ -140,10 +138,9 @@ final class PackageInterviews(module: Module, interviewDeclaration: InterviewDec
 
 /** Flow.Interview.ns implementation for ghosted packages. This simulates the existence of any flow you ask for. */
 final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
-    extends InnerBasicTypeDeclaration(
-      PathLike.emptyPaths,
-      module,
-      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+                                      module,
+                                      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
     with NestedInterviews {
 
   override val interviewTypeId: Option[TypeId] = None

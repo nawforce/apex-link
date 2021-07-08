@@ -64,7 +64,7 @@ trait Package {
     *
     * Return null if this either not a recognised metadata file type or it is not part of this package.
     */
-  def isPackagePath(path: String) : Boolean
+  def isPackagePath(path: String): Boolean
 
   /** Get a Type from the path of a metadata file.
     *
@@ -93,15 +93,16 @@ trait Package {
   /** Returns set of Types that are depended on by the passed Type
     *
     * If outerInheritanceOnly is true only extending and implementing dependencies are reported for the outer Type
-    * of Apex defined types, otherwise all dependencies are included.
+    * of Apex defined types. If apexOnly is true then only Apex defined types are returned.
     */
-  def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean): Array[TypeIdentifier]
+  def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean, apexOnly: Boolean): Array[TypeIdentifier]
 
   /** Returns set of Types that depend on the passed Type.
     *
     * The returned array may be stale in that it can contain Types which used to hold a dependency but not longer do.
+    * If apexOnly is true then only Apex defined types are returned.
     */
-  def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier]
+  def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
   /** Refresh a type in the package.
     *

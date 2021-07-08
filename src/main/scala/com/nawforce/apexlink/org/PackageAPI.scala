@@ -90,7 +90,9 @@ trait PackageAPI extends Package {
           module.types
             .get(typeId.typeName)
             .map(td => td.paths.map(_.toString))
-        }).headOption.getOrElse(Array())
+        })
+        .headOption
+        .getOrElse(Array())
     } else {
       Array()
     }
@@ -113,7 +115,9 @@ trait PackageAPI extends Package {
     Option(getSummaryOfType(typeId)).map(summary => write(summary)).orNull
   }
 
-  override def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean): Array[TypeIdentifier] = {
+  override def getDependencies(typeId: TypeIdentifier,
+                               outerInheritanceOnly: Boolean,
+                               apexOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(ad => {
@@ -127,7 +131,7 @@ trait PackageAPI extends Package {
           } else {
             val typeCache = new TypeCache()
             val dependencies = mutable.Set[TypeId]()
-            ad.collectDependenciesByTypeName(dependencies, typeCache)
+            ad.collectDependenciesByTypeName(dependencies, apexOnly, typeCache)
             dependencies.map(_.asTypeIdentifier).toArray
           }
         })
@@ -147,10 +151,16 @@ trait PackageAPI extends Package {
       })
   }
 
-  override def getDependencyHolders(typeId: TypeIdentifier): Array[TypeIdentifier] = {
+  override def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
-        .map(_.getTypeDependencyHolders.toSet.map(_.asTypeIdentifier).toArray)
+        .map(
+          _.getTypeDependencyHolders.toSet
+            .filter(id =>
+              !apexOnly || TypeResolver(id.typeName, orderedModules.head).toOption.exists(
+                _.isInstanceOf[ApexDeclaration]))
+            .map(_.asTypeIdentifier)
+            .toArray)
         .orNull
     } else {
       null
@@ -248,8 +258,7 @@ trait PackageAPI extends Package {
           refreshInternal(ref.path)
           None
         case x => x
-      }
-    )
+    })
 
     // Everything else needs re-validation
     tds.foreach(td => {

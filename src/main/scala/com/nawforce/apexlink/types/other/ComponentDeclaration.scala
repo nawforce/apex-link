@@ -33,14 +33,12 @@ final case class Component(module: Module,
                            location: Option[PathLike],
                            componentName: Name,
                            attributes: Option[Array[Name]])
-    extends InnerBasicTypeDeclaration(
-      location.toArray,
-      module,
-      TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
+    extends InnerBasicTypeDeclaration(location.toArray,
+                                      module,
+                                      TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(
-    PlatformTypes.componentType)
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
   override val fields: Array[FieldDeclaration] = attributes
     .getOrElse(Array())
     .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
@@ -85,16 +83,16 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
   // Propagate dependencies to nested
   nestedComponents.foreach(_.addTypeDependencyHolder(typeId))
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
-    nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
+    if (!apexOnly)
+      nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
 
   class NamespaceDeclaration(name: Name,
-                             nestedComponents: Array[TypeDeclaration] =
-                               TypeDeclaration.emptyTypeDeclarations)
-      extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                        module,
-                                        TypeName(name, Nil, Some(TypeNames.Component))) {
+                             nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+      extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 
     def merge(events: Array[ComponentEvent]): NamespaceDeclaration = {
@@ -149,10 +147,9 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
 }
 
 final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)
-    extends InnerBasicTypeDeclaration(
-      PathLike.emptyPaths,
-      module,
-      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+                                      module,
+                                      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
     with NestedComponents {
 
   override val componentTypeId: Option[TypeId] = None

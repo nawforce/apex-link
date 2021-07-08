@@ -19,7 +19,13 @@ import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
-import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexFullDeclaration, FullDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.types.apex.{
+  ApexClassDeclaration,
+  ApexDeclaration,
+  ApexFullDeclaration,
+  FullDeclaration,
+  TriggerDeclaration
+}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
@@ -158,7 +164,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     types.values.foreach {
       case td: ApexClassDeclaration =>
         val depends = mutable.Set[TypeId]()
-        td.collectDependenciesByTypeName(depends, typeCache)
+        td.collectDependenciesByTypeName(depends, apexOnly = false, typeCache)
         depends.remove(td.typeId)
         if (depends.nonEmpty)
           dependencies.put(td.typeName.toString, depends.map(_.typeName.toString).toArray)

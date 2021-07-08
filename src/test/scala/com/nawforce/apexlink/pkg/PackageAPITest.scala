@@ -298,7 +298,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val fooTypeLike =
         pkg.getTypeOfPathInternal(root.join("classes").join("Foo.cls")).get.asTypeIdentifier
 
-      assert(pkg.getDependencyHolders(fooTypeLike).isEmpty)
+      assert(pkg.getDependencyHolders(fooTypeLike, apexOnly = false).isEmpty)
     }
   }
 
@@ -317,22 +317,22 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         val barTypeLike =
           pkg.getTypeOfPathInternal(root.join("classes").join("Bar.cls")).get.asTypeIdentifier
 
-        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+        assert(pkg.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
 
         if (outerInheritanceOnly) {
           assert(
             pkg
-              .getDependencies(barTypeLike, outerInheritanceOnly = true)
+              .getDependencies(barTypeLike, outerInheritanceOnly = true, apexOnly = false)
               .sameElements(Array(fooTypeLike)))
         } else {
-          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true, apexOnly = false).isEmpty)
         }
         assert(
           pkg
-            .getDependencies(barTypeLike, outerInheritanceOnly = false)
+            .getDependencies(barTypeLike, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(fooTypeLike)))
-        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false, apexOnly = false).isEmpty)
 
         org.flush()
       }
@@ -359,22 +359,22 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             .get
             .isInstanceOf[SummaryDeclaration])
 
-        assert(pkg.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-        assert(pkg.getDependencyHolders(barTypeLike).isEmpty)
+        assert(pkg.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+        assert(pkg.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
 
         if (outerInheritanceOnly) {
           assert(
             pkg
-              .getDependencies(barTypeLike, outerInheritanceOnly = true)
+              .getDependencies(barTypeLike, outerInheritanceOnly = true, apexOnly = false)
               .sameElements(Array(fooTypeLike)))
         } else {
-          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true).isEmpty)
+          assert(pkg.getDependencies(barTypeLike, outerInheritanceOnly = true, apexOnly = false).isEmpty)
         }
         assert(
           pkg
-            .getDependencies(barTypeLike, outerInheritanceOnly = false)
+            .getDependencies(barTypeLike, outerInheritanceOnly = false, apexOnly = false)
             .sameElements(Array(fooTypeLike)))
-        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+        assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false, apexOnly = false).isEmpty)
       }
       }
     }
@@ -579,8 +579,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val barTypeLike =
         pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
-      assert(pkg1.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg2.getDependencyHolders(barTypeLike).isEmpty)
+      assert(pkg1.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+      assert(pkg2.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
     }
   }
 
@@ -622,8 +622,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             .get
             .isInstanceOf[SummaryDeclaration])
 
-        assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-        assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+        assert(pkg21.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+        assert(pkg22.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
       }
     }
   }
@@ -649,8 +649,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val barTypeLike =
         pkg2.getTypeOfPathInternal(root.join("pkg2").join("Bar.cls")).get.asTypeIdentifier
 
-      assert(pkg1.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-      assert(pkg2.getDependencyHolders(barTypeLike).isEmpty)
+      assert(pkg1.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+      assert(pkg2.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
     }
   }
 
@@ -692,8 +692,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             .get
             .isInstanceOf[SummaryDeclaration])
 
-        assert(pkg21.getDependencyHolders(fooTypeLike).sameElements(Array(barTypeLike)))
-        assert(pkg22.getDependencyHolders(barTypeLike).isEmpty)
+        assert(pkg21.getDependencyHolders(fooTypeLike, apexOnly = false).sameElements(Array(barTypeLike)))
+        assert(pkg22.getDependencyHolders(barTypeLike, apexOnly = false).isEmpty)
       }
     }
   }
@@ -707,7 +707,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val fooTypeLike =
         pkg.getTypeOfPathInternal(root.join("triggers").join("Foo.trigger")).get.asTypeIdentifier
 
-      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false).isEmpty)
+      assert(pkg.getDependencies(fooTypeLike, outerInheritanceOnly = false, apexOnly = false).isEmpty)
     }
   }
 
@@ -726,7 +726,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(
         pkg
-          .getDependencies(fooTypeLike, outerInheritanceOnly = false)
+          .getDependencies(fooTypeLike, outerInheritanceOnly = false, apexOnly = false)
           .sameElements(Array(barTypeLike)))
     }
   }
@@ -746,7 +746,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(
         pkg
-          .getDependencies(fooTypeLike, outerInheritanceOnly = false)
+          .getDependencies(fooTypeLike, outerInheritanceOnly = false, apexOnly = false)
           .sameElements(Array(barTypeLike)))
     }
   }

@@ -119,7 +119,7 @@ final case class TriggerDeclaration(source: Source,
     depends.map(_.toIterable).getOrElse(Array().toIterable)
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit = {
     depends.foreach(_.toIterable.foreach {
       case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
       case _                        => ()

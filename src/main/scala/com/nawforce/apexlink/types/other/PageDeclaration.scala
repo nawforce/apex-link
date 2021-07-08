@@ -71,8 +71,11 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
     new PageDeclaration(sourceInfo, module, newPages)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId], typeCache: TypeCache): Unit = {
-    module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
+  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
+    if (!apexOnly)
+      module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
   }
 }
 
