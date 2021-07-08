@@ -209,7 +209,7 @@ trait PackageAPI extends Package {
       .groupBy(r => !r._1.exists)
 
     // Do removals first to avoid duplicate type issues if source is being moved
-    val references = mutable.Set[TypeId](getTypesWithMissingIssues: _*)
+    val references = mutable.Set[TypeId]()
     val removed = mutable.Set[TypeId]()
     splitRequests
       .getOrElse(true, Seq())
@@ -242,7 +242,7 @@ trait PackageAPI extends Package {
       })
 
     // Finally batched invalidation
-    reValidate(references.toSet)
+    reValidate(references.toSet ++ getTypesWithMissingIssues.toSet)
     true
   }
 

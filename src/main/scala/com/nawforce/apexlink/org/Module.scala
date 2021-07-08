@@ -255,10 +255,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       val sourceOpt = resolveSource(path)
       val typeId = TypeId(this, dt.typeName(namespace))
 
-      // If we have source & it's not changed then ignore
-      if (sourceOpt.exists(s => getFullDeclaration(dt).exists(fd => fd.path == path && fd.sourceHash == s.hash)))
-        return Seq((typeId, Set.empty))
-
       // Update internal document tracking
       index.upsert(new LocalLogger(pkg.org.issues), dt)
       if (sourceOpt.isEmpty)
