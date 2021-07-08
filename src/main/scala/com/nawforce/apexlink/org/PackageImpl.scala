@@ -16,15 +16,16 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.rpc.LocationLink
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 
 import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
-    extends PackageAPI {
+    extends PackageAPI with DefinitionProvider {
 
   /** Modules used in this package, this will be null during construction. */
   var modules: Array[Module] = _

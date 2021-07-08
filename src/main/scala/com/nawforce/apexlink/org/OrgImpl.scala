@@ -138,7 +138,10 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings, options.includeZombies, options.maxErrorsPerFile, options.format)
+      reportableIssues(options).asString(options.includeWarnings,
+                                         options.includeZombies,
+                                         options.maxErrorsPerFile,
+                                         options.format)
     }
   }
 
@@ -152,7 +155,8 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       if (options.includeZombies) {
         propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
-          pkg.getTypeOfPathInternal(PathFactory(path))
+          pkg
+            .getTypeOfPathInternal(PathFactory(path))
             .flatMap(typeId => typeId.module.findModuleType(typeId.typeName))
             .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
         })
@@ -264,8 +268,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int): LocationLink = {
-
-    null
+    packages.find(_.isPackagePath(path)).flatMap(_.getDefinition(PathFactory(path), line, offset)).orNull
   }
 }
 
