@@ -17,7 +17,7 @@ package com.nawforce.apexlink.types.synthetic
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.types.apex.ApexVisibleMethodLike
 import com.nawforce.apexlink.types.core.ParameterDeclaration
-import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
@@ -25,7 +25,7 @@ import com.nawforce.pkgforce.names.{Name, TypeName}
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
   * but otherwise have little in common with the usual ApexMethodLike handling.
   */
-final case class CustomMethodDeclaration(nameRange: Option[PathLocation],
+final case class CustomMethodDeclaration(nameLocation: Location,
                                          name: Name,
                                          typeName: TypeName,
                                          parameters: Array[ParameterDeclaration],
@@ -35,8 +35,14 @@ final case class CustomMethodDeclaration(nameRange: Option[PathLocation],
   override val modifiers: Array[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
   override lazy val isStatic: Boolean = asStatic
 
-  def summary(shapeOnly: Boolean): MethodSummary = {
-    serialise(shapeOnly, nameRange.map(_.location), hasBlock = true)
+  def summary: MethodSummary = {
+    MethodSummary(nameLocation,
+                  name.toString,
+                  modifiers.map(_.toString).sorted,
+                  typeName,
+                  parameters.map(_.serialise),
+                  hasBlock = true,
+                  dependencySummary())
   }
 }
 
@@ -49,5 +55,4 @@ object CustomMethodDeclaration {
   }
 }
 
-final case class CustomParameterDeclaration(name: Name, typeName: TypeName)
-    extends ParameterDeclaration
+final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration

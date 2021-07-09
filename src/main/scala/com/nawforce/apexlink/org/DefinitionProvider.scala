@@ -15,6 +15,7 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst.ClassDeclaration
 import com.nawforce.apexlink.rpc.LocationLink
+import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
@@ -31,8 +32,8 @@ trait DefinitionProvider {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
           orderedModules.view.flatMap(_.packageType(typeName)).headOption match {
-            case Some(ad: ClassDeclaration) =>
-              Some(LocationLink(exprAndLocation._2, ad.path.toString, ad.location.location, ad.nameLocation.location))
+            case Some(ad: ApexDeclaration) =>
+              Some(LocationLink(exprAndLocation._2, ad.path.toString, ad.fullLocation, ad.nameLocation))
             case _ =>
               None
           }

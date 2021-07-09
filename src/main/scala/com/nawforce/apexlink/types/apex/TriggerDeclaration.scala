@@ -21,7 +21,7 @@ import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core.{BlockDeclaration, _}
-import com.nawforce.pkgforce.diagnostics.{LoggerOps, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -47,11 +47,13 @@ final case class TriggerDeclaration(source: Source,
                                     typeName: TypeName,
                                     cases: Seq[TriggerCase],
                                     block: Block)
-    extends ApexTriggerDeclaration
+    extends CST
+    with ApexTriggerDeclaration
     with ApexFullDeclaration {
 
   override val path: PathLike = source.path
-  override val nameLocation: PathLocation = nameId.location
+  override def fullLocation: Location = location.location
+  override val nameLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
   override val paths: Array[PathLike] = Array(path)
 
@@ -80,10 +82,8 @@ final case class TriggerDeclaration(source: Source,
       nameId.validate()
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
-      duplicateCases.foreach(
-        triggerCase =>
-          OrgImpl.logError(objectNameId.location,
-                           s"Duplicate trigger case for '${triggerCase.name}'"))
+      duplicateCases.foreach(triggerCase =>
+        OrgImpl.logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
       val context = new TypeVerifyContext(None, this)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, this)
@@ -119,7 +119,9 @@ final case class TriggerDeclaration(source: Source,
     depends.map(_.toIterable).getOrElse(Array().toIterable)
   }
 
-  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(dependents: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
     depends.foreach(_.toIterable.foreach {
       case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
       case _                        => ()
@@ -132,13 +134,9 @@ final case class TriggerDeclaration(source: Source,
   override def updateTypeDependencyHolders(holders: SkinnySet[TypeId]): Unit = {}
 
   override def summary: TypeSummary = {
-    summary(shapeOnly = false)
-  }
-
-  // Override to provide location information
-  override def summary(shapeOnly: Boolean): TypeSummary = {
-    TypeSummary(0,
-                Some(nameId.location.location),
+    TypeSummary(sourceHash,
+                fullLocation,
+                nameId.location.location,
                 name.toString,
                 typeName,
                 nature.value,
@@ -150,7 +148,7 @@ final case class TriggerDeclaration(source: Source,
                 Array(),
                 Array(),
                 Array(),
-                if (shapeOnly) Array.empty else dependencySummary())
+                dependencySummary())
   }
 }
 
@@ -164,14 +162,11 @@ object TriggerDeclaration {
         issues.foreach(OrgImpl.log)
         None
       case Right(cu) =>
-        Some(TriggerDeclaration.construct(parser, module, path, cu))
+        Some(TriggerDeclaration.construct(parser, module, cu))
     }
   }
 
-  def construct(parser: CodeParser,
-                module: Module,
-                path: PathLike,
-                trigger: TriggerUnitContext): TriggerDeclaration = {
+  def construct(parser: CodeParser, module: Module, trigger: TriggerUnitContext): TriggerDeclaration = {
     CST.sourceContext.withValue(Some(parser.source)) {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
@@ -181,7 +176,7 @@ object TriggerDeclaration {
                              ids(1),
                              constructTypeName(module.namespace, ids.head.name),
                              cases,
-                             Block.constructLazy(parser, trigger.block(), isTrigger = true))
+                             Block.constructLazy(parser, trigger.block(), isTrigger = true)).withContext(trigger)
     }
   }
 

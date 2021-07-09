@@ -22,6 +22,7 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents.SourceInfo
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -119,26 +120,26 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
-        CustomMethodDeclaration(None,
+    Seq(CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+        CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
                                 Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
-        CustomMethodDeclaration(None, Name("getOrgDefaults"), typeName, Array()),
-        CustomMethodDeclaration(None,
+        CustomMethodDeclaration(Location.empty, Name("getOrgDefaults"), typeName, Array()),
+        CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
                                 Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(None, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
-        CustomMethodDeclaration(None, Name("getInstance"), typeName, Array()),
-        CustomMethodDeclaration(None,
+    Seq(CustomMethodDeclaration(Location.empty, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
+        CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+        CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
                                 Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
-        CustomMethodDeclaration(None,
+        CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
                                 Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),

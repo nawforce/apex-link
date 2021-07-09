@@ -180,12 +180,12 @@ final case class EnumDeclaration(_source: Source, _module: Module, _typeContext:
 
   override lazy val _localMethods: Array[ApexVisibleMethodLike] =
     Array(
-      CustomMethodDeclaration(Some(id.location), Name("name"), TypeNames.String, Array()),
-      CustomMethodDeclaration(Some(id.location),Name("ordinal"), TypeNames.Integer, Array()),
-      CustomMethodDeclaration(Some(id.location),Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
-      CustomMethodDeclaration(Some(id.location),Name("equals"), TypeNames.Boolean, Array(
+      CustomMethodDeclaration(id.location.location, Name("name"), TypeNames.String, Array()),
+      CustomMethodDeclaration(id.location.location,Name("ordinal"), TypeNames.Integer, Array()),
+      CustomMethodDeclaration(id.location.location,Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
+      CustomMethodDeclaration(id.location.location,Name("equals"), TypeNames.Boolean, Array(
         CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(Some(id.location),Name("hashCode"), TypeNames.Integer, Array())
+      CustomMethodDeclaration(id.location.location,Name("hashCode"), TypeNames.Integer, Array())
     )
 }
 

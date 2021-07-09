@@ -19,6 +19,7 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
 trait SObjectMethods {
@@ -40,14 +41,14 @@ trait SObjectMethods {
       CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
     val preserveAutonumber =
       CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(None, Name("clone"), typeName, Array()),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId)),
-        CustomMethodDeclaration(None, Name("clone"), typeName, Array(preserveId, isDeepClone)),
-        CustomMethodDeclaration(None,
+    Seq(CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array()),
+        CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array(preserveId)),
+        CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array(preserveId, isDeepClone)),
+        CustomMethodDeclaration(Location.empty,
                                 Name("clone"),
                                 typeName,
                                 Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-        CustomMethodDeclaration(None,
+        CustomMethodDeclaration(Location.empty,
                                 Name("clone"),
                                 typeName,
                                 Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))

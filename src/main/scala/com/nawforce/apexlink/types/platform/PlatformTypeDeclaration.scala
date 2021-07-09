@@ -22,6 +22,7 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.schema.SObjectFieldFinder
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -131,8 +132,8 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   }
 
   protected def getMethods: Array[PlatformMethod] = {
-    val localMethods = cls.getMethods.filter(
-      _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
+    val localMethods =
+      cls.getMethods.filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
       case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
@@ -181,8 +182,7 @@ class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declarin
   override def toString: String = typeName.toString + " " + name.toString
 }
 
-class PlatformConstructor(ctor: java.lang.reflect.Constructor[_],
-                          typeDeclaration: PlatformTypeDeclaration)
+class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
     extends ConstructorDeclaration {
   lazy val modifiers: Array[Modifier] =
     PlatformModifiers.ctorModifiers(ctor.getModifiers)
@@ -195,8 +195,7 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_],
       parameters.map(_.toString).mkString(", ") + ")"
 }
 
-class PlatformMethod(val method: java.lang.reflect.Method,
-                     val typeDeclaration: PlatformTypeDeclaration)
+class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: PlatformTypeDeclaration)
     extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName =
@@ -302,9 +301,7 @@ object PlatformTypeDeclaration {
   /* Index .class files, we have to index to make sure we get natural case sensitive names, but also used
    * to re-map SObject so they appear in Schema namespace.
    */
-  private def indexDir(path: java.nio.file.Path,
-                       prefix: DotName,
-                       accum: mutable.HashMap[DotName, DotName]): Unit = {
+  private def indexDir(path: java.nio.file.Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
     Files
       .list(path)
       .iterator
@@ -327,8 +324,7 @@ object PlatformTypeDeclaration {
   }
 
   /* Create a TypeName from a Java class with null checking */
-  private def typeNameOptional(cls: java.lang.Class[_],
-                               contextCls: java.lang.Class[_]): Option[TypeName] = {
+  private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
     cls match {
       case null => None
       case _    => Some(typeNameFromClass(cls, contextCls))
@@ -381,17 +377,12 @@ object PlatformTypeDeclaration {
 
   /* Standard methods to be exposed on enums */
   private def enumMethods(typeName: TypeName): Array[MethodDeclaration] =
-    Array(CustomMethodDeclaration(None, Name("name"), TypeNames.String, Array()),
-          CustomMethodDeclaration(None, Name("ordinal"), TypeNames.Integer, Array()),
-          CustomMethodDeclaration(None,
-                                  Name("values"),
-                                  TypeNames.listOf(typeName),
-                                  Array(),
-                                  asStatic = true),
-          CustomMethodDeclaration(
-            None,
-            Name("equals"),
-            TypeNames.Boolean,
-            Array(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-          CustomMethodDeclaration(None, Name("hashCode"), TypeNames.Integer, Array()))
+    Array(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, Array()),
+          CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, Array()),
+          CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
+          CustomMethodDeclaration(Location.empty,
+                                  Name("equals"),
+                                  TypeNames.Boolean,
+                                  Array(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+          CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, Array()))
 }

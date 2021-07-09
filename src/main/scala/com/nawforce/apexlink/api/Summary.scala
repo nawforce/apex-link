@@ -29,7 +29,8 @@ case class ApexSummary(typeSummary: TypeSummary, diagnostics: Array[Diagnostic])
 
 /** Summary of a type */
 case class TypeSummary(sourceHash: Int,
-                       idRange: Option[Location],
+                       location: Location,
+                       nameLocation: Location,
                        name: String,
                        typeName: TypeName,
                        nature: String,
@@ -55,7 +56,8 @@ case class TypeSummary(sourceHash: Int,
 
   private def doesEqual(other: TypeSummary): Boolean = {
     this.sourceHash == other.sourceHash &&
-    this.idRange == other.idRange &&
+    this.location == other.location &&
+    this.nameLocation == other.nameLocation &&
     this.name == other.name &&
     this.typeName == other.typeName &&
     this.nature == other.nature &&
@@ -89,7 +91,7 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
 }
 
 /** Summary of a type field (or property)*/
-case class FieldSummary(idRange: Option[Location],
+case class FieldSummary(nameLocation: Location,
                         name: String,
                         modifiers: Array[String],
                         typeName: TypeName,
@@ -106,7 +108,7 @@ case class FieldSummary(idRange: Option[Location],
   override def canEqual(that: Any): Boolean = that.isInstanceOf[FieldSummary]
 
   private def doesEqual(other: FieldSummary): Boolean = {
-    this.idRange == other.idRange &&
+    this.nameLocation == other.nameLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&
     this.typeName == other.typeName &&
@@ -117,7 +119,7 @@ case class FieldSummary(idRange: Option[Location],
 }
 
 /** Summary of a type constructor*/
-case class ConstructorSummary(idRange: Option[Location],
+case class ConstructorSummary(nameLocation: Location,
                               modifiers: Array[String],
                               parameters: Array[ParameterSummary],
                               dependents: Array[DependentSummary]) {
@@ -131,7 +133,7 @@ case class ConstructorSummary(idRange: Option[Location],
   override def canEqual(that: Any): Boolean = that.isInstanceOf[ConstructorSummary]
 
   private def doesEqual(other: ConstructorSummary): Boolean = {
-    this.idRange == other.idRange &&
+    this.nameLocation == other.nameLocation &&
     this.modifiers.sameElements(other.modifiers) &&
     this.parameters.sameElements(other.parameters) &&
     this.dependents.sameElements(other.dependents)
@@ -139,7 +141,7 @@ case class ConstructorSummary(idRange: Option[Location],
 }
 
 /** Summary of a type method*/
-case class MethodSummary(idRange: Option[Location],
+case class MethodSummary(nameLocation: Location,
                          name: String,
                          modifiers: Array[String],
                          var typeName: TypeName,
@@ -159,7 +161,7 @@ case class MethodSummary(idRange: Option[Location],
   override def canEqual(that: Any): Boolean = that.isInstanceOf[MethodSummary]
 
   private def doesEqual(other: MethodSummary): Boolean = {
-    this.idRange == other.idRange &&
+    this.nameLocation == other.nameLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&
     this.typeName == other.typeName &&

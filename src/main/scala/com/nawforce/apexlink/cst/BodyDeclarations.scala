@@ -188,7 +188,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     with ApexMethodLike {
 
   override def idLocation: Option[PathLocation] = Some(id.location)
-  override def nameRange: PathLocation = id.location
+  override def nameLocation: PathLocation = id.location
   override val name: Name = id.name
   override def hasBlock: Boolean = block.nonEmpty
 
@@ -283,7 +283,7 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
 
   val id: Id = variableDeclarator.id
   override val idLocation: Option[PathLocation] = Some(id.location)
-  override val nameRange: PathLocation = id.location
+  override val nameLocation: PathLocation = id.location
   override val name: Name = id.name
   private val visibility: Option[Modifier] =
     _modifiers.modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))

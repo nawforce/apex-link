@@ -215,7 +215,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   override def getIdentifierLocation(identifier: TypeIdentifier): PathLocation = {
     OrgImpl.current.withValue(this) {
       (findTypeIdentifier(identifier) match {
-        case Some(ad: ApexDeclaration) => Some(ad.nameLocation)
+        case Some(ad: ApexDeclaration) => Some(PathLocation(ad.path.toString, ad.nameLocation))
         case _                         => None
       }).orNull
     }

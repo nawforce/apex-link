@@ -51,14 +51,6 @@ object Nature {
 
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean
-
-  def serialise: BlockSummary = {
-    serialise(shapeOnly = false)
-  }
-
-  def serialise(shapeOnly: Boolean): BlockSummary = {
-    BlockSummary(isStatic, if (shapeOnly) Array.empty else dependencySummary())
-  }
 }
 
 object BlockDeclaration {
@@ -75,20 +67,6 @@ trait FieldDeclaration extends DependencyHolder {
 
   lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
   lazy val isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
-
-  def serialise: FieldSummary = {
-    serialise(shapeOnly = false, None)
-  }
-
-  protected def serialise(shapeOnly: Boolean, range: Option[Location]): FieldSummary = {
-    FieldSummary(if (shapeOnly) None else range,
-                 name.toString,
-                 modifiers.map(_.toString).sorted,
-                 typeName,
-                 readAccess.toString,
-                 writeAccess.toString,
-                 if (shapeOnly) Array() else dependencySummary())
-  }
 
   // Create an SObjectField version of this field
   def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
@@ -138,17 +116,6 @@ trait ParameterDeclaration {
 trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Array[Modifier]
   val parameters: Array[ParameterDeclaration]
-
-  def serialise: ConstructorSummary = {
-    serialise(shapeOnly = false, None)
-  }
-
-  protected def serialise(shapeOnly: Boolean, range: Option[Location]): ConstructorSummary = {
-    ConstructorSummary(if (shapeOnly) None else range,
-                       modifiers.map(_.toString).sorted,
-                       parameters.map(_.serialise).sortBy(_.name),
-                       if (shapeOnly) Array.empty else dependencySummary())
-  }
 }
 
 object ConstructorDeclaration {
@@ -240,20 +207,6 @@ trait MethodDeclaration extends DependencyHolder {
     } else {
       false
     }
-  }
-
-  def serialise: MethodSummary = {
-    serialise(shapeOnly = false, None, hasBlock = true)
-  }
-
-  protected def serialise(shapeOnly: Boolean, range: Option[Location], hasBlock: Boolean): MethodSummary = {
-    MethodSummary(if (shapeOnly) None else range,
-                  name.toString,
-                  modifiers.map(_.toString).sorted,
-                  typeName,
-                  parameters.map(_.serialise),
-                  hasBlock,
-                  if (shapeOnly) Array.empty else dependencySummary())
   }
 }
 
@@ -429,27 +382,6 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
       interfaces.map(_.typeName).toList ++
       superclasses.map(_.superTypes()).getOrElse(Nil) ++
       interfaces.flatMap(_.superTypes())
-  }
-
-  /** Create a type summary for serialisation purposes. Although this uses the same format as summaries for
-    * consistency, the location fields are not set so that we can serialise platform types that come via Java
-    * reflection for use with the scala.js version of the library.
-    */
-  def serialise: TypeSummary = {
-    TypeSummary(0,
-                None,
-                name.toString,
-                typeName,
-                nature.value,
-                modifiers.map(_.toString).sorted,
-                superClass,
-                interfaces,
-                blocks.map(_.serialise),
-                fields.map(_.serialise).sortBy(_.name),
-                constructors.map(_.serialise).sortBy(_.parameters.length),
-                methods.map(_.serialise).sortBy(_.name),
-                nestedTypes.map(_.serialise).sortBy(_.name),
-                dependencySummary())
   }
 }
 

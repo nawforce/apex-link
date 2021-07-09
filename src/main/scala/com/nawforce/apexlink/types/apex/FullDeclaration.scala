@@ -26,7 +26,7 @@ import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.other.{Component, Interview, Label, Page}
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
-import com.nawforce.pkgforce.diagnostics.{LoggerOps, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -57,9 +57,9 @@ abstract class FullDeclaration(val source: Source,
   override val paths: Array[PathLike] = Array(path)
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
-
-  override val idLocation: Option[PathLocation] = Some(id.location)
-  override val nameLocation: PathLocation = id.location
+  override val nameLocation: Location = id.location.location
+  override def fullLocation: Location = location.location
+  override def idLocation: Option[PathLocation] = Some(PathLocation(path.toString, nameLocation))
   override val nature: Nature
   var flushedToCache = false
 
@@ -109,7 +109,7 @@ abstract class FullDeclaration(val source: Source,
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
       val diagnostics = module.pkg.org.issues.getDiagnostics(location.path).toArray
-      pc.upsert(context, name.value, source.asUTF8, writeBinary(ApexSummary(summary(shapeOnly = false), diagnostics)))
+      pc.upsert(context, name.value, source.asUTF8, writeBinary(ApexSummary(summary, diagnostics)))
       flushedToCache = true
     }
   }
@@ -205,28 +205,23 @@ abstract class FullDeclaration(val source: Source,
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
 
-  override def summary: TypeSummary = {
-    summary(shapeOnly = false)
-  }
-
   // Override to avoid super class access (use local fields & methods) & provide location information
-  override def summary(shapeOnly: Boolean): TypeSummary = {
-    TypeSummary(if (shapeOnly) 0 else sourceHash,
-                if (shapeOnly) None
-                else
-                  Some(id.location.location),
+  override def summary: TypeSummary = {
+    TypeSummary(sourceHash,
+                location.location,
+                id.location.location,
                 name.toString,
                 typeName,
                 nature.value,
                 modifiers.map(_.toString).sorted,
                 superClass,
                 interfaces,
-                _blocks.map(_.summary(shapeOnly)),
-                localFields.map(_.summary(shapeOnly)).sortBy(_.name),
-                _constructors.map(_.summary(shapeOnly)).sortBy(_.parameters.length),
-                _localMethods.map(_.summary(shapeOnly)).sortBy(_.name),
-                _nestedTypes.map(_.summary(shapeOnly)).sortBy(_.name),
-                if (shapeOnly) Array.empty else dependencySummary())
+                _blocks.map(_.summary),
+                localFields.map(_.summary).sortBy(_.name),
+                _constructors.map(_.summary).sortBy(_.parameters.length),
+                _localMethods.map(_.summary).sortBy(_.name),
+                _nestedTypes.map(_.summary).sortBy(_.name),
+                dependencySummary())
   }
 }
 

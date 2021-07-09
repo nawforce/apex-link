@@ -17,7 +17,7 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, PathLocation}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
@@ -114,7 +114,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
-      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(location, Names.Clone, td.typeName, Array())))
+      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, Array())))
       checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
@@ -239,15 +239,15 @@ object MethodMap {
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
-      case am: ApexMethodLike => errors.append(new Issue(am.nameRange.path, Diagnostic(ERROR_CATEGORY, am.nameRange.location, error)))
+      case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.nameLocation.path, Diagnostic(ERROR_CATEGORY, am.nameLocation.location, error)))
+      case am: ApexMethodLike => errors.append(new Issue(am.nameLocation.path, Diagnostic(ERROR_CATEGORY, am.nameLocation.location, error)))
       case _ => ()
     }
   }
 
   private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
     (m1, m2) match {
-      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.nameRange.path == am2.nameRange.path
+      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.nameLocation.path == am2.nameLocation.path
       case _ => false
     }
   }

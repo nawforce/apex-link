@@ -206,7 +206,6 @@ class SummaryParameter(parameterSummary: ParameterSummary) extends ParameterDecl
 
 class SummaryMethod(val module: Module,
                     path: PathLike,
-                    defaultNameRange: Location,
                     val outerTypeId: TypeId,
                     methodSummary: MethodSummary)
     extends ApexMethodLike
@@ -214,8 +213,8 @@ class SummaryMethod(val module: Module,
 
   override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
 
-  override val nameRange: PathLocation =
-    PathLocation(path.toString, methodSummary.idRange.getOrElse(defaultNameRange))
+  override val nameLocation: PathLocation =
+    PathLocation(path.toString, methodSummary.nameLocation)
   override val name: Name = Names(methodSummary.name)
   override val modifiers: Array[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
@@ -237,7 +236,7 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
 
   override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
 
-  override val nameRange: PathLocation = PathLocation(path.toString, fieldSummary.idRange.get)
+  override val nameLocation: PathLocation = PathLocation(path.toString, fieldSummary.nameLocation)
   override val name: Name = Names(fieldSummary.name)
   override val modifiers: Array[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = fieldSummary.typeName.intern
@@ -251,7 +250,7 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
 
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
-  override val nameRange: PathLocation = PathLocation(path.toString, constructorSummary.idRange.get)
+  override val nameRange: PathLocation = PathLocation(path.toString, constructorSummary.nameLocation)
   override val modifiers: Array[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
   override val parameters: Array[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_))
@@ -268,7 +267,9 @@ class SummaryDeclaration(val path: PathLike,
 
   override val paths: Array[PathLike] = Array(path)
   override val sourceHash: Int = typeSummary.sourceHash
-  override val nameLocation: PathLocation = PathLocation(path.toString, typeSummary.idRange.get)
+  override val fullLocation: Location = typeSummary.location
+  override val nameLocation: Location = typeSummary.nameLocation
+
   override val moduleDeclaration: Option[Module] = Some(module)
 
   override val name: Name = Names(typeSummary.name)
@@ -292,24 +293,25 @@ class SummaryDeclaration(val path: PathLike,
   override val constructors: Array[ConstructorDeclaration] =
     _constructors.asInstanceOf[Array[ConstructorDeclaration]]
   private val _localMethods: Array[SummaryMethod] = {
-    typeSummary.methods.map(new SummaryMethod(module, path, nameLocation.location, typeId, _))
+    typeSummary.methods.map(new SummaryMethod(module, path, typeId, _))
   }
   override val localMethods: Array[MethodDeclaration] =
     _localMethods.asInstanceOf[Array[MethodDeclaration]]
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                Some(nameLocation.location),
+                fullLocation,
+                nameLocation,
                 name.toString,
                 typeName,
                 nature.value,
                 modifiers.map(_.toString).sorted,
                 superClass,
                 interfaces,
-                _blocks.map(_.summary(shapeOnly = false)),
-                _localFields.map(_.summary(shapeOnly = false)).sortBy(_.name),
-                _constructors.map(_.summary(shapeOnly = false)).sortBy(_.parameters.length),
-                _localMethods.map(_.summary(shapeOnly = false)).sortBy(_.name),
+                _blocks.map(_.summary),
+                _localFields.map(_.summary).sortBy(_.name),
+                _constructors.map(_.summary).sortBy(_.parameters.length),
+                _localMethods.map(_.summary).sortBy(_.name),
                 nestedTypes
                   .collect { case x: SummaryDeclaration => x }
                   .map(_.summary)
