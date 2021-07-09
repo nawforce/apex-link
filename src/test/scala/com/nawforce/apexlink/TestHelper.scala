@@ -30,6 +30,12 @@ trait TestHelper {
     defaultOrg
   }
 
+  def createHappyOrg(path: PathLike): OrgImpl = {
+    val org = createOrg(path)
+    assert(!hasIssues)
+    org
+  }
+
   def emptyOrg(): OrgImpl = {
     FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       createOrg(root)

@@ -36,6 +36,7 @@ trait DefinitionProvider {
             case _ =>
               None
           }
+        case _ => None
       }
     })
   }
@@ -51,7 +52,7 @@ trait DefinitionProvider {
         val start = findLimit(forward = false, line, offset)
         val end = findLimit(forward = true, line, offset)
         if (start != end && start.nonEmpty && end.nonEmpty)
-          Some((line.substring(start.get, end.get + 1), Location(lineNumber, start.get, lineNumber, end.get)))
+          Some((line.substring(start.get, end.get + 1), Location(lineNumber, start.get, lineNumber, end.get+1)))
         else None
       } else {
         None
@@ -64,15 +65,18 @@ trait DefinitionProvider {
     if (!ch.matches("[0-9a-zA-Z_\\.]")) {
       None
     } else {
-      val newOffset = if (forward) offset + 1 else offset - 1
-      Some(findLimit(forward, content, newOffset).getOrElse(offset))
+      val nextOffset = if (forward) offset + 1 else offset - 1
+      if (nextOffset == -1 || nextOffset == content.length)
+        Some(offset)
+     else
+        Some(findLimit(forward, content, nextOffset).getOrElse(offset))
     }
   }
 
   private def getLine(contents: String, line: Int): Try[Option[String]] = {
     Using(new BufferedReader(new StringReader(contents))) { reader =>
       val lines = reader.lines().iterator().asScala.toArray
-      if (line > 0 && line < lines.length)
+      if (line >= 0 && line < lines.length)
         Some(lines(line))
       else
         None
