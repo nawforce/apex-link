@@ -13,9 +13,10 @@
  */
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.ClassDeclaration
+import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.rpc.LocationLink
 import com.nawforce.apexlink.types.apex.ApexDeclaration
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
@@ -31,7 +32,7 @@ trait DefinitionProvider {
     extractExpression(path, line, offset).flatMap(exprAndLocation => {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
-          orderedModules.view.flatMap(_.packageType(typeName)).headOption match {
+          findType(typeName) match {
             case Some(ad: ApexDeclaration) =>
               Some(LocationLink(exprAndLocation._2, ad.path.toString, ad.fullLocation, ad.nameLocation))
             case _ =>
@@ -42,8 +43,17 @@ trait DefinitionProvider {
     })
   }
 
+  private def findType(typeName: TypeName): Option[TypeDeclaration] = {
+    orderedModules.view
+      .flatMap(_.packageType(typeName.withNamespace(namespace)))
+      .headOption
+      .orElse({
+        orderedModules.view.flatMap(_.packageType(typeName)).headOption
+      })
+  }
+
   private def extractExpression(path: PathLike, lineNumber: Int, offset: Int): Option[(String, Location)] = {
-    val line = path.read().toOption.map(contents => getLine(contents, lineNumber - 1)).flatMap {
+    val line = path.read().toOption.map(contents => getLine(contents, lineNumber)).flatMap {
       case Success(Some(expr)) => Some(expr)
       case _                   => None
     }
@@ -53,7 +63,7 @@ trait DefinitionProvider {
         val start = findLimit(forward = false, line, offset)
         val end = findLimit(forward = true, line, offset)
         if (start != end && start.nonEmpty && end.nonEmpty)
-          Some((line.substring(start.get, end.get + 1), Location(lineNumber, start.get, lineNumber, end.get+1)))
+          Some((line.substring(start.get, end.get + 1), Location(lineNumber, start.get, lineNumber, end.get + 1)))
         else None
       } else {
         None
@@ -69,7 +79,7 @@ trait DefinitionProvider {
       val nextOffset = if (forward) offset + 1 else offset - 1
       if (nextOffset == -1 || nextOffset == content.length)
         Some(offset)
-     else
+      else
         Some(findLimit(forward, content, nextOffset).getOrElse(offset))
     }
   }
