@@ -21,7 +21,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class DefinitionProviderTest extends AnyFunSuite with TestHelper {
 
-  test("Outer class text match") {
+  test("Outer class match") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createHappyOrg(root)
       val path = root.join("Dummy.cls")
@@ -32,7 +32,45 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Inner class text match") {
+  test("Outer class match (start)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+      val path = root.join("Dummy.cls")
+      assert(
+        org.unmanaged
+          .getDefinition(path, line = 1, offset = 13)
+          .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
+    }
+  }
+
+  test("Outer class match (end)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+      val path = root.join("Dummy.cls")
+      assert(
+        org.unmanaged
+          .getDefinition(path, line = 1, offset = 17)
+          .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
+    }
+  }
+
+  test("Outer class match (external)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {/* Foo */}", "Foo.cls" -> "public class Foo {}")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        val path = root.join("Dummy.cls")
+        assert(
+          org.unmanaged
+            .getDefinition(path, line = 1, offset = 23)
+            .contains(
+              LocationLink(Location(1, 23, 1, 26),
+                           root.join("Foo.cls").toString,
+                           Location(1, 0, 1, 19),
+                           Location(1, 13, 1, 16))))
+    }
+  }
+
+  test("Inner class match") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {class Inner{} }", "Match.txt" -> "Dummy.Inner")) {
       root: PathLike =>
         val org = createHappyOrg(root)
@@ -47,4 +85,64 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Inner class match (relative external)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy /* Inner */ {class Inner{} }")) { root: PathLike =>
+      val org = createHappyOrg(root)
+      assert(
+        org.unmanaged
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22)
+          .contains(
+            LocationLink(Location(1, 22, 1, 27),
+                         root.join("Dummy.cls").toString,
+                         Location(1, 32, 1, 45),
+                         Location(1, 38, 1, 43))))
+    }
+  }
+
+  test("Inner class match (relative within)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {class Inner{/* Inner */} }")) { root: PathLike =>
+      val org = createHappyOrg(root)
+      assert(
+        org.unmanaged
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35)
+          .contains(
+            LocationLink(Location(1, 35, 1, 40),
+                         root.join("Dummy.cls").toString,
+                         Location(1, 20, 1, 44),
+                         Location(1, 26, 1, 31))))
+    }
+  }
+
+  test("Inner class match (relative inner)") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {class Inner{/* Other */} class Other {}}")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35)
+            .contains(
+              LocationLink(Location(1, 35, 1, 40),
+                           root.join("Dummy.cls").toString,
+                           Location(1, 45, 1, 59),
+                           Location(1, 51, 1, 56))))
+    }
+  }
+
+  test("Inner class match (external)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {/* Foo.Other */}",
+      "Foo.cls" -> "public class Foo {class Other {}}"
+    )) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23)
+            .contains(
+              LocationLink(Location(1, 23, 1, 32),
+                root.join("Foo.cls").toString,
+                Location(1, 18, 1, 32),
+                Location(1, 24, 1, 29))))
+    }
+  }
 }

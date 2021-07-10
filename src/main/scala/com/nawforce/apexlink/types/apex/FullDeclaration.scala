@@ -63,6 +63,11 @@ abstract class FullDeclaration(val source: Source,
   override val nature: Nature
   var flushedToCache = false
 
+  def containsPosition(line: Int, offset: Int): Boolean =
+    fullLocation.startLine <= line && fullLocation.endLine >= line &&
+      (fullLocation.startPosition <= offset || fullLocation.startLine < line) &&
+      (fullLocation.endPosition >= offset || fullLocation.endLine > line)
+
   override lazy val nestedTypes: Array[TypeDeclaration] =
     _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
   private lazy val _nestedTypes: Array[FullDeclaration] = {

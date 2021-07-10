@@ -13,11 +13,13 @@
  */
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.names.TypeNames._
+import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.types.apex.ApexDeclaration
+import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
 
@@ -32,7 +34,7 @@ trait DefinitionProvider {
     extractExpression(path, line, offset).flatMap(exprAndLocation => {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
-          findType(typeName) match {
+          findType(typeName, path, line, offset) match {
             case Some(ad: ApexDeclaration) =>
               Some(LocationLink(exprAndLocation._2, ad.path.toString, ad.fullLocation, ad.nameLocation))
             case _ =>
@@ -43,6 +45,40 @@ trait DefinitionProvider {
     })
   }
 
+  private def findType(typeName: TypeName, path: PathLike, line: Int, offset: Int): Option[TypeDeclaration] = {
+    loadClass(path)
+      .flatMap(td =>
+        findEnclosingClass(td, line, offset).flatMap(td => {
+          TypeResolver(typeName, td).toOption
+        }))
+      .orElse(findType(typeName))
+  }
+
+  private def findEnclosingClass(td: FullDeclaration, line: Int, offset: Int): Option[FullDeclaration] = {
+    td.nestedTypes
+      .collect { case nested: FullDeclaration => nested }
+      .find(_.containsPosition(line, offset))
+      .orElse({
+        if (td.containsPosition(line, offset))
+          Some(td)
+        else None
+      })
+  }
+
+  private def loadClass(path: PathLike): Option[FullDeclaration] = {
+    MetadataDocument(path) match {
+      case Some(doc: ApexClassDocument) =>
+        getPackageModule(path).flatMap(module => {
+          path.readSourceData().toOption.flatMap(data => {
+            FullDeclaration
+              .create(module, doc, data, extendedApex = false)
+          })
+        })
+      case _ => None
+    }
+  }
+
+  /* This is does simple outer/inner lookup, no parsing needed ! */
   private def findType(typeName: TypeName): Option[TypeDeclaration] = {
     orderedModules.view
       .flatMap(_.packageType(typeName.withNamespace(namespace)))
@@ -53,7 +89,7 @@ trait DefinitionProvider {
   }
 
   private def extractExpression(path: PathLike, lineNumber: Int, offset: Int): Option[(String, Location)] = {
-    val line = path.read().toOption.map(contents => getLine(contents, lineNumber)).flatMap {
+    val line = path.read().toOption.map(contents => getLine(contents, lineNumber-1)).flatMap {
       case Success(Some(expr)) => Some(expr)
       case _                   => None
     }
