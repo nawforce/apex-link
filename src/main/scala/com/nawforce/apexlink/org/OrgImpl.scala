@@ -267,8 +267,8 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   /** Locate a definition for a symbol */
-  def getDefinition(path: String, line: Int, offset: Int): LocationLink = {
-    packages.find(_.isPackagePath(path)).flatMap(_.getDefinition(PathFactory(path), line, offset)).orNull
+  def getDefinition(path: String, line: Int, offset: Int, content: String): LocationLink = {
+    packages.find(_.isPackagePath(path)).flatMap(_.getDefinition(PathFactory(path), line, offset, Option(content))).orNull
   }
 }
 

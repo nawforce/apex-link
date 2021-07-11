@@ -301,9 +301,9 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   private def createTypes(dt: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
     dt match {
       case doc: ExtendedApexDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false)).toSeq
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case doc: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false)).toSeq
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s)).toSeq
       case doc: SObjectDocument =>

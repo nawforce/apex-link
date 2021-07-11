@@ -14,23 +14,18 @@
 
 package com.nawforce.apexlink.cst
 
-import java.util.NoSuchElementException
-
-import com.nawforce.apexlink.TestHelper
+import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
 class SwitchTest extends AnyFunSuite with TestHelper {
 
   test("Empty switch") {
-    try {
-      typeDeclaration("public class Dummy {{switch on 'A' {}}}")
-      assert(false)
-    } catch {
-      case ex: NoSuchElementException =>
-    }
-    assert(
-      dummyIssues ==
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{switch on 'A' {}}}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(dummyIssues ==
         "Syntax: line 1 at 36: mismatched input '}' expecting 'when'\nSyntax: line 1 at 38: extraneous input '}' expecting <EOF>\n")
+    }
   }
 
   test("Bad switch type") {
@@ -73,32 +68,27 @@ class SwitchTest extends AnyFunSuite with TestHelper {
   }
 
   test("Enum multi control") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM {} when ERROR {}}}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM {} when ERROR {}}}}")
     assert(!hasIssues)
   }
 
   test("Enum multi control (duplicates)") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM {} when CONFIRM {}}}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM {} when CONFIRM {}}}}")
     assert(dummyIssues == "Error: line 1 at 52-53: Duplicate when case for confirm\n")
   }
 
   test("Enum multi-part control") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM, ERROR {} }}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM, ERROR {} }}}")
     assert(!hasIssues)
   }
 
   test("Enum multi-part control (duplicates)") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM, Confirm {} }}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when CONFIRM, Confirm {} }}}")
     assert(dummyIssues == "Error: line 1 at 52-53: Duplicate when case for confirm\n")
   }
 
   test("Enum switch with Null") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when null {} when else {}}}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when null {} when else {}}}}")
     assert(!hasIssues)
   }
 
@@ -110,8 +100,7 @@ class SwitchTest extends AnyFunSuite with TestHelper {
   }
 
   test("Enum switch with id id") {
-    typeDeclaration(
-      "public class Dummy {{ApexPages.Severity a;switch on a {when Account record {}}}}")
+    typeDeclaration("public class Dummy {{ApexPages.Severity a;switch on a {when Account record {}}}}")
     assert(
       dummyIssues ==
         "Error: line 1 at 60-67: Expecting an enum constant value\n")
@@ -237,14 +226,12 @@ class SwitchTest extends AnyFunSuite with TestHelper {
   }
 
   test("SObject multi control") {
-    typeDeclaration(
-      "public class Dummy {{SObject a; switch on a {when Account r1{} when Case r2{}}}}")
+    typeDeclaration("public class Dummy {{SObject a; switch on a {when Account r1{} when Case r2{}}}}")
     assert(!hasIssues)
   }
 
   test("SObject multi control (duplicate)") {
-    typeDeclaration(
-      "public class Dummy {{SObject a; switch on a {when Account r1{} when Account r2{}}}}")
+    typeDeclaration("public class Dummy {{SObject a; switch on a {when Account r1{} when Account r2{}}}}")
     assert(dummyIssues == "Error: line 1 at 42-43: Duplicate when case for account\n")
   }
 
@@ -275,8 +262,7 @@ class SwitchTest extends AnyFunSuite with TestHelper {
   }
 
   test("SObject control introduces var") {
-    typeDeclaration(
-      "public class Dummy {{SObject a; switch on a {when Account r {Account s = r;} }}}")
+    typeDeclaration("public class Dummy {{SObject a; switch on a {when Account r {Account s = r;} }}}")
     assert(!hasIssues)
   }
 }

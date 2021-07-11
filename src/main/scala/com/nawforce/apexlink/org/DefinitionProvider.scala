@@ -22,19 +22,25 @@ import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.parsers.ByteArraySourceData
 
 import java.io.{BufferedReader, StringReader}
+import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
 
 trait DefinitionProvider {
   this: PackageImpl =>
 
-  def getDefinition(path: PathLike, line: Int, offset: Int): Option[LocationLink] = {
-    extractExpression(path, line, offset).flatMap(exprAndLocation => {
+  def getDefinition(path: PathLike, line: Int, offset: Int, content: Option[String]): Option[LocationLink] = {
+    val source = content.orElse(path.read().toOption)
+    if (source.isEmpty)
+      return None
+
+    extractExpression(source.get, line, offset).flatMap(exprAndLocation => {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
-          findType(typeName, path, line, offset) match {
+          findType(typeName, path, source.get, line, offset) match {
             case Some(ad: ApexDeclaration) =>
               Some(LocationLink(exprAndLocation._2, ad.path.toString, ad.fullLocation, ad.nameLocation))
             case _ =>
@@ -45,8 +51,12 @@ trait DefinitionProvider {
     })
   }
 
-  private def findType(typeName: TypeName, path: PathLike, line: Int, offset: Int): Option[TypeDeclaration] = {
-    loadClass(path)
+  private def findType(typeName: TypeName,
+                       path: PathLike,
+                       source: String,
+                       line: Int,
+                       offset: Int): Option[TypeDeclaration] = {
+    loadClass(path, source)
       .flatMap(td =>
         findEnclosingClass(td, line, offset).flatMap(td => {
           TypeResolver(typeName, td).toOption
@@ -65,14 +75,24 @@ trait DefinitionProvider {
       })
   }
 
-  private def loadClass(path: PathLike): Option[FullDeclaration] = {
+  private def loadClass(path: PathLike, source: String): Option[FullDeclaration] = {
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
         getPackageModule(path).flatMap(module => {
-          path.readSourceData().toOption.flatMap(data => {
+          val existingIssues = org.issues.pop(path.toString)
+          try {
+            val asBytes = source.getBytes(StandardCharsets.UTF_8)
             FullDeclaration
-              .create(module, doc, data, extendedApex = false)
-          })
+              .create(module,
+                      doc,
+                      ByteArraySourceData(asBytes, 0, asBytes.length),
+                      extendedApex = false,
+                      forceConstruct = true)
+          } catch {
+            case _: Exception => None
+          } finally {
+            org.issues.push(path.toString, existingIssues)
+          }
         })
       case _ => None
     }
@@ -88,8 +108,8 @@ trait DefinitionProvider {
       })
   }
 
-  private def extractExpression(path: PathLike, lineNumber: Int, offset: Int): Option[(String, Location)] = {
-    val line = path.read().toOption.map(contents => getLine(contents, lineNumber-1)).flatMap {
+  private def extractExpression(source: String, lineNumber: Int, offset: Int): Option[(String, Location)] = {
+    val line: Option[String] = getLine(source, lineNumber - 1) match {
       case Success(Some(expr)) => Some(expr)
       case _                   => None
     }

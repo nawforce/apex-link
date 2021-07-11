@@ -33,18 +33,14 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Good class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {}"))
-    parser.parseClass() match {
-      case Left(_)   => assert(false)
-      case Right(cu) => assert(cu != null)
-    }
+    val result = parser.parseClass()
+    assert(result.issues.isEmpty)
   }
 
   test("Broken class") {
     val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {"))
-    parser.parseClass() match {
-      case Left(_)  => ()
-      case Right(_) => assert(false)
-    }
+    val result = parser.parseClass()
+    assert(result.issues.nonEmpty)
   }
 
   test("UTF-8 class") {

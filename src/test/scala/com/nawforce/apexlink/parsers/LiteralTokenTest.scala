@@ -22,7 +22,9 @@ import org.scalatest.funsuite.AnyFunSuite
 class LiteralTokenTest extends AnyFunSuite {
 
   private def literal(literal: String): LiteralContext = {
-    CodeParser(PathFactory(""), SourceData(literal)).parseLiteral()
+    val result = CodeParser(PathFactory(""), SourceData(literal)).parseLiteral()
+    assert(result.issues.isEmpty)
+    result.value
   }
 
   test("empty string literal") {

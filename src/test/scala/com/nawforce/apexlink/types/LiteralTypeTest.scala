@@ -25,7 +25,9 @@ class LiteralTypeTest extends AnyFunSuite {
   def typeLiteral(data: String): DependencyHolder = {
     val source = Source(PathFactory("Dummy.cls"), SourceData(""), 0, 0, None)
     CST.sourceContext.withValue(Some(source)) {
-      Literal.construct(CodeParser(PathFactory(""), SourceData(data)).parseLiteral()).getType
+      val result = CodeParser(PathFactory(""), SourceData(data)).parseLiteral()
+      assert(result.issues.isEmpty)
+      Literal.construct(result.value).getType
     }
   }
 

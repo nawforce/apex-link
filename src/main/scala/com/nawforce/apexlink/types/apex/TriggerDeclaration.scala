@@ -157,13 +157,9 @@ object TriggerDeclaration {
 
   def create(module: Module, path: PathLike, data: SourceData): Option[TriggerDeclaration] = {
     val parser = CodeParser(path, data)
-    parser.parseTrigger() match {
-      case Left(issues) =>
-        issues.foreach(OrgImpl.log)
-        None
-      case Right(cu) =>
-        Some(TriggerDeclaration.construct(parser, module, cu))
-    }
+    val result = parser.parseTrigger()
+    result.issues.foreach(OrgImpl.log)
+    Some(TriggerDeclaration.construct(parser, module, result.value))
   }
 
   def construct(parser: CodeParser, module: Module, trigger: TriggerUnitContext): TriggerDeclaration = {

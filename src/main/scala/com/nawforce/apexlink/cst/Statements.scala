@@ -61,15 +61,11 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
       var statementContext = blockContextRef.get
       if (statementContext == null) {
         val parser = new CodeParser(source)
-        parser.parseBlock() match {
-          case Left(issues) =>
-            issues.foreach(OrgImpl.log)
-            return Nil
-          case Right(c) =>
-            statementContext = c
-            blockContextRef = new WeakReference(statementContext)
-            reParsed = true
-        }
+        val result = parser.parseBlock()
+        result.issues.foreach(OrgImpl.log)
+        statementContext = result.value
+        blockContextRef = new WeakReference(statementContext)
+        reParsed = true
       }
 
       // Now rebuild, making sure we put correct source in scope for CST to use
@@ -152,13 +148,13 @@ object IfStatement {
   }
 }
 
-final case class ForStatement(control: ForControl, statement: Statement) extends Statement {
+final case class ForStatement(control: ForControl, statement: Option[Statement]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     context.withInnerBlockVerifyContext() { forContext =>
       control.verify(forContext)
       forContext.withInnerBlockVerifyContext() { loopContext =>
         control.addVars(loopContext)
-        statement.verify(loopContext)
+        statement.foreach(_.verify(loopContext))
       }
     }
   }
@@ -289,10 +285,10 @@ object ForUpdate {
   }
 }
 
-final case class WhileStatement(expression: Expression, statement: Statement) extends Statement {
+final case class WhileStatement(expression: Expression, statement: Option[Statement]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    statement.verify(context)
+    statement.foreach(_.verify(context))
   }
 }
 
@@ -303,10 +299,10 @@ object WhileStatement {
   }
 }
 
-final case class DoWhileStatement(statement: Statement, expression: Expression) extends Statement {
+final case class DoWhileStatement(statement: Option[Statement], expression: Expression) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expression.verify(context)
-    statement.verify(context)
+    statement.foreach(_.verify(context))
   }
 }
 
@@ -528,10 +524,10 @@ object ExpressionStatement {
 
 object Statement {
   def construct(parser: CodeParser, statements: Seq[StatementContext], isTrigger: Boolean): Seq[Statement] = {
-    statements.map(s => Statement.construct(parser, s, isTrigger))
+    statements.flatMap(s => Statement.construct(parser, s, isTrigger))
   }
 
-  def construct(parser: CodeParser, statement: StatementContext, isTrigger: Boolean): Statement = {
+  def construct(parser: CodeParser, statement: StatementContext, isTrigger: Boolean): Option[Statement] = {
     CodeParser
       .toScala(statement.block())
       .map(x => Block.construct(parser, x, isTrigger = false))
@@ -592,6 +588,9 @@ object Statement {
       .orElse(CodeParser
         .toScala(statement.expressionStatement())
         .map(x => ExpressionStatement.construct(x)))
-      .get
+      .orElse({
+        // Parsing failed
+        None
+      })
   }
 }

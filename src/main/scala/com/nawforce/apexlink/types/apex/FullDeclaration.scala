@@ -231,15 +231,19 @@ abstract class FullDeclaration(val source: Source,
 }
 
 object FullDeclaration {
-  def create(module: Module, doc: ClassDocument, data: SourceData, extendedApex: Boolean): Option[FullDeclaration] = {
+  def create(module: Module,
+             doc: ClassDocument,
+             data: SourceData,
+             extendedApex: Boolean,
+             forceConstruct: Boolean): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
-    parser.parseClass() match {
-      case Left(issues) =>
-        issues.foreach(OrgImpl.log)
-        None
-      case Right(cu) =>
-        Some(CompilationUnit.construct(parser, module, doc.name, extendedApex, cu).typeDeclaration)
-    }
+    val result = parser.parseClass()
+    val issues = result.issues
+    issues.foreach(OrgImpl.log)
+    if (issues.isEmpty || forceConstruct)
+      Some(CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value).typeDeclaration)
+    else
+      None
   }
 
   def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): FullDeclaration = {

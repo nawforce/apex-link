@@ -130,7 +130,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
             case Right(data) =>
               LoggerOps.debugTime(s"Parsed ${doc.path}") {
                 FullDeclaration
-                  .create(module, doc, data, extendedApex)
+                  .create(module, doc, data, extendedApex, forceConstruct = false)
                   .map(td => {
                     types.put(td.typeName, td)
                     td

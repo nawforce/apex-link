@@ -27,7 +27,18 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val path = root.join("Dummy.cls")
       assert(
         org.unmanaged
-          .getDefinition(path, line = 1, offset = 14)
+          .getDefinition(path, line = 1, offset = 14, None)
+          .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
+    }
+  }
+
+  test("Outer class match (direct content)") {
+    FileSystemHelper.run(Map()) { root: PathLike =>
+      val org = createHappyOrg(root)
+      val path = root.join("Dummy.cls")
+      assert(
+        org.unmanaged
+          .getDefinition(path, line = 1, offset = 14, Some("public class Dummy {}"))
           .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
     }
   }
@@ -38,7 +49,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val path = root.join("Dummy.cls")
       assert(
         org.unmanaged
-          .getDefinition(path, line = 1, offset = 13)
+          .getDefinition(path, line = 1, offset = 13, None)
           .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
     }
   }
@@ -49,7 +60,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val path = root.join("Dummy.cls")
       assert(
         org.unmanaged
-          .getDefinition(path, line = 1, offset = 17)
+          .getDefinition(path, line = 1, offset = 17, None)
           .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
     }
   }
@@ -61,7 +72,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val path = root.join("Dummy.cls")
         assert(
           org.unmanaged
-            .getDefinition(path, line = 1, offset = 23)
+            .getDefinition(path, line = 1, offset = 23, None)
             .contains(
               LocationLink(Location(1, 23, 1, 26),
                            root.join("Foo.cls").toString,
@@ -76,7 +87,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Match.txt"), line = 1, offset = 1)
+            .getDefinition(root.join("Match.txt"), line = 1, offset = 1, None)
             .contains(
               LocationLink(Location(1, 0, 1, 11),
                            root.join("Dummy.cls").toString,
@@ -90,7 +101,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val org = createHappyOrg(root)
       assert(
         org.unmanaged
-          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22)
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22, None)
           .contains(
             LocationLink(Location(1, 22, 1, 27),
                          root.join("Dummy.cls").toString,
@@ -104,7 +115,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val org = createHappyOrg(root)
       assert(
         org.unmanaged
-          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35)
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35, None)
           .contains(
             LocationLink(Location(1, 35, 1, 40),
                          root.join("Dummy.cls").toString,
@@ -119,7 +130,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35, None)
             .contains(
               LocationLink(Location(1, 35, 1, 40),
                            root.join("Dummy.cls").toString,
@@ -129,20 +140,48 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
   }
 
   test("Inner class match (external)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {/* Foo.Other */}",
-      "Foo.cls" -> "public class Foo {class Other {}}"
-    )) {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/* Foo.Other */}", "Foo.cls" -> "public class Foo {class Other {}}")) {
       root: PathLike =>
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
             .contains(
               LocationLink(Location(1, 23, 1, 32),
-                root.join("Foo.cls").toString,
-                Location(1, 18, 1, 32),
-                Location(1, 24, 1, 29))))
+                           root.join("Foo.cls").toString,
+                           Location(1, 18, 1, 32),
+                           Location(1, 24, 1, 29))))
+    }
+  }
+
+  test("Outer class with syntax error") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {")) { root: PathLike =>
+      createOrg(root)
+      val path = root.join("Dummy.cls")
+      withOrg { org =>
+        assert(org.unmanaged
+          .getDefinition(path, line = 1, offset = 14, None)
+          .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 20), Location(1, 13, 1, 18))))
+      }
+    }
+  }
+
+  test("Inner class with syntax error") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/*Inner*/ class Inner{ /* }}")) {
+      root: PathLike =>
+        createOrg(root)
+        withOrg(org => {
+          assert(
+            org.unmanaged
+              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22, None)
+              .contains(
+                LocationLink(Location(1, 22, 1, 27),
+                             root.join("Dummy.cls").toString,
+                             Location(1, 30, 1, 45),
+                             Location(1, 36, 1, 41))))
+        })
     }
   }
 }
