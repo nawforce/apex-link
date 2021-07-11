@@ -74,8 +74,8 @@ object ForceIgnore {
     if (path.isFile) {
       path.read() match {
         case Left(err) =>
-          IssuesAnd(Seq(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
-        case Right(data) => IssuesAnd(Seq(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
+          IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+        case Right(data) => IssuesAnd(Array(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
       }
     } else {
       IssuesAnd(None)

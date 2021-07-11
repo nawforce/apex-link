@@ -28,8 +28,7 @@
 package com.nawforce.runtime.parsers
 
 import java.io.ByteArrayInputStream
-
-import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Issue, IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
@@ -42,7 +41,7 @@ import scala.jdk.CollectionConverters._
 class PageParser(val source: Source) {
   private val is = source.asStream
 
-  def parsePage(): Either[ArraySeq[Issue], VFParser.VfUnitContext] = {
+  def parsePage(): IssuesAnd[VFParser.VfUnitContext] = {
     parse(parser => parser.vfUnit())
   }
 
@@ -56,7 +55,7 @@ class PageParser(val source: Source) {
     source.extractSource(context)
   }
 
-  def parse[T](parse: VFParser => T): Either[ArraySeq[Issue], T] = {
+  def parse[T](parse: VFParser => T): IssuesAnd[T] = {
     val listener = new CollectingErrorListener(source.path.toString)
 
     val lexer = new VFLexer(is)
@@ -70,10 +69,7 @@ class PageParser(val source: Source) {
     parser.addErrorListener(listener)
 
     val result = parse(parser)
-    if (listener.issues.nonEmpty)
-      Left(listener.issues.to(ArraySeq))
-    else
-      Right(result)
+    IssuesAnd(listener.issues, result)
   }
 }
 

@@ -63,7 +63,7 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   def source: IssuesAnd[Option[SourceData]] = {
     path.readSourceData() match {
       case Left(err) =>
-        IssuesAnd(List(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+        IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
       case Right(data) => IssuesAnd(Some(data))
     }
   }

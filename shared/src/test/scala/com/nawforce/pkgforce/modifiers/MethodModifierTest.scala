@@ -39,13 +39,14 @@ class MethodModifierTest extends AnyFunSuite {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
-    cp.parseClass() match {
-      case Left(_) => false
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val field = root.children.head
-        field.modifiers.issues.isEmpty &&
-        (field.modifiers.modifiers sameElements expected)
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      false
+    } else {
+      val root = ApexNode(cp, result.value)
+      val field = root.children.head
+      field.modifiers.issues.isEmpty &&
+      (field.modifiers.modifiers sameElements expected)
     }
   }
 
@@ -57,12 +58,13 @@ class MethodModifierTest extends AnyFunSuite {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
-    cp.parseClass() match {
-      case Left(_) => Array()
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val field = root.children.head
-        field.modifiers.issues
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      Array()
+    } else {
+      val root = ApexNode(cp, result.value)
+      val field = root.children.head
+      field.modifiers.issues
     }
   }
 
@@ -75,9 +77,9 @@ class MethodModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
-            Location(1, 24, 1, 30),
-            "Modifier 'public' is not supported on interface methods"))))
+              Diagnostic(ERROR_CATEGORY,
+                         Location(1, 24, 1, 30),
+                         "Modifier 'public' is not supported on interface methods"))))
   }
 
   test("Interface method virtual modifier") {
@@ -85,9 +87,9 @@ class MethodModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
-            Location(1, 24, 1, 31),
-            "Modifier 'virtual' is not supported on interface methods"))))
+              Diagnostic(ERROR_CATEGORY,
+                         Location(1, 24, 1, 31),
+                         "Modifier 'virtual' is not supported on interface methods"))))
   }
 
   test("Interface method isTest annotation") {
@@ -95,8 +97,8 @@ class MethodModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
-            Location(1, 24, 1, 31),
-            "Annotation '@IsTest' is not supported on interface methods"))))
+              Diagnostic(ERROR_CATEGORY,
+                         Location(1, 24, 1, 31),
+                         "Annotation '@IsTest' is not supported on interface methods"))))
   }
 }

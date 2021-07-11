@@ -47,12 +47,12 @@ object ComponentGenerator {
       .map(source => {
 
         val parser: PageParser = PageParser(document.path, source)
-        parser.parsePage() match {
-          case Left(issues) =>
-            IssuesEvent.iterator(issues)
-          case Right(component) =>
+        val result = parser.parsePage()
+        if (result.issues.nonEmpty) {
+           IssuesEvent.iterator(result.issues)
+        } else {
             val logger = new CatchingLogger
-            val attributes = extractAttributes(parser, logger, component)
+            val attributes = extractAttributes(parser, logger, result.value)
             (if (logger.issues.isEmpty)
                Iterator(ComponentEvent(SourceInfo(document.path, source), attributes))
              else

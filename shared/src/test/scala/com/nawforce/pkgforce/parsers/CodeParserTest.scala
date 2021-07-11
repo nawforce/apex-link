@@ -36,46 +36,35 @@ class CodeParserTest extends AnyFunSuite {
   test("Class well formed") {
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {}"))
-    cp.parseClass() match {
-      case Left(issues) => assert(false, issues)
-      case Right(_)     => ()
-    }
+    val result = cp.parseClass()
+    assert(result.issues.isEmpty)
   }
 
   test("Class with error") {
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {"))
-    cp.parseClass() match {
-      case Right(cu) => assert(false, cu)
-      case Left(issues) =>
-        assert(issues.length == 1)
-        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 20")
-        assert(issues.head.diagnostic.message.startsWith("mismatched input '<EOF>' expecting {"))
-    }
+    val result = cp.parseClass()
+    assert(result.issues.length == 1)
+    assert(result.issues.head.diagnostic.location.displayPosition == "line 1 at 20")
+    assert(result.issues.head.diagnostic.message.startsWith("mismatched input '<EOF>' expecting {"))
   }
 
   test("Class multiple errors") {
     val path = PathFactory("Dummy.cls")
     val cp =
       CodeParser(path, SourceData("public class Dummy {void func1(){f()} void func2(){f()} }"))
-    cp.parseClass() match {
-      case Right(cu) => assert(false, cu)
-      case Left(issues) =>
-        assert(issues.length == 2)
-        assert(issues.head.diagnostic.location.displayPosition == "line 1 at 36")
-        assert(issues.head.diagnostic.message == "missing ';' at '}'")
-        assert(issues(1).diagnostic.location.displayPosition == "line 1 at 54")
-        assert(issues(1).diagnostic.message == "missing ';' at '}'")
-    }
+    val result = cp.parseClass()
+    assert(result.issues.length == 2)
+    assert(result.issues.head.diagnostic.location.displayPosition == "line 1 at 36")
+    assert(result.issues.head.diagnostic.message == "missing ';' at '}'")
+    assert(result.issues(1).diagnostic.location.displayPosition == "line 1 at 54")
+    assert(result.issues(1).diagnostic.message == "missing ';' at '}'")
   }
 
   test("Class with keyword name") {
     val path = PathFactory("Network.cls")
     val cp = CodeParser(path, SourceData("public class Network {}"))
-    cp.parseClass() match {
-      case Left(issues) => assert(false, issues)
-      case Right(_)     => ()
-    }
+    val result = cp.parseClass()
+    assert(result.issues.isEmpty)
   }
-
 }

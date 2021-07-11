@@ -49,8 +49,8 @@ object Issue {
   }
 }
 
-sealed case class IssuesAnd[T](issues: Seq[Issue], value: T)
+sealed case class IssuesAnd[T](issues: Array[Issue], value: T)
 
 object IssuesAnd {
-  def apply[T](value: T) = new IssuesAnd[T](Seq(), value)
+  def apply[T](value: T) = new IssuesAnd[T](Array(), value)
 }

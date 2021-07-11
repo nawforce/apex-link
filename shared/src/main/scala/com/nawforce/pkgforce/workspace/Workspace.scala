@@ -77,7 +77,7 @@ object Workspace {
   def apply(path: PathLike): IssuesAnd[Option[Workspace]] = {
     val logger = new CatchingLogger
     val workspace = Workspace(path, logger)
-    IssuesAnd(logger.issues, workspace)
+    IssuesAnd(logger.issues.toArray, workspace)
   }
 
   def apply(path: PathLike, logger: IssueLogger): Option[Workspace] = {

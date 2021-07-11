@@ -33,7 +33,7 @@ import scala.collection.mutable
 import scala.scalajs.js
 
 class CollectingErrorListener(path: String) extends js.Object {
-  val issues = new mutable.ArrayBuffer[Issue]()
+  var _issues: mutable.ArrayBuffer[Issue] = _
 
   def syntaxError(recognizer: Any,
                   offendingSymbol: Any,
@@ -41,7 +41,17 @@ class CollectingErrorListener(path: String) extends js.Object {
                   charPositionInLine: Int,
                   msg: String,
                   e: Any): Unit = {
-    issues.addOne(
+    if (_issues == null)
+      _issues = new mutable.ArrayBuffer[Issue]()
+
+    _issues.addOne(
       new Issue(path, Diagnostic(SYNTAX_CATEGORY, Location(line, charPositionInLine), msg)))
+  }
+
+  def issues: Array[Issue] = {
+    if (_issues != null)
+      _issues.toArray
+    else
+      Issue.emptyArray
   }
 }

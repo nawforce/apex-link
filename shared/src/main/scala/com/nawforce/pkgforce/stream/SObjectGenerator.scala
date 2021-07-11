@@ -99,7 +99,7 @@ object SObjectGenerator {
     Iterator(SObjectEvent(sourceInfo, document.name, customSettingsType.value)) ++
       IssuesEvent.iterator(customSettingsType.issues) ++
       (parsed match {
-        case Some(Left(issue)) => IssuesEvent.iterator(Seq(issue))
+        case Some(Left(issue)) => IssuesEvent.iterator(Array(issue))
         case Some(Right(root)) =>
           val rootElement = root.rootElement
           rootElement.getChildren("fields").flatMap(field => createField(None, field, path.get)) ++
@@ -123,7 +123,7 @@ object SObjectGenerator {
       case Some("Hierarchy") => IssuesAnd(Some("Hierarchy"))
       case Some(x) =>
         IssuesAnd(
-          Seq(
+          Array(
             Issue(doc.path,
                   ERROR_CATEGORY,
                   Location(doc.rootElement.line),
@@ -161,7 +161,7 @@ object SObjectGenerator {
       val rawType = elem.getSingleChildAsString("type").trim
       if (!fieldTypes.contains(rawType)) {
         return IssuesEvent.iterator(
-          Seq(
+          Array(
             Issue(path.toString,
                   Diagnostic(ERROR_CATEGORY,
                              Location(elem.line),
@@ -219,10 +219,10 @@ object SObjectGenerator {
               filePath.readSourceData() match {
                 case Left(err) =>
                   IssuesEvent.iterator(
-                    Seq(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))))
+                    Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))))
                 case Right(sourceData) =>
                   XMLFactory.parse(filePath) match {
-                    case Left(issue) => IssuesEvent.iterator(Seq(issue))
+                    case Left(issue) => IssuesEvent.iterator(Array(issue))
                     case Right(root) =>
                       root.rootElement.checkIsOrThrow(rootElement)
                       op(Some(SourceInfo(filePath, sourceData)), root.rootElement, filePath)
@@ -239,7 +239,7 @@ object SObjectGenerator {
       op
     } catch {
       case e: XMLException =>
-        IssuesEvent.iterator(Seq(Issue(path.toString, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
+        IssuesEvent.iterator(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
     }
   }
 

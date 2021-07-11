@@ -27,19 +27,18 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
-import scala.collection.compat.immutable.ArraySeq
 import scala.scalajs.js
 
 class PageParser(val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
   private val is = source.asString
 
-  def parsePage(): Either[ArraySeq[Issue], VFParser.VfUnitContext] = {
+  def parsePage(): IssuesAnd[VFParser.VfUnitContext] = {
     parse(parser => parser.vfUnit())
   }
 
@@ -53,7 +52,7 @@ class PageParser(val source: Source) {
     source.extractSource(context)
   }
 
-  def parse[T](parse: VFParser => T): Either[ArraySeq[Issue], T] = {
+  def parse[T](parse: VFParser => T): IssuesAnd[T] = {
     val listener = new CollectingErrorListener(source.path.toString)
 
     val lexer = new VFLexer(CharStreams.fromString(is))
@@ -67,10 +66,7 @@ class PageParser(val source: Source) {
     parser.addErrorListener(listener)
 
     val result = parse(parser)
-    if (listener.issues.nonEmpty)
-      Left(listener.issues.to(ArraySeq))
-    else
-      Right(result)
+    IssuesAnd(listener.issues.toArray, result)
   }
 }
 
@@ -112,8 +108,6 @@ object PageParser {
     node.text
   }
 
-
-
   // Helper for JS Portability
   def toScala[T](collection: js.Array[T]): Seq[T] = {
     collection.toSeq
@@ -124,6 +118,3 @@ object PageParser {
     value.toOption
   }
 }
-
-
-

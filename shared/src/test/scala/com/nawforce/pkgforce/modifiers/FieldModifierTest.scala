@@ -40,13 +40,14 @@ class FieldModifierTest extends AnyFunSuite {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
-    cp.parseClass() match {
-      case Left(_) => false
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val field = root.children.head
-        field.modifiers.issues.isEmpty &&
-        (field.modifiers.modifiers sameElements expected)
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      false
+    } else {
+      val root = ApexNode(cp, result.value)
+      val field = root.children.head
+      field.modifiers.issues.isEmpty &&
+      (field.modifiers.modifiers sameElements expected)
     }
   }
 
@@ -58,12 +59,13 @@ class FieldModifierTest extends AnyFunSuite {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
-    cp.parseClass() match {
-      case Left(_) => Array()
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val field = root.children.head
-        field.modifiers.issues
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      Array()
+    } else {
+      val root = ApexNode(cp, result.value)
+      val field = root.children.head
+      field.modifiers.issues
     }
   }
 
@@ -152,13 +154,13 @@ class FieldModifierTest extends AnyFunSuite {
   test("TestVisible field") {
     assert(
       legalFieldAccess(Array(TEST_VISIBLE_ANNOTATION),
-        Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
+                       Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
   test("SuppressWarnings field") {
     assert(
       legalFieldAccess(Array(SUPPRESS_WARNINGS_ANNOTATION),
-        Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+                       Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
   }
 
   test("Bad modifier field") {
@@ -166,9 +168,9 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          Diagnostic(ERROR_CATEGORY,
-            Location(1, 20, 1, 28),
-            "Modifier 'override' is not supported on fields"))))
+              Diagnostic(ERROR_CATEGORY,
+                         Location(1, 20, 1, 28),
+                         "Modifier 'override' is not supported on fields"))))
   }
 
   test("Bad annotation field") {
@@ -176,9 +178,9 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          diagnostics.Diagnostic(ERROR_CATEGORY,
-            Location(1, 20, 1, 30),
-            "Annotation '@TestSetup' is not supported on fields"))))
+              diagnostics.Diagnostic(ERROR_CATEGORY,
+                                     Location(1, 20, 1, 30),
+                                     "Annotation '@TestSetup' is not supported on fields"))))
   }
 
   test("Duplicate modifier field") {
@@ -187,22 +189,25 @@ class FieldModifierTest extends AnyFunSuite {
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
               diagnostics.Diagnostic(ERROR_CATEGORY,
-                         Location(1, 47, 1, 50),
-                         "Modifier 'protected' is used more than once"))))
+                                     Location(1, 47, 1, 50),
+                                     "Modifier 'protected' is used more than once"))))
   }
 
   def innerLegalFieldAccess(use: Array[Modifier], expected: Array[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
-    cp.parseClass() match {
-      case Left(_) => false
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val inner = root.children.head
-        val field = inner.children.head
-        field.modifiers.issues.isEmpty &&
-          (field.modifiers.modifiers sameElements expected)
+    val cp = CodeParser(
+      path,
+      SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      false
+    } else {
+      val root = ApexNode(cp, result.value)
+      val inner = root.children.head
+      val field = inner.children.head
+      field.modifiers.issues.isEmpty &&
+      (field.modifiers.modifiers sameElements expected)
     }
   }
 
@@ -213,17 +218,19 @@ class FieldModifierTest extends AnyFunSuite {
   def innerIllegalFieldAccess(use: Array[Modifier]): Array[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
-    cp.parseClass() match {
-      case Left(_) => Array()
-      case Right(cu) =>
-        val root = ApexNode(cp, cu)
-        val inner = root.children.head
-        val field = inner.children.head
-        field.modifiers.issues
+    val cp = CodeParser(
+      path,
+      SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
+    val result = cp.parseClass()
+    if (result.issues.nonEmpty) {
+      Array()
+    } else {
+      val root = ApexNode(cp, result.value)
+      val inner = root.children.head
+      val field = inner.children.head
+      field.modifiers.issues
     }
   }
-
 
   test("Inner Default field access private") {
     assert(innerLegalFieldAccess(Array(), Array(PRIVATE_MODIFIER)))
@@ -247,7 +254,8 @@ class FieldModifierTest extends AnyFunSuite {
 
   test("Inner Webservice field") {
     assert(
-      innerLegalFieldAccess(Array(WEBSERVICE_MODIFIER), Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
+      innerLegalFieldAccess(Array(WEBSERVICE_MODIFIER),
+                            Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
   }
 
   test("Inner Webservice non-global field") {
@@ -255,23 +263,24 @@ class FieldModifierTest extends AnyFunSuite {
   }
 
   test("Inner Transient field") {
-    assert(innerLegalFieldAccess(Array(TRANSIENT_MODIFIER), Array(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
+    assert(
+      innerLegalFieldAccess(Array(TRANSIENT_MODIFIER), Array(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Inner Transient public field") {
     assert(
       innerLegalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER),
-        Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
+                            Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Inner Static field") {
     val issues = innerIllegalFieldAccess(Array(STATIC_MODIFIER)).toSeq
     assert(
-      issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-          diagnostics.Diagnostic(ERROR_CATEGORY,
-            Location(1, 38, 1, 44),
-            "Modifier 'static' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
+                                 diagnostics.Diagnostic(
+                                   ERROR_CATEGORY,
+                                   Location(1, 38, 1, 44),
+                                   "Modifier 'static' is not supported on inner class fields"))))
 
   }
 
@@ -282,62 +291,61 @@ class FieldModifierTest extends AnyFunSuite {
   test("Inner Final public field") {
     assert(
       innerLegalFieldAccess(Array(PUBLIC_MODIFIER, FINAL_MODIFIER),
-        Array(PUBLIC_MODIFIER, FINAL_MODIFIER)))
+                            Array(PUBLIC_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Inner Mixed field") {
-    assert(
-      innerLegalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
+    assert(innerLegalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Inner AuraEnabled field") {
     assert(
       innerLegalFieldAccess(Array(AURA_ENABLED_ANNOTATION),
-        Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
+                            Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
   }
 
   test("Inner Deprecated field") {
     assert(
       innerLegalFieldAccess(Array(DEPRECATED_ANNOTATION),
-        Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
+                            Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
   }
 
   test("Inner InvocableVariable field") {
     assert(
       innerLegalFieldAccess(Array(INVOCABLE_VARIABLE_ANNOTATION),
-        Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
+                            Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
   }
 
   test("Inner TestVisible field") {
     assert(
       innerLegalFieldAccess(Array(TEST_VISIBLE_ANNOTATION),
-        Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
+                            Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
   test("Inner SuppressWarnings field") {
     assert(
       innerLegalFieldAccess(Array(SUPPRESS_WARNINGS_ANNOTATION),
-        Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+                            Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
   }
 
   test("Inner Bad modifier field") {
     val issues = innerIllegalFieldAccess(Array(OVERRIDE_MODIFIER)).toSeq
     assert(
-      issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-          diagnostics.Diagnostic(ERROR_CATEGORY,
-            Location(1, 38, 1, 46),
-            "Modifier 'override' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
+                                 diagnostics.Diagnostic(
+                                   ERROR_CATEGORY,
+                                   Location(1, 38, 1, 46),
+                                   "Modifier 'override' is not supported on inner class fields"))))
   }
 
   test("Inner Bad annotation field") {
     val issues = innerIllegalFieldAccess(Array(TEST_SETUP_ANNOTATION)).toSeq
     assert(
-      issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-          diagnostics.Diagnostic(ERROR_CATEGORY,
-            Location(1, 38, 1, 48),
-            "Annotation '@TestSetup' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
+                                 diagnostics.Diagnostic(
+                                   ERROR_CATEGORY,
+                                   Location(1, 38, 1, 48),
+                                   "Annotation '@TestSetup' is not supported on inner class fields"))))
   }
 
   test("Inner Duplicate modifier field") {
@@ -345,9 +353,9 @@ class FieldModifierTest extends AnyFunSuite {
     assert(
       issues == Seq[Issue](
         Issue(PathFactory("Dummy.cls").toString,
-          diagnostics.Diagnostic(ERROR_CATEGORY,
-            Location(1, 65, 1, 68),
-            "Modifier 'protected' is used more than once"))))
+              diagnostics.Diagnostic(ERROR_CATEGORY,
+                                     Location(1, 65, 1, 68),
+                                     "Modifier 'protected' is used more than once"))))
   }
 
 }

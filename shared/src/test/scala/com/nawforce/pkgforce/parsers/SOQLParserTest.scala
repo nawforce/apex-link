@@ -227,16 +227,16 @@ object SOQLParser {
   def parse(soql: String): Either[Seq[ParserIssue], ApexParser.QueryContext] = {
 
     val parser = new CodeParser(Source(PathFactory("test.soql"), SourceBlob(soql)))
-    parser.parseSOQL() match {
-      case Left(issues) =>
-        Left(
-          issues.toIndexedSeq.map(
-            issue =>
-              ParserIssue(issue.diagnostic.location.startLine,
-                          issue.diagnostic.location.startPosition,
-                          issue.diagnostic.message)))
-      case Right(ctx) =>
-        Right(ctx)
+    val result = parser.parseSOQL()
+    if (result.issues.nonEmpty) {
+      Left(
+        result.issues.toIndexedSeq.map(
+          issue =>
+            ParserIssue(issue.diagnostic.location.startLine,
+                        issue.diagnostic.location.startPosition,
+                        issue.diagnostic.message)))
+    } else {
+      Right(result.value)
     }
   }
 }

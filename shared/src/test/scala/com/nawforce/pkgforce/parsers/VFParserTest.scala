@@ -302,16 +302,16 @@ object VFParserTest {
   def parse(pageContents: String): Either[Seq[ParserIssue], VFParser.VfUnitContext] = {
 
     val parser = new PageParser(Source(PathFactory("test.page"), SourceBlob(pageContents)))
-    parser.parsePage() match {
-      case Left(issues) =>
-        Left(
-          issues.toIndexedSeq.map(
-            issue =>
-              ParserIssue(issue.diagnostic.location.startLine,
-                          issue.diagnostic.location.startPosition,
-                          issue.diagnostic.message)))
-      case Right(ctx) =>
-        Right(ctx)
+    val result = parser.parsePage()
+    if (result.issues.nonEmpty) {
+      Left(
+        result.issues.toIndexedSeq.map(
+          issue =>
+            ParserIssue(issue.diagnostic.location.startLine,
+                        issue.diagnostic.location.startPosition,
+                        issue.diagnostic.message)))
+    } else {
+      Right(result.value)
     }
   }
 }

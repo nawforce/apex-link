@@ -56,6 +56,6 @@ case class ModuleLayer(projectPath: PathLike, path: PathLike, dependencies: Seq[
   def index(namespace: Option[Name]): IssuesAnd[DocumentIndex] = {
     val logger = new CatchingLogger
     val index = DocumentIndex(logger, namespace, projectPath, path)
-    IssuesAnd(logger.issues, index)
+    IssuesAnd(logger.issues.toArray, index)
   }
 }

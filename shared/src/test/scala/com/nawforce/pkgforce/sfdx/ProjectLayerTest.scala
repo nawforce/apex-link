@@ -53,7 +53,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         assert(project.nonEmpty)
         assert(project.get.layers(logger).isEmpty)
         assert(
-          logger.issues == List(
+          logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   diagnostics.Diagnostic(ERROR_CATEGORY,
                                          Location.empty,
@@ -94,7 +94,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         }
 
         assert(
-          logger.issues == List(
+          logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   Diagnostic(ERROR_CATEGORY,
                              Location.empty,
@@ -213,7 +213,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       }
 
       assert(
-        logger.issues == List(Issue(root.join("sfdx-project.json").toString,
+        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
                                     diagnostics.Diagnostic(
                                       ERROR_CATEGORY,
                                       Location.empty,

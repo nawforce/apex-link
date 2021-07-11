@@ -32,13 +32,14 @@ import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /** Trait to assist with logging in a context specific way */
 sealed trait IssueLogger {
   def log(issue: Issue): Unit
 
-  def logAll(issues: Seq[Issue]): Unit = issues.foreach(log)
+  def logAll(issues: Array[Issue]): Unit = issues.foreach(log)
 
   def logAndGet[T](andIssues: IssuesAnd[T]): T = {
     logAll(andIssues.issues)
@@ -63,9 +64,20 @@ object LocalLogger {
 }
 
 class CatchingLogger extends IssueLogger {
-  var issues: List[Issue] = Nil
+  private var _issues: mutable.ArrayBuffer[Issue] = _
 
-  override def log(issue: Issue): Unit = issues = issue :: issues
+  override def log(issue: Issue): Unit = {
+    if (_issues == null)
+      _issues = new mutable.ArrayBuffer()
+    _issues.addOne(issue)
+  }
+
+  def issues: Array[Issue] = {
+    if (_issues != null)
+      _issues.toArray
+    else
+      Issue.emptyArray
+  }
 }
 
 sealed trait ParserIssueLogger extends IssueLogger {
