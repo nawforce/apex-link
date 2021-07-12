@@ -33,7 +33,12 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
-final case class ComponentEvent(sourceInfo: SourceInfo, attributes: Array[Name]) extends PackageEvent
+final case class ComponentEvent(sourceInfo: SourceInfo,
+                                attributes: Array[Name],
+                                _controllers: Array[Name],
+                                _components: Array[Name],
+                                _expressions: Array[String])
+    extends VFEvent(_controllers, _components: Array[Name], _expressions: Array[String])
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator {
@@ -51,13 +56,15 @@ object ComponentGenerator {
         if (result.issues.nonEmpty) {
            IssuesEvent.iterator(result.issues)
         } else {
-            val logger = new CatchingLogger
-            val attributes = extractAttributes(parser, logger, result.value)
-            (if (logger.issues.isEmpty)
-               Iterator(ComponentEvent(SourceInfo(document.path, source), attributes))
-             else
-               Iterator()) ++ IssuesEvent.iterator(logger.issues)
-
+          val logger = new CatchingLogger
+          val attributes = extractAttributes(parser, logger, result.value)
+          (if (logger.issues.isEmpty)
+             Iterator(ComponentEvent(SourceInfo(document.path, source), attributes,
+               VFEvent.extractControllers(parser, logger, result.value),
+               VFEvent.extractComponents(parser, logger, result.value),
+               VFEvent.extractExpressions(parser, logger, result.value)))
+           else
+             Iterator()) ++ IssuesEvent.iterator(logger.issues)
         }
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)

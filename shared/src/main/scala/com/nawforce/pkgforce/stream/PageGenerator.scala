@@ -28,9 +28,16 @@
 
 package com.nawforce.pkgforce.stream
 
+import com.nawforce.pkgforce.diagnostics.CatchingLogger
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.Name
+import com.nawforce.runtime.parsers.PageParser
 
-final case class PageEvent(sourceInfo: SourceInfo) extends PackageEvent
+final case class PageEvent(sourceInfo: SourceInfo,
+                           _controllers: Array[Name],
+                           _components: Array[Name],
+                           _expressions: Array[String])
+    extends VFEvent(_controllers, _components: Array[Name], _expressions: Array[String])
 
 /** Convert page documents into PackageEvents */
 object PageGenerator {
@@ -42,7 +49,18 @@ object PageGenerator {
     val source = document.source
     source.value
       .map(source => {
-        Iterator(PageEvent(SourceInfo(document.path, source)))
+        val parser: PageParser = PageParser(document.path, source)
+        val result = parser.parsePage()
+        if (result.issues.nonEmpty) {
+          IssuesEvent.iterator(result.issues)
+        } else {
+          val logger = new CatchingLogger
+          Iterator(PageEvent(SourceInfo(document.path, source),
+                             VFEvent.extractControllers(parser, logger, result.value),
+                             VFEvent.extractComponents(parser, logger, result.value),
+                             VFEvent.extractExpressions(parser, logger, result.value))) ++
+            IssuesEvent.iterator(logger.issues)
+        }
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }

@@ -29,6 +29,7 @@ package com.nawforce.pkgforce.stream
 
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names.Name
 
 import scala.collection.compat.immutable.ArraySeq
 
