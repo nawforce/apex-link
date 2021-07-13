@@ -35,9 +35,8 @@ import com.nawforce.runtime.parsers.PageParser
 
 final case class PageEvent(sourceInfo: SourceInfo,
                            _controllers: Array[Name],
-                           _components: Array[Name],
                            _expressions: Array[String])
-    extends VFEvent(_controllers, _components: Array[Name], _expressions: Array[String])
+    extends VFEvent(_controllers, _expressions: Array[String])
 
 /** Convert page documents into PackageEvents */
 object PageGenerator {
@@ -56,9 +55,8 @@ object PageGenerator {
         } else {
           val logger = new CatchingLogger
           Iterator(PageEvent(SourceInfo(document.path, source),
-                             VFEvent.extractControllers(parser, logger, result.value),
-                             VFEvent.extractComponents(parser, logger, result.value),
-                             VFEvent.extractExpressions(parser, logger, result.value))) ++
+                             VFEvent.extractControllers(result.value, isPage = true),
+                             VFEvent.extractExpressions(result.value))) ++
             IssuesEvent.iterator(logger.issues)
         }
       })

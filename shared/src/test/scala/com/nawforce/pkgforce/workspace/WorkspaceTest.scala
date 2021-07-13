@@ -105,14 +105,78 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
   }
 
   test("Page event") {
-    FileSystemHelper.run(Map[String, String]("pkg/MyPage.page" -> "<apex:page/>")) { root: PathLike =>
-      val issuesAndWS = Workspace(root)
-      assert(issuesAndWS.issues.isEmpty)
-      assert(issuesAndWS.value.nonEmpty)
-      issuesAndWS.value.get.events.toList should matchPattern {
-        case List(PageEvent(SourceInfo(pagePath, _), _, _, _))
-            if pagePath == root.join("pkg").join("MyPage.page") =>
-      }
+    FileSystemHelper.run(Map[String, String]("pkg/MyPage.page" -> "<apex:page/>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(PageEvent(SourceInfo(pagePath, _), _, _))
+              if pagePath == root.join("pkg").join("MyPage.page") =>
+        }
+    }
+  }
+
+  test("Page event with controller") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyPage.page" -> "<apex:page controller='MyController'/>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(PageEvent(SourceInfo(pagePath, _), controllers, _))
+              if pagePath == root.join("pkg").join("MyPage.page") &&
+                (controllers sameElements Array(Name("MyController"))) =>
+        }
+    }
+  }
+
+  test("Page event with controller & extensions") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyPage.page" -> "<apex:page controller='MyController' extensions='Ext1, Ext2'/>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(PageEvent(SourceInfo(pagePath, _), controllers, _))
+              if pagePath == root.join("pkg").join("MyPage.page") &&
+                (controllers sameElements Array(Name("MyController"), Name("Ext1"), Name("Ext2"))) =>
+        }
+    }
+  }
+
+  test("Page event with attribute expressions") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyPage.page" -> "<apex:page a = '{!foo}'><a href='{!bar}' other='{!baz}'/></apex:page>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(PageEvent(SourceInfo(pagePath, _), _, exprs))
+            if pagePath == root.join("pkg").join("MyPage.page")  &&
+              (exprs.toSet == Set("bar", "baz", "foo")) =>
+        }
+    }
+  }
+
+  test("Page event with char data expressions") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyPage.page" -> s"<apex:page>{!foo} xx <a> {!bar} </a>{!baz}</apex:page>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(PageEvent(SourceInfo(pagePath, _), _, exprs))
+            if pagePath == root.join("pkg").join("MyPage.page")  &&
+              (exprs.toSet == Set("bar", "baz", "foo")) =>
+        }
     }
   }
 
@@ -139,9 +203,59 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(ComponentEvent(SourceInfo(componentPath, _), Array(Name("test")), _, _, _))
+        case List(ComponentEvent(SourceInfo(componentPath, _), Array(Name("test")), _, _))
             if componentPath == root.join("pkg").join("MyComponent.component") =>
       }
+    }
+  }
+
+  test("Component event with controller") {
+    FileSystemHelper.run(
+      Map[String, String]("pkg/MyComponent.component" ->
+        """<apex:component controller='MyController'>
+          |  <apex:attribute name="test" type="String"/>
+          |</apex:component>
+          |""".stripMargin)) { root: PathLike =>
+      val issuesAndWS = Workspace(root)
+      assert(issuesAndWS.issues.isEmpty)
+      assert(issuesAndWS.value.nonEmpty)
+      issuesAndWS.value.get.events.toList should matchPattern {
+        case List(ComponentEvent(SourceInfo(componentPath, _), Array(Name("test")), controllers, _))
+          if componentPath == root.join("pkg").join("MyComponent.component") &&
+            (controllers sameElements Array(Name("MyController"))) =>
+      }
+    }
+  }
+
+  test("Component event with attribute expressions") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyComponent.component" -> "<apex:component a = '{!foo}'><a href='{!bar}' other='{!baz}'/></apex:component>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(ComponentEvent(SourceInfo(componentPath, _), _, _, exprs))
+            if componentPath == root.join("pkg").join("MyComponent.component") &&
+              (exprs.toSet == Set("bar", "baz", "foo")) =>
+        }
+    }
+  }
+
+  test("Component event with char data expressions") {
+    FileSystemHelper.run(
+      Map[String, String](
+        "pkg/MyComponent.component" -> s"<apex:component>{!foo} xx <a> {!bar} </a>{!baz}</apex:component>")) {
+      root: PathLike =>
+        val issuesAndWS = Workspace(root)
+        assert(issuesAndWS.issues.isEmpty)
+        assert(issuesAndWS.value.nonEmpty)
+        issuesAndWS.value.get.events.toList should matchPattern {
+          case List(ComponentEvent(SourceInfo(componentPath, _), _, _, exprs))
+            if componentPath == root.join("pkg").join("MyComponent.component") &&
+              (exprs.toSet == Set("bar", "baz", "foo")) =>
+        }
     }
   }
 
