@@ -184,4 +184,73 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         })
     }
   }
+
+  test("Static method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/* Foo.method() */}", "Foo.cls" -> "public class Foo { static void method() {} }")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .contains(
+              LocationLink(Location(1, 23, 1, 33),
+                root.join("Foo.cls").toString,
+                Location(1, 26, 1, 42),
+                Location(1, 26, 1, 42))))
+    }
+  }
+
+  test("Static field") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/* Foo.FOO */}", "Foo.cls" -> "public class Foo { static String FOO = 'foo'; }")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .contains(
+              LocationLink(Location(1, 23, 1, 30),
+                root.join("Foo.cls").toString,
+                Location(1, 26, 1, 45),
+                Location(1, 26, 1, 45))))
+    }
+  }
+
+  test("Overloaded static method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/* Foo.method() */}", "Foo.cls" -> "public class Foo { static void method(Integer p) {} static void method(String p) {}}")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .toSet.equals(
+            Set(
+              LocationLink(Location(1, 23, 1, 33),
+                root.join("Foo.cls").toString,
+                Location(1, 26, 1, 51),
+                Location(1, 26, 1, 51)),
+              LocationLink(Location(1, 23, 1, 33),
+                root.join("Foo.cls").toString,
+                Location(1, 59, 1, 83),
+                Location(1, 59, 1, 83)))))
+    }
+  }
+
+  test("Unrecognised static reference") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {/* Foo.random */}", "Foo.cls" -> "public class Foo { }")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        assert(
+          org.unmanaged
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .contains(
+              LocationLink(Location(1, 23, 1, 26),
+                root.join("Foo.cls").toString,
+                Location(1, 0, 1, 20),
+                Location(1, 13, 1, 16))))
+    }
+  }
 }

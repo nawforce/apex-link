@@ -113,10 +113,10 @@ trait Org {
     *
     * This will attempt to locate the type definition of a type name at the provided line & offset in the path. The
     * returned location provides information of the extent of the symbols used for the search as well as the file and
-    * extent of the found definition. If no symbol can be found that links to a definition it returns null. If content
-    * is null, path will be used to load the source code. It is not necessary for the file being searched from to be
-    * free of errors, but errors may impact tne ability to locate inner classes within that file. */
-  def getDefinition(path: String, line: Int, offset: Int, content: String): LocationLink
+    * extent of the found definition. If no symbol can be found that links to a definition it returns an empty array.
+    * If content is null, path will be used to load the source code. It is not necessary for the file being searched
+    * from to be free of errors, but errors may impact the ability to locate inner classes within that file. */
+  def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink]
 }
 
 object Org {
