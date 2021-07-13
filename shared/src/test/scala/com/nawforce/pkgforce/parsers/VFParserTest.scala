@@ -140,64 +140,71 @@ class VFParserTest extends AnyFunSuite with Matchers {
   test("Simple chardata") {
     val ctx = parseOrThrow("<apex:page>abc</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.getText(ctx.element().content().chardata(0)) == "abc")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.getText(content.chardata(0)) == "abc")
   }
 
   test("Entity as chardata") {
     val ctx = parseOrThrow("<apex:page>&amp;</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.getText(ctx.element().content().chardata(0)) == "&amp;")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.getText(content.chardata(0)) == "&amp;")
   }
 
   test("Entity in chardata") {
     val ctx = parseOrThrow("<apex:page>a&amp;b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "&amp;")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "b")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.childCount(content.chardata(0)) == 3)
+    assert(PageParser.getText(content.chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(content.chardata(0).getChild(1)) == "&amp;")
+    assert(PageParser.getText(content.chardata(0).getChild(2)) == "b")
   }
 
   test("CharRef as chardata") {
     val ctx = parseOrThrow("<apex:page>&#32;</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.getText(ctx.element().content().chardata(0)) == "&#32;")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.getText(content.chardata(0)) == "&#32;")
   }
 
   test("CharRef in chardata") {
     val ctx = parseOrThrow("<apex:page>a&#32;b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "&#32;")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "b")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.childCount(content.chardata(0)) == 3)
+    assert(PageParser.getText(content.chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(content.chardata(0).getChild(1)) == "&#32;")
+    assert(PageParser.getText(content.chardata(0).getChild(2)) == "b")
   }
 
   test("EL as chardata") {
     val ctx = parseOrThrow("<apex:page>{!foo}</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 3)
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "{!")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "foo")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "}")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.childCount(content.chardata(0)) == 3)
+    assert(PageParser.getText(content.chardata(0).getChild(0)) == "{!")
+    assert(PageParser.getText(content.chardata(0).getChild(1)) == "foo")
+    assert(PageParser.getText(content.chardata(0).getChild(2)) == "}")
   }
 
   test("EL in chardata") {
     val ctx = parseOrThrow("<apex:page>a{!foo}b</apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.childCount(ctx.element().content().chardata(0)) == 5)
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(0)) == "a")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(1)) == "{!")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(2)) == "foo")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(3)) == "}")
-    assert(PageParser.getText(ctx.element().content().chardata(0).getChild(4)) == "b")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.childCount(content.chardata(0)) == 5)
+    assert(PageParser.getText(content.chardata(0).getChild(0)) == "a")
+    assert(PageParser.getText(content.chardata(0).getChild(1)) == "{!")
+    assert(PageParser.getText(content.chardata(0).getChild(2)) == "foo")
+    assert(PageParser.getText(content.chardata(0).getChild(3)) == "}")
+    assert(PageParser.getText(content.chardata(0).getChild(4)) == "b")
   }
 
   test("Whitespace before root") {
@@ -219,7 +226,8 @@ class VFParserTest extends AnyFunSuite with Matchers {
   test("Comments in root") {
     val ctx = parseOrThrow("<apex:page><!-- abc --><!-- xyz --></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().COMMENT().size == 2)
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.COMMENT().size == 2)
   }
 
   test("Comments after root") {
@@ -237,25 +245,29 @@ class VFParserTest extends AnyFunSuite with Matchers {
   test("PIs in root") {
     val ctx = parseOrThrow("<apex:page><?foo a='b'?><?foo a='b'?></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().processingInstruction().size == 2)
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.processingInstruction().size == 2)
   }
 
   test("Child element") {
     val ctx = parseOrThrow("<apex:page><a></a></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size == 1)
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.element().size == 1)
   }
 
   test("Child element with whitespace") {
     val ctx = parseOrThrow("<apex:page> \n <a/> \n </apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size == 1)
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.element().size == 1)
   }
 
   test("Child elements") {
     val ctx = parseOrThrow("<apex:page><a/><b></b></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().element().size == 2)
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.element().size == 2)
   }
 
   test("Less than in script") {
@@ -274,15 +286,17 @@ class VFParserTest extends AnyFunSuite with Matchers {
   test("CDATA") {
     val ctx = parseOrThrow("<apex:page><![CDATA[x < y & z]]></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.getText(ctx.element().content().chardata(0).CDATA_TEXT(0)) == "x < y & z")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.getText(content.chardata(0).CDATA_TEXT(0)) == "x < y & z")
   }
 
   test("CDATA with EL") {
     val ctx = parseOrThrow("<apex:page><![CDATA[a{!foo}b]]></apex:page>")
     assert(Option(ctx.element()).nonEmpty)
-    assert(ctx.element().content().chardata().size == 1)
-    assert(PageParser.getText(ctx.element().content().chardata(0).EL_BODY(0)) == "foo")
+    val content = PageParser.toScala(ctx.element().content()).get
+    assert(content.chardata().size == 1)
+    assert(PageParser.getText(content.chardata(0).EL_BODY(0)) == "foo")
   }
 
   class IssueException(val issues: Seq[ParserIssue]) extends Exception

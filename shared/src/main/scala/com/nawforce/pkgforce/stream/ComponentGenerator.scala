@@ -78,7 +78,7 @@ object ComponentGenerator {
       return Array()
     }
 
-    Option(root.content())
+    PageParser.toScala(root.content())
       .map(
         content =>
           PageParser

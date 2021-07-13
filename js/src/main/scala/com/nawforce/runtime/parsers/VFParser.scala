@@ -65,7 +65,7 @@ object VFParser {
     def Name(i: Int): TerminalNode = js.native
     def attribute(): js.Array[AttributeContext] = js.native
     def attribute(i: Int): AttributeContext = js.native
-    def content(): ContentContext = js.native
+    def content(): js.UndefOr[ContentContext] = js.native
     def scriptChardata(): ScriptChardataContext = js.native
   }
 
