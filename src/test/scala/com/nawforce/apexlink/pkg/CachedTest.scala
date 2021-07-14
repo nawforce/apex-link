@@ -396,32 +396,29 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
 
   test("Page dependency is cached") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "", "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
-      root: PathLike =>
-        val org1 = createOrg(root)
-        assert(!org1.issues.hasErrorsOrWarnings)
-        org1.flush()
+      Map("TestPage.page" -> "<apex:page/>",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) { root: PathLike =>
+      val org1 = createOrg(root)
+      assert(!org1.issues.hasErrorsOrWarnings)
+      org1.flush()
 
-        val org2 = createOrg(root)
-        val pkg2 = org2.unmanaged
-        assert(!org2.issues.hasErrorsOrWarnings)
+      val org2 = createOrg(root)
+      val pkg2 = org2.unmanaged
+      assert(!org2.issues.hasErrorsOrWarnings)
 
-        assertIsSummaryDeclaration(pkg2, "Dummy")
-        assert(
-          pkg2
-            .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))),
-                             outerInheritanceOnly = false,
-                             apexOnly = false)
-            .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
+      assertIsSummaryDeclaration(pkg2, "Dummy")
+      assert(pkg2
+        .getDependencies(TypeIdentifier(None, TypeName(Name("Dummy"))), outerInheritanceOnly = false, apexOnly = false)
+        .sameElements(Array(TypeIdentifier(None, TypeNames.Page))))
 
-        root.join("TestPage.page").delete()
+      root.join("TestPage.page").delete()
 
-        val org3 = createOrg(root)
-        val pkg3 = org3.unmanaged
-        assertIsFullDeclaration(pkg3, "Dummy")
-        assert(
-          org3.getIssues(new IssueOptions()) ==
-            "/Dummy.cls\nMissing: line 1 at 40-53: Unknown field or type 'TestPage' on 'Page'\n")
+      val org3 = createOrg(root)
+      val pkg3 = org3.unmanaged
+      assertIsFullDeclaration(pkg3, "Dummy")
+      assert(
+        org3.getIssues(new IssueOptions()) ==
+          "/Dummy.cls\nMissing: line 1 at 40-53: Unknown field or type 'TestPage' on 'Page'\n")
     }
   }
 
@@ -434,7 +431,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
           |"packageDirectories": [{"path": "pkg2"}],
           |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
           |}""".stripMargin,
-        "pkg1/TestPage.page" -> "",
+        "pkg1/TestPage.page" -> "<apex:page/>",
         "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
       val org1 = createOrg(root)
       assert(!org1.issues.hasErrorsOrWarnings)

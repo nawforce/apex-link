@@ -199,7 +199,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
 
   test("Delete page file") {
     withManualFlush {
-      FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
+      FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
@@ -215,7 +215,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
 
   test("Delete page file (multiple)") {
     withManualFlush {
-      FileSystemHelper.run(Map("Test.page" -> "", "Test2.page" -> "")) { root: PathLike =>
+      FileSystemHelper.run(Map("Test.page" -> "<apex:page/>", "Test2.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
