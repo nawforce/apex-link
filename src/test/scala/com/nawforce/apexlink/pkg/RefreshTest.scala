@@ -543,12 +543,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid page upsert") {
     withManualFlush {
-      FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
+      FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
 
-        refresh(pkg, root.join("TestPage.page"), "")
+        refresh(pkg, root.join("TestPage.page"), "<apex:page/>")
         assert(org.flush())
         assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
@@ -562,7 +562,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
 
-        refresh(pkg, root.join("TestPage.page"), "")
+        refresh(pkg, root.join("TestPage.page"), "<apex:page/>")
         assert(org.flush())
         assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
@@ -571,12 +571,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid page upsert (changed)") {
     withManualFlush {
-      FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
+      FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
 
-        refresh(pkg, root.join("TestPage.page"), " ")
+        refresh(pkg, root.join("TestPage.page"), "<apex:page/> ")
         assert(org.flush())
         assert(pkg.orderedModules.head.pages.findField(Name("TestPage"), Some(true)).nonEmpty)
       }
@@ -585,12 +585,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid page upsert (new page)") {
     withManualFlush {
-      FileSystemHelper.run(Map("TestPage.page" -> "")) { root: PathLike =>
+      FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(!org.issues.hasErrorsOrWarnings)
 
-        refresh(pkg, root.join("TestPage2.page"), " ")
+        refresh(pkg, root.join("TestPage2.page"), "<apex:page/> ")
         assert(org.flush())
         assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
       }

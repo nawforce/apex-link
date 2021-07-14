@@ -21,28 +21,25 @@ class PageTest extends AnyFunSuite with TestHelper {
 
   test("Valid page") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+      Map("TestPage.page" -> "<apex:page/>",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
   test("Valid page (case insensitive)") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+      Map("TestPage.page" -> "<apex:page/>",
+          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
   test("Missing page") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }")) {
+      Map("TestPage.page" -> "", "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
@@ -60,11 +57,10 @@ class PageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg2"}],
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
-        "pkg1/TestPage.page" -> "",
-        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg1/TestPage.page" -> "<apex:page/>",
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 
@@ -77,10 +73,9 @@ class PageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg2"}],
           |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
           |}""".stripMargin,
-        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
     }
   }
 

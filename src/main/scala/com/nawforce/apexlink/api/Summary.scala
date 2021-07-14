@@ -91,7 +91,8 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
 }
 
 /** Summary of a type field (or property)*/
-case class FieldSummary(nameLocation: Location,
+case class FieldSummary(location: Location,
+                        nameLocation: Location,
                         name: String,
                         modifiers: Array[String],
                         typeName: TypeName,
@@ -108,6 +109,7 @@ case class FieldSummary(nameLocation: Location,
   override def canEqual(that: Any): Boolean = that.isInstanceOf[FieldSummary]
 
   private def doesEqual(other: FieldSummary): Boolean = {
+    this.location == other.location &&
     this.nameLocation == other.nameLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&
@@ -119,7 +121,8 @@ case class FieldSummary(nameLocation: Location,
 }
 
 /** Summary of a type constructor*/
-case class ConstructorSummary(nameLocation: Location,
+case class ConstructorSummary(location: Location,
+                              nameLocation: Location,
                               modifiers: Array[String],
                               parameters: Array[ParameterSummary],
                               dependents: Array[DependentSummary]) {
@@ -133,6 +136,7 @@ case class ConstructorSummary(nameLocation: Location,
   override def canEqual(that: Any): Boolean = that.isInstanceOf[ConstructorSummary]
 
   private def doesEqual(other: ConstructorSummary): Boolean = {
+    this.location == other.location &&
     this.nameLocation == other.nameLocation &&
     this.modifiers.sameElements(other.modifiers) &&
     this.parameters.sameElements(other.parameters) &&
@@ -141,7 +145,8 @@ case class ConstructorSummary(nameLocation: Location,
 }
 
 /** Summary of a type method*/
-case class MethodSummary(nameLocation: Location,
+case class MethodSummary(location: Location,
+                         nameLocation: Location,
                          name: String,
                          modifiers: Array[String],
                          var typeName: TypeName,
@@ -161,6 +166,7 @@ case class MethodSummary(nameLocation: Location,
   override def canEqual(that: Any): Boolean = that.isInstanceOf[MethodSummary]
 
   private def doesEqual(other: MethodSummary): Boolean = {
+    this.location == other.location &&
     this.nameLocation == other.nameLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&

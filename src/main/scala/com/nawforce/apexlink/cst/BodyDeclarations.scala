@@ -189,6 +189,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
 
   override def idLocation: Option[PathLocation] = Some(id.location)
   override def nameLocation: PathLocation = id.location
+  override def fullLocation: PathLocation = location
   override val name: Name = id.name
   override def hasBlock: Boolean = block.nonEmpty
 
@@ -284,6 +285,7 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
   val id: Id = variableDeclarator.id
   override val idLocation: Option[PathLocation] = Some(id.location)
   override val nameLocation: PathLocation = id.location
+  override def fullLocation: PathLocation = location
   override val name: Name = id.name
   private val visibility: Option[Modifier] =
     _modifiers.modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
@@ -323,7 +325,8 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
     with ApexConstructorLike {
 
   override val idLocation: Option[PathLocation] = Some(qualifiedName.location)
-  override val nameRange: PathLocation = qualifiedName.location
+  override val nameLocation: PathLocation = qualifiedName.location
+  override def fullLocation: PathLocation = location
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
