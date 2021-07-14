@@ -33,6 +33,7 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
   override val name: Name = id.name
   override val idLocation: Option[PathLocation] = Some(id.location)
   override val nameLocation: PathLocation = id.location
+  override def fullLocation: PathLocation = location
 
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {

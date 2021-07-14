@@ -34,10 +34,12 @@ trait ApexBlockLike extends BlockDeclaration {
 
 /** Apex defined constructor core features, be they full or summary style */
 trait ApexConstructorLike extends ConstructorDeclaration {
-  val nameRange: PathLocation
+  def fullLocation: PathLocation
+  def nameLocation: PathLocation
 
   def summary: ConstructorSummary = {
-    ConstructorSummary(nameRange.location,
+    ConstructorSummary(fullLocation.location,
+                       nameLocation.location,
                        modifiers.map(_.toString).sorted,
                        parameters.map(_.serialise).sortBy(_.name),
                        dependencySummary())
@@ -53,6 +55,7 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 /** Apex defined method core features, be they full or summary style */
 trait ApexMethodLike extends ApexVisibleMethodLike {
   val outerTypeId: TypeId
+  def fullLocation: PathLocation
   def nameLocation: PathLocation
 
   def hasBlock: Boolean
@@ -85,7 +88,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   }
 
   def summary: MethodSummary = {
-    MethodSummary(nameLocation.location,
+    MethodSummary(fullLocation.location,
+                  nameLocation.location,
                   name.toString,
                   modifiers.map(_.toString).sorted,
                   typeName,
@@ -98,7 +102,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
 /** Apex defined fields core features, be they full or summary style */
 trait ApexFieldLike extends FieldDeclaration {
   val outerTypeId: TypeId
-  val nameLocation: PathLocation
+  def fullLocation: PathLocation
+  def nameLocation: PathLocation
   val idTarget: Option[TypeName] = None
 
   def isEntry: Boolean = {
@@ -110,7 +115,8 @@ trait ApexFieldLike extends FieldDeclaration {
   }
 
   def summary: FieldSummary = {
-    FieldSummary(nameLocation.location,
+    FieldSummary(fullLocation.location,
+                 nameLocation.location,
                  name.toString,
                  modifiers.map(_.toString).sorted,
                  typeName,

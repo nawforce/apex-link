@@ -37,6 +37,7 @@ final case class CustomMethodDeclaration(nameLocation: Location,
 
   def summary: MethodSummary = {
     MethodSummary(nameLocation,
+                  nameLocation,
                   name.toString,
                   modifiers.map(_.toString).sorted,
                   typeName,

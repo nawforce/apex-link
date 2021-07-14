@@ -197,7 +197,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
               LocationLink(Location(1, 23, 1, 33),
                 root.join("Foo.cls").toString,
                 Location(1, 26, 1, 42),
-                Location(1, 26, 1, 42))))
+                Location(1, 31, 1, 37))))
     }
   }
 
@@ -213,7 +213,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
               LocationLink(Location(1, 23, 1, 30),
                 root.join("Foo.cls").toString,
                 Location(1, 26, 1, 45),
-                Location(1, 26, 1, 45))))
+                Location(1, 33, 1, 36))))
     }
   }
 
@@ -230,11 +230,11 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
               LocationLink(Location(1, 23, 1, 33),
                 root.join("Foo.cls").toString,
                 Location(1, 26, 1, 51),
-                Location(1, 26, 1, 51)),
+                Location(1, 31, 1, 37)),
               LocationLink(Location(1, 23, 1, 33),
                 root.join("Foo.cls").toString,
                 Location(1, 59, 1, 83),
-                Location(1, 59, 1, 83)))))
+                Location(1, 64, 1, 70)))))
     }
   }
 

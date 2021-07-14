@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021 Kevin Jones, All rights reserved.
+ Copyright (c) 2021 Kevin Jones & FinancialForce, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,11 +13,10 @@
  */
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.{ApexFieldDeclaration, ApexMethodDeclaration}
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration, SummaryField, SummaryMethod}
+import com.nawforce.apexlink.types.apex.{ApexDeclaration, ApexFieldLike, ApexMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
@@ -27,6 +26,7 @@ import com.nawforce.runtime.parsers.ByteArraySourceData
 
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
 
@@ -44,53 +44,63 @@ trait DefinitionProvider {
     val exprLocationAndType = fullExprAndLocation
       .flatMap(expr => findTypeInExpression(path, line, offset, source, expr))
 
-    if (exprLocationAndType.isEmpty)
+    if (fullExprAndLocation.isEmpty || exprLocationAndType.isEmpty)
       return Array.empty
 
-    val loc = locationForStaticMethodOrField(exprLocationAndType.get._1, fullExprAndLocation.get._2, exprLocationAndType.get._3, fullExprAndLocation.get._1)
-    if(loc.isEmpty) {
+    val loc = locationForStaticMethodOrField(exprLocationAndType.get._1,
+                                             fullExprAndLocation.get._2,
+                                             exprLocationAndType.get._3,
+                                             fullExprAndLocation.get._1)
+    if (loc.isEmpty) {
       exprLocationAndType match {
-        case Some((expr: String, srcLocation: Location, ad: ApexDeclaration)) =>
+        case Some((_: String, srcLocation: Location, ad: ApexDeclaration)) =>
           Array(LocationLink(srcLocation, ad.path.toString, ad.fullLocation, ad.nameLocation))
         case _ => Array.empty
       }
-    }
-    else loc
+    } else loc
   }
 
-  private def locationForStaticMethodOrField(expr: String, srcLocation: Location, td: TypeDeclaration, fullExpr: String): Array[LocationLink] = {
-
-    def toLocationFromMethod(amd: ApexMethodDeclaration): Location =
-      Location(amd.startLine, amd.startOffset, amd.endLine, amd.endOffset)
-
-    def toLocationFromField(afd: ApexFieldDeclaration): Location =
-      Location(afd.startLine, afd.startOffset, afd.endLine, afd.endOffset)
+  private def locationForStaticMethodOrField(expr: String,
+                                             srcLocation: Location,
+                                             td: ApexDeclaration,
+                                             fullExpr: String): Array[LocationLink] = {
 
     def staticMethod(name: String): Array[LocationLink] = {
       val methods = td.methods.filter(m => m.name == Name(name))
-      methods.map {
-          case summary: SummaryMethod => LocationLink(srcLocation, td.asInstanceOf[ApexDeclaration].path.toString, summary.nameLocation.location, summary.nameLocation.location)
-          case amd: ApexMethodDeclaration => LocationLink(srcLocation, td.asInstanceOf[ApexDeclaration].path.toString, toLocationFromMethod(amd), toLocationFromMethod(amd))
+      methods.flatMap {
+        case method: ApexMethodLike =>
+          Some(LocationLink(srcLocation, td.path.toString, method.fullLocation.location, method.nameLocation.location))
+        case _ => None
       }
     }
 
     def staticField(name: String): Array[LocationLink] = {
       val fields = td.fields.filter(f => f.name == Name(name))
-      fields.map {
-          case summary: SummaryField => LocationLink(srcLocation, td.asInstanceOf[ApexDeclaration].path.toString, summary.nameLocation.location, summary.nameLocation.location)
-          case afd: ApexFieldDeclaration => LocationLink(srcLocation, td.asInstanceOf[ApexDeclaration].path.toString, toLocationFromField(afd), toLocationFromField(afd))
+      fields.flatMap {
+        case field: ApexFieldLike =>
+          Some(LocationLink(srcLocation, td.path.toString, field.fullLocation.location, field.nameLocation.location))
+        case _ => None
       }
     }
 
-    if( expr != fullExpr)
-      (staticMethod(fullExpr.substring(expr.length+1)) ++ staticField(fullExpr.substring(expr.length+1))).toArray
+    if (expr != fullExpr)
+      staticMethod(fullExpr.substring(expr.length + 1)) ++ staticField(fullExpr.substring(expr.length + 1))
     else
       Array.empty
   }
 
-  private def findTypeInExpression(path: PathLike, line: Int, offset: Int, source: String, exprAndLocation: (String, Location)): Option[(String, Location, TypeDeclaration)] = {
+  @tailrec
+  private def findTypeInExpression(path: PathLike,
+                                   line: Int,
+                                   offset: Int,
+                                   source: String,
+                                   exprAndLocation: (String, Location)): Option[(String, Location, ApexDeclaration)] = {
 
-    def findTypeForExpression(path: PathLike, line: Int, offset: Int, source: String, exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
+    def findTypeForExpression(path: PathLike,
+                              line: Int,
+                              offset: Int,
+                              source: String,
+                              exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
           findType(typeName, path, source, line, offset)
@@ -100,23 +110,24 @@ trait DefinitionProvider {
 
     findTypeForExpression(path, line, offset, source, exprAndLocation) match {
       case Some(ad: ApexDeclaration) => Some((exprAndLocation._1, exprAndLocation._2, ad))
-      case Some(_) => None
-      case None => lessSpecificExpression(exprAndLocation) match {
-        case Some(expr) => findTypeInExpression(path, line, offset, source, expr)
-        case None => None
-      }
+      case Some(_)                   => None
+      case None =>
+        lessSpecificExpression(exprAndLocation) match {
+          case Some(expr) => findTypeInExpression(path, line, offset, source, expr)
+          case None       => None
+        }
     }
   }
 
-  def lessSpecificExpression( exprAndLocation: (String, Location) ): Option[(String, Location)] = {
-    def shrinkLocation(src: Location, difference: Int) : Location = {
-      src.copy( endPosition = src.endPosition - difference)
+  def lessSpecificExpression(exprAndLocation: (String, Location)): Option[(String, Location)] = {
+    def shrinkLocation(src: Location, difference: Int): Location = {
+      src.copy(endPosition = src.endPosition - difference)
     }
 
     val index = exprAndLocation._1.lastIndexOf(".")
     if (index == -1) return None
-    Some((exprAndLocation._1.substring(0, index),
-      shrinkLocation(exprAndLocation._2, exprAndLocation._1.length - index)))
+    Some(
+      (exprAndLocation._1.substring(0, index), shrinkLocation(exprAndLocation._2, exprAndLocation._1.length - index)))
   }
 
   private def findType(typeName: TypeName,

@@ -213,8 +213,8 @@ class SummaryMethod(val module: Module,
 
   override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
 
-  override val nameLocation: PathLocation =
-    PathLocation(path.toString, methodSummary.nameLocation)
+  override val fullLocation: PathLocation = PathLocation(path.toString, methodSummary.location)
+  override val nameLocation: PathLocation = PathLocation(path.toString, methodSummary.nameLocation)
   override val name: Name = Names(methodSummary.name)
   override val modifiers: Array[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
@@ -236,6 +236,7 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
 
   override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
 
+  override val fullLocation: PathLocation = PathLocation(path.toString, fieldSummary.location)
   override val nameLocation: PathLocation = PathLocation(path.toString, fieldSummary.nameLocation)
   override val name: Name = Names(fieldSummary.name)
   override val modifiers: Array[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
@@ -250,7 +251,8 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
 
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
-  override val nameRange: PathLocation = PathLocation(path.toString, constructorSummary.nameLocation)
+  override val fullLocation: PathLocation = PathLocation(path.toString, constructorSummary.location)
+  override val nameLocation: PathLocation = PathLocation(path.toString, constructorSummary.nameLocation)
   override val modifiers: Array[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
   override val parameters: Array[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_))
