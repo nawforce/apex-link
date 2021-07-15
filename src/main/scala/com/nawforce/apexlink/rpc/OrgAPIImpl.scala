@@ -105,19 +105,19 @@ object GetIssues {
   }
 }
 
-case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult]) extends APIRequest {
+case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult], apexOnly: Boolean) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      promise.success(GetTypeIdentifiersResult(orgImpl.getTypeIdentifiers))
+      promise.success(GetTypeIdentifiersResult(orgImpl.getTypeIdentifiers(apexOnly)))
     }
   }
 }
 
 object TypeIdentifiers {
-  def apply(queue: OrgQueue): Future[GetTypeIdentifiersResult] = {
+  def apply(queue: OrgQueue, apexOnly: Boolean): Future[GetTypeIdentifiersResult] = {
     val promise = Promise[GetTypeIdentifiersResult]()
-    queue.add(new TypeIdentifiers(promise))
+    queue.add(new TypeIdentifiers(promise, apexOnly))
     promise.future
   }
 }
@@ -215,8 +215,8 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     Future(OrgQueue.instance().refresh(path))
   }
 
-  override def typeIdentifiers(): Future[GetTypeIdentifiersResult] = {
-    TypeIdentifiers(OrgQueue.instance())
+  override def typeIdentifiers(apexOnly: Boolean): Future[GetTypeIdentifiersResult] = {
+    TypeIdentifiers(OrgQueue.instance(), apexOnly)
   }
 
   override def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph] = {

@@ -852,7 +852,19 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       assert(
-        org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Schema.Account", "Dummy"))
+        org.getTypeIdentifiers(false).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Schema.Account", "Dummy"))
+    }
+  }
+
+  test("typeIdentifiers - apex only") {
+    FileSystemHelper.run(
+      Map("classes/Dummy.cls" -> "public class Dummy {}",
+        "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!org.issues.hasErrorsOrWarnings)
+
+      assert(
+        org.getTypeIdentifiers(true).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Dummy"))
     }
   }
 
@@ -870,7 +882,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       assert(
-        org.getTypeIdentifiers.map(_.toString).toSet == Set[String]("__sfdc_trigger/test/Foo [test]",
+        org.getTypeIdentifiers(false).map(_.toString).toSet == Set[String]("__sfdc_trigger/test/Foo [test]",
                                                                     "Schema.Account [test]",
                                                                     "Dummy (test)"))
     }

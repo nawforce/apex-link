@@ -103,7 +103,7 @@ trait OrgAPI {
   def refresh(path: String): Future[Unit]
 
   @api.JSONRPCMethod(name = "getTypeIdentifiers")
-  def typeIdentifiers(): Future[GetTypeIdentifiersResult]
+  def typeIdentifiers(apexOnly: Boolean): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
   def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph]
