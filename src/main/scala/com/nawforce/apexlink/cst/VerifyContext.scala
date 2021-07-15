@@ -89,6 +89,8 @@ trait HolderVerifyContext {
 
   def dependencies: SkinnySet[Dependent] = _dependencies
 
+  def thisType: TypeDeclaration
+
   /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
@@ -126,10 +128,10 @@ trait HolderVerifyContext {
       getTypeFor(typeName, from) match {
         case Left(err) => Left(err)
         case Right(td) =>
-          // Check for an 'extended' version of same type in current module. really only applies to SObjects
-          // but important for cache invalidation handling that we use current module version
-          if (!td.moduleDeclaration.contains(usingModule)) {
-            usingModule.findModuleType(td.typeName) match {
+          // Check for an 'extended' version of same type in current module, only applies to SObjects.
+          // It's important for cache invalidation handling that we use current module version.
+          if (td.isSObject && !td.moduleDeclaration.contains(usingModule)) {
+            getTypeFor(td.typeName, thisType).toOption match {
               case Some(moduleTd) => Right(moduleTd)
               case _              => Right(td)
             }
