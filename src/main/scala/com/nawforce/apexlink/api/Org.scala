@@ -86,7 +86,7 @@ trait Org {
     *
     * Returns an array which may be empty.
     */
-  def getTypeIdentifiers: Array[TypeIdentifier]
+  def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier]
 
   /** Get Apex type dependency map for all types in the Org.
     *

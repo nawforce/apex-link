@@ -168,9 +168,9 @@ trait PackageAPI extends Package {
   }
 
   /** Get a array of type identifiers from this packages modules. */
-  override def getTypeIdentifiers: Array[TypeIdentifier] = {
+  override def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier] = {
     modules
-      .foldLeft(Set[TypeIdentifier]())((acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers)
+      .foldLeft(Set[TypeIdentifier]())((acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers(apexOnly))
       .toArray
   }
 

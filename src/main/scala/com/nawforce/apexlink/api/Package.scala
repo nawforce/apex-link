@@ -52,7 +52,7 @@ trait Package {
     *
     * Returns an array which may be empty.
     */
-  def getTypeIdentifiers: Array[TypeIdentifier]
+  def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier]
 
   /** Get a TypeIdentifier for a TypeName resolved against this package.
     *
