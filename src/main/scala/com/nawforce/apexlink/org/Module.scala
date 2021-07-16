@@ -100,11 +100,11 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   /** Iterate metadata defined types, this will include referenced platform SObjects irrespective of if they have been
     * extended or not which is perhaps not quite accurate to the method name. */
-  def getMetadataDefinedTypeIdentifiers: Iterable[TypeIdentifier] = {
+  def getMetadataDefinedTypeIdentifiers(apexOnly: Boolean): Iterable[TypeIdentifier] = {
     types.values
       .collect {
-        case x: ApexDeclaration    => x
-        case x: SObjectDeclaration => x
+        case x: ApexDeclaration                 => x
+        case x: SObjectDeclaration if !apexOnly => x
       }
       .map(td => TypeIdentifier(namespace, td.typeName))
   }

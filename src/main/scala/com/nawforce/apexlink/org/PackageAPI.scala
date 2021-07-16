@@ -170,11 +170,8 @@ trait PackageAPI extends Package {
   /** Get a array of type identifiers from this packages modules. */
   override def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier] = {
     modules
-      .foldLeft(Set[TypeIdentifier]())((acc, module) =>
-        acc ++ module.getMetadataDefinedTypeIdentifiers.filter(id =>
-          !apexOnly || TypeResolver(id.typeName, module).toOption.exists(
-            _.isInstanceOf[ApexDeclaration])))
-          .toArray
+      .foldLeft(Set[TypeIdentifier]())((acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers(apexOnly))
+      .toArray
   }
 
   /** Flush all types to the passed cache */
