@@ -66,9 +66,9 @@ object PackageStream {
 
   def eventStream(index: DocumentIndex): Iterator[PackageEvent] = {
     LabelGenerator.iterator(index) ++
+      ComponentGenerator.iterator(index) ++
       PageGenerator.iterator(index) ++
       FlowGenerator.iterator(index) ++
-      ComponentGenerator.iterator(index) ++
       SObjectGenerator.iterator(index) ++
       ExtendedApexGenerator.iterator(index) ++
       ApexGenerator.iterator(index) ++
