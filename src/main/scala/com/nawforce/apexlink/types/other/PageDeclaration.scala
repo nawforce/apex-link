@@ -18,7 +18,7 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.Names.NameUtils
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, DependentType, FieldDeclaration, TypeId}
+import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -29,19 +29,28 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(module: Module, path: PathLike, name: Name) extends FieldDeclaration {
+case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFContainer) extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
+
+  private var depends: Option[Set[Dependent]] = None
+
+  override def dependencies(): Iterable[Dependent] = depends.map(_.toIterable).getOrElse(Array().toIterable)
+
+  def validate(): Unit = {
+    depends = Some(vfContainer.validate())
+    propagateDependencies()
+  }
 }
 
 object Page {
   def apply(module: Module, event: PageEvent): Page = {
     val path = event.sourceInfo.path
     val document = MetadataDocument(path)
-    new Page(module, path, document.get.name)
+    new Page(module, path, document.get.name, new VFContainer(module, event))
   }
 }
 
@@ -71,9 +80,17 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
     new PageDeclaration(sourceInfo, module, newPages)
   }
 
+  override def validate(): Unit = {
+    pages.foreach(_.validate())
+    propagateOuterDependencies(new TypeCache())
+  }
+
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
                                              apexOnly: Boolean,
                                              typeCache: TypeCache): Unit = {
+    val dependents = mutable.Set[Dependent]()
+    pages.foreach(page => page.dependencies().foreach(dependents.add))
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
     if (!apexOnly)
       module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
   }
@@ -93,7 +110,7 @@ object PageDeclaration {
             if (page.name.contains("__"))
               page
             else
-              Page(module, page.path, Name(s"${ns}__${page.name}"))
+              Page(module, page.path, Name(s"${ns}__${page.name}"), page.vfContainer)
           })
         })
       })

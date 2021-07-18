@@ -14,6 +14,7 @@
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -76,6 +77,92 @@ class PageTest extends AnyFunSuite with TestHelper {
         "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
+    }
+  }
+
+  test("Missing controller") {
+    FileSystemHelper.run(Map("Test.page" -> "<apex:page controller='Dummy'/>")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Test.page").toString) ==
+          "Missing: line 1 at 11-29: No type declaration found for 'Dummy'\n")
+    }
+  }
+
+  test("Missing extension") {
+    FileSystemHelper.run(
+      Map("Test.page" -> "<apex:page controller='Dummy' extensions='Extension'/>",
+          "Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Test.page").toString) ==
+          "Missing: line 1 at 30-52: No type declaration found for 'Extension'\n")
+    }
+  }
+
+  test("Valid controller") {
+    FileSystemHelper.run(
+      Map("Test.page" -> "<apex:page controller='Controller'/>", "Controller.cls" -> "public class Controller {}")) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+
+        val testPageTypeId =
+          org.unmanaged.getTypeOfPathInternal(root.join("Test.page")).get.asTypeIdentifier
+        assert(testPageTypeId.toString == "Page.Test")
+        assert(org.unmanaged.getPathsOfType(testPageTypeId).sameElements(Array("/Test.page")))
+
+        val pageTypeId = TypeIdentifier(None, TypeName(Name("Page")))
+        val controllerTypeId =
+          org.unmanaged.getTypeOfPathInternal(root.join("Controller.cls")).get.asTypeIdentifier
+
+        assert(
+          org.unmanaged
+            .getDependencies(pageTypeId, outerInheritanceOnly = false, apexOnly = false) sameElements Array(
+            controllerTypeId))
+
+        assert(
+          org.unmanaged
+            .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
+            .isEmpty)
+        assert(org.unmanaged.getDependencyHolders(controllerTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
+    }
+  }
+
+  test("Valid controller & extension") {
+    FileSystemHelper.run(
+      Map("Test.page" -> "<apex:page controller='Controller' extensions='Extension'/>",
+          "Controller.cls" -> "public class Controller {}",
+          "Extension.cls" -> "public class Extension {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      val testPageTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Test.page")).get.asTypeIdentifier
+      assert(testPageTypeId.toString == "Page.Test")
+      assert(org.unmanaged.getPathsOfType(testPageTypeId).sameElements(Array("/Test.page")))
+
+      val pageTypeId = TypeIdentifier(None, TypeName(Name("Page")))
+      val controllerTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Controller.cls")).get.asTypeIdentifier
+      val extensionTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Extension.cls")).get.asTypeIdentifier
+
+      assert(
+        org.unmanaged
+          .getDependencies(pageTypeId, outerInheritanceOnly = false, apexOnly = false) sameElements Array(
+          extensionTypeId,
+          controllerTypeId))
+
+      assert(
+        org.unmanaged
+          .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
+          .isEmpty)
+      assert(
+        org.unmanaged
+          .getDependencies(extensionTypeId, outerInheritanceOnly = false, apexOnly = false)
+          .isEmpty)
+
+      assert(org.unmanaged.getDependencyHolders(controllerTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
+      assert(org.unmanaged.getDependencyHolders(extensionTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
     }
   }
 

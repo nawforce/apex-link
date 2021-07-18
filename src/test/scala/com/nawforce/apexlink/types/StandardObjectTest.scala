@@ -25,7 +25,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(
           org.issues.getMessages(root.join("Foo.object").toString) ==
-            "Error: line 0: No SObject declaration found for 'Schema.Foo'\n")
+            "Error: line 1: No SObject declaration found for 'Schema.Foo'\n")
     }
   }
 
@@ -35,7 +35,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(
           org.issues.getMessages(root.join("String.object").toString) ==
-            "Error: line 0: No SObject declaration found for 'Schema.String'\n")
+            "Error: line 1: No SObject declaration found for 'Schema.String'\n")
     }
   }
 

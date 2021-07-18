@@ -226,7 +226,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     packagesByNamespace
       .get(identifier.namespace)
       .flatMap(pkg => {
-        pkg.orderedModules.view.flatMap(_.packageType(identifier.typeName)).headOption
+        pkg.orderedModules.view.flatMap(_.moduleType(identifier.typeName)).headOption
       })
   }
 

@@ -110,7 +110,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   }
 
   /* Search for a specific outer or inner type */
-  def packageType(typeName: TypeName): Option[TypeDeclaration] = {
+  def moduleType(typeName: TypeName): Option[TypeDeclaration] = {
     types
       .get(typeName)
       .orElse(

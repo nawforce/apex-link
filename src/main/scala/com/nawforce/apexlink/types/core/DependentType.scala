@@ -17,7 +17,11 @@ package com.nawforce.apexlink.types.core
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.SkinnySet
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
+import com.nawforce.apexlink.types.apex.ApexClassDeclaration
+import com.nawforce.apexlink.types.other.{Component, Interview, Label, Page}
+import com.nawforce.apexlink.types.schema.SObjectDeclaration
 
 import scala.collection.mutable
 
@@ -82,4 +86,21 @@ trait DependentType extends TypeDeclaration {
 
 object DependentType {
   val emptyTypeDependencyHolders: SkinnySet[TypeId] = new SkinnySet[TypeId]()
+
+  // FUTURE: Replace this tmp helper by a simpler mechanism
+  def dependentsToTypeIds(module: Module,
+                          dependents: mutable.Set[Dependent],
+                          apexOnly: Boolean,
+                          dependsOn: mutable.Set[TypeId]): Unit = {
+    dependents.foreach {
+      case ad: ApexClassDeclaration            => dependsOn.add(ad.outerTypeId)
+      case co: SObjectDeclaration if !apexOnly => dependsOn.add(co.typeId)
+      case _: Label if !apexOnly               => dependsOn.add(TypeId(module, TypeNames.Label))
+      case _: Interview if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Interview))
+      case _: Page if !apexOnly                => dependsOn.add(TypeId(module, TypeNames.Page))
+      case _: Component if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Component))
+      case _                                   => ()
+    }
+  }
+
 }

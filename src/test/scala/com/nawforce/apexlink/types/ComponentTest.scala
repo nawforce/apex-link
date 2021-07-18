@@ -16,7 +16,7 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -52,7 +52,6 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Missing component") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Component.Test;} }")) { root: PathLike =>
       val org = createOrg(root)
-      // TODO: This should be a missing issue
       assert(
         org.issues.getMessages("/Dummy.cls") ==
           "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
@@ -191,6 +190,44 @@ class ComponentTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
+    }
+  }
+
+  test("Missing controller") {
+    FileSystemHelper.run(Map("Test.component" -> "<apex:component controller='Dummy'/>")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Test.component").toString) ==
+          "Missing: line 1 at 16-34: No type declaration found for 'Dummy'\n")
+    }
+  }
+
+  test("Valid controller") {
+    FileSystemHelper.run(
+      Map("Test.component" -> "<apex:component controller='Controller'/>",
+          "Controller.cls" -> "public class Controller {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      val testComponentTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Test.component")).get.asTypeIdentifier
+      assert(testComponentTypeId.toString == "Component.Test")
+      assert(org.unmanaged.getPathsOfType(testComponentTypeId).sameElements(Array("/Test.component")))
+
+      val componentTypeId = TypeIdentifier(None, TypeName(Name("Component")))
+      val controllerTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Controller.cls")).get.asTypeIdentifier
+
+      assert(
+        org.unmanaged
+          .getDependencies(componentTypeId, outerInheritanceOnly = false, apexOnly = false) sameElements Array(
+          controllerTypeId))
+
+      assert(
+        org.unmanaged
+          .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
+          .isEmpty)
+      assert(
+        org.unmanaged.getDependencyHolders(controllerTypeId, apexOnly = false).sameElements(Array(componentTypeId)))
     }
   }
 }

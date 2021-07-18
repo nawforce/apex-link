@@ -32,10 +32,13 @@ import scala.util.hashing.MurmurHash3
 final case class Component(module: Module,
                            location: Option[PathLike],
                            componentName: Name,
-                           attributes: Option[Array[Name]])
+                           attributes: Option[Array[Name]],
+                           vfContainer: Option[VFContainer])
     extends InnerBasicTypeDeclaration(location.toArray,
                                       module,
                                       TypeName(componentName, Nil, Some(TypeName(Names.Component)))) {
+
+  private var depends: Option[Set[Dependent]] = None
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
@@ -49,13 +52,23 @@ final case class Component(module: Module,
     else
       super.findField(name, staticContext)
   }
+
+  override def dependencies(): Iterable[Dependent] = depends.map(_.toIterable).getOrElse(Array().toIterable)
+
+  override def validate(): Unit = {
+    super.validate()
+    vfContainer.foreach(vf => {
+      depends = Some(vf.validate())
+      propagateDependencies()
+    })
+  }
 }
 
 object Component {
   def apply(module: Module, event: ComponentEvent): Component = {
     val path = event.sourceInfo.path
     val document = MetadataDocument(path)
-    new Component(module, Some(path), document.get.name, Some(event.attributes))
+    new Component(module, Some(path), document.get.name, Some(event.attributes), Some(new VFContainer(module, event)))
   }
 
   val emptyComponents: Array[Component] = Array()
@@ -83,9 +96,17 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
   // Propagate dependencies to nested
   nestedComponents.foreach(_.addTypeDependencyHolder(typeId))
 
+  override def validate(): Unit = {
+    components.foreach(_.validate())
+    propagateOuterDependencies(new TypeCache())
+  }
+
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
                                              apexOnly: Boolean,
                                              typeCache: TypeCache): Unit = {
+    val dependents = mutable.Set[Dependent]()
+    components.foreach(component => component.dependencies().foreach(dependents.add))
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
     if (!apexOnly)
       nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
@@ -157,7 +178,7 @@ final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)
   override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
-    Some(Component(module, None, name, None))
+    Some(Component(module, None, name, None, None))
   }
 }
 

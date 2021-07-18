@@ -17,8 +17,10 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{Package, TypeSummary}
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
+import com.nawforce.apexlink.types.other.Page
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
@@ -69,7 +71,7 @@ trait PackageAPI extends Package {
             .map(_ => { TypeId(module, typeName) })
             .orElse(None)
         case Some(md: MetadataDocument) =>
-          module.types.get(md.typeName(namespace)) match {
+          module.moduleType(md.typeName(namespace)) match {
             case Some(td: TypeDeclaration) if td.paths.contains(path) =>
               Some(TypeId(module, td.typeName))
             case _ => None
@@ -85,11 +87,21 @@ trait PackageAPI extends Package {
 
   override def getPathsOfType(typeId: TypeIdentifier): Array[String] = {
     if (typeId != null && typeId.namespace == namespace) {
-      orderedModules
+      orderedModules.view
         .flatMap(module => {
-          module.types
-            .get(typeId.typeName)
+          module
+            .moduleType(typeId.typeName)
             .map(td => td.paths.map(_.toString))
+            .orElse({
+              // Deal with page weirdness
+              if (typeId.typeName.outer.contains(TypeNames.Page)) {
+                module.pages.fields
+                  .find(_.name == typeId.typeName.name)
+                  .collect { case page: Page => Array(page.path.toString) }
+              } else {
+                None
+              }
+            })
         })
         .headOption
         .getOrElse(Array())
@@ -120,9 +132,9 @@ trait PackageAPI extends Package {
                                apexOnly: Boolean): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
-        .map(ad => {
+        .map(td => {
           if (outerInheritanceOnly) {
-            ad.dependencies()
+            td.dependencies()
               .flatMap({
                 case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
                 case _                        => None
@@ -131,7 +143,7 @@ trait PackageAPI extends Package {
           } else {
             val typeCache = new TypeCache()
             val dependencies = mutable.Set[TypeId]()
-            ad.collectDependenciesByTypeName(dependencies, apexOnly, typeCache)
+            td.collectDependenciesByTypeName(dependencies, apexOnly, typeCache)
             dependencies.map(_.asTypeIdentifier).toArray
           }
         })
@@ -143,12 +155,11 @@ trait PackageAPI extends Package {
 
   private def getDependentType(typeName: TypeName): Option[DependentType] = {
     orderedModules.view
-      .find(_.types.contains(typeName))
-      .flatMap(module =>
-        module.types(typeName) match {
-          case td: DependentType => Some(td)
-          case _                 => None
-      })
+      .flatMap(_.moduleType(typeName))
+      .headOption match {
+      case Some(td: DependentType) => Some(td)
+      case _                       => None
+    }
   }
 
   override def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier] = {
@@ -252,7 +263,7 @@ trait PackageAPI extends Package {
   private def reValidate(references: Set[TypeId]): Unit = {
 
     val tds = references.flatMap(typeId =>
-      typeId.module.packageType(typeId.typeName) match {
+      typeId.module.moduleType(typeId.typeName) match {
         case Some(ref: SummaryDeclaration) =>
           // Replace direct use summary types, no need to revalidate these
           refreshInternal(ref.path)

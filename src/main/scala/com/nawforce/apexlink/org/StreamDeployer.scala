@@ -48,13 +48,15 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     PlatformTypes.withLoadingObserver(module.schemaSObjectType) {
       val bufferedIterator = events.buffered
       consumeLabels(bufferedIterator)
-      consumePages(bufferedIterator)
+      val components = consumeComponents(bufferedIterator)
+      val pages = consumePages(bufferedIterator)
       consumeFlows(bufferedIterator)
-      consumeComponents(bufferedIterator)
       consumeSObjects(bufferedIterator)
       consumeExtendedClasses(bufferedIterator)
       consumeClasses(bufferedIterator)
       consumeTriggers(bufferedIterator)
+      components.validate()
+      pages.validate()
     }
 
     // Report progress and tidy up
@@ -74,16 +76,20 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     upsertMetadata(labels, Some(TypeName(labels.name)))
   }
 
-  private def consumePages(events: BufferedIterator[PackageEvent]): Unit = {
-    upsertMetadata(PageDeclaration(module).merge(bufferEvents[PageEvent](events)))
+  private def consumeComponents(events: BufferedIterator[PackageEvent]): ComponentDeclaration = {
+    val componentDeclaration = ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events))
+    upsertMetadata(componentDeclaration)
+    componentDeclaration
+  }
+
+  private def consumePages(events: BufferedIterator[PackageEvent]): PageDeclaration = {
+    val pageDeclaration = PageDeclaration(module).merge(bufferEvents[PageEvent](events))
+    upsertMetadata(pageDeclaration)
+    pageDeclaration
   }
 
   private def consumeFlows(events: BufferedIterator[PackageEvent]): Unit = {
     upsertMetadata(InterviewDeclaration(module).merge(bufferEvents[FlowEvent](events)))
-  }
-
-  private def consumeComponents(events: BufferedIterator[PackageEvent]): Unit = {
-    upsertMetadata(ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events)))
   }
 
   private def consumeSObjects(events: BufferedIterator[PackageEvent]): Unit = {

@@ -180,10 +180,10 @@ trait DefinitionProvider {
   /* This is does simple outer/inner lookup, no parsing needed ! */
   private def findType(typeName: TypeName): Option[TypeDeclaration] = {
     orderedModules.view
-      .flatMap(_.packageType(typeName.withNamespace(namespace)))
+      .flatMap(_.moduleType(typeName.withNamespace(namespace)))
       .headOption
       .orElse({
-        orderedModules.view.flatMap(_.packageType(typeName)).headOption
+        orderedModules.view.flatMap(_.moduleType(typeName)).headOption
       })
   }
 

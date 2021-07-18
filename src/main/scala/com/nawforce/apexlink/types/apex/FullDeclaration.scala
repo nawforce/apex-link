@@ -194,15 +194,7 @@ abstract class FullDeclaration(val source: Source,
                                              typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
-    dependents.foreach {
-      case ad: ApexClassDeclaration            => dependsOn.add(ad.outerTypeId)
-      case co: SObjectDeclaration if !apexOnly => dependsOn.add(co.typeId)
-      case _: Label if !apexOnly               => dependsOn.add(TypeId(module, TypeNames.Label))
-      case _: Interview if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Interview))
-      case _: Page if !apexOnly                => dependsOn.add(TypeId(module, TypeNames.Page))
-      case _: Component if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Component))
-      case _                                   => ()
-    }
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
   }
 
   override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
