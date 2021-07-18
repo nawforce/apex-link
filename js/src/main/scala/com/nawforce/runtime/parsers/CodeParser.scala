@@ -58,6 +58,10 @@ class CodeParser(val source: Source) {
     parse(parser => parser.soslLiteral())
   }
 
+  def parseExpression(): IssuesAnd[ApexParser.ExpressionContext] = {
+    parse(parser => parser.expression())
+  }
+
   // Test use only
   def parseLiteral(): IssuesAnd[ApexParser.LiteralContext] = {
     parse(parser => parser.literal())

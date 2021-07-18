@@ -32,7 +32,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 
 /** Location for identifying a sub-part of a file */
 @upickle.implicits.key("Location")
-case class Location(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int) {
+sealed case class Location(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int) {
   def asJSON: String =
     s""""start": {"line": $startLine, "offset": $startPosition}, "end": {"line": $endLine, "offset": $endPosition}"""
 
@@ -57,7 +57,7 @@ case class Location(startLine: Int, startPosition: Int, endLine: Int, endPositio
 object Location {
   implicit val rw: RW[Location] = macroRW
 
-  val empty: Location = Location(0)
+  val empty: Location = Location(1)
 
   def apply(line: Int) = new Location(line, 0, line, 0)
   def apply(line: Int, position: Int) = new Location(line, position, line, position)
@@ -66,9 +66,11 @@ object Location {
   }
 }
 
+sealed case class LocationAnd[T](location: Location, value: T)
+
 /** Location within a specific file. */
 @upickle.implicits.key("PathLocation")
-case class PathLocation(path: String, location: Location) {
+sealed case class PathLocation(path: String, location: Location) {
   override def toString: String = {
     s"$path: ${location.displayPosition}"
   }

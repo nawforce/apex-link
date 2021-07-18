@@ -27,7 +27,7 @@
  */
 package com.nawforce.pkgforce.workspace
 
-import com.nawforce.pkgforce.diagnostics._
+import com.nawforce.pkgforce.diagnostics.{LocationAnd, _}
 import com.nawforce.pkgforce.documents.SourceInfo
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
@@ -127,7 +127,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(PageEvent(SourceInfo(pagePath, _), controllers, _))
               if pagePath == root.join("pkg").join("MyPage.page") &&
-                (controllers sameElements Array(Name("MyController"))) =>
+                (controllers sameElements Array(LocationAnd(Location(1,11,1,36), Name("MyController")))) =>
         }
     }
   }
@@ -143,7 +143,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(PageEvent(SourceInfo(pagePath, _), controllers, _))
               if pagePath == root.join("pkg").join("MyPage.page") &&
-                (controllers sameElements Array(Name("MyController"), Name("Ext1"), Name("Ext2"))) =>
+                (controllers sameElements Array(
+                  LocationAnd(Location(1,11,1,36), Name("MyController")),
+                  LocationAnd(Location(1,37,1,60), Name("Ext1")),
+                  LocationAnd(Location(1,37,1,60), Name("Ext2")))) =>
         }
     }
   }
@@ -159,7 +162,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(PageEvent(SourceInfo(pagePath, _), _, exprs))
             if pagePath == root.join("pkg").join("MyPage.page")  &&
-              (exprs.toSet == Set("bar", "baz", "foo")) =>
+              (exprs.toSet == Set(
+                LocationAnd(Location(1,33,1,39), "bar"),
+                LocationAnd(Location(1,48,1,54), "baz"),
+                LocationAnd(Location(1,16,1,22), "foo"))) =>
         }
     }
   }
@@ -175,7 +181,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(PageEvent(SourceInfo(pagePath, _), _, exprs))
             if pagePath == root.join("pkg").join("MyPage.page")  &&
-              (exprs.toSet == Set("bar", "baz", "foo")) =>
+              (exprs.toSet == Set(
+                LocationAnd(Location(1,24,1,32), "bar"),
+                LocationAnd(Location(1,36,1,42), "baz"),
+                LocationAnd(Location(1,11,1,21), "foo"))) =>
         }
     }
   }
@@ -222,7 +231,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(ComponentEvent(SourceInfo(componentPath, _), Array(Name("test")), controllers, _))
           if componentPath == root.join("pkg").join("MyComponent.component") &&
-            (controllers sameElements Array(Name("MyController"))) =>
+            (controllers sameElements Array(LocationAnd(Location(1,16,1,41), Name("MyController")))) =>
       }
     }
   }
@@ -238,7 +247,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(ComponentEvent(SourceInfo(componentPath, _), _, _, exprs))
             if componentPath == root.join("pkg").join("MyComponent.component") &&
-              (exprs.toSet == Set("bar", "baz", "foo")) =>
+              (exprs.toSet == Set(
+                LocationAnd(Location(1,38,1,44), "bar"),
+                LocationAnd(Location(1,53,1,59), "baz"),
+                LocationAnd(Location(1,21,1,27), "foo"))) =>
         }
     }
   }
@@ -254,7 +266,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(ComponentEvent(SourceInfo(componentPath, _), _, _, exprs))
             if componentPath == root.join("pkg").join("MyComponent.component") &&
-              (exprs.toSet == Set("bar", "baz", "foo")) =>
+              (exprs.toSet == Set(
+                LocationAnd(Location(1,29,1,37), "bar"),
+                LocationAnd(Location(1,41,1,47), "baz"),
+                LocationAnd(Location(1,16,1,26), "foo"))) =>
         }
     }
   }

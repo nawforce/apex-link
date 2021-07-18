@@ -28,16 +28,16 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger, LocationAnd}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
 final case class ComponentEvent(sourceInfo: SourceInfo,
                                 attributes: Array[Name],
-                                _controllers: Array[Name],
-                                _expressions: Array[String])
-    extends VFEvent(_controllers, _expressions: Array[String])
+                                _controllers: Array[LocationAnd[Name]],
+                                _expressions: Array[LocationAnd[String]])
+    extends VFEvent(_controllers, _expressions)
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator {
@@ -49,18 +49,20 @@ object ComponentGenerator {
     val source = document.source
     source.value
       .map(source => {
-
         val parser: PageParser = PageParser(document.path, source)
         val result = parser.parsePage()
         if (result.issues.nonEmpty) {
-           IssuesEvent.iterator(result.issues)
+          IssuesEvent.iterator(result.issues)
         } else {
           val logger = new CatchingLogger
           val attributes = extractAttributes(parser, logger, result.value)
           (if (logger.issues.isEmpty)
-             Iterator(ComponentEvent(SourceInfo(document.path, source), attributes,
-               VFEvent.extractControllers(result.value, isPage = false),
-               VFEvent.extractExpressions(result.value)))
+             Iterator(ComponentEvent(SourceInfo(document.path, source),
+                                     attributes,
+                                     VFEvent.extractControllers(parser.source,
+                                                                result.value,
+                                                                isPage = false),
+                                     VFEvent.extractExpressions(parser.source, result.value)))
            else
              Iterator()) ++ IssuesEvent.iterator(logger.issues)
         }
@@ -78,7 +80,8 @@ object ComponentGenerator {
       return Array()
     }
 
-    PageParser.toScala(root.content())
+    PageParser
+      .toScala(root.content())
       .map(
         content =>
           PageParser
