@@ -91,7 +91,7 @@ case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean
         .reportableIssues(options)
         .getIssues
       issues.keys.foreach(key => {
-        buffer.addAll(issues(key).take(10))
+        buffer.addAll(issues(key).sorted(Issue.ordering).take(10))
       })
       promise.success(GetIssuesResult(buffer.toArray))
     }
