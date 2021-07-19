@@ -41,7 +41,8 @@ object Issue {
   implicit val rw: RW[Issue] = macroRW
 
   implicit val ordering: Ordering[Issue] = Ordering
-    .by[Issue, Int](_.diagnostic.location.startLine)
+    .by[Issue, Int](issue => if (DiagnosticCategory.isErrorType(issue.diagnostic.category)) 0 else 1)
+    .orElseBy(_.diagnostic.location.startLine)
     .orElseBy(_.diagnostic.location.startPosition)
 
   def apply(path: PathLike, category: DiagnosticCategory, location: Location, message: String): Issue = {
