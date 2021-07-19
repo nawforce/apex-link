@@ -24,67 +24,56 @@ import org.scalatest.funsuite.AnyFunSuite
 class UnusedTest extends AnyFunSuite with TestHelper {
 
   test("Unused method") {
-    FileSystemHelper.run(Map(
-        "Dummy.cls" -> "public class Dummy {public void foo() {}}",
-        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-      )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(
-          module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
-            "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public void foo() {}}",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(
+        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
+          "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
     }
   }
 
   test("Nested unused method") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public class Inner {public void foo() {}} }",
-      "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(
-          module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
-            "Unused: line 1 at 52-55: Unused Method 'void foo()'\n")
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public class Inner {public void foo() {}} }",
+          "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(
+        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
+          "Unused: line 1 at 52-55: Unused Method 'void foo()'\n")
     }
   }
 
-
   test("Method used from same method") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public void foo() {foo();}}",
-      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public void foo() {foo();}}",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
 
   test("Method used from block") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}",
-      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{foo();} public void foo() {}}",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
 
   test("Unused field") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {Object a;}",
-      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {Object a;}",
+                             "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
@@ -95,10 +84,9 @@ class UnusedTest extends AnyFunSuite with TestHelper {
   }
 
   test("Nested unused field") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public class Inner {Object a;} }",
-      "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public class Inner {Object a;} }",
+          "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
@@ -110,35 +98,28 @@ class UnusedTest extends AnyFunSuite with TestHelper {
 
   test("Field used from method") {
     FileSystemHelper.run(
-      Map(
-        "Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}",
-        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-      )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      Map("Dummy.cls" -> "public class Dummy {Object a; void foo(){foo(); a = null;}}",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
 
   test("Field used from block") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {{a = null;} Object a;}",
-      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{a = null;} Object a;}",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
 
   test("Unused class") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {Object a; void func() {}}"
-    )) { root: PathLike =>
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {Object a; void func() {}}")) { root: PathLike =>
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
@@ -149,10 +130,9 @@ class UnusedTest extends AnyFunSuite with TestHelper {
   }
 
   test("Nested unused class") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public class Inner {Object a; void func() {}} }",
-      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-    )) { root: PathLike =>
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public class Inner {Object a; void func() {}} }",
+          "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
@@ -162,9 +142,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  def assertIsFullDeclaration(pkg: PackageImpl,
-                              name: String,
-                              namespace: Option[Name] = None): Unit = {
+  def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head
         .findModuleType(TypeName(Name(name)).withNamespace(namespace))
@@ -172,9 +150,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         .isInstanceOf[FullDeclaration])
   }
 
-  def assertIsSummaryDeclaration(pkg: PackageImpl,
-                                 name: String,
-                                 namespace: Option[Name] = None): Unit = {
+  def assertIsSummaryDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head
         .findModuleType(TypeName(Name(name)).withNamespace(namespace))
@@ -211,32 +187,30 @@ class UnusedTest extends AnyFunSuite with TestHelper {
 
   test("Unused method on summary type") {
     withManualFlush {
-      FileSystemHelper.run(Map(
-        "Dummy.cls" -> "public class Dummy {public void foo() {}}",
-        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }"
-      )) {
-        root: PathLike =>
-          // Setup as cached
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          val module = pkg.orderedModules.headOption.get
-          assertIsFullDeclaration(pkg, "Dummy")
-          assert(!org.issues.hasErrorsOrWarnings)
-          assert(
-            module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
-              "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
-          org.flush()
+      FileSystemHelper.run(
+        Map("Dummy.cls" -> "public class Dummy {public void foo() {}}",
+            "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+        // Setup as cached
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        val module = pkg.orderedModules.headOption.get
+        assertIsFullDeclaration(pkg, "Dummy")
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+            "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+        org.flush()
 
-          val org2 = createOrg(root)
-          val pkg2 = org2.unmanaged
-          val module2 = pkg2.orderedModules.headOption.get
-          assertIsSummaryDeclaration(pkg2, "Dummy")
-          OrgImpl.current.withValue(org2) {
-            pkg2.propagateAllDependencies()
-            assert(
-              module2.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
-                "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
-          }
+        val org2 = createOrg(root)
+        val pkg2 = org2.unmanaged
+        val module2 = pkg2.orderedModules.headOption.get
+        assertIsSummaryDeclaration(pkg2, "Dummy")
+        OrgImpl.current.withValue(org2) {
+          pkg2.propagateAllDependencies()
+          assert(
+            module2.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+              "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
+        }
       }
     }
   }
@@ -269,38 +243,61 @@ class UnusedTest extends AnyFunSuite with TestHelper {
           |"plugins": {"dependencies": [{"namespace": "ext"}]}
           |}""".stripMargin,
         "pkg/Dummy.cls" -> "public class Dummy {public static void foo() {}}",
-        "pkg/Other.cls" -> "public class Other {public void bar() {ext.func(Dummy.foo());}}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.packagesByNamespace(Some(Name("pkg")))
-        val module = pkg.orderedModules.headOption.get
-        assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+        "pkg/Other.cls" -> "public class Other {public void bar() {ext.func(Dummy.foo());}}")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.packagesByNamespace(Some(Name("pkg")))
+      val module = pkg.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
 
   test("Unused local var") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Object a;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(
-          org.issues.getMessages(root.join("Dummy.cls").toString, unused = true) ==
-            "Unused: line 1 at 29-30: Unused local variable 'a'\n")
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Dummy.cls").toString, unused = true) ==
+          "Unused: line 1 at 29-30: Unused local variable 'a'\n")
     }
   }
 
   test("Unused local var assignment") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {Object a; a=null;} }"
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val module = org.unmanaged.orderedModules.headOption.get
-        assert(
-          org.issues.getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a; a=null;} }")) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
     }
   }
+
+  test("Page controller & extension is used") {
+    FileSystemHelper.run(
+      Map("Test.page" -> "<apex:page controller='Controller' extensions='Extension'/>",
+          "Controller.cls" -> "public class Controller { }",
+          "Extension.cls" -> "public class Extension { }")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      val module = pkg.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+
+      OrgImpl.current.withValue(org) {
+        assert(module.reportUnused().getMessages(root.join("Controller.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Extension.cls").toString, unused = true).isEmpty)
+      }
+    }
+  }
+
+  test("Component controller is used") {
+    FileSystemHelper.run(
+      Map("Test.component" -> "<apex:component controller='Controller'/>",
+          "Controller.cls" -> "public class Controller { }")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      val module = pkg.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+
+      OrgImpl.current.withValue(org) {
+        assert(module.reportUnused().getMessages(root.join("Controller.cls").toString, unused = true).isEmpty)
+      }
+    }
+  }
+
 }

@@ -17,6 +17,7 @@ package com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics._
@@ -250,9 +251,14 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
+  private lazy val isController: Boolean = {
+    getTypeDependencyHolders.toIterable.exists(tid =>
+      tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component)
+  }
+
   def unused(): Array[Issue] = {
     // Block at class level
-    if (modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION))
+    if (modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || isController)
       return Issue.emptyArray
 
     // Hack: Unused calculation requires a methodMap as its establishes shadow relationships
