@@ -23,10 +23,10 @@ import org.scalatest.funsuite.AsyncFunSuite
 import scala.concurrent.Future
 
 class OrgAPITest extends AsyncFunSuite {
-  test("Identifier not empty") {
+  test("Version not empty") {
     val orgAPI = OrgAPI()
     for {
-      result <- orgAPI.identifier()
+      result <- orgAPI.version()
       _ <- orgAPI.reset()
     } yield {
       assert(result.nonEmpty)
@@ -121,7 +121,7 @@ class OrgAPITest extends AsyncFunSuite {
     val issues: Future[Assertion] = pkg flatMap { _ =>
       orgAPI.getIssues(includeWarnings = true, includeZombies = true) map { issuesResult =>
         orgAPI.reset()
-        assert(issuesResult.issues.length == 3)
+        assert(issuesResult.issues.length == 4)
         assert(issuesResult.issues.count(_.path.contains("SingleError")) == 1)
         assert(issuesResult.issues.count(_.path.contains("DoubleError")) == 2)
       }
@@ -137,7 +137,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
-        depth = 0)
+        depth = 0, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
@@ -153,7 +153,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
-        depth = 1)
+        depth = 1, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
@@ -185,7 +185,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifierRequest(TypeIdentifier(None, TypeName(Name("Dummy")))),
-        depth = 0)
+        depth = 0, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)

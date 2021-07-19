@@ -84,10 +84,11 @@ case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean
     val buffer = new ArrayBuffer[Issue]()
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
+      val options = new IssueOptions
+      options.includeZombies = includeZombies
+      options.includeWarnings = includeWarnings
       val issues = orgImpl
-        .reportableIssues(new IssueOptions {
-          includeWarnings = includeWarnings; includeZombies = includeZombies
-        })
+        .reportableIssues(options)
         .getIssues
       issues.keys.foreach(key => {
         buffer.addAll(issues(key).take(10))
@@ -122,17 +123,20 @@ object TypeIdentifiers {
   }
 }
 
-case class DependencyGraphRequest(promise: Promise[DependencyGraph], identifier: TypeIdentifier, depth: Int)
+case class DependencyGraphRequest(promise: Promise[DependencyGraph],
+                                  identifier: TypeIdentifier,
+                                  depth: Int,
+                                  apexOnly: Boolean)
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-    promise.success(queue.org.getDependencyGraph(identifier, depth, apexOnly = true))
+    promise.success(queue.org.getDependencyGraph(identifier, depth, apexOnly))
   }
 }
 
 object DependencyGraphRequest {
-  def apply(queue: OrgQueue, identifier: TypeIdentifier, depth: Int): Future[DependencyGraph] = {
+  def apply(queue: OrgQueue, identifier: TypeIdentifier, depth: Int, apexOnly: Boolean): Future[DependencyGraph] = {
     val promise = Promise[DependencyGraph]()
-    queue.add(new DependencyGraphRequest(promise, identifier, depth))
+    queue.add(new DependencyGraphRequest(promise, identifier, depth, apexOnly))
     promise.future
   }
 }
@@ -194,7 +198,7 @@ object OrgQueue {
 }
 
 class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
-  override def identifier(): Future[String] = {
+  override def version(): Future[String] = {
     Future(classOf[OrgAPIImpl].getProtectionDomain.getCodeSource.getLocation.getPath)
   }
 
@@ -219,8 +223,10 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
     TypeIdentifiers(OrgQueue.instance(), apexOnly)
   }
 
-  override def dependencyGraph(identifier: IdentifierRequest, depth: Int): Future[DependencyGraph] = {
-    DependencyGraphRequest(OrgQueue.instance(), identifier.identifier, depth)
+  override def dependencyGraph(identifier: IdentifierRequest,
+                               depth: Int,
+                               apexOnly: Boolean): Future[DependencyGraph] = {
+    DependencyGraphRequest(OrgQueue.instance(), identifier.identifier, depth, apexOnly)
   }
 
   override def identifierLocation(request: IdentifierRequest): Future[IdentifierLocationResult] = {
