@@ -44,7 +44,7 @@ class ClassModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       root.modifiers.issues.isEmpty &&
       (root.modifiers.modifiers sameElements expected)
     }
@@ -62,7 +62,7 @@ class ClassModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       Array()
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       root.modifiers.issues
     }
   }
@@ -132,7 +132,7 @@ class ClassModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       inner.modifiers.issues.isEmpty &&
       (inner.modifiers.modifiers sameElements expected)
@@ -151,7 +151,7 @@ class ClassModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       Array()
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       inner.modifiers.issues
     }

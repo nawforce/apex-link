@@ -44,7 +44,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val field = root.children.head
       field.modifiers.issues.isEmpty &&
       (field.modifiers.modifiers sameElements expected)
@@ -63,7 +63,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       Array()
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val field = root.children.head
       field.modifiers.issues
     }
@@ -203,7 +203,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
       field.modifiers.issues.isEmpty &&
@@ -225,7 +225,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       Array()
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
       field.modifiers.issues

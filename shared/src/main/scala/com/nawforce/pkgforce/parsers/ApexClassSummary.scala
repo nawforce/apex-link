@@ -83,9 +83,9 @@ trait ApexNode {
 }
 
 object ApexNode {
-  def apply(parser: CodeParser, ctx: CompilationUnitContext): ApexNode = {
+  def apply(parser: CodeParser, ctx: CompilationUnitContext): Option[ApexNode] = {
     val visitor = new ApexClassVisitor(parser)
-    visitor.visit(ctx).head
+    visitor.visit(ctx).headOption
   }
 }
 

@@ -43,7 +43,7 @@ class MethodModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val field = root.children.head
       field.modifiers.issues.isEmpty &&
       (field.modifiers.modifiers sameElements expected)
@@ -62,7 +62,7 @@ class MethodModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       Array()
     } else {
-      val root = ApexNode(cp, result.value)
+      val root = ApexNode(cp, result.value).get
       val field = root.children.head
       field.modifiers.issues
     }

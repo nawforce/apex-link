@@ -41,7 +41,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.range == Location(1, 0, 1, 21))
     assert(root.id == IdAndRange(Name("Dummy"), Location(1, 13, 1, 18)))
@@ -56,7 +56,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public interface Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexInterfaceType)
     assert(root.range == Location(1, 0, 1, 25))
     assert(root.id == IdAndRange(Name("Dummy"), Location(1, 17, 1, 22)))
@@ -71,7 +71,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public enum Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexEnumType)
     assert(root.range == Location(1, 0, 1, 20))
     assert(root.id == IdAndRange(Name("Dummy"), Location(1, 12, 1, 17)))
@@ -88,7 +88,7 @@ class SummaryTest extends AnyFunSuite {
       SourceData("public class Dummy { private Dummy(final String bar, Integer foo) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -109,7 +109,7 @@ class SummaryTest extends AnyFunSuite {
                  SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -128,7 +128,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -147,7 +147,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo, bar; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 2)
 
@@ -167,7 +167,7 @@ class SummaryTest extends AnyFunSuite {
       CodeParser(path, SourceData("public class Dummy { private Static Integer Foo{get; set;} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -186,7 +186,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public interface Dummy { void Foo(final String bar); }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexInterfaceType)
     assert(root.children.size == 1)
 
@@ -205,7 +205,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public enum Dummy { BaR }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexEnumType)
     assert(root.children.size == 1)
 
@@ -225,7 +225,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private class Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -238,7 +238,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private interface Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -251,7 +251,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private enum Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
     assert(root.children.size == 1)
 
@@ -265,7 +265,7 @@ class SummaryTest extends AnyFunSuite {
       CodeParser(path, SourceData("public class Dummy {global String a;}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     val issues = root.collectIssues()
 
     assert(issues.length == 1)
@@ -280,7 +280,7 @@ class SummaryTest extends AnyFunSuite {
       CodeParser(path, SourceData("public class Dummy {global interface Inside {}}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexNode(cp, result.value)
+    val root = ApexNode(cp, result.value).get
     val issues = root.collectIssues()
 
     assert(issues.length == 1)
