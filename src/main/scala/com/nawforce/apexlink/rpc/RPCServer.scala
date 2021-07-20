@@ -59,21 +59,13 @@ class RPCServer {
   def handleMessage(message: String, stream: PrintStream): Unit = {
     server.receive(message).onComplete {
       case Success(Some(response: String)) =>
-        stream.print(encodeJSON(response))
+        stream.print(response)
         stream.print("\n\n")
       case Success(None) =>
         throw new RPCTerminatedException(s"No response: $message")
       case Failure(ex: Throwable) =>
         throw ex
     }
-  }
-
-  private def encodeJSON(json: String): String = {
-    // New lines are used as message terminator so we best remove any used in formatting
-    if (json.indexOf('\n') == 1)
-      json
-    else
-      json.replace("\\n", "")
   }
 }
 
