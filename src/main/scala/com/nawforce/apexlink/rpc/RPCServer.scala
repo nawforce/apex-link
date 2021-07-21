@@ -16,10 +16,8 @@ package com.nawforce.apexlink.rpc
 
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 
-import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer
 import io.github.shogowada.scala.jsonrpc.server.JSONRPCServer
-import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 import io.github.shogowada.scala.jsonrpc.serializers.UpickleJSONSerializer._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,12 +44,12 @@ class RPCServer {
 
       val existingLength = message.length()
       message.append(new String(block.slice(0, read)))
-      var terminator = message.indexOf("\n\n", existingLength)
+      var terminator = message.indexOf('\u0000', existingLength)
       while (terminator != -1) {
-        val msg = message.slice(0, terminator + 1).mkString
+        val msg = message.slice(0, terminator).mkString
         handleMessage(msg, System.out)
-        message = message.slice(terminator + 2, message.length)
-        terminator = message.indexOf("\n\n")
+        message = message.slice(terminator + 1, message.length)
+        terminator = message.indexOf('\u0000')
       }
     }
   }
@@ -60,7 +58,7 @@ class RPCServer {
     server.receive(message).onComplete {
       case Success(Some(response: String)) =>
         stream.print(response)
-        stream.print("\n\n")
+        stream.print('\u0000')
       case Success(None) =>
         throw new RPCTerminatedException(s"No response: $message")
       case Failure(ex: Throwable) =>
