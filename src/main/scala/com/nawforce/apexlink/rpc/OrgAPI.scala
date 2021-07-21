@@ -113,6 +113,9 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "identifierForPath")
   def identifierForPath(path: String): Future[IdentifierForPathResult]
+
+  @api.JSONRPCMethod(name = "getDefinition")
+  def getDefinition(path: String, line: Int, offset: Int, content: Option[String]): Future[Array[LocationLink]]
 }
 
 object OrgAPI {

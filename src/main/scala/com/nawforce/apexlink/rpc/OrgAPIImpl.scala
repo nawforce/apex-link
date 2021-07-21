@@ -174,6 +174,32 @@ object IdentifierForPath {
   }
 }
 
+case class GetDefinition(promise: Promise[Array[LocationLink]],
+                         path: String,
+                         line: Int,
+                         offset: Int,
+                         content: Option[String])
+    extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(orgImpl.getDefinition(path, line, offset, content.orNull))
+    }
+  }
+}
+
+object GetDefinition {
+  def apply(queue: OrgQueue,
+            path: String,
+            line: Int,
+            offset: Int,
+            content: Option[String]): Future[Array[LocationLink]] = {
+    val promise = Promise[Array[LocationLink]]()
+    queue.add(new GetDefinition(promise, path, line, offset, content))
+    promise.future
+  }
+}
+
 object OrgQueue {
   private var _instance: Option[OrgQueue] = None
 
@@ -235,5 +261,12 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
 
   override def identifierForPath(path: String): Future[IdentifierForPathResult] = {
     IdentifierForPath(OrgQueue.instance(), path)
+  }
+
+  override def getDefinition(path: String,
+                             line: Int,
+                             offset: Int,
+                             content: Option[String]): Future[Array[LocationLink]] = {
+    GetDefinition(OrgQueue.instance(), path, line, offset, content)
   }
 }
