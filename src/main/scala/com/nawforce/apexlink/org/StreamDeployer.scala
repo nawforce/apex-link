@@ -151,23 +151,41 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   /** Validate summary classes & log diagnostics, those with any invalid dependents are discarded. */
   private def validateSummaryClasses(summaryClasses: Iterator[SummaryApex]): Unit = {
+
+    val classes = summaryClasses.toArray
+    val rejected = mutable.Set[SummaryApex]()
     val typeCache = new TypeCache()
-    summaryClasses
-      .foreach(summaryClass => {
-        if (summaryClass.declaration.hasValidDependencies(typeCache)) {
+    var hasRejections = true
+    var rejectCycles = 0
 
-          // Re-establish outer dependencies, others are deferred until we need unused analysis
-          summaryClass.declaration.propagateOuterDependencies(typeCache)
+    // Collect rejected in a set, we have to multi-pass to make sure all are found
+    while (hasRejections) {
+      val rejects = classes.filterNot(cls => rejected.contains(cls) || cls.declaration.hasValidDependencies(typeCache))
 
-          // Report any (existing) diagnostics
-          val path = summaryClass.declaration.path.toString
-          summaryClass.diagnostics.foreach(diagnostic => module.pkg.org.issues.add(Issue(path, diagnostic)))
-        } else {
-          // Remove those dependent on non-cached so they are re-validated via loading fresh
-          val typeName = summaryClass.declaration.typeName
-          LoggerOps.info(s"Cached type $typeName rejected due to invalid dependencies")
-          types.remove(typeName)
-        }
+      // Tidy up rejected so they can't be found
+      rejects.foreach(reject => {
+        val typeName = reject.declaration.typeName
+        types.remove(typeName)
+        typeCache.remove((typeName, module))
+        LoggerOps.info(s"Cached type $typeName rejected due to invalid dependencies")
+      })
+      rejected.addAll(rejects)
+      hasRejections = rejects.nonEmpty
+      rejectCycles += 1
+    }
+    if (rejectCycles > 1)
+      LoggerOps.info(s"Used $rejectCycles rejection cycles")
+
+    // For those not rejected, complete processing
+    classes
+      .filterNot(rejected.contains)
+      .foreach(cls => {
+        // Re-establish outer dependencies, others are deferred until we need unused analysis
+        cls.declaration.propagateOuterDependencies(typeCache)
+
+        // Report any (existing) diagnostics
+        val path = cls.declaration.path.toString
+        cls.diagnostics.foreach(diagnostic => module.pkg.org.issues.add(Issue(path, diagnostic)))
       })
   }
 
