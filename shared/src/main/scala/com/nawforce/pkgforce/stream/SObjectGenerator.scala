@@ -38,7 +38,7 @@ import com.nawforce.runtime.xml.XMLDocument
 import scala.collection.mutable
 
 final case class SObjectEvent(sourceInfo: Option[SourceInfo],
-                              path: PathLike,
+                              reportingPath: PathLike,
                               isDefining: Boolean,
                               customSettingsType: Option[String])
     extends PackageEvent
@@ -100,9 +100,14 @@ object SObjectGenerator {
     val customSettingsType =
       doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
     val isDefining = doc.exists(doc => hasAllMandatoryFields(doc))
+    val reportingPath =
+      if (document.path.toString.endsWith("object-meta.xml"))
+        document.path.parent
+      else
+        document.path
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(sourceInfo, document.path.parent, isDefining, customSettingsType.value)) ++
+    Iterator(SObjectEvent(sourceInfo, reportingPath, isDefining, customSettingsType.value)) ++
       IssuesEvent.iterator(customSettingsType.issues) ++
       doc
         .map(doc => {
