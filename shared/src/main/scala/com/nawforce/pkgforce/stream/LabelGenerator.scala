@@ -28,7 +28,7 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{ERROR_CATEGORY, Issue, Location, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{ERROR_CATEGORY, Issue, IssuesAnd, Location, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.xml.XMLException
@@ -47,8 +47,9 @@ object LabelGenerator {
     source.value
       .map(source => {
         XMLDocument(document.path, source) match {
-          case Left(issue) => Iterator(IssuesEvent(issue))
-          case Right(document) =>
+          case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
+          case IssuesAnd(_, doc) =>
+            val document = doc.get
             val rootElement = document.rootElement
             try {
               rootElement.checkIsOrThrow("CustomLabels")

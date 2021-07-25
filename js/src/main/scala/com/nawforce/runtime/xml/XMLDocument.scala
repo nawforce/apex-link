@@ -27,7 +27,7 @@
  */
 package com.nawforce.runtime.xml
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
@@ -76,14 +76,14 @@ object XMLDocument {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
   var errors: List[Issue] = Nil
 
-  def apply(path: PathLike, sourceData: SourceData): Either[Issue, XMLDocument] = {
+  def apply(path: PathLike, sourceData: SourceData): IssuesAnd[Option[XMLDocument]] = {
     errors = Nil
     val parser = new DOMParser(getOptions(path))
     val doc = parser.parseFromString(sourceData.asString, "text/xml")
     if (errors.nonEmpty) {
-      Left(errors.last)
+      IssuesAnd(Array(errors.last), None)
     } else {
-      Right(new XMLDocument(path, doc))
+      IssuesAnd(Some(new XMLDocument(path, doc)))
     }
   }
 

@@ -27,7 +27,7 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.xml.{XMLException, XMLFactory, XMLName}
 import com.nawforce.runtime.FileSystemHelper
@@ -36,9 +36,17 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class XMLDocumentTest extends AnyFunSuite {
 
+  // Backward compatability helper
+  def parse(path: PathLike): Either[Issue, XMLDocument] = {
+    XMLFactory.parse(path) match {
+      case IssuesAnd(errors, doc) if errors.nonEmpty => Left(errors.head)
+      case IssuesAnd(_, doc) => Right(doc.get)
+    }
+  }
+
   test("Simple doc is parsed") {
     FileSystemHelper.run(Map[String, String]("test.xml" -> "<test/>")) { root: PathLike =>
-      XMLFactory.parse(root.join("test.xml")) match {
+      parse(root.join("test.xml")) match {
         case Left(err) => assert(false, err)
         case Right(_)  => ()
       }
@@ -48,7 +56,7 @@ class XMLDocumentTest extends AnyFunSuite {
   test("Bad doc has error") {
     FileSystemHelper.run(Map[String, String]("test.xml" -> "\n  <test>")) { root: PathLike =>
       val file = root.join("test.xml")
-      XMLFactory.parse(file) match {
+      parse(file) match {
         case Left(Issue(f, Diagnostic(ERROR_CATEGORY, Location(2, _, 2, _), _)))
             if f == file.toString =>
           ()
@@ -61,7 +69,7 @@ class XMLDocumentTest extends AnyFunSuite {
   test("Empty doc has error") {
     FileSystemHelper.run(Map[String, String]("test.xml" -> "")) { root: PathLike =>
       val file = root.join("test.xml")
-      XMLFactory.parse(file) match {
+      parse(file) match {
         case Left(Issue(f, Diagnostic(ERROR_CATEGORY, Location(1, 0, 1, 0), _)))
             if f == file.toString =>
           ()
@@ -77,7 +85,7 @@ class XMLDocumentTest extends AnyFunSuite {
         "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Hello</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             assert(doc.path == file)
@@ -94,7 +102,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             val node = doc.rootElement.getOptionalSingleChild("a")
@@ -112,7 +120,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a><a>Baz</a></test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             val node = doc.rootElement.getOptionalSingleChild("a")
@@ -127,7 +135,7 @@ class XMLDocumentTest extends AnyFunSuite {
         "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             val node = doc.rootElement.getOptionalSingleChild("a")
@@ -141,7 +149,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             assert(doc.rootElement.getOptionalSingleChildAsString("a").contains("Foo"))
@@ -154,7 +162,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>true</a>Baz</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             assert(doc.rootElement.getOptionalSingleChildAsBoolean("a").contains(true))
@@ -167,7 +175,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>Foo</a>Baz</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             assert(doc.rootElement.getSingleChildAsString("a") == "Foo")
@@ -180,7 +188,7 @@ class XMLDocumentTest extends AnyFunSuite {
       "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar<a>false</a>Baz</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             assert(!doc.rootElement.getSingleChildAsBoolean("a"))
@@ -194,7 +202,7 @@ class XMLDocumentTest extends AnyFunSuite {
         "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             try {
@@ -215,7 +223,7 @@ class XMLDocumentTest extends AnyFunSuite {
         "test.xml" -> "<test xmlns=\"http://soap.sforce.com/2006/04/metadata\">Bar</test>")) {
       root: PathLike =>
         val file = root.join("test.xml")
-        XMLFactory.parse(file) match {
+        parse(file) match {
           case Left(err) => assert(false, err)
           case Right(doc) =>
             try {
@@ -229,5 +237,4 @@ class XMLDocumentTest extends AnyFunSuite {
         }
     }
   }
-
 }

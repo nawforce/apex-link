@@ -27,14 +27,14 @@
  */
 package com.nawforce.pkgforce.xml
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.xml.XMLDocument
 
 object XMLFactory {
-  def parse(path: PathLike): Either[Issue, XMLDocumentLike] = {
+  def parse(path: PathLike): IssuesAnd[Option[XMLDocument]] = {
     path.readSourceData() match {
-      case Left(err)   => Left(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err)))
+      case Left(err)   => IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))), None)
       case Right(data) => XMLDocument(path, data)
     }
   }

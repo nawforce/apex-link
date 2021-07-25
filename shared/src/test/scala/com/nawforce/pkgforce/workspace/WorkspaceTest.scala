@@ -321,9 +321,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+        case List(SObjectEvent(sourceInfo, path, false, None))
+            if sourceInfo.get.path == objectPath.join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -337,10 +338,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            SObjectEvent(sourceInfo, Name("MyObject"), None),
             IssuesEvent(ArraySeq(
-              Issue("/pkg/MyObject.object", Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+              Issue("/pkg/MyObject.object", Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
       }
     }
   }
@@ -355,9 +354,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), Some("List")))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+        case List(SObjectEvent(sourceInfo, path, false, Some("List")))
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -372,9 +372,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), Some("Hierarchy")))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+        case List(SObjectEvent(sourceInfo, path, false, Some("Hierarchy")))
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -389,12 +390,13 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            SObjectEvent(sourceInfo, Name("MyObject"), None),
+            SObjectEvent(sourceInfo, path, false, None),
             IssuesEvent(ArraySeq(
               Issue("/pkg/MyObject.object", Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -409,10 +411,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   CustomFieldEvent(None, Name("Name__c"), Name("Text"), None))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -427,10 +430,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   FieldsetEvent(None, Name("Name")))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -445,10 +449,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   SharingReasonEvent(None, Name("Name")))
-            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") =>
+            if sourceInfo.get.path == root.join("pkg").join("MyObject.object") && path == objectPath =>
       }
     }
   }
@@ -467,15 +472,14 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg").join("MyObject")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   CustomFieldEvent(sourceInfoField, Name("Name__c"), Name("Text"), None))
             if sourceInfo.get.path == root.join("pkg").join("MyObject").join("MyObject.object") &&
-              sourceInfoField.get.path == root
-                .join("pkg")
-                .join("MyObject")
+              sourceInfoField.get.path == objectPath
                 .join("fields")
-                .join("Name__c.field-meta.xml") =>
+                .join("Name__c.field-meta.xml") && path == objectPath =>
       }
     }
   }
@@ -493,15 +497,14 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg").join("MyObject")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   FieldsetEvent(sourceInfoFieldset, Name("Name")))
             if sourceInfo.get.path == root.join("pkg").join("MyObject").join("MyObject.object") &&
-              sourceInfoFieldset.get.path == root
-                .join("pkg")
-                .join("MyObject")
+              sourceInfoFieldset.get.path == objectPath
                 .join("fieldSets")
-                .join("Name.fieldSet-meta.xml") =>
+                .join("Name.fieldSet-meta.xml") && path == objectPath =>
       }
     }
   }
@@ -519,15 +522,14 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val objectPath =  root.join("pkg").join("MyObject")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, Name("MyObject"), None),
+        case List(SObjectEvent(sourceInfo, path, false, None),
                   SharingReasonEvent(sourceInfoSharingReason, Name("Name")))
             if sourceInfo.get.path == root.join("pkg").join("MyObject").join("MyObject.object") &&
-              sourceInfoSharingReason.get.path == root
-                .join("pkg")
-                .join("MyObject")
+              sourceInfoSharingReason.get.path == objectPath
                 .join("sharingReasons")
-                .join("Name.sharingReason-meta.xml") =>
+                .join("Name.sharingReason-meta.xml") && path == objectPath =>
       }
     }
   }
@@ -552,15 +554,18 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val masterObjectPath =  root.join("pkg")
+      val detailObjectPath =  root.join("pkg").join("sub")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo1, Name("MyMaster"), None),
-                  SObjectEvent(sourceInfo2, Name("MyDetail"), None),
+        case List(SObjectEvent(sourceInfo1, masterPath, false, None),
+                  SObjectEvent(sourceInfo2, detailPath, false, None),
                   CustomFieldEvent(None,
                                    Name("Lookup__c"),
                                    Name("MasterDetail"),
                                    Some((Name("MyMaster"), Name("Master")))))
-            if sourceInfo1.get.path == root.join("pkg").join("MyMaster.object") &&
-              sourceInfo2.get.path == root.join("pkg").join("sub").join("MyDetail.object") =>
+            if sourceInfo1.get.path == masterObjectPath.join("MyMaster.object") &&
+              sourceInfo2.get.path == detailObjectPath.join("MyDetail.object") &&
+        masterPath == masterObjectPath && detailPath == detailObjectPath =>
       }
     }
   }
@@ -585,15 +590,18 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val issuesAndWS = Workspace(root)
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
+      val masterObjectPath =  root.join("pkg").join("sub")
+      val detailObjectPath =  root.join("pkg")
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo1, Name("MyMaster"), None),
-                  SObjectEvent(sourceInfo2, Name("MyDetail"), None),
+        case List(SObjectEvent(sourceInfo1, masterPath, false, None),
+                  SObjectEvent(sourceInfo2, detailPath, false, None),
                   CustomFieldEvent(None,
                                    Name("Lookup__c"),
                                    Name("MasterDetail"),
                                    Some((Name("MyMaster"), Name("Master")))))
-            if sourceInfo1.get.path == root.join("pkg").join("sub").join("MyMaster.object") &&
-              sourceInfo2.get.path == root.join("pkg").join("MyDetail.object") =>
+            if sourceInfo1.get.path == masterObjectPath.join("MyMaster.object") &&
+              sourceInfo2.get.path == detailObjectPath.join("MyDetail.object") &&
+              masterPath == masterObjectPath && detailPath == detailObjectPath =>
       }
     }
   }

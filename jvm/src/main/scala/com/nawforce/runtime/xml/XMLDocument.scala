@@ -27,15 +27,14 @@
  */
 package com.nawforce.runtime.xml
 
-import java.io.ByteArrayInputStream
-
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
-import javax.xml.parsers.SAXParserFactory
 import org.xml.sax.Locator
 
+import java.io.ByteArrayInputStream
+import javax.xml.parsers.SAXParserFactory
 import scala.collection.mutable
 import scala.xml._
 import scala.xml.parsing.NoBindingFactoryAdapter
@@ -61,16 +60,16 @@ final class XMLDocument(path: PathLike, elem: Elem) extends XMLDocumentLike(path
 object XMLDocument {
   val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
 
-  def apply(path: PathLike, sourceData: SourceData): Either[Issue, XMLDocument] = {
+  def apply(path: PathLike, sourceData: SourceData): IssuesAnd[Option[XMLDocument]] = {
     try {
-      Right(new XMLDocument(path, XMLLineLoader.load(new ByteArrayInputStream(sourceData.asUTF8))))
+      IssuesAnd(Some(new XMLDocument(path, XMLLineLoader.load(new ByteArrayInputStream(sourceData.asUTF8)))))
     } catch {
       case e: SAXParseException =>
-        Left(
+        IssuesAnd(Array(
           Issue(path.toString,
                 Diagnostic(ERROR_CATEGORY,
                            Location(e.getLineNumber, e.getColumnNumber - 1),
-                           e.getLocalizedMessage)))
+                           e.getLocalizedMessage))), None)
     }
   }
 }

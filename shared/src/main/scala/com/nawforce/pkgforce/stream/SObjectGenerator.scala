@@ -37,7 +37,10 @@ import com.nawforce.runtime.xml.XMLDocument
 
 import scala.collection.mutable
 
-final case class SObjectEvent(sourceInfo: Option[SourceInfo], name: Name, customSettingsType: Option[String])
+final case class SObjectEvent(sourceInfo: Option[SourceInfo],
+                              path: PathLike,
+                              isDefining: Boolean,
+                              customSettingsType: Option[String])
     extends PackageEvent
 final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],
                                   name: Name,
@@ -83,25 +86,27 @@ object SObjectGenerator {
   }
 
   private def toEvents(document: MetadataDocument): Iterator[PackageEvent] = {
-    // The object-meta.xml file is annoyingly optional
+    // The object-meta.xml file is annoyingly optional when extending
     val path = if (document.path.exists) Some(document.path) else None
 
-    // Which makes extracting the customSettingsType more fun
+    // Which makes parsing more fun
     val sourceData = path.flatMap(_.readSourceData().toOption)
     val sourceInfo = sourceData.map(source => SourceInfo(path.get, source))
     val parsed = sourceData.map(source => XMLDocument(path.get, source))
-    val customSettingsType = (parsed map {
-      case Right(doc) => extractCustomSettingsType(doc)
-      case _          => IssuesAnd(None)
-    }).getOrElse(IssuesAnd(None))
+    if (parsed.nonEmpty && parsed.get.issues.nonEmpty)
+      return IssuesEvent.iterator(parsed.get.issues)
+
+    val doc = parsed.flatMap(_.value)
+    val customSettingsType =
+      doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
+    val isDefining = doc.exists(doc => hasAllMandatoryFields(doc))
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(sourceInfo, document.name, customSettingsType.value)) ++
+    Iterator(SObjectEvent(sourceInfo, document.path.parent, isDefining, customSettingsType.value)) ++
       IssuesEvent.iterator(customSettingsType.issues) ++
-      (parsed match {
-        case Some(Left(issue)) => IssuesEvent.iterator(Array(issue))
-        case Some(Right(root)) =>
-          val rootElement = root.rootElement
+      doc
+        .map(doc => {
+          val rootElement = doc.rootElement
           rootElement.getChildren("fields").flatMap(field => createField(None, field, path.get)) ++
             rootElement
               .getChildren("fieldSets")
@@ -109,12 +114,21 @@ object SObjectGenerator {
             rootElement
               .getChildren("sharingReasons")
               .flatMap(field => createSharingReason(None, field, path.get))
-
-        case None => Iterator()
-      }) ++
+        })
+        .getOrElse(Iterator()) ++
       collectSfdxFields(document.path) ++
       collectSfdxFieldSets(document.path) ++
       collectSfdxSharingReason(document.path)
+  }
+
+  /* Determine if we have mandatory fields need to define SObject */
+  private def hasAllMandatoryFields(doc: XMLDocumentLike): Boolean = {
+    val root = doc.rootElement
+    root.getChildren("label").nonEmpty &&
+      root.getChildren("pluralLabel").nonEmpty &&
+      root.getChildren("nameField").nonEmpty &&
+      root.getChildren("deploymentStatus").nonEmpty &&
+      root.getChildren("sharingModel").nonEmpty
   }
 
   private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[String]] = {
@@ -222,10 +236,10 @@ object SObjectGenerator {
                     Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))))
                 case Right(sourceData) =>
                   XMLFactory.parse(filePath) match {
-                    case Left(issue) => IssuesEvent.iterator(Array(issue))
-                    case Right(root) =>
-                      root.rootElement.checkIsOrThrow(rootElement)
-                      op(Some(SourceInfo(filePath, sourceData)), root.rootElement, filePath)
+                    case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
+                    case IssuesAnd(_, doc) =>
+                      doc.get.rootElement.checkIsOrThrow(rootElement)
+                      op(Some(SourceInfo(filePath, sourceData)), doc.get.rootElement, filePath)
                   }
               }
             }
@@ -239,7 +253,8 @@ object SObjectGenerator {
       op
     } catch {
       case e: XMLException =>
-        IssuesEvent.iterator(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
+        IssuesEvent.iterator(
+          Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
     }
   }
 
