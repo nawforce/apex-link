@@ -16,7 +16,6 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.Names.NameUtils
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
@@ -104,9 +103,6 @@ class SObjectDeployer(module: Module) {
                                  fieldObject._3,
                                  PathLocation(sourceInfo.map(_.path).get.toString, Location(0)))
     })
-
-    val typeCache = new TypeCache
-    createdSObjects.values.foreach(_.propagateOuterDependencies(typeCache))
     createdSObjects.values.toArray
   }
 
@@ -120,7 +116,6 @@ class SObjectDeployer(module: Module) {
     field.rawType.value match {
       case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
         val refTypeName = schemaTypeNameOf(field.referenceTo.get._1)
-
         Array(fieldDeclaration, CustomFieldDeclaration(name.replaceAll("__c$", "__r"), refTypeName, None))
       case "Location" =>
         Array(fieldDeclaration,
@@ -243,7 +238,8 @@ class SObjectDeployer(module: Module) {
                        Array(),
                        sharingReasons,
                        customObjectFields(typeName, CustomObjectNature, SObjectDeployer.shareFields),
-                       _isComplete = true)
+                       _isComplete = true,
+                       isSynthetic = true)
   }
 
   private def createFeed(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
@@ -254,7 +250,8 @@ class SObjectDeployer(module: Module) {
                        Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(typeName, CustomObjectNature, SObjectDeployer.feedFields),
-                       _isComplete = true)
+                       _isComplete = true,
+                       isSynthetic = true)
   }
 
   private def createHistory(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
@@ -265,7 +262,8 @@ class SObjectDeployer(module: Module) {
                        Name.emptyNames,
                        Name.emptyNames,
                        customObjectFields(typeName, CustomObjectNature, SObjectDeployer.historyFields),
-                       _isComplete = true)
+                       _isComplete = true,
+                       isSynthetic = true)
   }
 
   /** Create an SObject to replace some existing SObject so that it can be extended. If no existing can be found then

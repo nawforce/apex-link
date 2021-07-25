@@ -52,7 +52,8 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     fieldSets: Array[Name],
                                     sharingReasons: Array[Name],
                                     baseFields: Array[FieldDeclaration],
-                                    _isComplete: Boolean)
+                                    _isComplete: Boolean,
+                                    isSynthetic: Boolean = false)
     extends SObjectLikeDeclaration
     with SObjectFieldFinder
     with SObjectMethods {
@@ -81,7 +82,21 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override lazy val superClassDeclaration: Option[TypeDeclaration] =
     TypeResolver(superClass.get, this).toOption
 
-  override def validate(): Unit = {}
+  override def validate(): Unit = {
+    def updateDependencies(typeName: TypeName): Unit = {
+      TypeResolver(typeName, module) match {
+        case Right(d: Dependent) => addDependency(d)
+        case _                   => ()
+      }
+      typeName.params.foreach(updateDependencies)
+    }
+
+    // Crate dependencies on field types, can be ignored for Feed, Share & History synthetic SObjects
+    if (!isSynthetic) {
+      fields.map(_.typeName).toSet.foreach(updateDependencies)
+      propagateOuterDependencies(new TypeCache())
+    }
+  }
 
   def addDependency(dependent: Dependent): Unit = depends.add(dependent)
 

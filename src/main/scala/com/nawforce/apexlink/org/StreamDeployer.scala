@@ -94,12 +94,12 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   private def consumeSObjects(events: BufferedIterator[PackageEvent]): Unit = {
     val deployer = new SObjectDeployer(module)
-    deployer
-      .createSObjects(events)
-      .foreach(sobject => {
-        types.put(sobject.typeName, sobject)
-        module.schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true)
-      })
+    val sobjects = deployer.createSObjects(events)
+    sobjects.foreach(sobject => {
+      types.put(sobject.typeName, sobject)
+      module.schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true)
+    })
+    sobjects.foreach(_.validate())
   }
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
