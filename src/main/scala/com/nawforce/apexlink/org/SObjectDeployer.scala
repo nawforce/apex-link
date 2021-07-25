@@ -51,9 +51,10 @@ class SObjectDeployer(module: Module) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
 
       // Construct doc from name as the file might not actually exist in SFDX
-      val encodedName = EncodedName(sObjectEvent.path.basename).defaultNamespace(module.namespace)
+      val name = sObjectEvent.reportingPath.basename.replaceFirst("\\.object$", "")
+      val encodedName = EncodedName(name).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
-      val doc = MetadataDocument(sObjectEvent.path.join(encodedName.fullName + ".object"))
+      val doc = MetadataDocument(sObjectEvent.reportingPath.join(encodedName.fullName + ".object"))
 
       val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
       val fieldSetEvents = bufferEvents[FieldsetEvent](objectsEvents)
@@ -196,10 +197,10 @@ class SObjectDeployer(module: Module) {
           createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
         case (false, true) =>
           OrgImpl.log(
-            IssueOps.extendingUnknownSObject(PathLocation(sources.head.path.toString, Location.empty), event.path))
+            IssueOps.extendingUnknownSObject(PathLocation(sources.head.path.toString, Location.empty), event.reportingPath))
           Array.empty
         case (true, false) =>
-          OrgImpl.log(IssueOps.redefiningSObject(PathLocation(sources.head.path.toString, Location.empty), event.path))
+          OrgImpl.log(IssueOps.redefiningSObject(PathLocation(sources.head.path.toString, Location.empty), event.reportingPath))
           Array.empty
       }
     }

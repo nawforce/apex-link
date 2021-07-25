@@ -256,20 +256,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(
         Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-            "ext/Foo__c/Foo__c.object" -> customObject("Foo",
-                                                       Seq(("Baz__c", Some("Text"), None)),
-                                                       Set(),
-                                                       Set(),
-                                                       extending = true))) { root: PathLike =>
+            "base/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+            "ext/Foo__c.object" -> customObject("Foo",
+                                                Seq(("Baz__c", Some("Text"), None)),
+                                                Set(),
+                                                Set(),
+                                                extending = true))) { root: PathLike =>
         val org = createHappyOrg(root)
 
-        val basePath = root.join("base").join("Foo__c").join("Foo__c.object")
+        val basePath = root.join("base").join("Foo__c.object")
         basePath.delete()
         org.unmanaged.refresh(basePath)
         assert(org.flush())
         assert(
-          org.getIssues(new IssueOptions()) == "/ext/Foo__c/Foo__c.object\nError: line 1: Metadata is extending an unknown SObject, '/ext/Foo__c'\n")
+          org.getIssues(new IssueOptions()) == "/ext/Foo__c.object\nError: line 1: Metadata is extending an unknown SObject, '/ext/Foo__c.object'\n")
       }
     }
   }

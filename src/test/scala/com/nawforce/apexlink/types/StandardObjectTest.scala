@@ -53,7 +53,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Custom field") {
     FileSystemHelper.run(
-      Map("Account/Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
+      Map("Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {Account a; a.Bar__c = '';} }",
       )) { root: PathLike =>
       val org = createOrg(root)
@@ -219,7 +219,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Custom field reference") {
     FileSystemHelper.run(
-      Map("Account/Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
+      Map("Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Bar__c;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
@@ -230,7 +230,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Invalid field reference") {
     FileSystemHelper.run(
-      Map("Account/Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
+      Map("Account.object" -> customObject("Account", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Baz__c;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
@@ -243,7 +243,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Lookup related list") {
     FileSystemHelper.run(
-      Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
+      Map("Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Account")))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
@@ -257,7 +257,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   test("Lookup related list to field") {
     FileSystemHelper.run(
       Map(
-        "Foo__c/Foo__c.object" -> customObject("Foo",
+        "Foo__c.object" -> customObject("Foo",
                                         Seq(("Lookup__c", Some("Lookup"), Some("Account")),
                                             ("Bar__c", Some("Text"), None))),
         "Dummy.cls" -> "public class Dummy { {SObjectField a = Account.Lookup__r.Bar__c;} }",
@@ -398,7 +398,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Standard field without a type") {
-    FileSystemHelper.run(Map("Account/Account.object" -> customObject("Account", Seq(("AccountNumber", None, None))))) {
+    FileSystemHelper.run(Map("Account.object" -> customObject("Account", Seq(("AccountNumber", None, None))))) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -406,12 +406,12 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   }
 
   test("Custom field without a type") {
-    FileSystemHelper.run(Map("Account/Account.object" -> customObject("Account", Seq(("AccountNumber__c", None, None))))) {
+    FileSystemHelper.run(Map("Account.object" -> customObject("Account", Seq(("AccountNumber__c", None, None))))) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
           org.issues
-            .getMessages(root.join("Account").join("Account.object").toString)
+            .getMessages(root.join("Account.object").toString)
             .startsWith("Error: line 10: Expecting element 'fields' to have a single 'type' child element\n"))
     }
   }
