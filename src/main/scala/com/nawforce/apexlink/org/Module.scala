@@ -19,13 +19,7 @@ import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
-import com.nawforce.apexlink.types.apex.{
-  ApexClassDeclaration,
-  ApexDeclaration,
-  ApexFullDeclaration,
-  FullDeclaration,
-  TriggerDeclaration
-}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
 import com.nawforce.apexlink.types.platform.PlatformTypes
@@ -340,16 +334,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
     sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
     sobjects.toIndexedSeq
-  }
-
-  private def getFullDeclaration(dt: MetadataDocument): Option[ApexFullDeclaration] = {
-    types
-      .get(dt.typeName(namespace))
-      .flatMap {
-        case fd: FullDeclaration    => Some(fd)
-        case td: TriggerDeclaration => Some(td)
-        case _                      => None
-      }
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {

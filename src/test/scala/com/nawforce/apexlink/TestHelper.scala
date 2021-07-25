@@ -152,7 +152,8 @@ trait TestHelper {
   def customObject(label: String,
                    fields: Seq[(String, Option[String], Option[String])],
                    fieldSets: Set[String] = Set(),
-                   sharingReason: Set[String] = Set()): String = {
+                   sharingReason: Set[String] = Set(),
+                   extending: Boolean = false): String = {
     val fieldMetadata = fields.map(field => {
       s"""
          |    <fields>
@@ -185,6 +186,11 @@ trait TestHelper {
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$label</fullName>
+       |    ${if (!extending) "<label/>" else ""}
+       |    ${if (!extending) "<pluralLabel/>" else ""}
+       |    ${if (!extending) "<nameField/>" else ""}
+       |    ${if (!extending) "<deploymentStatus/>" else ""}
+       |    ${if (!extending) "<sharingModel/>" else ""}
        |    $fieldMetadata
        |    $fieldSetMetadata
        |    $sharingReasonMetadata

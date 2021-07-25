@@ -33,6 +33,11 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$label</fullName>
+       |    <label/>
+       |    <pluralLabel/>
+       |    <nameField/>
+       |    <deploymentStatus/>
+       |    <sharingModel/>
        |    $fieldMetadata
        |</CustomObject>
        |""".stripMargin
@@ -49,7 +54,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
 
   test("Custom object visible") {
     FileSystemHelper.run(
-      Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
+      Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)

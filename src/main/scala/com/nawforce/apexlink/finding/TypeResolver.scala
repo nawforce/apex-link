@@ -50,7 +50,7 @@ object TypeResolver {
 
   /** Search for TypeDeclaration in Local local to 'from', Module, Dependent Module or Platform Type .*/
   def apply(typeName: TypeName, from: TypeDeclaration, module: Option[Module]): TypeResponse = {
-    // Allow override of platform types in packages to support Schema.SObjectType handling.  This is a hack caused by
+    // Allow override of platform types in modules to support Schema.SObjectType handling.  This is a hack caused by
     // assuming platform types always live outside the module system and then deciding to inject some within it. It
     // might be fixable by assigning them to the correct module on construction/injection.
     if (from.moduleDeclaration.isEmpty && module.nonEmpty) {

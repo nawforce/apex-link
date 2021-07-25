@@ -21,6 +21,7 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.Page
+import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
@@ -264,9 +265,13 @@ trait PackageAPI extends Package {
 
     val tds = references.flatMap(typeId =>
       typeId.module.moduleType(typeId.typeName) match {
-        case Some(ref: SummaryDeclaration) =>
+        case Some(sobject: SObjectDeclaration) =>
+          // For SObjects, any file in module will trigger a refresh
+          sobject.paths.find(typeId.module.isVisibleFile).map(path => refreshInternal(path))
+          None
+        case Some(summary: SummaryDeclaration) =>
           // Replace direct use summary types, no need to revalidate these
-          refreshInternal(ref.path)
+          refreshInternal(summary.path)
           None
         case x => x
     })

@@ -40,7 +40,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
   test("Custom object") {
     FileSystemHelper.run(
       Map(
-        "Stupid__c.object" -> "<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\"><fullName>Stupid</fullName></CustomObject>",
+        "Stupid__c/Stupid__c.object" -> customObject("Stupid", Seq()),
         "Dummy.trigger" -> "trigger Dummy on Stupid__c (before insert) { }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)

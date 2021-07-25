@@ -57,20 +57,22 @@ final case class SchemaSObjectType(module: Module)
   /** Add an SObject, this will create supporting types needed for reflective access to this SObject. */
   def add(sobjectName: Name, hasFieldSets: Boolean): FieldDeclaration = {
 
-    val typeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
+    // Handlers for Schema.SObjectType.<name>.Fields, Schema.<name>.Fields & Schema.<name>.SObjectType
     val fields = SObjectFields(sobjectName, module)
-    val typeFields = SObjectTypeFields(sobjectName, module)
-
-    module.upsertMetadata(typeFields)
+    module.upsertMetadata(SObjectTypeFields(sobjectName, module))
     module.upsertMetadata(fields)
     module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
+
+    // Optional handlers for fieldSets & shares
+    val sobjectTypeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
     if (hasFieldSets)
       module.upsertMetadata(SObjectTypeFieldSets(sobjectName, module))
-    if (typeName.isShare)
+    if (sobjectTypeName.isShare)
       module.upsertMetadata(SObjectFieldRowCause(sobjectName, module))
 
+    // The Schema.SObjectType.<name> field that anchors all this
     val describeField =
-      CustomFieldDeclaration(sobjectName, TypeNames.describeSObjectResultOf(typeName), None, asStatic = true)
+      CustomFieldDeclaration(sobjectName, TypeNames.describeSObjectResultOf(sobjectTypeName), None, asStatic = true)
     sobjectFields.put(sobjectName, Some(describeField))
     describeField
   }
@@ -86,16 +88,16 @@ final case class SchemaSObjectType(module: Module)
     }
 
     sobjectFields
-      .getOrElseUpdate(
-        name, {
-          val td = TypeResolver(TypeName(name), module).toOption
-          if (td.nonEmpty && td.get.superClassDeclaration.exists(superClass =>
-                superClass.typeName == TypeNames.SObject)) {
-            Some(add(name, hasFieldSets = true))
-          } else {
-            None
-          }
-        })
+      .getOrElseUpdate(name, {
+        // This handles cases where describe is used on a Platform SObject without the SObject first being used
+        // directly in Apex which would normally cause the describe handler to be created.
+        val td = TypeResolver(TypeName(name), module).toOption
+        if (td.nonEmpty && td.get.isSObject) {
+          Some(add(name, hasFieldSets = true))
+        } else {
+          None
+        }
+      })
   }
 
   override def findMethod(name: Name,
@@ -194,7 +196,10 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
 
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Location.empty, Name("getMap"), TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField), Array()))
+      CustomMethodDeclaration(Location.empty,
+                              Name("getMap"),
+                              TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField),
+                              Array()))
       .map(m => ((m.name, m.parameters.length), m))
       .toMap
 }

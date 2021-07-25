@@ -14,7 +14,9 @@
 
 package com.nawforce.apexlink.org
 
+import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.Names.NameUtils
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
@@ -25,7 +27,6 @@ import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.stream._
 
 import scala.collection.mutable.ArrayBuffer
@@ -51,10 +52,9 @@ class SObjectDeployer(module: Module) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
 
       // Construct doc from name as the file might not actually exist in SFDX
-      val doc = MetadataDocument(PathFactory(sObjectEvent.name.value + ".object"))
-      assert(doc.exists(_.isInstanceOf[SObjectLike]))
-      val encodedName = EncodedName(doc.get.name).defaultNamespace(module.namespace)
+      val encodedName = EncodedName(sObjectEvent.path.basename).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
+      val doc = MetadataDocument(sObjectEvent.path.join(encodedName.fullName + ".object"))
 
       val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
       val fieldSetEvents = bufferEvents[FieldsetEvent](objectsEvents)
@@ -105,6 +105,8 @@ class SObjectDeployer(module: Module) {
                                  PathLocation(sourceInfo.map(_.path).get.toString, Location(0)))
     })
 
+    val typeCache = new TypeCache
+    createdSObjects.values.foreach(_.propagateOuterDependencies(typeCache))
     createdSObjects.values.toArray
   }
 
@@ -192,10 +194,19 @@ class SObjectDeployer(module: Module) {
       Array(extendExistingSObject(None, sources, typeName, customObjectNature, fields, fieldSets, sharingReasons))
     else {
       val sobjectType = resolveBaseType(typeName)
-      if (sobjectType.nonEmpty)
-        createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
-      else
-        createNewSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+      (event.isDefining, sobjectType.isEmpty) match {
+        case (true, true) =>
+          createNewSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+        case (false, false) =>
+          createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
+        case (false, true) =>
+          OrgImpl.log(
+            IssueOps.extendingUnknownSObject(PathLocation(sources.head.path.toString, Location.empty), event.path))
+          Array.empty
+        case (true, false) =>
+          OrgImpl.log(IssueOps.redefiningSObject(PathLocation(sources.head.path.toString, Location.empty), event.path))
+          Array.empty
+      }
     }
   }
 
@@ -318,7 +329,11 @@ class SObjectDeployer(module: Module) {
     val extend = base.getOrElse(PlatformTypes.sObjectType)
     val combinedSources = asSObject.map(_.sources).getOrElse(Array()) ++ sources
     val combinedFields =
-      (SObjectDeployer.standardCustomObjectFields ++ extend.fields ++ fields).map(field => (field.name, field)).toMap.values.toArray
+      (SObjectDeployer.standardCustomObjectFields ++ extend.fields ++ fields)
+        .map(field => (field.name, field))
+        .toMap
+        .values
+        .toArray
     val combinedFieldsets = fieldSets
       .foldLeft(asSObject.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
       .toArray
@@ -326,14 +341,21 @@ class SObjectDeployer(module: Module) {
       .foldLeft(asSObject.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) => acc + sharingReason)
       .toArray
 
-    new SObjectDeclaration(combinedSources,
-                           module,
-                           typeName,
-                           nature,
-                           combinedFieldsets,
-                           combinedSharingReasons,
-                           combinedFields,
-                           base.nonEmpty && base.get.isComplete)
+    val newSObject = new SObjectDeclaration(combinedSources,
+                                            module,
+                                            typeName,
+                                            nature,
+                                            combinedFieldsets,
+                                            combinedSharingReasons,
+                                            combinedFields,
+                                            base.nonEmpty && base.get.isComplete)
+
+    // If we are extending over a module boundary then link via dependencies for refresh handling
+    if (base.flatMap(_.moduleDeclaration).exists(_ != module)) {
+      newSObject.addDependency(base.get)
+    }
+
+    newSObject
   }
 
   /** Create a type declaration for a SObjectLike, such as a platform event. This just defaults a couple of fields

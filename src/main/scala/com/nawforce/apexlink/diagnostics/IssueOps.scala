@@ -16,6 +16,7 @@ package com.nawforce.apexlink.diagnostics
 
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.{ApexParser, CodeParser}
 
 object IssueOps {
@@ -61,5 +62,21 @@ object IssueOps {
       Diagnostic(ERROR_CATEGORY,
                  location.location,
                  s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration"))
+
+  def extendingUnknownSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
+    Issue(
+      location.path,
+      Diagnostic(ERROR_CATEGORY,
+        location.location,
+        s"Metadata is extending an unknown SObject, '$sobjectPath'"))
+  }
+
+  def redefiningSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
+    Issue(
+      location.path,
+      Diagnostic(ERROR_CATEGORY,
+        location.location,
+        s"Metadata is defining an SObject that already exists, '$sobjectPath'"))
+  }
 
 }

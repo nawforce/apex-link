@@ -62,6 +62,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 
   override val paths: Array[PathLike] = sources.map(_.path)
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
+  private val depends = mutable.Set[Dependent]()
 
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
@@ -82,10 +83,14 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 
   override def validate(): Unit = {}
 
+  def addDependency(dependent: Dependent): Unit = depends.add(dependent)
+
+  override def dependencies(): Iterable[Dependent] = depends
+
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
                                              apexOnly: Boolean,
                                              typeCache: TypeCache): Unit = {
-    // TODO: Can depend on other SObjects
+    DependentType.dependentsToTypeIds(module, depends, apexOnly, dependsOn)
   }
 
   override val fields: Array[FieldDeclaration] = {
