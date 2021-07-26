@@ -57,12 +57,17 @@ object LabelGenerator {
                 .getChildren("labels")
                 .iterator
                 .flatMap(c => {
-                  val fullName: String = c.getSingleChildAsString("fullName")
-                  val protect: Boolean = c.getSingleChildAsBoolean("protected")
-                  Some(
-                    LabelEvent(PathLocation(document.path.toString, Location(c.line)),
-                               Name(fullName),
-                               protect))
+                  try {
+                    val fullName: String = c.getSingleChildAsString("fullName")
+                    val protect: Boolean = c.getSingleChildAsBoolean("protected")
+                    Some(
+                      LabelEvent(PathLocation(document.path.toString, Location(c.line)),
+                        Name(fullName),
+                        protect))
+                  } catch {
+                    case e: XMLException =>
+                      Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))
+                  }
                 })
               labels ++ Iterator(LabelFileEvent(SourceInfo(document.path, source)))
             } catch {
