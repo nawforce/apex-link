@@ -201,7 +201,7 @@ class SObjectDeployer(module: Module) {
           Array.empty
         case (true, false) =>
           OrgImpl.log(IssueOps.redefiningSObject(PathLocation(sources.head.path.toString, Location.empty), event.reportingPath))
-          Array.empty
+          createReplacementSObject(sources, typeName, customObjectNature, fields, fieldSets, sharingReasons)
       }
     }
   }
