@@ -254,7 +254,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       if (sourceOpt.isEmpty)
         index.remove(dt)
 
-      // Clear errors as might fail to create type
+      // Clear errors as might fail to create type, SObjects are handled later due to multiple files
       pkg.org.issues.pop(dt.path.toString)
 
       // Create type & forward holders to limit need for invalidation chaining
@@ -301,7 +301,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, dt.path, s)).toSeq
       case doc: SObjectDocument =>
-        refreshSObject(doc.path.parent)
+        if (doc.path.toString.endsWith("object-meta.xml"))
+          refreshSObject(doc.path.parent)
+        else
+          refreshSObject(doc.path)
       case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
         val sObjectDir = dt.path.parent.parent
         MetadataDocument(sObjectDir.join(s"${sObjectDir.basename}.object-meta.xml")) match {
@@ -328,12 +331,23 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   }
 
   private def refreshSObject(sObjectPath: PathLike): Seq[DependentType] = {
+    clearSObjectErrors(sObjectPath)
     val deployer = new SObjectDeployer(this)
     val sobjects = deployer.createSObjects(
       SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
 
     sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
     sobjects.toIndexedSeq
+  }
+
+  private def clearSObjectErrors(path: PathLike): Unit = {
+    if (!path.isDirectory) {
+      pkg.org.issues.pop(path.toString)
+    } else {
+      val (files, directories) = path.splitDirectoryEntries()
+      files.foreach(file => pkg.org.issues.pop(file.toString))
+      directories.foreach(clearSObjectErrors)
+    }
   }
 
   private def checkPathInPackageOrThrow(path: PathLike): Unit = {
