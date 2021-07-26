@@ -54,7 +54,7 @@ class SObjectDeployer(module: Module) {
       val name = sObjectEvent.reportingPath.basename.replaceFirst("\\.object$", "")
       val encodedName = EncodedName(name).defaultNamespace(module.namespace)
       val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
-      val doc = MetadataDocument(sObjectEvent.reportingPath.join(encodedName.fullName + ".object"))
+      val doc = MetadataDocument(sObjectEvent.reportingPath.join(encodedName.fullName.value + ".object"))
 
       val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
       val fieldSetEvents = bufferEvents[FieldsetEvent](objectsEvents)
