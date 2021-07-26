@@ -238,7 +238,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(
         Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object" -> customObject("Foo", Seq()),
+            "base/Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq()),
             "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None))) { root: PathLike =>
         val org = createHappyOrg(root)
         refresh(org.unmanaged,
@@ -269,7 +269,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         org.unmanaged.refresh(basePath)
         assert(org.flush())
         assert(
-          org.getIssues(new IssueOptions()) == "/ext/Foo__c.object\nError: line 1: Metadata is extending an unknown SObject, '/ext/Foo__c.object'\n")
+          org.getIssues(new IssueOptions()) == "/ext/Foo__c.object\nError: line 1: SObject is extending an unknown SObject, '/ext/Foo__c.object'\n")
       }
     }
   }
@@ -278,7 +278,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(
         Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+            "base/Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
             "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None))) { root: PathLike =>
         val org = createHappyOrg(root)
 
@@ -287,10 +287,87 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         org.unmanaged.refresh(basePath)
         assert(org.flush())
         assert(
-          org.getIssues(new IssueOptions()) == "/ext/Foo__c/fields/Baz__c.field-meta.xml\nError: line 1: Metadata is extending an unknown SObject, '/ext/Foo__c'\n")
-
+          org.getIssues(new IssueOptions()) == "/ext/Foo__c/fields/Baz__c.field-meta.xml\nError: line 1: SObject is extending an unknown SObject, '/ext/Foo__c'\n")
       }
     }
   }
 
+  test("MDAPI delete") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__c.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
+          // which has 6 for RowClause handling
+          assert(startTypes - org.unmanaged.modules.head.types.size == 21)
+      }
+    }
+  }
+
+  test("SFDX delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__c").join("Foo__c.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
+          // which has 6 for RowClause handling
+          assert(startTypes - org.unmanaged.modules.head.types.size == 21)
+      }
+    }
+  }
+
+  test("MDAPI lookup dependency delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Bar__c.object" -> customObject("Bar", Seq()),
+            "Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Bar__c")))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val basePath = root.join("Bar__c.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(
+            org.getIssues(new IssueOptions()) ==
+              "/Foo__c.object\nError: line 0: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+      }
+    }
+  }
+
+  test("SFDX lookup dependency delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Bar__c/Bar__c.object-meta.xml" -> customObject("Bar", Seq()),
+          "Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Bar__c")))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val basePath = root.join("Bar__c").join("Bar__c.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(
+            org.getIssues(new IssueOptions()) ==
+              "/Foo__c/Foo__c.object-meta.xml\nError: line 0: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+      }
+    }
+  }
 }

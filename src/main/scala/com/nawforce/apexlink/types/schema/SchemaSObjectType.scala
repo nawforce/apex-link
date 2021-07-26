@@ -77,6 +77,15 @@ final case class SchemaSObjectType(module: Module)
     describeField
   }
 
+  def remove(sobjectName: Name): Unit = {
+    module.removeMetadata(TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))))
+    module.removeMetadata(TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))))
+    module.removeMetadata(TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))))
+    module.removeMetadata(TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))))
+    module.removeMetadata(TypeNames.sObjectFieldRowCause$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))))
+    sobjectFields.remove(sobjectName)
+  }
+
   /* Find a specific SObject */
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (!staticContext.contains(true))

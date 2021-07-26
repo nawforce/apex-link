@@ -144,7 +144,11 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   // Remove some metadata from the package
   // Future: Support component & flow removal
   def removeMetadata(td: TypeDeclaration): Unit = {
-    types.remove(td.typeName)
+    removeMetadata(td.typeName)
+  }
+
+  def removeMetadata(typeName: TypeName): Unit = {
+    types.remove(typeName)
   }
 
   /** Obtain log with unused metadata warnings */
@@ -244,21 +248,21 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     PlatformTypes.withLoadingObserver(schemaSObjectType) {
 
       checkPathInPackageOrThrow(path)
-      val dt = MetadataDocument(path).getOrElse(
+      val doc = MetadataDocument(path).getOrElse(
         throw new IllegalArgumentException(s"Metadata type is not supported for '$path'"))
       val sourceOpt = resolveSource(path)
-      val typeId = TypeId(this, dt.typeName(namespace))
+      val typeId = TypeId(this, doc.typeName(namespace))
 
       // Update internal document tracking
-      index.upsert(new LocalLogger(pkg.org.issues), dt)
+      index.upsert(new LocalLogger(pkg.org.issues), doc)
       if (sourceOpt.isEmpty)
-        index.remove(dt)
+        index.remove(doc)
 
       // Clear errors as might fail to create type, SObjects are handled later due to multiple files
-      pkg.org.issues.pop(dt.path.toString)
+      pkg.org.issues.pop(doc.path.toString)
 
       // Create type & forward holders to limit need for invalidation chaining
-      val newTypes = createTypes(dt, sourceOpt)
+      val newTypes = createTypes(doc, sourceOpt)
       if (newTypes.nonEmpty) {
         newTypes.map(newType => {
           val existingType = getDependentType(newType.typeName)
@@ -277,7 +281,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         val holders = existingType
           .map(_.getTypeDependencyHolders)
           .getOrElse(DependentType.emptyTypeDependencyHolders)
-        types.remove(typeId.typeName)
+        removeTypes(doc)
         Seq((typeId, holders.toSet))
       }
     }
@@ -292,21 +296,21 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       }
   }
 
-  private def createTypes(dt: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
-    dt match {
+  private def createTypes(doc: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
+    doc match {
       case doc: ExtendedApexDocument =>
         source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case doc: ApexClassDocument =>
         source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case _: ApexTriggerDocument =>
-        source.flatMap(s => TriggerDeclaration.create(this, dt.path, s)).toSeq
+        source.flatMap(s => TriggerDeclaration.create(this, doc.path, s)).toSeq
       case doc: SObjectDocument =>
         if (doc.path.toString.endsWith("object-meta.xml"))
           refreshSObject(doc.path.parent)
         else
           refreshSObject(doc.path)
       case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
-        val sObjectDir = dt.path.parent.parent
+        val sObjectDir = doc.path.parent.parent
         MetadataDocument(sObjectDir.join(s"${sObjectDir.basename}.object-meta.xml")) match {
           case Some(_: SObjectDocument) => refreshSObject(sObjectDir)
           case _                        => Seq()
@@ -327,6 +331,33 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         val events = FlowGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
         Seq(InterviewDeclaration(this).merge(stream))
+    }
+  }
+
+  private def removeTypes(doc: MetadataDocument): Unit = {
+    doc match {
+      case doc: SObjectDocument =>
+        if (doc.path.toString.endsWith("object-meta.xml"))
+          removeSObjectTypes(doc.path.parent.basename)
+        else
+          removeSObjectTypes(doc.path.basename.replaceFirst("\\.object$", ""))
+      case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
+        val sObjectDir = doc.path.parent.parent
+        removeSObjectTypes(sObjectDir.basename)
+      case _ => types.remove(doc.typeName(namespace))
+    }
+  }
+
+  private def removeSObjectTypes(sobjectName: String): Unit = {
+    val name = EncodedName(sobjectName)
+    if (name.ext.contains(Name("c"))) {
+      val typeName = TypeName(name.fullName, Nil, Some(TypeNames.Schema))
+      val objectNames = Seq(typeName,
+                            typeName.withNameReplace("__c$", "__Share"),
+                            typeName.withNameReplace("__c$", "__Feed"),
+                            typeName.withNameReplace("__c$", "__History"))
+      objectNames.foreach(typeName => schemaSObjectType.remove(typeName.name))
+      objectNames.foreach(types.remove)
     }
   }
 
