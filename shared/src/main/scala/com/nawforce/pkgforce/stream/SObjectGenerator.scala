@@ -99,7 +99,7 @@ object SObjectGenerator {
     val doc = parsed.flatMap(_.value)
     val customSettingsType =
       doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
-    val isDefining = doc.exists(doc => hasAllMandatoryFields(doc))
+    val isDefining = doc.exists(doc => doc.rootElement.getChildren("label").nonEmpty)
     val reportingPath =
       if (document.path.toString.endsWith("object-meta.xml"))
         document.path.parent
@@ -124,16 +124,6 @@ object SObjectGenerator {
       collectSfdxFields(document.path) ++
       collectSfdxFieldSets(document.path) ++
       collectSfdxSharingReason(document.path)
-  }
-
-  /* Determine if we have mandatory fields need to define SObject */
-  private def hasAllMandatoryFields(doc: XMLDocumentLike): Boolean = {
-    val root = doc.rootElement
-    root.getChildren("label").nonEmpty &&
-      root.getChildren("pluralLabel").nonEmpty &&
-      root.getChildren("nameField").nonEmpty &&
-      root.getChildren("deploymentStatus").nonEmpty &&
-      root.getChildren("sharingModel").nonEmpty
   }
 
   private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[String]] = {
