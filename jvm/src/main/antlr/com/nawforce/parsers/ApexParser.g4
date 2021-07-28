@@ -575,6 +575,11 @@ subFieldEntry
     : fieldName soqlId?
     | soqlFunction soqlId?;
 
+soqlFieldsParameter
+    : ALL
+    | CUSTOM
+    | STANDARD;
+
 soqlFunction
     : AVG LPAREN fieldName RPAREN
     | COUNT LPAREN RPAREN
@@ -598,6 +603,7 @@ soqlFunction
     | HOUR_IN_DAY LPAREN dateFieldName RPAREN
     | WEEK_IN_MONTH LPAREN dateFieldName RPAREN
     | WEEK_IN_YEAR LPAREN dateFieldName RPAREN
+    | FIELDS LPAREN soqlFieldsParameter RPAREN
     ;
 
  dateFieldName
