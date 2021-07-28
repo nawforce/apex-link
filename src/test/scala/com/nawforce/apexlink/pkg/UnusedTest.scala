@@ -142,6 +142,16 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Unused catch") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{ try {} catch(Exception e) {} }}",
+        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createHappyOrg(root)
+      val module = org.unmanaged.orderedModules.headOption.get
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+    }
+  }
+
   def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head

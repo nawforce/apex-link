@@ -338,8 +338,13 @@ final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, i
   def verify(context: BlockVerifyContext): Unit = {
     modifiers.issues.foreach(context.log)
     context.withInnerBlockVerifyContext() { blockContext =>
-      blockContext.addVar(Name(id), qname.location, qname.asTypeName())
-      block.verify(blockContext)
+      val exceptionTypeName = qname.asTypeName()
+      blockContext.getTypeAndAddDependency(exceptionTypeName, context.thisType) match {
+        case Left(_) => context.missingType(qname.location, exceptionTypeName)
+        case Right(exceptionType) =>
+          blockContext.addVar(Name(id), None, exceptionType)
+          block.verify(blockContext)
+      }
     }
   }
 }

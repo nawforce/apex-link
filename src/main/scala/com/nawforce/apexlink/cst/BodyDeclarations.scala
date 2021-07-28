@@ -374,7 +374,7 @@ final case class FormalParameter(module: Module,
   override def typeName: TypeName = relativeTypeName.typeName
 
   def addVar(context: BlockVerifyContext): Unit = {
-    relativeTypeName.addVar(id.location, id.name, context: BlockVerifyContext)
+    relativeTypeName.addVar(id.location, id.name, context)
   }
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {
