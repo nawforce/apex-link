@@ -820,8 +820,8 @@ soslId
 
 // Identifiers
 
-// Some keywords can be used as general identifiers, this is likley an over simplification of the actual
-// rules but devining them from playing with Apex is very difficult. We could let any be used but that
+// Some keywords can be used as general identifiers, this is likely an over simplification of the actual
+// rules but divining them from playing with Apex is very difficult. We could let any be used but that
 // can significantly impact the parser performance by creating ambiguities.
 id
     : Identifier
@@ -889,6 +889,8 @@ id
     | FORMAT
     | TRACKING
     | VIEWSTAT
+    | STANDARD
+    | CUSTOM
     // SOQL date functions
     | CALENDAR_MONTH
     | CALENDAR_QUARTER
@@ -1067,6 +1069,10 @@ anyId
     | REFERENCE
     | CUBE
     | FORMAT
+    | TRACKING
+    | VIEWSTAT
+    | STANDARD
+    | CUSTOM
     // SOQL date functions
     | CALENDAR_MONTH
     | CALENDAR_QUARTER
