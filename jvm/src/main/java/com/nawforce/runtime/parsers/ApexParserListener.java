@@ -1,4 +1,4 @@
-// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1297,6 +1297,16 @@ public interface ApexParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ApexParser#soqlFieldsParameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterSoqlFieldsParameter(ApexParser.SoqlFieldsParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ApexParser#soqlFieldsParameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitSoqlFieldsParameter(ApexParser.SoqlFieldsParameterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ApexParser#soqlFunction}.
 	 * @param ctx the parse tree

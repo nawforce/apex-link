@@ -1,4 +1,4 @@
-// Generated from /Users/kevin/Projects/pkgforce/jvm/src/main/antlr/com/nawforce/parsers/ApexParser.g4 by ANTLR 4.8
+// Generated from ApexParser.g4 by ANTLR 4.8
 package com.nawforce.runtime.parsers;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -778,6 +778,12 @@ public interface ApexParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSubFieldEntry(ApexParser.SubFieldEntryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ApexParser#soqlFieldsParameter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSoqlFieldsParameter(ApexParser.SoqlFieldsParameterContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ApexParser#soqlFunction}.
 	 * @param ctx the parse tree
