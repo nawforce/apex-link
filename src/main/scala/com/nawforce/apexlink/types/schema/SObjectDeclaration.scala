@@ -23,25 +23,49 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.diagnostics.Location
-import com.nawforce.pkgforce.documents.SourceInfo
+import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.stream.SObjectEvent
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
-sealed abstract class SObjectNature(val nature: String) {
+sealed abstract class SObjectNature(val nature: String, val extendable: Boolean) {
   override def toString: String = nature
 }
 
-case object ListCustomSettingNature extends SObjectNature("List")
-case object HierarchyCustomSettingsNature extends SObjectNature("Hierarchy")
-case object CustomObjectNature extends SObjectNature("CustomObject")
-case object CustomMetadataNature extends SObjectNature("CustomMetadata")
-case object BigObjectNature extends SObjectNature("BigObject")
-case object PlatformObjectNature extends SObjectNature("PlatformObject")
-case object PlatformEventNature extends SObjectNature("PlatformEvent")
+case object ListCustomSettingNature extends SObjectNature("List Custom Setting", extendable = true)
+
+case object HierarchyCustomSettingsNature extends SObjectNature("Hierarchy Custom Setting", extendable = true)
+
+case object CustomObjectNature extends SObjectNature("Custom Object", extendable = true)
+
+case object PlatformEventNature extends SObjectNature("Platform Event", extendable = false)
+
+case object CustomMetadataNature extends SObjectNature("Custom Metadata", extendable = false)
+
+case object BigObjectNature extends SObjectNature("Big Object", extendable = false)
+
+// Special case used for standard objects which need an SObjectDeclaration due to a lookups from elsewhere
+case object PlatformObjectNature extends SObjectNature("Platform Object", extendable = true)
+
+object SObjectNature {
+  def apply(doc: MetadataDocument, event: SObjectEvent): SObjectNature = {
+    doc match {
+      case _: CustomMetadataDocument => CustomMetadataNature
+      case _: BigObjectDocument => BigObjectNature
+      case _: PlatformEventDocument => PlatformEventNature
+      case _: SObjectDocument =>
+        event.customSettingsType match {
+          case Some("List") => ListCustomSettingNature
+          case Some("Hierarchy") => HierarchyCustomSettingsNature
+          case _ => CustomObjectNature
+        }
+    }
+  }
+}
 
 trait SObjectLikeDeclaration extends DependentType
 

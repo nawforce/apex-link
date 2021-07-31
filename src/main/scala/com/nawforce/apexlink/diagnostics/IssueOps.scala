@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.diagnostics
 
+import com.nawforce.apexlink.types.schema.SObjectNature
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -45,20 +46,25 @@ object IssueOps {
 
   def unexpectedAnnotationOnClass(location: PathLocation, context: ApexParser.QualifiedNameContext): Issue =
     Issue(location.path,
-          Diagnostic(ERROR_CATEGORY,
-                     location.location,
-                     s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration"))
+      Diagnostic(ERROR_CATEGORY,
+        location.location,
+        s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration"))
 
   def extendingUnknownSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
     Issue(location.path,
-          Diagnostic(ERROR_CATEGORY, location.location, s"SObject is extending an unknown SObject, '$sobjectPath'"))
+      Diagnostic(ERROR_CATEGORY, location.location, s"SObject is extending an unknown SObject, '$sobjectPath'"))
+  }
+
+  def extendingOverNamespace(location: PathLocation, nature: SObjectNature, baseNS: Name, extendingNS: Name): Issue = {
+    Issue(location.path,
+      Diagnostic(ERROR_CATEGORY, location.location, s"${nature} can not be extended in namespace '$extendingNS' when defined in namespace '$baseNS'"))
   }
 
   def redefiningSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
     Issue(location.path,
-          Diagnostic(WARNING_CATEGORY,
-                     location.location,
-                     s"SObject appears to be re-defining an SObject that already exists, remove the 'label' field if it is extending an existing SObject,'$sobjectPath'"))
+      Diagnostic(WARNING_CATEGORY,
+        location.location,
+        s"SObject appears to be re-defining an SObject that already exists, remove the 'label' field if it is extending an existing SObject,'$sobjectPath'"))
   }
 
 }

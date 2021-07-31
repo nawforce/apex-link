@@ -37,6 +37,7 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
        |    <fullName>$label</fullName>
+       |    <label>Hello</label>
        |    $fieldMetadata
        |</CustomObject>
        |""".stripMargin
