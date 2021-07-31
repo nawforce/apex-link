@@ -50,7 +50,8 @@ class SObjectDeployer(module: Module) {
     while (objectsEvents.hasNext) {
       val sObjectEvent = objectsEvents.next().asInstanceOf[SObjectEvent]
       val doc = sobjectDoc(sObjectEvent)
-      val typeName = doc.typeName(module.namespace)
+      val encodedName = EncodedName(doc.name).defaultNamespace(module.namespace)
+      val typeName = TypeName(encodedName.fullName, Nil, Some(TypeNames.Schema))
       val nature = SObjectNature(doc, sObjectEvent)
 
       val fieldEvents = bufferEvents[CustomFieldEvent](objectsEvents)
@@ -70,7 +71,6 @@ class SObjectDeployer(module: Module) {
         (Seq(sObjectEvent.sourceInfo) ++ fieldEvents.map(_.sourceInfo) ++ fieldSetEvents.map(_.sourceInfo) ++ sharingReasonEvents
           .map(_.sourceInfo)).flatten.toArray
 
-      val encodedName = EncodedName(doc.name)
       val sobjects =
         if (encodedName.ext.nonEmpty)
           createCustomObject(sources, sObjectEvent, typeName, nature, fields, fieldSets, sharingReasons)
