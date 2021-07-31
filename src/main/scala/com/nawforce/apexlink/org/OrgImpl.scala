@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
-import com.nawforce.apexlink.rpc.{DependencyGraph, DependencyLink, DependencyNode, LocationLink}
+import com.nawforce.apexlink.rpc.{BombScore, DependencyGraph, DependencyLink, DependencyNode, LocationLink}
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
@@ -269,6 +269,10 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
     packages.find(_.isPackagePath(path)).map(_.getDefinition(PathFactory(path), line, offset, Option(content))).getOrElse(Array.empty)
+  }
+
+  def getDependencyBombs(count: Int): Array[BombScore] = {
+    Array()
   }
 }
 

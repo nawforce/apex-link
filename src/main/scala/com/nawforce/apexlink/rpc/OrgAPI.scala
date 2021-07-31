@@ -86,6 +86,15 @@ object IdentifierForPathResult {
   implicit val rwName: RW[Name] = macroRW
 }
 
+case class BombScore(identifier: TypeIdentifier, usedBy: Int, uses: Int, score: Double)
+
+object BombScore {
+  implicit val rw: RW[BombScore] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "version")
   def version(): Future[String]
@@ -116,6 +125,9 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "getDefinition")
   def getDefinition(path: String, line: Int, offset: Int, content: Option[String]): Future[Array[LocationLink]]
+
+  @api.JSONRPCMethod(name = "getDependencyBombs")
+  def getDependencyBombs(count: Int): Future[Array[BombScore]]
 }
 
 object OrgAPI {
