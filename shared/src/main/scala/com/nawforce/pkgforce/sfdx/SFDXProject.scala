@@ -191,20 +191,27 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
                                  dependency: ModuleDependent,
                                  logger: IssueLogger): Option[VersionedPackageLayer] = {
     val existing = current.get(dependency.name)
-    if (existing.isEmpty)
-      logger.logError(
-        projectFile,
-        Location.empty,
-        s"Dependency '${dependency.name}' must be defined in project before being referenced")
-    else if (dependency.version.isEmpty)
-      logger.logError(projectFile,
+    if (existing.isEmpty) {
+      if (dependency.name.contains('@')) {
+        logger.logWarning(
+          projectFile,
+          Location.empty,
+          s"Package dependency for '${dependency.name}' ignored as metadata is not available for analysis.")
+      } else {
+        logger.logWarning(
+          projectFile,
+          Location.empty,
+          s"Dependency '${dependency.name}' must be defined in project before being referenced")
+      }
+    } else if (dependency.version.isEmpty) {
+      logger.logWarning(projectFile,
                       Location.empty,
                       s"Dependency '${dependency.name}' must provide a version number")
-    else if (!dependency.version.get.isCompatible(existing.get.version.get))
-      logger.logError(projectFile,
+    } else if (!dependency.version.get.isCompatible(existing.get.version.get)) {
+      logger.logWarning(projectFile,
                       Location.empty,
                       s"Dependency version '${dependency.version.get}' for '${dependency.name}' is not compatible with '${existing.get.version.get}'")
-
+    }
     existing
   }
 }
@@ -222,6 +229,8 @@ object SFDXProject {
         case Left(err) => logger.logError(projectFile, Location.empty, err); None
         case Right(data) =>
           try {
+            ujson.transform(ujson.Readable.fromString(data),Value)
+
             Some(new SFDXProject(path, ujson.read(data)))
           } catch {
             case ex: SFDXProjectError =>

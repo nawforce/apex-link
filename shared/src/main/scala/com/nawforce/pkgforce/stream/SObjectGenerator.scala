@@ -38,8 +38,8 @@ import com.nawforce.runtime.xml.XMLDocument
 import scala.collection.mutable
 
 final case class SObjectEvent(sourceInfo: Option[SourceInfo],
-                              reportingPath: PathLike,
-                              isDefining: Boolean,
+                              reportingPath: PathLike,            // SFDX SObject directory or MDAPI .object file
+                              isDefining: Boolean,                // Metadata is defining a new SObject
                               customSettingsType: Option[String])
     extends PackageEvent
 final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],

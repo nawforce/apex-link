@@ -215,7 +215,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       assert(
         logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
                                     diagnostics.Diagnostic(
-                                      ERROR_CATEGORY,
+                                      WARNING_CATEGORY,
                                       Location.empty,
                                       "Dependency version '1.2.3.5' for 'first' is not compatible with '1.2.3.4'"))))
 
