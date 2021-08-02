@@ -113,6 +113,10 @@ class ClassModifierTest extends AnyFunSuite {
     assert(legalClassAccess(Array(VIRTUAL_MODIFIER, PUBLIC_MODIFIER)))
   }
 
+  test("Json Access annotation") {
+    assert(legalClassAccess(Array(JSON_ACCESS_ANNOTATION, PUBLIC_MODIFIER)))
+  }
+
   test("Abstract & virtual modifier") {
     val issues =
       illegalClassAccess(Array(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER, PUBLIC_MODIFIER)).toSeq
@@ -182,6 +186,10 @@ class ClassModifierTest extends AnyFunSuite {
 
   test("Inner Virtual modifier") {
     assert(innerLegalClassAccess(Array(VIRTUAL_MODIFIER)))
+  }
+
+  test("Inner Json Access annotation") {
+    assert(innerLegalClassAccess(Array(JSON_ACCESS_ANNOTATION)))
   }
 
   test("Inner Abstract & virtual modifier") {

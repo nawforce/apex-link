@@ -68,6 +68,7 @@ case object SUPPRESS_WARNINGS_ANNOTATION extends Modifier("@SuppressWarnings")
 case object TEST_SETUP_ANNOTATION extends Modifier("@TestSetup")
 case object TEST_VISIBLE_ANNOTATION extends Modifier("@TestVisible")
 case object NAMESPACE_ACCESSIBLE_ANNOTATION extends Modifier("@NamespaceAccessible")
+case object JSON_ACCESS_ANNOTATION extends Modifier("@JsonAccess")
 
 case object REST_RESOURCE_ANNOTATION extends Modifier("@RestResource")
 case object HTTP_DELETE_ANNOTATION extends Modifier("@HttpDelete")
@@ -114,7 +115,9 @@ object ModifierOps {
         HTTP_GET_ANNOTATION,
         HTTP_PATCH_ANNOTATION,
         HTTP_POST_ANNOTATION,
-        HTTP_PUT_ANNOTATION)
+        HTTP_PUT_ANNOTATION,
+        JSON_ACCESS_ANNOTATION
+        )
 
   private lazy val byName = (bitModifiers ++ annotations)
   // The parser text strips WS for '* sharing' so we do same
@@ -149,7 +152,7 @@ object ApexModifiers {
     TypeAnnotations ++ TypeModifiers
 
   private val ClassAnnotations: Set[Modifier] =
-    TypeAnnotations ++ Set(ISTEST_ANNOTATION, REST_RESOURCE_ANNOTATION)
+    TypeAnnotations ++ Set(ISTEST_ANNOTATION, REST_RESOURCE_ANNOTATION, JSON_ACCESS_ANNOTATION)
 
   private val ClassModifiers: Set[Modifier] =
     TypeModifiers ++ Set(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER) ++ sharingModifiers.toSet
