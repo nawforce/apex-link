@@ -76,8 +76,8 @@ jobs:
       #- name: promiseV3
       #  run: java -cp "target/dependency/*:target/apexlink-1.4.2.jar" com.nawforce.apexlink.ApexLink -verbose samples/promiseV3/promiseV3
 
-      - name: Apex-Opensource-Library
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Apex-Opensource-Library/Apex-Opensource-Library
+      # - name: Apex-Opensource-Library
+      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Apex-Opensource-Library/Apex-Opensource-Library
 
       - name: SFDCRules
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/SFDCRules/SFDCRules
