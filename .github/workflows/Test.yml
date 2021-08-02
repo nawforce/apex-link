@@ -280,8 +280,8 @@ jobs:
       # - name: apex-rollup
       #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-rollup/apex-rollup
 
-      - name: NebulaLogger
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NebulaLogger/NebulaLogger
+      # - name: NebulaLogger
+      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NebulaLogger/NebulaLogger
 
       - name: apex-toolingapi
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-toolingapi/apex-toolingapi
