@@ -277,8 +277,8 @@ jobs:
       - name: apex-mdapi
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-mdapi/apex-mdapi
 
-      - name: apex-rollup
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-rollup/apex-rollup
+      # - name: apex-rollup
+      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-rollup/apex-rollup
 
       - name: NebulaLogger
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NebulaLogger/NebulaLogger
