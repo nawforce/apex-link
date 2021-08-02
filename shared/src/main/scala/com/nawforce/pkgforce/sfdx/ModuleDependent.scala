@@ -27,9 +27,12 @@
  */
 package com.nawforce.pkgforce.sfdx
 
+import com.nawforce.pkgforce.diagnostics.Location
 import ujson.Value
 
-case class ModuleDependent(jsonPath: String, config: Value.Value) {
-  val name: String = config.stringValue(jsonPath, "package")
-  val version: Option[VersionNumber] = config.optVersionNumber(jsonPath, "versionNumber")
+case class ModuleDependent(config: ValueWithPositions, value: Value.Value) {
+  val location: Location = config.lineAndOffsetOf(value)
+    .map(lineAndOffset => Location(lineAndOffset._1, lineAndOffset._2)).getOrElse(Location.empty)
+  val name: String = value.stringValue(config, "package")
+  val version: Option[VersionNumber] = value.optVersionNumber(config, "versionNumber")
 }

@@ -33,64 +33,80 @@ import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
 import ujson.Value
 
-class SFDXProjectError(val jsonPath: String, message: String) extends Throwable(message)
+class SFDXProjectError(val line: Int, val offset: Int, message: String) extends Throwable(message)
+
+object SFDXProjectError {
+  def apply(lineAndOffset: (Int, Int), message: String) =
+    new SFDXProjectError(lineAndOffset._1, lineAndOffset._2, message)
+}
 
 case class VersionedPackageLayer(version: Option[VersionNumber], packageLayer: ModuleLayer)
 
-class SFDXProject(val projectPath: PathLike, config: Value.Value) {
+class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
   private val projectFile = projectPath.join("sfdx-project.json")
 
   val packageDirectories: Seq[PackageDirectory] =
     try {
-      config("packageDirectories") match {
-        case ujson.Arr(value) =>
-          value.toSeq.zipWithIndex.map(pd =>
-            PackageDirectory(projectPath, s"$$.packageDirectories[${pd._2}]", pd._1))
-        case _ =>
-          throw new SFDXProjectError("$.packageDirectories",
-                                     "'packageDirectories' should be an array")
+      config.root("packageDirectories") match {
+        case value: ujson.Arr =>
+          value.value.map(pd => PackageDirectory(projectPath, config, pd)).toSeq
+        case value =>
+          config.lineAndOffsetOf(value).map(lineAndOffset => {
+            throw SFDXProjectError(lineAndOffset, "'packageDirectories' should be an array")
+          }).getOrElse(Seq.empty)
       }
     } catch {
       case _: NoSuchElementException =>
-        throw new SFDXProjectError("$.packageDirectories", "'packageDirectories' is required")
+        config.lineAndOffsetOf(config.root).map(lineAndOffset => {
+          throw SFDXProjectError(lineAndOffset, "'packageDirectories' is required")
+        }).getOrElse(Seq.empty)
     }
 
-  val namespace: Option[Name] = config.optIdentifier("$", "namespace")
+  val namespace: Option[Name] = config.root.optIdentifier(config, "namespace")
 
   val plugins: Map[String, Value.Value] =
     try {
-      config("plugins") match {
-        case ujson.Obj(value) => value.toMap
-        case _                => throw new SFDXProjectError("$.plugins", "'plugins' should be an object")
+      config.root("plugins") match {
+        case value: ujson.Obj => value.value.toMap
+        case value =>
+          config.lineAndOffsetOf(value).map(lineAndOffset => {
+            throw SFDXProjectError(lineAndOffset, "'plugins' should be an object")
+          }).getOrElse(Map.empty)
       }
     } catch {
       case _: NoSuchElementException => Map()
     }
 
   val templates: Option[Templates] =
-    plugins.get("templates").map {
-      case ujson.Obj(value) =>
-        Templates(projectPath, s"$$.plugins.templates", value)
-      case _ =>
-        throw new SFDXProjectError("$.plugins.templates", "'templates' should be an object")
+    plugins.get("templates").flatMap {
+      case value: ujson.Obj =>
+        Some(Templates(projectPath, config, value))
+      case value =>
+        config.lineAndOffsetOf(value).map(lineAndOffset => {
+          throw SFDXProjectError(lineAndOffset, "plugins 'templates' should be an object")
+        })
     }
 
   val dependencies: Seq[PackageDependent] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
-      case ujson.Arr(value) =>
-        value.toSeq.zipWithIndex.map(dp =>
-          PackageDependent(projectPath, s"$$.plugins.dependencies[${dp._2}]", dp._1))
-      case _ =>
-        throw new SFDXProjectError("$.plugins.dependencies", "'dependencies' should be an array")
+      case value: ujson.Arr =>
+        value.value.toSeq.zipWithIndex.map(dp =>
+          PackageDependent(projectPath, config, dp._1))
+      case value =>
+        config.lineAndOffsetOf(value).map(lineAndOffset => {
+          throw SFDXProjectError(lineAndOffset, "'dependencies' should be an array")
+        }).getOrElse(Seq.empty)
     }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
     if (packageDirectories.isEmpty) {
-      logger.log(
-        Issue(projectFile.toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location.empty,
-                         s"$$.packageDirectories must have at least one entry")))
+      config.lineAndOffsetOf(config.root("packageDirectories")).foreach(lineAndOffset => {
+        logger.log(
+          Issue(projectFile.toString,
+            Diagnostic(ERROR_CATEGORY,
+              Location(lineAndOffset._1, lineAndOffset._2),
+              s"packageDirectories must have at least one entry")))
+      })
       return Seq.empty
     }
 
@@ -114,9 +130,9 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
     if (layers.map(_.namespace).toSet.size != layers.size) {
       logger.log(
         Issue(projectFile.toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location.empty,
-                         s"$$.plugins.dependencies must use unique namespaces")))
+          Diagnostic(ERROR_CATEGORY,
+            dependencies.head.location,
+            s"plugin dependencies must use unique namespaces")))
       return Seq.empty
     }
 
@@ -148,8 +164,8 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
           Issue(
             projectFile.toString,
             Diagnostic(ERROR_CATEGORY,
-                       Location.empty,
-                       s"${dependent.jsonPath} must include either a namespace, a path or both")))
+              dependent.location,
+              s"plugin dependencies must include either a namespace, a path or both")))
         Seq.empty
       case (true, false) =>
         Seq(NamespaceLayer(dependent.namespace, Nil))
@@ -179,8 +195,8 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
     if (packageDirectory.name.nonEmpty) {
       if (packageDirectory.version.isEmpty)
         logger.logError(projectFile,
-                        Location.empty,
-                        s"Package '${packageDirectory.name.get}' should have a versionNumber")
+          packageDirectory.location,
+          s"Package '${packageDirectory.name.get}' should have a versionNumber")
       (layers._1 + (packageDirectory.name.get -> newLayer), newLayer.packageLayer :: layers._2)
     } else {
       (layers._1, newLayer.packageLayer :: layers._2)
@@ -195,22 +211,22 @@ class SFDXProject(val projectPath: PathLike, config: Value.Value) {
       if (dependency.name.contains('@')) {
         logger.logWarning(
           projectFile,
-          Location.empty,
+          dependency.location,
           s"Package dependency for '${dependency.name}' ignored as metadata is not available for analysis.")
       } else {
         logger.logWarning(
           projectFile,
-          Location.empty,
+          dependency.location,
           s"Dependency '${dependency.name}' must be defined in project before being referenced")
       }
     } else if (dependency.version.isEmpty) {
       logger.logWarning(projectFile,
-                      Location.empty,
-                      s"Dependency '${dependency.name}' must provide a version number")
+        dependency.location,
+        s"Dependency '${dependency.name}' must provide a version number")
     } else if (!dependency.version.get.isCompatible(existing.get.version.get)) {
       logger.logWarning(projectFile,
-                      Location.empty,
-                      s"Dependency version '${dependency.version.get}' for '${dependency.name}' is not compatible with '${existing.get.version.get}'")
+        dependency.location,
+        s"Dependency version '${dependency.version.get}' for '${dependency.name}' is not compatible with '${existing.get.version.get}'")
     }
     existing
   }
@@ -229,12 +245,10 @@ object SFDXProject {
         case Left(err) => logger.logError(projectFile, Location.empty, err); None
         case Right(data) =>
           try {
-            ujson.transform(ujson.Readable.fromString(data),Value)
-
-            Some(new SFDXProject(path, ujson.read(data)))
+            Some(new SFDXProject(path, PositionParser.parse(data)))
           } catch {
             case ex: SFDXProjectError =>
-              logger.logError(projectFile, Location.empty, s"${ex.jsonPath} - ${ex.getMessage}")
+              logger.logError(projectFile, Location(ex.line, ex.offset), ex.getMessage)
               None
             case ex: Throwable =>
               logger.logError(projectFile, Location.empty, s"Failed to parse - ${ex.toString}")

@@ -56,8 +56,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location.empty,
-                                         "$.packageDirectories must have at least one entry"))))
+                    Location(1, 24),
+                    "packageDirectories must have at least one entry"))))
     }
   }
 
@@ -97,7 +97,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   Diagnostic(ERROR_CATEGORY,
-                             Location.empty,
+                             Location(1, 25),
                              "Package 'name' should have a versionNumber"))))
     }
   }
@@ -216,7 +216,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
                                     diagnostics.Diagnostic(
                                       WARNING_CATEGORY,
-                                      Location.empty,
+                                      Location(6, 8),
                                       "Dependency version '1.2.3.5' for 'first' is not compatible with '1.2.3.4'"))))
 
     }

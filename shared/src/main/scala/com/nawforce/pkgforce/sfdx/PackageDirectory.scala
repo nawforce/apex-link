@@ -27,30 +27,35 @@
  */
 package com.nawforce.pkgforce.sfdx
 
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.path.PathLike
 import ujson.Value
 
 case class PackageDirectory(path: PathLike,
+                            location: Location,
                             name: Option[String],
                             version: Option[VersionNumber],
                             dependencies: Seq[ModuleDependent])
 
 object PackageDirectory {
-  def apply(projectPath: PathLike, jsonPath: String, config: Value.Value): PackageDirectory = {
-    PackageDirectory(projectPath.join(config.stringValue(jsonPath, "path")),
-                     config.optStringValue(jsonPath, "package"),
-                     config.optVersionNumber(jsonPath, "versionNumber"),
-                     try {
-                       config("dependencies") match {
-                         case ujson.Arr(value) =>
-                           value.toSeq.zipWithIndex.map(d =>
-                             ModuleDependent(s"$jsonPath.dependencies[${d._2}]", d._1))
-                         case _ =>
-                           throw new SFDXProjectError(s"$jsonPath.dependencies",
-                                                      "'dependencies' should be an array")
-                       }
-                     } catch {
-                       case _: NoSuchElementException => Seq()
-                     })
+  def apply(projectPath: PathLike, config: ValueWithPositions, value: Value.Value): PackageDirectory = {
+    val location = config.lineAndOffsetOf(value).map(lineAndOffset => Location(lineAndOffset._1, lineAndOffset._2)).getOrElse(Location.empty)
+
+    new PackageDirectory(projectPath.join(value.stringValue(config, "path")), location,
+      value.optStringValue(config, "package"),
+      value.optVersionNumber(config, "versionNumber"),
+      try {
+        value("dependencies") match {
+          case value: ujson.Arr =>
+            value.value.toSeq.zipWithIndex.map(d =>
+              ModuleDependent(config, d._1))
+          case value =>
+            config.lineAndOffsetOf(value).map(lineAndOffset => {
+              throw SFDXProjectError(lineAndOffset, "'dependencies' should be an array")
+            }).getOrElse(Seq.empty)
+        }
+      } catch {
+        case _: NoSuchElementException => Seq.empty
+      })
   }
 }

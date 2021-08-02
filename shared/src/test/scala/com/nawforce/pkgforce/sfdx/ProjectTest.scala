@@ -88,10 +88,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.isEmpty)
       assert(
         logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                               diagnostics.Diagnostic(
-                                                 ERROR_CATEGORY,
-                                                 Location.empty,
-                                                 "$.packageDirectories - 'packageDirectories' is required"))))
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location(1, 0),
+            "'packageDirectories' is required"))))
     }
   }
 
@@ -102,10 +102,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(project.isEmpty)
         assert(
           logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                                 diagnostics.Diagnostic(
-                                                   ERROR_CATEGORY,
-                                                   Location.empty,
-                                                   "$.packageDirectories - 'packageDirectories' should be an array"))))
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 24),
+              "'packageDirectories' should be an array"))))
     }
   }
 
@@ -167,10 +167,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.isEmpty)
       assert(
         logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                               diagnostics.Diagnostic(
-                                                 ERROR_CATEGORY,
-                                                 Location.empty,
-                                                 "$.packageDirectories[0].dependencies - 'dependencies' should be an array"))))
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location(5, 19),
+            "'dependencies' should be an array"))))
     }
   }
 
@@ -234,10 +234,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.isEmpty)
       assert(
         logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                               diagnostics.Diagnostic(
-                                                 ERROR_CATEGORY,
-                                                 Location.empty,
-                                                 "$.packageDirectories[0].dependencies[0].package - 'package' is required"))))
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location(5, 20),
+            "'package' is required"))))
     }
   }
 
@@ -249,9 +249,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
-                  diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location.empty,
-                                         "$.packageDirectories[0].path - 'path' is required"))))
+              diagnostics.Diagnostic(ERROR_CATEGORY,
+                Location(1, 25),
+                "'path' is required"))))
     }
   }
 
@@ -276,10 +276,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(project.isEmpty)
         assert(
           logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                                 diagnostics.Diagnostic(
-                                                   ERROR_CATEGORY,
-                                                   Location.empty,
-                                                   "$.packageDirectories[0].path - 'path' should be a string"))))
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 34),
+              "'path' should be a string"))))
     }
   }
 
@@ -322,9 +322,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
-                  diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location.empty,
-                                         "$.namespace - 'namespace' should be a string"))))
+              diagnostics.Diagnostic(ERROR_CATEGORY,
+                Location(1, 14),
+                "'namespace' should be a string"))))
     }
   }
 
@@ -347,10 +347,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(project.isEmpty)
         assert(
           logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
-                                                 diagnostics.Diagnostic(
-                                                   ERROR_CATEGORY,
-                                                   Location.empty,
-                                                   "$.namespace - ' ' is not a valid identifier, can only use characters A-Z, a-z, 0-9 or _"))))
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 14),
+              "' ' is not a valid identifier, can only use characters A-Z, a-z, 0-9 or _"))))
     }
   }
 
@@ -364,8 +364,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
                                                  diagnostics.Diagnostic(
                                                    ERROR_CATEGORY,
-                                                   Location.empty,
-                                                   "$.namespace - 'foo__bar' is not a valid identifier, can not use '__'"))))
+                                                   Location(1, 14),
+                                                   "'foo__bar' is not a valid identifier, can not use '__'"))))
     }
   }
 
@@ -400,8 +400,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location.empty,
-                                         "$.plugins - 'plugins' should be an object"))))
+                                         Location(1,12),
+                                         "'plugins' should be an object"))))
     }
   }
 
@@ -454,8 +454,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
                                                  diagnostics.Diagnostic(
                                                    ERROR_CATEGORY,
-                                                   Location.empty,
-                                                   "$.plugins.dependencies[0] must include either a namespace, a path or both"))))
+                                                   Location(1, 30),
+                                                   "plugin dependencies must include either a namespace, a path or both"))))
     }
   }
 
@@ -497,8 +497,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           logger.issues sameElements Array(
             Issue(root.join("sfdx-project.json").toString,
                   diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location.empty,
-                                         "$.plugins.dependencies must use unique namespaces"))))
+                                         Location(1, 50),
+                                         "plugin dependencies must use unique namespaces"))))
     }
   }
 
@@ -540,8 +540,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         logger.issues sameElements Array(
           Issue(root.join("sfdx-project.json").toString,
                 diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location.empty,
-                                       "$.plugins.templates - 'templates' should be an object"))))
+                                       Location(4, 16),
+                                       "plugins 'templates' should be an object"))))
     }
   }
 
@@ -560,8 +560,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         logger.issues sameElements Array(
           Issue(root.join("sfdx-project.json").toString,
                 diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location.empty,
-                                       "$.plugins.templates.path - 'path' is required"))))
+                                       Location(4, 16),
+                                       "'path' is required"))))
     }
   }
 
@@ -580,8 +580,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         logger.issues sameElements Array(
           Issue(root.join("sfdx-project.json").toString,
                 diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location.empty,
-                                       "$.plugins.templates.target - 'target' is required"))))
+                                       Location(4, 16),
+                                       "'target' is required"))))
     }
   }
 

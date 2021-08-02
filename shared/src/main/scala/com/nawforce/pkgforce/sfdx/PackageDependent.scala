@@ -27,19 +27,29 @@
  */
 package com.nawforce.pkgforce.sfdx
 
-import com.nawforce.pkgforce.names.{Name, _}
+import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
 import ujson.Value
 
-case class PackageDependent(projectPath: PathLike, jsonPath: String, config: Value.Value) {
+case class PackageDependent(projectPath: PathLike, config: ValueWithPositions, value: Value.Value) {
+
+  val location: Location =
+    config.lineAndOffsetOf(value).map(lineAndOffset =>
+      Location(lineAndOffset._1, lineAndOffset._2)).getOrElse(Location.empty)
+
   val namespace: Option[Name] =
-    config.optIdentifier(jsonPath, "namespace") match {
+    value.optIdentifier(config, "namespace") match {
       case Some(ns) if ns.value.isEmpty =>
-        throw new SFDXProjectError(s"$jsonPath.namespace", "'namespace' can not be empty")
+        config.lineAndOffsetOf(value("namespace")).map(lineAndOffset => {
+          throw SFDXProjectError(lineAndOffset, "'namespace' can not be empty")
+        })
       case Some(ns) => Some(ns)
-      case None     => None
+      case None => None
     }
 
   val path: Option[PathLike] =
-    config.optStringValue(jsonPath, "path").map(p => projectPath.join(p))
+    value.optStringValue(config, "path").map(p => projectPath.join(p))
+
+
 }

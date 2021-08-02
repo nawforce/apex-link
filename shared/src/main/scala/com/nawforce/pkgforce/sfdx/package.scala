@@ -32,75 +32,88 @@ import ujson.Value
 
 package object sfdx {
 
-  implicit class JSONConfig(config: Value.Value) {
+  implicit class JSONConfig(root: Value.Value) {
 
-    def stringValue(jsonPath: String, name: String): String = {
-      optStringValue(jsonPath, name) match {
+    def stringValue(config: ValueWithPositions, name: String): String = {
+      optStringValue(config, name) match {
         case Some(s) => s
         case None =>
-          throw new SFDXProjectError(s"$jsonPath.$name", s"'$name' is required")
+          config.lineAndOffsetOf(root).map(lineAndOffset => {
+            throw SFDXProjectError(lineAndOffset, s"'$name' is required")
+          }).orNull
       }
     }
 
-    def optStringValue(jsonPath: String, name: String): Option[String] = {
+    def optStringValue(config: ValueWithPositions, name: String): Option[String] = {
       try {
-        config(name) match {
+        root(name) match {
           case ujson.Str(value) => Some(value)
-          case _                => throw new SFDXProjectError(s"$jsonPath.$name", s"'$name' should be a string")
+          case value =>
+            config.lineAndOffsetOf(value).map(lineAndOffset => {
+              throw SFDXProjectError(lineAndOffset, s"'$name' should be a string")
+            })
         }
       } catch {
         case _: NoSuchElementException => None
       }
     }
 
-    def optIdentifier(jsonPath: String, name: String): Option[Name] = {
-      config.optStringValue(jsonPath, name) match {
+    def optIdentifier(config: ValueWithPositions, name: String): Option[Name] = {
+      root.optStringValue(config, name) match {
         case None | Some("") => None
         case Some(str) =>
           val ns = Name(str)
           Identifier.isLegalIdentifier(ns) match {
             case None => Some(ns)
             case Some(error) =>
-              throw new SFDXProjectError(s"$jsonPath.$name",
-                                         s"'$ns' is not a valid identifier, $error")
+              config.lineAndOffsetOf(root(name)).map(lingAndOffset => {
+                throw SFDXProjectError(lingAndOffset,
+                  s"'$ns' is not a valid identifier, $error")
+              })
           }
       }
     }
 
-    def optVersionNumber(jsonPath: String, name: String): Option[VersionNumber] = {
-      val path = s"$jsonPath.$name"
-      optStringValue(jsonPath, name).map(value => {
+    def optVersionNumber(config: ValueWithPositions, name: String): Option[VersionNumber] = {
+      optStringValue(config, name).flatMap(value => {
+        config.lineAndOffsetOf(root(name)).map(lineAndOffset => {
+          val parts = value.split('.')
+          if (parts.length != 4) {
+            throw SFDXProjectError(lineAndOffset,
+              s"'$value' version should contain four parts, major.minor.patch.build")
+          }
 
-        val parts = value.split('.')
-        if (parts.length != 4)
-          throw new SFDXProjectError(
-            path,
-            s"'$value' version should contain four parts, major.minor.patch.build")
-
-        VersionNumber(parseVersionNumber(path, parts.head),
-                      parseVersionNumber(path, parts(1)),
-                      parseVersionNumber(path, parts(2)),
-                      parseVersionNumberOrLabel(path, parts(3)),
-        )
+          VersionNumber(parseVersionNumber(lineAndOffset, parts.head),
+            parseVersionNumber(lineAndOffset, parts(1)),
+            parseVersionNumber(lineAndOffset, parts(2)),
+            parseVersionNumberOrLabel(lineAndOffset, parts(3)),
+          )
+        })
       })
     }
 
-    private def parseVersionNumber(jsonPath: String, part: String): Int = {
+    private def parseVersionNumber(lineAndOffset: (Int, Int), part: String): Int = {
       try {
         part.toInt
       } catch {
         case _: NumberFormatException =>
-          throw new SFDXProjectError(s"$jsonPath", s"'$part' should be an integer value")
+          throw SFDXProjectError(lineAndOffset, s"'$part' should be an integer value")
       }
     }
 
-    private def parseVersionNumberOrLabel(jsonPath: String, part: String): BuildNumber = {
+    private def parseVersionNumberOrLabel(lineAndOffset: (Int, Int), part: String): BuildNumber = {
       if (part == "NEXT")
         NextBuild
       else if (part == "LATEST")
         LatestBuild
-      else
-        Build(parseVersionNumber(jsonPath, part))
+      else {
+        try {
+          Build(part.toInt)
+        } catch {
+          case _: NumberFormatException =>
+            throw SFDXProjectError(lineAndOffset, s"'$part' should be an integer value, or NEXT or LATEST")
+        }
+      }
     }
   }
 }
