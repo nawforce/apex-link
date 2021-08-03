@@ -7,7 +7,7 @@ test("Bad directory", () => {
         Workspaces.get("foo");
         expect(true).toBe(false);
     } catch (err) {
-        expect(err.message).toMatch(/^No directory at .*/);
+        expect(err.message).toMatch(/.*No directory at .*/);
     }
 });
 
@@ -29,7 +29,7 @@ test("MDAPI Class", () => {
     try {
         const workspace = Workspaces.get("/pkg2");
         expect(workspace).toBeDefined();
-        expect(workspace.findType("Foo")).toEqual("/pkg2/classes/Foo.cls");
+        expect(workspace.findType("Foo")).toEqual(["/pkg2/classes/Foo.cls"]);
     } finally {
         unpatch();
     }
@@ -43,7 +43,7 @@ test("SFDX Bad Project file", () => {
         expect(true).toBe(false);
     } catch (err) {
         expect(err.message).toMatch(
-            "Failed to parse '/pkg3/sfdx-project.json', error: ujson.IncompleteParseException: exhausted input"
+            "/pkg3/sfdx-project.json line 1 Error Failed to parse - ujson.IncompleteParseException: exhausted input"
         );
     } finally {
         unpatch();
@@ -59,7 +59,7 @@ test("SFDX without namespace", () => {
     try {
         const workspace = Workspaces.get("/pkg4");
         expect(workspace).toBeDefined();
-        expect(workspace.findType("Foo")).toEqual("/pkg4/classes/Foo.cls");
+        expect(workspace.findType("Foo")).toEqual(["/pkg4/classes/Foo.cls"]);
     } finally {
         unpatch();
     }
@@ -74,7 +74,7 @@ test("SFDX with namespace", () => {
     try {
         const workspace = Workspaces.get("/pkg5");
         expect(workspace).toBeDefined();
-        expect(workspace.findType("ns001.Foo")).toEqual("/pkg5/classes/Foo.cls");
+        expect(workspace.findType("ns001.Foo")).toEqual(["/pkg5/classes/Foo.cls"]);
     } finally {
         unpatch();
     }
