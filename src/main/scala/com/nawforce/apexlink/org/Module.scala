@@ -21,7 +21,7 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.apexlink.types.other.{InterviewDeclaration, _}
+import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
 import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger}
@@ -63,6 +63,9 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   def pages: PageDeclaration = types(TypeNames.Page).asInstanceOf[PageDeclaration]
   def components: ComponentDeclaration =
     types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
+  def nonTestClasses: Iterable[ApexClassDeclaration] = types.values.collect {
+    case ac: ApexClassDeclaration if !ac.isTest => ac
+  }
 
   /** Count of loaded types, for debug info */
   def typeCount: Int = types.size

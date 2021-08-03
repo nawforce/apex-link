@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.pkg
 
+import com.nawforce.apexlink.rpc.BombScore
 import com.nawforce.apexlink.types.apex.SummaryDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
@@ -852,19 +853,20 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       assert(
-        org.getTypeIdentifiers(false).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Schema.Account", "Dummy"))
+        org.getTypeIdentifiers(false).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo",
+                                                                           "Schema.Account",
+                                                                           "Dummy"))
     }
   }
 
   test("typeIdentifiers - apex only") {
     FileSystemHelper.run(
       Map("classes/Dummy.cls" -> "public class Dummy {}",
-        "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
+          "triggers/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
 
-      assert(
-        org.getTypeIdentifiers(true).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Dummy"))
+      assert(org.getTypeIdentifiers(true).map(_.toString).toSet == Set[String]("__sfdc_trigger/Foo", "Dummy"))
     }
   }
 
@@ -883,8 +885,73 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(
         org.getTypeIdentifiers(false).map(_.toString).toSet == Set[String]("__sfdc_trigger/test/Foo [test]",
-                                                                    "Schema.Account [test]",
-                                                                    "Dummy (test)"))
+                                                                           "Schema.Account [test]",
+                                                                           "Dummy (test)"))
+    }
+  }
+
+  test("empty project bombs") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> """{"namespace": "test", "packageDirectories": [{"path": "pkg"}] }""".stripMargin)) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+
+        assert(org.getDependencyBombs(10).isEmpty)
+    }
+  }
+
+  test("single file bombs") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> """{"namespace": "test", "packageDirectories": [{"path": "pkg"}] }""".stripMargin,
+          "pkg/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      assert(org.getDependencyBombs(10).isEmpty)
+    }
+  }
+
+  test("multi file bombs") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> """{"namespace": "test", "packageDirectories": [{"path": "pkg"}] }""".stripMargin,
+          "pkg/Dummy1.cls" -> "public class Dummy1 { {Object a = new Dummy2(); Object b = new Dummy3();} }",
+          "pkg/Dummy2.cls" -> "public class Dummy2 { {Object a = new Dummy3(); }}",
+          "pkg/Dummy3.cls" -> "public class Dummy3 {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      val dummy2Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy2"), Nil, Some(TypeName(Name("test")))))
+      assert(org.getDependencyBombs(10) sameElements Array(BombScore(dummy2Id, 1, 1, 73.2)))
+    }
+  }
+
+  test("multi file bombs - two scores") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> """{"namespace": "test", "packageDirectories": [{"path": "pkg"}] }""".stripMargin,
+          "pkg/Dummy1.cls" -> "public class Dummy1 { {Object a = new Dummy2(); Object b = new Dummy3();} }",
+          "pkg/Dummy2.cls" -> "public class Dummy2 { {Object a = new Dummy3(); Object b = new Dummy1(); Object c = new Dummy4();}}",
+          "pkg/Dummy3.cls" -> "public class Dummy3 {}",
+          "pkg/Dummy4.cls" -> "public class Dummy4 {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      val dummy1Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy1"), Nil, Some(TypeName(Name("test")))))
+      val dummy2Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy2"), Nil, Some(TypeName(Name("test")))))
+      assert(
+        org.getDependencyBombs(10) sameElements Array(BombScore(dummy2Id, 3, 1, 78.69),
+                                                      BombScore(dummy1Id, 2, 1, 74.33)))
+    }
+  }
+
+  test("multi file bombs - size limited") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> """{"namespace": "test", "packageDirectories": [{"path": "pkg"}] }""".stripMargin,
+          "pkg/Dummy1.cls" -> "public class Dummy1 { {Object a = new Dummy2(); Object b = new Dummy3();} }",
+          "pkg/Dummy2.cls" -> "public class Dummy2 { {Object a = new Dummy3(); Object b = new Dummy1(); Object c = new Dummy4();}}",
+          "pkg/Dummy3.cls" -> "public class Dummy3 {}",
+          "pkg/Dummy4.cls" -> "public class Dummy4 {}")) { root: PathLike =>
+      val org = createHappyOrg(root)
+
+      val dummy1Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy1"), Nil, Some(TypeName(Name("test")))))
+      val dummy2Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy2"), Nil, Some(TypeName(Name("test")))))
+      assert(org.getDependencyBombs(1) sameElements Array(BombScore(dummy2Id, 3, 1, 78.69)))
     }
   }
 
