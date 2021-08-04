@@ -289,7 +289,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         bombs.dequeue()
       }
     })
-    bombs.toArray.reverse
+    bombs.dequeueAll.toArray.reverse
   }
 }
 
