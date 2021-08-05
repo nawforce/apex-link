@@ -306,6 +306,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     val typeCache = new TypeCache()
     val dependencies = mutable.Set[TypeId]()
     collectDependenciesByTypeName(dependencies, apexOnly = true, typeCache)
+    dependencies.remove(typeId)
     val uses = dependencies.size
     val usedBy = getTypeDependencyHolders.size
     val score = magicScale * Math.log(1 + (uses * 2000).toDouble / total) * Math.log(

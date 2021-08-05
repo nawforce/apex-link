@@ -284,7 +284,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     allClasses.foreach(cls => {
       val score = cls.bombScore(allClasses.size)
       if (score._3 > 0)
-        bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._1, score._2, score._3))
+        bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._2, score._1, score._3))
       if (bombs.size > maxBombs) {
         bombs.dequeue()
       }

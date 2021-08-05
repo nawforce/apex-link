@@ -935,8 +935,8 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       val dummy1Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy1"), Nil, Some(TypeName(Name("test")))))
       val dummy2Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy2"), Nil, Some(TypeName(Name("test")))))
       assert(
-        org.getDependencyBombs(10) sameElements Array(BombScore(dummy2Id, 3, 1, 78.69),
-                                                      BombScore(dummy1Id, 2, 1, 74.33)))
+        org.getDependencyBombs(10) sameElements Array(BombScore(dummy2Id, 1, 3, 78.69),
+                                                      BombScore(dummy1Id, 1, 2, 74.33)))
     }
   }
 
@@ -951,7 +951,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       val dummy1Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy1"), Nil, Some(TypeName(Name("test")))))
       val dummy2Id = new TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy2"), Nil, Some(TypeName(Name("test")))))
-      assert(org.getDependencyBombs(1) sameElements Array(BombScore(dummy2Id, 3, 1, 78.69)))
+      assert(org.getDependencyBombs(1) sameElements Array(BombScore(dummy2Id, 1, 3, 78.69)))
     }
   }
 
