@@ -27,6 +27,7 @@
  */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.apexparser.CaseInsensitiveInputStream
 import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.SourceBlob

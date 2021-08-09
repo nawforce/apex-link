@@ -28,7 +28,7 @@
 package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.pkgforce.diagnostics.CodeParserLogger
-import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext, PropertyBlockContext}
+import com.nawforce.apexparser.ApexParser.{IdContext, ModifierContext, PropertyBlockContext}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 

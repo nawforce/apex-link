@@ -27,6 +27,7 @@
  */
 package com.nawforce.runtime.parsers
 
+import com.nawforce.apexparser.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.pkgforce.diagnostics.{IssuesAnd, Location}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext

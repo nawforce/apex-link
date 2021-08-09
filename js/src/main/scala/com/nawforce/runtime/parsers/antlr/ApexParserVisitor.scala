@@ -27,7 +27,7 @@
  */
 package com.nawforce.runtime.parsers.antlr
 
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
 
 import scala.scalajs.js
 

@@ -28,7 +28,7 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.pkgforce.modifiers._
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.{CodeParser, TreeVisitor}
 

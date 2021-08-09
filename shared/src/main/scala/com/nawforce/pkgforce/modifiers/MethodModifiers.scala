@@ -29,7 +29,7 @@ package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.pkgforce.diagnostics.CodeParserLogger
 import com.nawforce.pkgforce.modifiers.ApexModifiers.{asModifiers, visibilityModifiers}
-import com.nawforce.runtime.parsers.ApexParser.ModifierContext
+import com.nawforce.apexparser.ApexParser.ModifierContext
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 

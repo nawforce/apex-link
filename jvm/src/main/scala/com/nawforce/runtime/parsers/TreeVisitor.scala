@@ -28,7 +28,8 @@
 
 package com.nawforce.runtime.parsers
 
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
+import com.nawforce.apexparser.{ApexParser, ApexParserBaseVisitor}
 import org.antlr.v4.runtime.tree.RuleNode
 
 import scala.collection.compat.immutable.ArraySeq

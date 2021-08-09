@@ -31,7 +31,7 @@ import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Loc
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ModifierResults, WEBSERVICE_MODIFIER}
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.compat.immutable.ArraySeq

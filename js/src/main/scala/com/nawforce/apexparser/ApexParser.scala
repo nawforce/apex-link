@@ -25,9 +25,9 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.runtime.parsers
+package com.nawforce.apexparser
 
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.runtime.parsers.antlr.{CommonTokenStream, ParserRuleContext, TerminalNode}
 
 import scala.scalajs.js
@@ -38,7 +38,7 @@ import scala.scalajs.js.annotation.JSImport
 class ApexParser(tokens: CommonTokenStream) extends js.Object {
 
   def removeErrorListeners(): Unit = js.native
-  def addErrorListener(listener: CollectingErrorListener): Unit = js.native
+  def addErrorListener(listener: js.Object): Unit = js.native
 
   def compilationUnit(): CompilationUnitContext = js.native
   def triggerUnit(): TriggerUnitContext = js.native
@@ -902,12 +902,10 @@ object ApexParser {
 
   @js.native
   @JSImport("apex-parser", "QueryContext")
-  class QueryContext extends ParserRuleContext {
-  }
+  class QueryContext extends ParserRuleContext {}
 
   @js.native
   @JSImport("apex-parser", "SoslLiteralContext")
-  class SoslLiteralContext extends ParserRuleContext {
-  }
+  class SoslLiteralContext extends ParserRuleContext {}
 
 }

@@ -27,8 +27,6 @@
  */
 package com.nawforce.runtime.parsers.antlr
 
-import com.nawforce.runtime.parsers.ApexLexer
-
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 

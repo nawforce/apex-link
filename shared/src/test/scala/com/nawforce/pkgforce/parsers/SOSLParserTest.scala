@@ -28,9 +28,10 @@
 
 package com.nawforce.pkgforce.parsers
 
+import com.nawforce.apexparser.ApexParser
 import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.SourceBlob
-import com.nawforce.runtime.parsers.{ApexParser, CodeParser, Source}
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

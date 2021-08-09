@@ -58,6 +58,7 @@ lazy val cross = crossProject(JSPlatform, JVMPlatform).in(file(".")).
     scalacOptions ++= Seq("-deprecation", "-opt:l:inline", "-opt-inline-from:com.nawforce.**"),
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0",
+    libraryDependencies += "com.github.nawforce" % "apex-parser" % "2.9.1",
     libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8-1",
     libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test
   ).

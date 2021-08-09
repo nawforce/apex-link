@@ -28,8 +28,9 @@
 
 package com.nawforce.runtime.parsers
 
-import java.nio.charset.StandardCharsets
+import com.nawforce.apexparser.CaseInsensitiveInputStream
 
+import java.nio.charset.StandardCharsets
 import com.nawforce.pkgforce.parsers.UTF8Decode
 import com.nawforce.runtime.SourceBlob
 

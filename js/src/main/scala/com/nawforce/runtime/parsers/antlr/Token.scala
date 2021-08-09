@@ -27,7 +27,7 @@
  */
 package com.nawforce.runtime.parsers.antlr
 
-import com.nawforce.runtime.parsers.CaseInsensitiveInputStream
+import com.nawforce.apexparser.CaseInsensitiveInputStream
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport

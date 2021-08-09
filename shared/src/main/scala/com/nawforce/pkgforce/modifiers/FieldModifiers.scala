@@ -1,12 +1,12 @@
 package com.nawforce.pkgforce.modifiers
 
+import com.nawforce.apexparser.ApexParser.{IdContext, ModifierContext}
 import com.nawforce.pkgforce.diagnostics.CodeParserLogger
 import com.nawforce.pkgforce.modifiers.ApexModifiers.{
   asModifiers,
   deduplicateVisibility,
   visibilityModifiers
 }
-import com.nawforce.runtime.parsers.ApexParser.{IdContext, ModifierContext}
 import com.nawforce.runtime.parsers.CodeParser
 
 object FieldModifiers {
