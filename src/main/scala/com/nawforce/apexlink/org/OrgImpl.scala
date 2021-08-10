@@ -291,6 +291,35 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     })
     bombs.dequeueAll.toArray.reverse
   }
+
+  def getTestClassNames(paths: Array[String]): Array[String] = {
+
+    def findPackageAndIdentifier(path: String): Option[(Package, TypeIdentifier)] = {
+      packages.view
+        .flatMap(pkg => {
+          Option(pkg.getTypeOfPath(path)) match {
+            case None => None
+            case Some(typeIdentifier) => Some(pkg, typeIdentifier)
+          }
+        }).headOption
+    }
+
+    val testTag = "@IsTest"
+
+    paths
+      .flatMap {
+        path => findPackageAndIdentifier(path)
+      }
+      .flatMap {
+        case (pkg, typeId) => Option(pkg.getSummaryOfType(typeId))
+      }
+      .filter {
+        summary => summary.modifiers.contains(testTag)
+      }
+      .map {
+        summary => summary.name
+      }
+  }
 }
 
 object OrgImpl {
