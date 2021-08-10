@@ -19,9 +19,9 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 

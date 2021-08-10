@@ -23,7 +23,7 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
 import com.nawforce.pkgforce.modifiers.{MethodModifiers, _}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable

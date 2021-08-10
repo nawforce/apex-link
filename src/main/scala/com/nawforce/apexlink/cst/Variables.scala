@@ -14,10 +14,10 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexparser.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.TypeName
-import com.nawforce.runtime.parsers.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression])

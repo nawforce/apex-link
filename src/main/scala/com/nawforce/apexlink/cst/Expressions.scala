@@ -15,15 +15,15 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
-import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 trait ExprContext {

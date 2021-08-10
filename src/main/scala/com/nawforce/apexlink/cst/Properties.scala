@@ -16,10 +16,10 @@ package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.types.apex.ApexFieldLike
 import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
+import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class ApexPropertyDeclaration(outerTypeId: TypeId,

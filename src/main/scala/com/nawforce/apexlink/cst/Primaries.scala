@@ -18,9 +18,9 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexFieldLike}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.PlatformTypes
+import com.nawforce.apexparser.ApexParser._
+import com.nawforce.apexparser.ApexParserBaseVisitor
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
-import com.nawforce.runtime.parsers.ApexParserBaseVisitor
 
 import scala.collection.compat.immutable.ArraySeq
 

@@ -21,11 +21,11 @@ import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core.{BlockDeclaration, _}
+import com.nawforce.apexparser.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
 import scala.collection.mutable

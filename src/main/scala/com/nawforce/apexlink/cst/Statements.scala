@@ -17,9 +17,9 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.apexlink.cst.stmts.SwitchStatement
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import java.lang.ref.WeakReference

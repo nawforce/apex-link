@@ -16,7 +16,7 @@ package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.platform.PlatformTypes
-import com.nawforce.runtime.parsers.ApexParser.LiteralContext
+import com.nawforce.apexparser.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class Literal() {

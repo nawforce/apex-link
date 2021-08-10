@@ -14,11 +14,11 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
-import com.nawforce.apexlink.names.{TypeNames, _}
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names.{EncodedName, TypeName, _}
-import com.nawforce.runtime.parsers.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {

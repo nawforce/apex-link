@@ -19,19 +19,16 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.Monitor
-import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
-import com.nawforce.apexlink.types.other.{Component, Interview, Label, Page}
-import com.nawforce.apexlink.types.schema.SObjectDeclaration
+import com.nawforce.apexparser.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.ApexParser.{ModifierContext, TypeDeclarationContext}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
 
