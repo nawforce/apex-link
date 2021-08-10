@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
-import com.nawforce.apexlink.rpc.{BombScore, DependencyGraph, DependencyLink, DependencyNode, LocationLink}
+import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
@@ -30,6 +30,7 @@ import com.nawforce.runtime.parsers.CodeParser
 import java.io.File
 import java.util
 import java.util.jar.JarFile
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
 import scala.util.hashing.MurmurHash3
@@ -268,11 +269,27 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
-    packages.find(_.isPackagePath(path)).map(_.getDefinition(PathFactory(path), line, offset, Option(content))).getOrElse(Array.empty)
+    packages
+      .find(_.isPackagePath(path))
+      .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
+      .getOrElse(Array.empty)
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
-    Array()
+    propagateAllDependencies()
+
+    val maxBombs = Math.max(0, count)
+    val allClasses = packages.flatMap(_.orderedModules.flatMap(_.nonTestClasses.toSeq))
+    val bombs = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
+    allClasses.foreach(cls => {
+      val score = cls.bombScore(allClasses.size)
+      if (score._3 > 0)
+        bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._2, score._1, score._3))
+      if (bombs.size > maxBombs) {
+        bombs.dequeue()
+      }
+    })
+    bombs.dequeueAll.toArray.reverse
   }
 }
 

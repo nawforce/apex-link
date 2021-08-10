@@ -17,6 +17,7 @@ package com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
@@ -26,6 +27,7 @@ import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
+import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** Apex block core features, be they full or summary style */
@@ -148,6 +150,8 @@ trait ApexTriggerDeclaration extends ApexDeclaration
 trait ApexClassDeclaration extends ApexDeclaration {
   val localFields: Array[ApexFieldLike]
   val localMethods: Array[MethodDeclaration]
+
+  def isTest: Boolean = modifiers.intersect(ApexClassDeclaration.testModifiers).nonEmpty
 
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit
@@ -295,4 +299,23 @@ trait ApexClassDeclaration extends ApexDeclaration {
       unused
     }
   }
+
+  def bombScore(total: Int): (Int, Int, Double) = {
+    val magicScale = 1.7306 // Places score 0-100
+
+    val typeCache = new TypeCache()
+    val dependencies = mutable.Set[TypeId]()
+    collectDependenciesByTypeName(dependencies, apexOnly = true, typeCache)
+    dependencies.remove(typeId)
+    val uses = dependencies.size
+    val usedBy = getTypeDependencyHolders.size
+    val score = magicScale * Math.log(1 + (uses * 2000).toDouble / total) * Math.log(
+      1 + (usedBy * 2000).toDouble / total)
+    val roundScore = BigDecimal(score.toString).setScale(2, BigDecimal.RoundingMode.HALF_UP).doubleValue
+    (uses, usedBy, roundScore)
+  }
+}
+
+object ApexClassDeclaration {
+  val testModifiers: Seq[Modifier] = Seq(TEST_METHOD_MODIFIER, ISTEST_ANNOTATION)
 }
