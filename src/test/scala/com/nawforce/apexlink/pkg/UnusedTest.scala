@@ -310,4 +310,20 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Queueable via abstract") {
+    FileSystemHelper.run(
+      Map("Base.cls" -> "public abstract class Base implements Queueable { {Type t = Dummy.class;} }",
+        "Dummy.cls" -> "public class Dummy extends Base {public void execute(QueueableContext context) {} }")) { root: PathLike =>
+      val org = createOrg(root)
+      val pkg = org.unmanaged
+      val module = pkg.orderedModules.headOption.get
+      assert(!org.issues.hasErrorsOrWarnings)
+
+      OrgImpl.current.withValue(org) {
+        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      }
+    }
+  }
+
+
 }

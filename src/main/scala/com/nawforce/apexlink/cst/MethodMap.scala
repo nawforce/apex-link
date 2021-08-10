@@ -16,6 +16,7 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.platform.PlatformMethod
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
@@ -121,7 +122,7 @@ object MethodMap {
     // Only Apex class types are replaceable and hence have deep hashes
     td match {
       case td: ApexClassDeclaration => new MethodMap(td.deepHash, workingMap.toMap, errors.toList)
-      case td: TypeDeclaration => new MethodMap(0, workingMap.toMap, errors.toList)
+      case _: TypeDeclaration => new MethodMap(0, workingMap.toMap, errors.toList)
     }
   }
 
@@ -180,11 +181,14 @@ object MethodMap {
       if (matched.isEmpty) {
         lazy val hasGhostedMethods =
           methods.exists(method => module.isGhostedType(method.typeName) ||
-          methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
+            methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
 
-        if (!isAbstract && !hasGhostedMethods)
+        if (isAbstract) {
+          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+        } else if (!hasGhostedMethods) {
           location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
+        }
       } else {
         matched.get match {
           case am: ApexMethodLike => am.addShadow(method)
@@ -221,7 +225,7 @@ object MethodMap {
             errors, isWarning = true)
       } else if (!matchedMethod.isVirtualOrAbstract) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest) {
+      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest && !matchedMethod.isInstanceOf[PlatformMethod]) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
