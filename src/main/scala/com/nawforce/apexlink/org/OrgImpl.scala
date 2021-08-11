@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps}
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
 import com.nawforce.apexlink.rpc._
@@ -292,32 +292,56 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     bombs.dequeueAll.toArray.reverse
   }
 
-  def getTestClassNames(paths: Array[String]): Array[String] = {
+  def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
 
     def findPackageAndIdentifier(path: String): Option[(Package, TypeIdentifier)] = {
       packages.view
         .flatMap(pkg => {
           Option(pkg.getTypeOfPath(path)) match {
             case None => None
-            case Some(typeIdentifier) => Some(pkg, typeIdentifier)
+            case Some(typeIdentifier) => Some((pkg, typeIdentifier))
           }
         }).headOption
     }
 
-    val testTag = "@IsTest"
+    def isValidDependent(path: String, pkg: Package, typeId: TypeIdentifier): Boolean = {
+      Option(pkg.getDependencies(typeId, apexOnly = true, outerInheritanceOnly = false)).getOrElse(Array.empty)
+        .flatMap {
+          dependencyTypeId => pkg.getPathsOfType(dependencyTypeId).headOption
+        }
+        .exists {
+          dependencyPath => dependencyPath.contains(path)
+        }
+    }
+
+    def findReferencedTestPaths(path: String, pkg: Package, typeId: TypeIdentifier, summary: TypeSummary): Array[String] = {
+      val testTag = "@IsTest"
+      if (summary.modifiers.contains(testTag)) return Array(summary.name)
+      if (!findTests) return Array.empty
+
+      Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap {
+        dependentTypeId =>
+          Option(pkg.getSummaryOfType(dependentTypeId)).toArray
+            .filter {
+              dependentSummary => dependentSummary.modifiers.contains(testTag)
+            }
+            .filter {
+              _ => isValidDependent(path, pkg, dependentTypeId)
+            }
+            .map {
+              dependentSummary => dependentSummary.name
+            }
+      }
+    }
 
     paths
       .flatMap {
-        path => findPackageAndIdentifier(path)
-      }
-      .flatMap {
-        case (pkg, typeId) => Option(pkg.getSummaryOfType(typeId))
-      }
-      .filter {
-        summary => summary.modifiers.contains(testTag)
-      }
-      .map {
-        summary => summary.name
+        path =>
+          findPackageAndIdentifier(path).toArray.flatMap {
+            case (pkg, typeId) => Option(pkg.getSummaryOfType(typeId)).toArray.flatMap {
+              summary => findReferencedTestPaths(path, pkg, typeId, summary)
+            }
+          }
       }
   }
 }
