@@ -45,6 +45,19 @@ case class VersionedPackageLayer(version: Option[VersionNumber], packageLayer: M
 class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
   private val projectFile = projectPath.join("sfdx-project.json")
 
+  val sourceApiVersion: Option[String] =
+    try {
+      config.root("sourceApiVersion") match {
+        case value: ujson.Str => Some(value.value)
+        case value =>
+          config.lineAndOffsetOf(value).map(lineAndOffset => {
+            throw SFDXProjectError(lineAndOffset, "'sourceApiVersion' should be a string")
+          }).getOrElse(None)
+      }
+    } catch {
+      case _: NoSuchElementException => None
+    }
+
   val packageDirectories: Seq[PackageDirectory] =
     try {
       config.root("packageDirectories") match {

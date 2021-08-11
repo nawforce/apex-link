@@ -599,4 +599,41 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.get.templates.get.target == root.join("target"))
     }
   }
+
+  test("sourceApiVersion") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "sourceApiVersion": "Hello",
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": {"path": "path", "target": "target"}
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.get.sourceApiVersion.contains("Hello"))
+    }
+  }
+
+  test("sourceApiVersion bad type") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "sourceApiVersion": 23.4,
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "templates": {"path": "path", "target": "target"}
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues sameElements Array(
+          Issue(root.join("sfdx-project.json").toString,
+            diagnostics.Diagnostic(ERROR_CATEGORY,
+              Location(2, 21),
+              "'sourceApiVersion' should be a string"))))
+    }
+  }
+
 }
