@@ -293,6 +293,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
+    propagateAllDependencies()
 
     def findPackageAndIdentifier(path: String): Option[(Package, TypeIdentifier)] = {
       packages.view
