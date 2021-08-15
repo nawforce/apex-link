@@ -199,7 +199,8 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/HelloTest.cls"), false))
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/HelloTest.cls"), false))
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
@@ -213,7 +214,8 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/Hello.cls"), true))
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/Hello.cls"), true))
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
@@ -227,7 +229,8 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/NoTest.cls"), true))
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/NoTest.cls"), true))
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)

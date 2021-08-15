@@ -43,7 +43,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
                                              "Internal.Trigger$" -> "Internal.Trigger$<T>")
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 1834)
+    assert(PlatformTypeDeclaration.classNames.size == 2028)
   }
 
   test("SObject type is visible") {
@@ -165,7 +165,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
           .getOrElse(throw new NoSuchElementException)
           .asInstanceOf[PlatformTypeDeclaration]
 
-        if (td.name.toString() != "Exception")
+        if (td.name.toString() != "Exception" && td.name.toString() != "ProcessException")
           assert(td.superClass.get.toString == "System.Exception")
         assert(td.interfaces.isEmpty)
         assert(td.nature == CLASS_NATURE)

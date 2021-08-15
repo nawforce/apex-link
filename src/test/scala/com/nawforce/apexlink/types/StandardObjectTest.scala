@@ -128,7 +128,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Standard field reference") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.Name.getDescribe();} }")) {
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.ContractNumber.getDescribe();} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -138,7 +138,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Standard field reference via fields") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.fields.Name.getDescribe();} }")) {
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contract.fields.ContractNumber.getDescribe();} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -189,17 +189,6 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Opportunity").get,
                                                                             unmanagedSObject("Account").get))
-    }
-  }
-
-  test("Lookup SObjectField (via non-lookup id field)") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" ->
-        "public class Dummy { {SObjectField a = Opportunity.ContractId.Name;} }")) { root: PathLike =>
-      val org = createOrg(root)
-      assert(
-        org.issues.getMessages("/Dummy.cls") ==
-          "Missing: line 1 at 39-66: Unknown field or type 'Name' on 'Schema.SObjectField'\n")
     }
   }
 
