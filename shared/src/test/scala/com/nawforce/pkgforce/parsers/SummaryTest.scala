@@ -28,7 +28,7 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.pkgforce.diagnostics.Location
-import com.nawforce.pkgforce.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
@@ -195,9 +195,9 @@ class SummaryTest extends AnyFunSuite {
     assert(method.range == Location(1, 25, 1, 52))
     assert(method.id == IdAndRange(Name("Foo"), Location(1, 30, 1, 33)))
     assert(method.children.isEmpty)
-    assert(method.modifiers.modifiers.isEmpty)
+    assert(method.modifiers.modifiers sameElements Array(VIRTUAL_MODIFIER))
     assert(method.modifiers.issues.isEmpty)
-    assert(method.description == "void Foo(final String bar)")
+    assert(method.description == "virtual void Foo(final String bar)")
   }
 
   test("Enum with constant summary") {

@@ -68,8 +68,8 @@ class MethodModifierTest extends AnyFunSuite {
     }
   }
 
-  test("Interface method no modifiers") {
-    assert(legalInterfaceMethodAccess(Array(), Array()))
+  test("Interface method no modifiers is virtual") {
+    assert(legalInterfaceMethodAccess(Array(), Array(VIRTUAL_MODIFIER)))
   }
 
   test("Interface method public modifier") {

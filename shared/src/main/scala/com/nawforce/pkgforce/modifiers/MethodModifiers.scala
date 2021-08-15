@@ -119,6 +119,6 @@ object MethodModifiers {
       logger,
       context)
 
-    ModifierResults(mods.toArray, logger.issues).intern
+    ModifierResults((mods ++ Seq(VIRTUAL_MODIFIER)).toArray, logger.issues).intern
   }
 }
