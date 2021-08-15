@@ -194,4 +194,45 @@ class OrgAPITest extends AsyncFunSuite {
     }
   }
 
+  test("Get Test Class Names (with test class)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/HelloTest.cls"), false))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.length==1)
+      assert(classes.testClassNames(0)=="HelloTest")
+    }
+  }
+
+  test("Get Test Class Names (find test class)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/Hello.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.length==1)
+      assert(classes.testClassNames(0)=="HelloTest")
+    }
+  }
+
+  test("Get Test Class Names (no test class)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(Array(workspace+"/force-app/main/default/classes/NoTest.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.isEmpty)
+    }
+  }
+
 }

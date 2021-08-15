@@ -95,6 +95,18 @@ object BombScore {
   implicit val rwName: RW[Name] = macroRW
 }
 
+case class GetTestClassNamesRequest(paths: Array[String], findTests: Boolean)
+
+object GetTestClassNamesRequest {
+  implicit val rw: RW[GetTestClassNamesRequest] = macroRW
+}
+
+case class GetTestClassNamesResult(testClassNames: Array[String])
+
+object GetTestClassNamesResult {
+  implicit val rw: RW[GetTestClassNamesResult] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "version")
   def version(): Future[String]
@@ -128,6 +140,9 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "getDependencyBombs")
   def getDependencyBombs(count: Int): Future[Array[BombScore]]
+
+  @api.JSONRPCMethod(name = "getTestClassNames")
+  def getTestClassNames(paths: GetTestClassNamesRequest): Future[GetTestClassNamesResult]
 }
 
 object OrgAPI {
