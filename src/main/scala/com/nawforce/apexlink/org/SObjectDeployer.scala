@@ -382,12 +382,21 @@ class SObjectDeployer(module: Module) {
   /** Construct a full set of fields for a custom objects from the custom fields defined in the event. */
   private def customObjectFields(typeName: TypeName,
                                  nature: SObjectNature,
-                                 fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+                                 fields: Array[FieldDeclaration],
+                                 hasOwner: Boolean = true): Array[FieldDeclaration] = {
+
+    def fieldFilter(field: FieldDeclaration): Boolean = {
+      if (hasOwner)
+        field.name.value == "OwnerId" || field.name.value == "Owner"
+      else
+        false
+    }
+
     deDuplicateFields(
       Array(CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
         CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true),
         CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName))) ++
-        SObjectDeployer.standardCustomObjectFields ++
+        SObjectDeployer.standardCustomObjectFields.filterNot(fieldFilter) ++
         fields ++
         (if (nature == HierarchyCustomSettingsNature)
           Array(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
@@ -420,18 +429,32 @@ class SObjectDeployer(module: Module) {
 
 object SObjectDeployer {
 
-  /** Standard fields for custom objects. */
+  /** Standard fields for custom objects, this is a superset, filtering may be needed to trim do to available. */
   lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
-        CustomFieldDeclaration(Names.RecordTypeId, TypeNames.IdType, None),
-        CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
-        CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
-        CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
-        CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
-        CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.IdType, None),
-        CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
-        CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
-        CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)) ++
+    Seq(CustomFieldDeclaration(Name("Id"), TypeNames.IdType, None),
+      CustomFieldDeclaration(Name("Name"), TypeNames.String, None),
+      CustomFieldDeclaration(Name("RecordTypeId"), TypeNames.IdType, None),
+      CustomFieldDeclaration(Name("RecordType"), TypeNames.RecordType, None),
+      CustomFieldDeclaration(Name("OwnerId"), TypeNames.IdType, None),
+      CustomFieldDeclaration(Name("Owner"), TypeNames.SObject, None),
+      CustomFieldDeclaration(Name("CurrencyIsoCode"), TypeNames.String, None),
+      CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
+      CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
+      CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
+      CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.IdType, None),
+      CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("LastReferencedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("LastViewedDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("LastActivityDate"), TypeNames.Datetime, None),
+      CustomFieldDeclaration(Name("Tasks"), TypeNames.listOf(TypeNames.Task), None),
+      CustomFieldDeclaration(Name("Notes"), TypeNames.listOf(TypeNames.Note), None),
+      CustomFieldDeclaration(Name("NotesAndAttachments"), TypeNames.listOf(TypeNames.NoteAndAttachment), None),
+      CustomFieldDeclaration(Name("Attachments"), TypeNames.listOf(TypeNames.Attachment), None),
+      CustomFieldDeclaration(Name("ContentDocumentLinks"), TypeNames.listOf(TypeNames.ContentDocumentLink), None),
+      CustomFieldDeclaration(Name("ProcessSteps"), TypeNames.listOf(TypeNames.ProcessInstanceHistory), None),
+      CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
+      CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)) ++
       PlatformTypes.sObjectType.fields.filterNot(f => f.name == Names.SObjectType)
   }
 

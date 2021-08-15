@@ -17,9 +17,8 @@ import com.nawforce.apexlink.cst.VerifyContext
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.org.Module
+import com.nawforce.apexlink.org.{Module, SObjectDeployer}
 import com.nawforce.apexlink.types.core._
-import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
@@ -50,7 +49,7 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
   }
 
   override val fields: Array[FieldDeclaration] = {
-    PlatformTypes.customSObject.fields.map(f => (f.name, f)).toMap.values.toArray
+    SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {

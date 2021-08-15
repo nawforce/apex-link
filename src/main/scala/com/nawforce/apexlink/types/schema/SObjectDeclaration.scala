@@ -132,13 +132,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     DependentType.dependentsToTypeIds(module, depends, apexOnly, dependsOn)
   }
 
-  override val fields: Array[FieldDeclaration] = {
-    if (sobjectNature == CustomObjectNature) {
-      (PlatformTypes.customSObject.fields ++ baseFields).map(f => (f.name, f)).toMap.values.toArray
-    } else {
-      baseFields
-    }
-  }
+  override val fields: Array[FieldDeclaration] = baseFields
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     findFieldSObject(name, staticContext)
