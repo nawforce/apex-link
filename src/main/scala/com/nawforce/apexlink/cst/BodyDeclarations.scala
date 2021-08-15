@@ -207,9 +207,6 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
         context.logError(id.location, "Method must have an implementations or be marked abstract")
       else if (isAbstract && isVirtual)
         context.logError(id.location, "Abstract methods do not need virtual keyword")
-    } else if (returnTypeName.outerNature == INTERFACE_NATURE) {
-      if (modifiers.nonEmpty)
-        context.logError(id.location, s"Modifier '${modifiers.head.name}' is not supported on interface methods")
     }
 
     returnTypeName.dependOn(id.location, context)
