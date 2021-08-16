@@ -387,9 +387,9 @@ class SObjectDeployer(module: Module) {
 
     def fieldFilter(field: FieldDeclaration): Boolean = {
       if (hasOwner)
-        field.name.value == "OwnerId" || field.name.value == "Owner"
-      else
         false
+      else
+        field.name.value == "OwnerId" || field.name.value == "Owner"
     }
 
     deDuplicateFields(
