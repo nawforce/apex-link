@@ -227,16 +227,19 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   /** Find a type just in this module. */
   def findModuleType(typeName: TypeName): Option[TypeDeclaration] = {
-    var declaration = types.get(typeName)
+    // Use aliased type name here so we don't mishandle an ambiguous typename when searching
+    val targetType = TypeNames.aliasOrReturn(typeName)
+
+    var declaration = types.get(targetType)
     if (declaration.nonEmpty)
       return declaration
 
-    declaration = types.get(typeName.withTail(TypeNames.Schema))
+    declaration = types.get(targetType.withTail(TypeNames.Schema))
     if (declaration.nonEmpty)
       return declaration
 
-    if (typeName.params.isEmpty && (typeName.outer.isEmpty || typeName.outer.contains(TypeNames.Schema))) {
-      val encName = EncodedName(typeName.name).defaultNamespace(namespace)
+    if (targetType.params.isEmpty && (targetType.outer.isEmpty || targetType.outer.contains(TypeNames.Schema))) {
+      val encName = EncodedName(targetType.name).defaultNamespace(namespace)
       if (encName.ext.nonEmpty) {
         return types.get(TypeName(encName.fullName, Nil, Some(TypeNames.Schema)))
       }

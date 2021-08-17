@@ -17,9 +17,9 @@ package com.nawforce.apexlink.types.platform
 import com.nawforce.apexlink.finding.MissingType
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
+import com.nawforce.apexlink.names.TypeNames.{TypeNameUtils, ambiguousAliasMap}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.names.TypeName
 
 import scala.collection.mutable
 
@@ -86,7 +86,7 @@ object PlatformTypes {
             case Right(outerTd) =>
               outerTd.nestedTypes.find(_.name == localTypeName.name) match {
                 case Some(td) => Right(td)
-                case _        => Left(MissingType(localTypeName))
+                case _ => Left(MissingType(localTypeName))
               }
           }
         case Left(_)   => Left(MissingType(localTypeName))
@@ -126,10 +126,5 @@ object PlatformTypes {
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeNames.Object -> TypeNames.InternalObject,
-    TypeNames.ApexPagesPageReference -> TypeNames.PageReference,
-    TypeName(Name("BusinessHours")) -> TypeName(Name("BusinessHours"), Nil, Some(TypeNames.Schema)),
-    TypeName(Name("Site")) -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
-    TypeName(Name("Location")) -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
-    TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
-    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System)))
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference) ++ ambiguousAliasMap
 }
