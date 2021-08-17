@@ -51,7 +51,7 @@ object TypeNames extends InternCache[TypeName] {
     TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System)).intern
 
-  lazy val RecordType: TypeName = TypeName(Name("RecordType"), Nil, Some(TypeNames.System)).intern
+  lazy val RecordType: TypeName = TypeName(Name("RecordType"), Nil, Some(TypeNames.Schema)).intern
   lazy val Note: TypeName = TypeName(Name("Note"), Nil, Some(TypeNames.Schema)).intern
   lazy val NoteAndAttachment: TypeName = TypeName(Name("NoteAndAttachment"), Nil, Some(TypeNames.Schema)).intern
   lazy val Attachment: TypeName = TypeName(Name("Attachment"), Nil, Some(TypeNames.Schema)).intern
