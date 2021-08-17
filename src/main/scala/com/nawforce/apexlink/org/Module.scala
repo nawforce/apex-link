@@ -40,9 +40,8 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
 
-  private val schemaManager = SchemaSObjectType(this)
-
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
+  private val schemaManager = SchemaSObjectType(this)
 
   def freeze(): Unit = {
     // FUTURE: Have return types, currently can't be done because class loading code needs access to in-flight types

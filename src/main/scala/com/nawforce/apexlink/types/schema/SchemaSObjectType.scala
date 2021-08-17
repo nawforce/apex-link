@@ -46,6 +46,9 @@ final case class SchemaSObjectType(module: Module)
   /** Cache of SObject accessible via SObjectType name */
   private val sobjectFields: mutable.Map[Name, Option[FieldDeclaration]] = mutable.Map()
 
+  /* Create SObjectFields$<SObject>, to support assignability checks with SObjectField */
+  module.upsertMetadata(SObjectFields(TypeNames.SObject, module))
+
   /** Callback for loading of Platform Type that may be SObjects so we can hoist correct describe structure around
     * them. */
   override def loaded(td: PlatformTypeDeclaration): Unit = {
@@ -58,7 +61,8 @@ final case class SchemaSObjectType(module: Module)
   def add(sobjectName: Name, hasFieldSets: Boolean): FieldDeclaration = {
 
     // Handlers for Schema.SObjectType.<name>.Fields, Schema.<name>.Fields & Schema.<name>.SObjectType
-    val fields = SObjectFields(sobjectName, module)
+    val typeName = TypeName(sobjectName, Nil, Some(TypeNames.Schema))
+    val fields = SObjectFields(typeName, module)
     module.upsertMetadata(SObjectTypeFields(sobjectName, module))
     module.upsertMetadata(fields)
     module.upsertMetadata(SObjectTypeImpl(sobjectName, fields, module))
@@ -215,10 +219,10 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
 
 /** Handler for Internal.SObjectFields$<SObject> that provides fields access for custom objects via expressions
   * of the form Schema.<name>.Fields. */
-final case class SObjectFields(sobjectName: Name, module: Module)
+final case class SObjectFields(baseType: TypeName, module: Module)
     extends BasicTypeDeclaration(PathLike.emptyPaths,
                                  module,
-                                 TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))) {
+                                 TypeNames.sObjectFields$(baseType)) {
 
   // Extend SObjectField for when used as return type for lookup SObjectField
   override val superClass: Option[TypeName] = Some(TypeNames.SObjectField)
@@ -226,7 +230,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     val shareTypeName = if (typeName.isShare) Some(typeName) else None
-    TypeResolver(TypeName(sobjectName), module).toOption match {
+    TypeResolver(baseType, module).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields
           .map(field => (field.name, field.getSObjectField(shareTypeName, Some(module))))
@@ -244,7 +248,7 @@ final case class SObjectFields(sobjectName: Name, module: Module)
     // Future: Check if this is needed as its not hit bu unit tests
     if (name == Names.SObjectType)
       return Some(
-        CustomFieldDeclaration(name, TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))), None))
+        CustomFieldDeclaration(name, TypeNames.sObjectType$(baseType), None))
 
     // Provide other fields on the SObject
     sobjectFields
