@@ -33,6 +33,7 @@ final case class CustomMethodDeclaration(nameLocation: Location,
     extends ApexVisibleMethodLike {
 
   override val modifiers: Array[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
+  override val hasBlock: Boolean = false
   override lazy val isStatic: Boolean = asStatic
 
   def summary: MethodSummary = {

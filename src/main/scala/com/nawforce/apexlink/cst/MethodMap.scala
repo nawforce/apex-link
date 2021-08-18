@@ -20,7 +20,7 @@ import com.nawforce.apexlink.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodD
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
 import scala.collection.mutable
@@ -227,6 +227,9 @@ object MethodMap {
       lazy val isPlatformMethod =
         matchedMethod.isInstanceOf[PlatformMethod] || matchedMethod.isInstanceOf[GenericPlatformMethod]
 
+      lazy val isInterfaceMethod =
+        !matchedMethod.hasBlock && !matchedMethod.modifiers.contains(ABSTRACT_MODIFIER)
+
       if (isDuplicate(matchedMethod, method)) {
         setMethodError(method,
           s"Method '${method.name}' is a duplicate of an existing method in this class", errors)
@@ -237,7 +240,7 @@ object MethodMap {
             errors, isWarning = true)
       } else if (!matchedMethod.isVirtualOrAbstract) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest && !isPlatformMethod) {
+      } else if (!method.isVirtualOrOverride && !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)

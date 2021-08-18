@@ -61,8 +61,6 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   def fullLocation: PathLocation
   def nameLocation: PathLocation
 
-  def hasBlock: Boolean
-
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
 
