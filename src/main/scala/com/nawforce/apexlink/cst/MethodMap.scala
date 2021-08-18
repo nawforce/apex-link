@@ -13,10 +13,11 @@
  */
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
-import com.nawforce.apexlink.types.platform.PlatformMethod
+import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PRIVATE_MODIFIER}
@@ -76,10 +77,13 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
 object MethodMap {
   type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
 
-  private val specialMethodSignature = Set[String] (
+  private val specialOverrideMethodSignatures = Set[String] (
     "system.boolean equals(object)",
     "system.integer hashcode()",
-    "system.string tostring()")
+    "system.string tostring(),"
+  )
+
+  private val batchOverrideMethodSignature = "database.querylocator start(database.batchablecontext)"
 
   def empty(): MethodMap = {
     new MethodMap(0, Map(), Nil)
@@ -213,7 +217,15 @@ object MethodMap {
 
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
-      lazy val isSpecial = specialMethodSignature.contains(matchedMethod.signature.toLowerCase())
+      lazy val isSpecial = {
+        val matchedSignature = matchedMethod.signature.toLowerCase()
+        specialOverrideMethodSignatures.contains(matchedSignature) ||
+          (matchedSignature == batchOverrideMethodSignature &&
+            method.typeName.outer.contains(TypeNames.System) && method.typeName.name == XNames.Iterable)
+      }
+
+      lazy val isPlatformMethod =
+        matchedMethod.isInstanceOf[PlatformMethod] || matchedMethod.isInstanceOf[GenericPlatformMethod]
 
       if (isDuplicate(matchedMethod, method)) {
         setMethodError(method,
@@ -225,7 +237,7 @@ object MethodMap {
             errors, isWarning = true)
       } else if (!matchedMethod.isVirtualOrAbstract) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest && !matchedMethod.isInstanceOf[PlatformMethod]) {
+      } else if (!method.isVirtualOrOverride && !isSpecial && !isTest && !isPlatformMethod) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)

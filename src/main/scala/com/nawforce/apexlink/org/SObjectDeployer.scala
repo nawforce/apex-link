@@ -16,7 +16,7 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.names.Names.NameUtils
+import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
@@ -436,7 +436,7 @@ object SObjectDeployer {
       CustomFieldDeclaration(Name("RecordTypeId"), TypeNames.IdType, None),
       CustomFieldDeclaration(Name("RecordType"), TypeNames.RecordType, None),
       CustomFieldDeclaration(Name("OwnerId"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("Owner"), TypeNames.SObject, None),
+      CustomFieldDeclaration(Name("Owner"), TypeNames.NameSObject, None),
       CustomFieldDeclaration(Name("CurrencyIsoCode"), TypeNames.String, None),
       CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
       CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),

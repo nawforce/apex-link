@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
-import com.nawforce.apexlink.names.Names.NameUtils
+import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._

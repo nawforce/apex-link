@@ -23,7 +23,11 @@ import com.nawforce.pkgforce.names._
   * names we see used with SObjects that have suffixes such as `__c` and optional namespaces prefixes. There is
   * also some support here for legal & reserved identifier validation.
   */
-object Names {
+object XNames {
+
+  def apply(name: String): Name = com.nawforce.pkgforce.names.Names(name)
+
+  lazy val Iterable: Name = XNames("Iterable")
 
   /** Name extensions */
   implicit class NameUtils(name: Name) {
