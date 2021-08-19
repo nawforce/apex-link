@@ -17,6 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
+import com.nawforce.apexlink.deps.TransitiveCollector
 import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
@@ -352,47 +353,17 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
 
-    def getDependenciesInPackage(typeId: TypeIdentifier, pkg: Package) = {
-      Option(pkg.getDependencies(typeId, apexOnly = true, outerInheritanceOnly = false)).getOrElse(Array.empty)
-    }
-
-    def getDependencies(typeId: TypeIdentifier): Seq[TypeIdentifier] = {
-      packages.view.flatMap{ pkg => getDependenciesInPackage(typeId, pkg ) }.toSeq
-    }
-
-    def getTransitiveDependencies(typeId: TypeIdentifier): Seq[TypeIdentifier] = {
-      val toDo = mutable.Queue[TypeIdentifier]()
-      val seen = mutable.ArrayBuffer[TypeIdentifier]()
-      val transDeps = mutable.ArrayBuffer[TypeIdentifier]()
-
-      toDo += typeId
-      transDeps += typeId
-
-      while(!toDo.isEmpty) {
-        val curr = toDo.dequeue()
-        if(!seen.contains(curr)) {
-          seen += curr
-          val deps = getDependencies(curr)
-          deps.foreach { dep =>
-            if (!seen.contains(dep)) toDo += dep
-            transDeps += dep
-          }
-        }
-      }
-
-      transDeps.toSeq.distinct
-    }
-
     def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Seq[TypeIdentifier]):Int = {
-      transitiveDependencies.distinct.filter(t => t !=typeId).length
+      transitiveDependencies.count(t => t != typeId)
     }
+
+    val collector = new TransitiveCollector(this, true)
 
     paths
       .flatMap { path =>
         getTypeOfPath(path)
-          .map { typeId => (typeId, getDependencies(typeId)) }
-          .map { case (typeId, dependentPaths) => (typeId, dependentPaths.flatMap { dependentPath => getTransitiveDependencies(dependentPath) }) }
-          .map { case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies)) }
+            .map { typeId => (typeId, collector.transitives(typeId))}
+            .map { case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))}
       }
   }
 }
