@@ -234,6 +234,24 @@ object GetTestClassNames {
   }
 }
 
+case class GetDependencyCounts(promise: Promise[GetDependencyCountsResult], request: GetDependencyCountsRequest) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(GetDependencyCountsResult(orgImpl.getDependencyCounts(request.paths)
+        .map( c => DependencyCount(c._1, c._2))))
+    }
+  }
+}
+
+object GetDependencyCounts {
+  def apply(queue: OrgQueue, request: GetDependencyCountsRequest): Future[GetDependencyCountsResult] = {
+    val promise = Promise[GetDependencyCountsResult]()
+    queue.add(new GetDependencyCounts(promise, request))
+    promise.future
+  }
+}
+
 object OrgQueue {
   private var _instance: Option[OrgQueue] = None
 
@@ -310,5 +328,9 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
 
   override def getTestClassNames(request: GetTestClassNamesRequest): Future[GetTestClassNamesResult] = {
     GetTestClassNames(OrgQueue.instance(), request.paths, request.findTests)
+  }
+
+  override def getDependencyCounts(request: GetDependencyCountsRequest): Future[GetDependencyCountsResult] = {
+    GetDependencyCounts(OrgQueue.instance(), request)
   }
 }
