@@ -28,6 +28,7 @@
 package com.nawforce.pkgforce.sfdx
 
 import com.nawforce.pkgforce.diagnostics._
+import com.nawforce.pkgforce.documents.MetadataDocument
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
@@ -110,6 +111,12 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
           throw SFDXProjectError(lineAndOffset, "'dependencies' should be an array")
         }).getOrElse(Seq.empty)
     }
+
+  val metadataGlobs: Seq[String] = {
+    packageDirectories.flatMap(directory =>
+      MetadataDocument.globs.map(glob => s"${directory.relativePath}/**/$glob")
+    )
+  }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
     if (packageDirectories.isEmpty) {

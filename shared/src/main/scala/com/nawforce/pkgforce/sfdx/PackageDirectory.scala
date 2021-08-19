@@ -32,6 +32,7 @@ import com.nawforce.pkgforce.path.PathLike
 import ujson.Value
 
 case class PackageDirectory(path: PathLike,
+                            relativePath: String,
                             location: Location,
                             name: Option[String],
                             version: Option[VersionNumber],
@@ -39,9 +40,11 @@ case class PackageDirectory(path: PathLike,
 
 object PackageDirectory {
   def apply(projectPath: PathLike, config: ValueWithPositions, value: Value.Value): PackageDirectory = {
-    val location = config.lineAndOffsetOf(value).map(lineAndOffset => Location(lineAndOffset._1, lineAndOffset._2)).getOrElse(Location.empty)
+    val location = config.lineAndOffsetOf(value)
+      .map(lineAndOffset => Location(lineAndOffset._1, lineAndOffset._2)).getOrElse(Location.empty)
+    val relativePath = value.stringValue(config, "path")
 
-    new PackageDirectory(projectPath.join(value.stringValue(config, "path")), location,
+    new PackageDirectory(projectPath.join(relativePath), relativePath, location,
       value.optStringValue(config, "package"),
       value.optVersionNumber(config, "versionNumber"),
       try {

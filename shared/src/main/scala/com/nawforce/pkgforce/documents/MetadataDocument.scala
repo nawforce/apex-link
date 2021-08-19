@@ -227,6 +227,27 @@ final case class FlowDocument(_path: PathLike, _name: Name)
 }
 
 object MetadataDocument {
+  // These are slightly over general, additional constraints are applied below
+  val globs: Seq[String] = Seq(
+    "*.cls",
+    "*.trigger",
+    "*.xcls",
+    "*.component",
+    "*.object",
+    "*.object-meta.xml",
+    "*.field",
+    "*.field-meta.xml",
+    "*.fieldSet",
+    "*.fieldSet-meta.xml",
+    "*.sharingReason",
+    "*.sharingReason-meta.xml",
+    "*.flow",
+    "*.flow-meta.xml",
+    "*.labels",
+    "*.labels-meta.xml",
+    "*.page",
+  )
+
   def apply(path: PathLike): Option[MetadataDocument] = {
     splitFilename(path) match {
       case Array(name, Name("cls")) =>

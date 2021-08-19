@@ -38,6 +38,9 @@ abstract class PathLike {
   // All paths have a parent, it may be the same path for root paths
   def parent: PathLike
 
+  // Test if this path is the parent of another
+  def isParentOf(other: PathLike): Boolean = other.toString.startsWith(toString) && other.toString != toString
+
   // Is anything present at path
   def exists: Boolean
 
