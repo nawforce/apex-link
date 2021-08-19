@@ -57,6 +57,7 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Attachment: TypeName = TypeName(Name("Attachment"), Nil, Some(TypeNames.Schema)).intern
   lazy val ContentDocumentLink: TypeName = TypeName(Name("ContentDocumentLink"), Nil, Some(TypeNames.Schema)).intern
   lazy val ProcessInstanceHistory: TypeName = TypeName(Name("ProcessInstanceHistory"), Nil, Some(TypeNames.Schema)).intern
+  lazy val NameSObject: TypeName = TypeName(Name("Name"), Nil, Some(TypeNames.Schema)).intern
 
   lazy val ApexPages: TypeName = TypeName(Names.ApexPages).intern
   lazy val ApexPagesPageReference: TypeName =
@@ -80,6 +81,7 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Activity: TypeName = TypeName(Names.Activity, Nil, Some(TypeNames.Schema))
   lazy val Task: TypeName = TypeName(Names.Task, Nil, Some(TypeNames.Schema))
   lazy val Event: TypeName = TypeName(Names.Event, Nil, Some(TypeNames.Schema))
+
 
   lazy val DescribeSObjectResult$ : TypeName =
     TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeNames.Internal)).intern

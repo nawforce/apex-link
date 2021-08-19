@@ -14,7 +14,7 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
-import com.nawforce.apexlink.names.Names.NameUtils
+import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}

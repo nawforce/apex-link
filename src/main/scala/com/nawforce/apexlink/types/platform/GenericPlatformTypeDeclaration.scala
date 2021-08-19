@@ -102,6 +102,8 @@ class GenericPlatformMethod(platformMethod: PlatformMethod,
       .collect { case p: PlatformParameter => p }
       .map(p => new GenericPlatformParameter(p, _typeDeclaration))
 
+  override val hasBlock: Boolean = false
+
   override def toString: String =
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
       parameters.map(_.toString).mkString(", ") + ")"

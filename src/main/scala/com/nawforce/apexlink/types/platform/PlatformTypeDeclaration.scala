@@ -203,6 +203,7 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   lazy val modifiers: Array[Modifier] =
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Array[ParameterDeclaration] = getParameters
+  override val hasBlock: Boolean = false
 
   def getParameters: Array[ParameterDeclaration] =
     method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))

@@ -127,6 +127,7 @@ trait MethodDeclaration extends DependencyHolder {
   val modifiers: Array[Modifier]
   val typeName: TypeName
   val parameters: Array[ParameterDeclaration]
+  def hasBlock: Boolean
 
   def visibility: Modifier =
     modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
