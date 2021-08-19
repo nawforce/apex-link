@@ -107,6 +107,24 @@ object GetTestClassNamesResult {
   implicit val rw: RW[GetTestClassNamesResult] = macroRW
 }
 
+case class GetDependencyCountsRequest(paths: Array[String])
+
+object GetDependencyCountsRequest {
+  implicit val rw: RW[GetDependencyCountsRequest] = macroRW
+}
+
+case class DependencyCount(path: String, count: Int)
+
+object DependencyCount {
+  implicit val rw: RW[DependencyCount] = macroRW
+}
+
+case class GetDependencyCountsResult(counts: Array[DependencyCount])
+
+object GetDependencyCountsResult {
+  implicit val rw: RW[GetDependencyCountsResult] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "version")
   def version(): Future[String]
@@ -143,6 +161,9 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "getTestClassNames")
   def getTestClassNames(paths: GetTestClassNamesRequest): Future[GetTestClassNamesResult]
+
+  @api.JSONRPCMethod(name = "getDependencyCounts")
+  def getDependencyCounts(paths: GetDependencyCountsRequest): Future[GetDependencyCountsResult]
 }
 
 object OrgAPI {
