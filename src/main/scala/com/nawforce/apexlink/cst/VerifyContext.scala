@@ -32,43 +32,56 @@ import scala.collection.mutable
 trait VerifyContext {
   def parent(): Option[VerifyContext]
 
-  /* Module for current outer type */
+  /** Module for current outer type */
   def module: Module
 
-  /* Get type declaration of 'this', this may be a trigger declaration */
+  /** Get type declaration of 'this', this may be a trigger declaration */
   def thisType: TypeDeclaration
 
-  /* Get type declaration of 'super' */
+  /** Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
 
-  /* Declare a dependency on dependent */
+  /** Declare a dependency on dependent */
   def addDependency(dependent: Dependent): Unit
 
-  /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
+  /** Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
-  /* Helper to locate a relative or absolute type and add as dependency if found */
+  /** Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
-  def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
+  /** Test if issues are currently being suppressed */
+  def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
+
+  /** Turn on/off issue suppression */
+  private var disableIssueDepth: Integer = 0
+
+  def disableIssueReporting[T]()(op: => T): T = {
+    disableIssueDepth += 1
+    try {
+      op
+    } finally {
+      disableIssueDepth -= 1
+    }
+  }
 
   def missingType(location: PathLocation, typeName: TypeName): Unit = {
-    if (!module.isGhostedType(typeName) && !suppressWarnings)
+    if (!module.isGhostedType(typeName) && !suppressIssues)
       OrgImpl.log(IssueOps.noTypeDeclaration(location, typeName))
   }
 
   def missingIdentifier(location: PathLocation, typeName: TypeName, name: Name): Unit = {
-    if (!module.isGhostedType(EncodedName(name).asTypeName) && !suppressWarnings)
+    if (!module.isGhostedType(EncodedName(name).asTypeName) && !suppressIssues)
       OrgImpl.log(IssueOps.noVariableOrType(location, name, typeName))
   }
 
   def logError(location: PathLocation, msg: String): Unit = {
-    if (!suppressWarnings)
+    if (!suppressIssues)
       OrgImpl.logError(location, msg)
   }
 
   def log(issue: Issue): Unit = {
-    if (!suppressWarnings)
+    if (!suppressIssues)
       OrgImpl.log(issue)
   }
 
@@ -166,8 +179,8 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
   override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
 
-  override def suppressWarnings: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+  override def suppressIssues: Boolean =
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
 
   def propagateDependencies(): Unit =
     typeDeclaration.propagateDependencies()
@@ -192,8 +205,8 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
 
-  override def suppressWarnings: Boolean =
-    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+  override def suppressIssues: Boolean =
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
 
   def propagateDependencies(): Unit =
     classBodyDeclaration.propagateDependencies()
