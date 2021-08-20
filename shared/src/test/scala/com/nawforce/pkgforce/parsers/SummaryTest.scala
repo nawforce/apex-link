@@ -48,7 +48,8 @@ class SummaryTest extends AnyFunSuite {
     assert(root.children.isEmpty)
     assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(root.modifiers.issues.isEmpty)
-    assert(root.description == "public class Dummy")
+    assert(root.signature == "public class Dummy")
+    assert(root.description == "public")
   }
 
   test("Interface summary") {
@@ -63,7 +64,8 @@ class SummaryTest extends AnyFunSuite {
     assert(root.children.isEmpty)
     assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(root.modifiers.issues.isEmpty)
-    assert(root.description == "public interface Dummy")
+    assert(root.signature == "public interface Dummy")
+    assert(root.description == "public")
   }
 
   test("Enum summary") {
@@ -78,7 +80,8 @@ class SummaryTest extends AnyFunSuite {
     assert(root.children.isEmpty)
     assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(root.modifiers.issues.isEmpty)
-    assert(root.description == "public enum Dummy")
+    assert(root.signature == "public enum Dummy")
+    assert(root.description == "public")
   }
 
   test("Class with constructor summary") {
@@ -99,7 +102,8 @@ class SummaryTest extends AnyFunSuite {
     assert(ctor.children.isEmpty)
     assert(ctor.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER))
     assert(ctor.modifiers.issues.isEmpty)
-    assert(ctor.description == "private Dummy(final String bar, Integer foo)")
+    assert(ctor.signature == "private Dummy(final String bar, Integer foo)")
+    assert(ctor.description == "(final String bar, Integer foo) private")
   }
 
   test("Class with method summary") {
@@ -120,7 +124,8 @@ class SummaryTest extends AnyFunSuite {
     assert(method.children.isEmpty)
     assert(method.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
     assert(method.modifiers.issues.isEmpty)
-    assert(method.description == "private static void Foo(final String bar)")
+    assert(method.signature == "private static void Foo(final String bar)")
+    assert(method.description == "void (final String bar) private static")
   }
 
   test("Class with field summary") {
@@ -139,7 +144,8 @@ class SummaryTest extends AnyFunSuite {
     assert(field.children.isEmpty)
     assert(field.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
     assert(field.modifiers.issues.isEmpty)
-    assert(field.description == "private static Integer Foo")
+    assert(field.signature == "private static Integer Foo")
+    assert(field.description == "Integer private static")
   }
 
   test("Class with two fields declarators summary") {
@@ -178,7 +184,8 @@ class SummaryTest extends AnyFunSuite {
     assert(field.children.isEmpty)
     assert(field.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
     assert(field.modifiers.issues.isEmpty)
-    assert(field.description == "private static Integer Foo")
+    assert(field.signature == "private static Integer Foo")
+    assert(field.description == "Integer private static")
   }
 
   test("Interface with method summary") {
@@ -197,7 +204,8 @@ class SummaryTest extends AnyFunSuite {
     assert(method.children.isEmpty)
     assert(method.modifiers.modifiers sameElements Array(VIRTUAL_MODIFIER))
     assert(method.modifiers.issues.isEmpty)
-    assert(method.description == "virtual void Foo(final String bar)")
+    assert(method.signature == "virtual void Foo(final String bar)")
+    assert(method.description == "void (final String bar) virtual")
   }
 
   test("Enum with constant summary") {
@@ -217,6 +225,7 @@ class SummaryTest extends AnyFunSuite {
     assert(constant.children.isEmpty)
     assert(constant.modifiers.modifiers.isEmpty)
     assert(constant.modifiers.issues.isEmpty)
+    assert(constant.signature == "BaR")
     assert(constant.description == "BaR")
   }
 

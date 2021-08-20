@@ -27,11 +27,11 @@
  */
 package com.nawforce.pkgforce.parsers
 
+import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ModifierResults, WEBSERVICE_MODIFIER}
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.apexparser.ApexParser._
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.compat.immutable.ArraySeq
@@ -67,6 +67,7 @@ trait ApexNode {
   val id: IdAndRange
   val children: ArraySeq[ApexNode]
   val modifiers: ModifierResults
+  val signature: String
   val description: String
 
   def collectIssues(): ArraySeq[Issue] = {
@@ -95,6 +96,7 @@ case class ApexGenericNode(path: PathLike,
                            id: IdAndRange,
                            children: ArraySeq[ApexNode],
                            modifiers: ModifierResults,
+                           signature: String,
                            description: String)
     extends ApexNode {}
 
@@ -103,6 +105,7 @@ case class ApexClassNode(path: PathLike,
                          id: IdAndRange,
                          children: ArraySeq[ApexNode],
                          modifiers: ModifierResults,
+                         signature: String,
                          description: String)
     extends ApexNode {
 
@@ -116,12 +119,12 @@ case class ApexClassNode(path: PathLike,
         .filter(_.modifiers.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
         .foreach(
           child =>
-            issues.addOne(
-              new Issue(
-                path.toString,
-                Diagnostic(ERROR_CATEGORY,
-                           child.id.range,
-                           "Enclosing class must be declared global to use global or webservice modifiers"))))
+            issues.addOne(new Issue(
+              path.toString,
+              Diagnostic(
+                ERROR_CATEGORY,
+                child.id.range,
+                "Enclosing class must be declared global to use global or webservice modifiers"))))
     }
   }
 }

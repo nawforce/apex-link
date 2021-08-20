@@ -27,8 +27,8 @@
  */
 package com.nawforce.pkgforce.parsers
 
-import com.nawforce.pkgforce.modifiers._
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.modifiers._
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.{CodeParser, TreeVisitor}
 
@@ -56,16 +56,14 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
 
     typeWrap(classModifiers.methodOwnerNature) {
 
-      val description =
-        s"${classModifiers.modifiers.mkString(" ")} class ${CodeParser.getText(ctx.id())}"
-
       ArraySeq(
         ApexClassNode(parser.source.path,
                       parser.getPathAndLocation(modifierContext.enclosing)._2,
                       IdAndRange(parser, ctx.id()),
                       visitChildren(ctx),
                       classModifiers,
-                      description))
+                      s"${classModifiers.modifiers.mkString(" ")} class ${CodeParser.getText(ctx.id())}",
+                      classModifiers.modifiers.mkString(" ")))
     }
   }
 
@@ -78,8 +76,6 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
         getModifierContext(parentContext(ctx))
       val modifiers =
         ApexModifiers.interfaceModifiers(parser, modifierContext.modifiers, isOuter, ctx.id())
-      val description =
-        s"${modifiers.modifiers.mkString(" ")} interface ${CodeParser.getText(ctx.id())}"
       ArraySeq(
         ApexGenericNode(parser.source.path,
                         parser.getPathAndLocation(modifierContext.enclosing)._2,
@@ -87,7 +83,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                         IdAndRange(parser, ctx.id()),
                         visitChildren(ctx),
                         modifiers,
-                        description))
+                        s"${modifiers.modifiers.mkString(" ")} interface ${CodeParser.getText(ctx.id())}",
+                        modifiers.modifiers.mkString(" ")))
     }
   }
 
@@ -100,7 +97,6 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
         getModifierContext(parentContext(ctx))
       val modifiers =
         ApexModifiers.enumModifiers(parser, modifierContext.modifiers, isOuter, ctx.id())
-      val description = s"${modifiers.modifiers.mkString(" ")} enum ${CodeParser.getText(ctx.id())}"
       ArraySeq(
         ApexGenericNode(parser.source.path,
                         parser.getPathAndLocation(modifierContext.enclosing)._2,
@@ -108,7 +104,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                         IdAndRange(parser, ctx.id()),
                         visitChildren(ctx),
                         modifiers,
-                        description))
+                        s"${modifiers.modifiers.mkString(" ")} enum ${CodeParser.getText(ctx.id())}",
+                        modifiers.modifiers.mkString(" ")))
     }
   }
 
@@ -118,8 +115,6 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val modifiers =
       ApexModifiers.constructorModifiers(parser, modifierContext.modifiers, ctx.qualifiedName())
     val params = formatFormalParameters(ctx.formalParameters())
-    val description =
-      s"${appendSpace(modifiers.modifiers.mkString(" "))}${CodeParser.getText(ctx.qualifiedName())}($params)"
     ArraySeq(
       ApexGenericNode(parser.source.path,
                       parser.getPathAndLocation(modifierContext.enclosing)._2,
@@ -127,7 +122,9 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                       IdAndRange(parser, ctx.qualifiedName()),
                       ArraySeq(),
                       modifiers,
-                      description))
+                      s"${appendSpace(modifiers.modifiers.mkString(" "))}${CodeParser.getText(
+                        ctx.qualifiedName())}($params)",
+                      s"($params) ${modifiers.modifiers.mkString(" ")}"))
   }
 
   override def methodDeclaration(ctx: MethodDeclarationContext,
@@ -140,8 +137,6 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                                                          ownerNatureStack.size == 1)
     val returnType = CodeParser.toScala(ctx.typeRef()).map(CodeParser.getText).getOrElse("void")
     val params = formatFormalParameters(ctx.formalParameters())
-    val description =
-      s"${appendSpace(modifiers.modifiers.mkString(" "))}$returnType ${CodeParser.getText(ctx.id())}($params)"
     ArraySeq(
       ApexGenericNode(parser.source.path,
                       parser.getPathAndLocation(modifierContext.enclosing)._2,
@@ -149,7 +144,9 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                       IdAndRange(parser, ctx.id()),
                       ArraySeq(),
                       modifiers,
-                      description))
+                      s"${appendSpace(modifiers.modifiers.mkString(" "))}$returnType ${CodeParser
+                        .getText(ctx.id())}($params)",
+                      s"$returnType ($params) ${modifiers.modifiers.mkString(" ")}"))
   }
 
   override def interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationContext,
@@ -162,8 +159,6 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
 
     val returnType = CodeParser.toScala(ctx.typeRef()).map(CodeParser.getText).getOrElse("void")
     val params = formatFormalParameters(ctx.formalParameters())
-    val description =
-      s"${appendSpace(modifiers.modifiers.mkString(" "))}$returnType ${CodeParser.getText(ctx.id())}($params)"
     ArraySeq(
       ApexGenericNode(parser.source.path,
                       parser.getPathAndLocation(ctx)._2,
@@ -171,7 +166,9 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                       IdAndRange(parser, ctx.id()),
                       ArraySeq(),
                       modifiers,
-                      description))
+                      s"${appendSpace(modifiers.modifiers.mkString(" "))}$returnType ${CodeParser
+                        .getText(ctx.id())}($params)",
+                      s"$returnType ($params) ${modifiers.modifiers.mkString(" ")}"))
   }
 
   private def formatFormalParameters(ctx: FormalParametersContext): String = {
@@ -195,13 +192,11 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val fieldType = CodeParser.getText(ctx.typeRef())
     val variableDeclarators = CodeParser.toScala(ctx.variableDeclarators().variableDeclarator())
     val modifiers = FieldModifiers.fieldModifiers(parser,
-                                                 modifierContext.modifiers,
-                                                 ownerNatureStack.size == 1,
-                                                 variableDeclarators.head.id())
+                                                  modifierContext.modifiers,
+                                                  ownerNatureStack.size == 1,
+                                                  variableDeclarators.head.id())
     if (variableDeclarators.size == 1) {
       val vd = variableDeclarators.head
-      val description =
-        s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser.getText(vd.id())}"
       ArraySeq(
         ApexGenericNode(parser.source.path,
                         parser.getPathAndLocation(modifierContext.enclosing)._2,
@@ -209,18 +204,20 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                         IdAndRange(parser, vd.id()),
                         ArraySeq(),
                         modifiers,
-                        description))
+                        s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser
+                          .getText(vd.id())}",
+                        s"$fieldType ${modifiers.modifiers.mkString(" ")}"))
     } else {
       ArraySeq(variableDeclarators.map(vd => {
-        val description =
-          s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser.getText(vd.id())}"
         ApexGenericNode(parser.source.path,
                         parser.getPathAndLocation(vd)._2,
                         ApexFieldType,
                         IdAndRange(parser, vd.id()),
                         ArraySeq(),
                         modifiers,
-                        description)
+                        s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser
+                          .getText(vd.id())}",
+                        s"$fieldType ${modifiers.modifiers.mkString(" ")}")
       }): _*)
     }
   }
@@ -230,9 +227,9 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val modifiers =
       FieldModifiers.fieldModifiers(parser,
-                                   modifierContext.modifiers,
-                                   ownerNatureStack.size == 1,
-                                   ctx.id())
+                                    modifierContext.modifiers,
+                                    ownerNatureStack.size == 1,
+                                    ctx.id())
     val fieldType = CodeParser.getText(ctx.typeRef())
     val description =
       s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser.getText(ctx.id())}"
@@ -243,7 +240,9 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                       IdAndRange(parser, ctx.id()),
                       ArraySeq(),
                       modifiers,
-                      description))
+                      s"${appendSpace(modifiers.modifiers.mkString(" "))}$fieldType ${CodeParser
+                        .getText(ctx.id())}",
+                      s"$fieldType ${modifiers.modifiers.mkString(" ")}"))
   }
 
   override def enumConstants(ctx: EnumConstantsContext,
@@ -259,6 +258,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                           IdAndRange(parser, id),
                           ArraySeq(),
                           ModifierResults.empty,
+                          constantName,
                           constantName)
         }): _*)
   }
