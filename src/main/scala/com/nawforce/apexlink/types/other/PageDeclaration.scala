@@ -15,8 +15,8 @@
 package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
-import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.documents._
@@ -47,10 +47,15 @@ case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFConta
 }
 
 object Page {
-  def apply(module: Module, event: PageEvent): Page = {
+  def apply(module: Module, event: PageEvent): Seq[Page] = {
     val path = event.sourceInfo.path
     val document = MetadataDocument(path)
-    new Page(module, path, document.get.name, new VFContainer(module, event))
+    val container = new VFContainer(module, event)
+    Seq(new Page(module, path, document.get.name, container)) ++
+      (if (module.namespace.nonEmpty)
+         Seq(new Page(module, path, Name(s"${module.namespace.get.value}__${document.get.name}"), container))
+       else
+         Seq.empty)
   }
 }
 
@@ -75,7 +80,7 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
   }
 
   def merge(pageEvents: Array[PageEvent]): PageDeclaration = {
-    val newPages = pages ++ pageEvents.map(pe => Page(module, pe))
+    val newPages = pages ++ pageEvents.flatMap(pe => Page(module, pe))
     val sourceInfo = pageEvents.map(_.sourceInfo).distinct
     new PageDeclaration(sourceInfo, module, newPages)
   }
@@ -104,13 +109,14 @@ object PageDeclaration {
   private def collectBasePages(module: Module): Array[Page] = {
     module.basePackages
       .flatMap(basePkg => {
-        val ns = basePkg.namespace.get
+        val nsPrefix = basePkg.namespace.get + "__"
         basePkg.orderedModules.headOption.map(m => {
-          m.pages.pages.map(page => {
-            if (page.name.contains("__"))
-              page
+          // We only carry forward the pre-namespaced version of the pages
+          m.pages.pages.flatMap(page => {
+            if (page.name.value.startsWith(nsPrefix))
+              Some(page)
             else
-              Page(module, page.path, Name(s"${ns}__${page.name}"), page.vfContainer)
+              None
           })
         })
       })
