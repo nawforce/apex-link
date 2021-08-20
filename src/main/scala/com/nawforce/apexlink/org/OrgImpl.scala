@@ -17,6 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.DownWalker
+import com.nawforce.apexlink.deps.TransitiveCollector
 import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
@@ -343,6 +344,26 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
               summary => findReferencedTestPaths(path, pkg, typeId, summary)
             }
           }
+      }
+  }
+
+  def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {
+    propagateAllDependencies()
+
+    def getTypeOfPath(path: String): Option[TypeIdentifier] =
+      packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
+
+    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Seq[TypeIdentifier]):Int = {
+      transitiveDependencies.count(t => t != typeId)
+    }
+
+    val collector = new TransitiveCollector(this, true)
+
+    paths
+      .flatMap { path =>
+        getTypeOfPath(path)
+            .map { typeId => (typeId, collector.transitives(typeId))}
+            .map { case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))}
       }
   }
 }
