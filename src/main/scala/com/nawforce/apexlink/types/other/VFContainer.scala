@@ -20,7 +20,7 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.{DependencyHolder, Dependent}
 import com.nawforce.pkgforce.diagnostics.PathLocation
-import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.names.{DotName, TypeName}
 import com.nawforce.pkgforce.stream.VFEvent
 
 class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
@@ -42,12 +42,14 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
 
   private def getControllers: Array[ApexDeclaration] = {
     event.controllers.flatMap(controller => {
-      val controllerType = TypeName(controller.value)
+      val controllerType = DotName(controller.value.value).asTypeName()
       TypeResolver(controllerType, module) match {
         case Left(_) =>
-          OrgImpl.log(
-            IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.path.toString, controller.location),
-                                       controllerType))
+          if (!module.isGhostedType(controllerType)) {
+            OrgImpl.log(
+              IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.path.toString, controller.location),
+                controllerType))
+          }
           None
         case Right(td: ApexDeclaration) => Some(td)
         case _                          => None
