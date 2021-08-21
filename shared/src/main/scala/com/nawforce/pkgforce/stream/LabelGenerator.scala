@@ -59,7 +59,7 @@ object LabelGenerator {
                 .flatMap(c => {
                   try {
                     val fullName: String = c.getSingleChildAsString("fullName")
-                    val protect: Boolean = c.getSingleChildAsBoolean("protected")
+                    val protect: Boolean = c.getOptionalSingleChildAsBoolean("protected").getOrElse(true)
                     Some(
                       LabelEvent(PathLocation(document.path.toString, Location(c.line)),
                         Name(fullName),
