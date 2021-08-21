@@ -112,10 +112,9 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
         }).getOrElse(Seq.empty)
     }
 
-  val metadataGlobs: Seq[String] = {
-    packageDirectories.flatMap(directory =>
-      MetadataDocument.globs.map(glob => s"${directory.relativePath}/**/$glob")
-    )
+  def metadataGlobs: Seq[String] = {
+    val glob = MetadataDocument.extensionsGlob
+    packageDirectories.map(directory => s"${directory.relativePath}/**/*.$glob")
   }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
