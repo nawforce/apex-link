@@ -109,7 +109,7 @@ object PageDeclaration {
   private def collectBasePages(module: Module): Array[Page] = {
     module.basePackages
       .flatMap(basePkg => {
-        val nsPrefix = basePkg.namespace.get + "__"
+        val nsPrefix = basePkg.namespace.get.toString() + "__"
         basePkg.orderedModules.headOption.map(m => {
           // We only carry forward the pre-namespaced version of the pages
           m.pages.pages.flatMap(page => {
