@@ -19,7 +19,7 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.names.{TypeNames, XNames}
-import com.nawforce.apexlink.org.SObjectDeployer.{feedFields, historyFieldsFor}
+import com.nawforce.apexlink.org.SObjectDeployer.{feedFields, feedFieldsFor, historyFieldsFor, shareFieldsFor}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
@@ -246,7 +246,7 @@ class SObjectDeployer(module: Module) {
       CustomObjectNature,
       Array(),
       sharingReasons,
-      SObjectDeployer.shareFields,
+      shareFieldsFor(typeName),
       _isComplete = true,
       isSynthetic = true)
   }
@@ -258,7 +258,7 @@ class SObjectDeployer(module: Module) {
       CustomObjectNature,
       Name.emptyNames,
       Name.emptyNames,
-      feedFields,
+      feedFieldsFor(typeName),
       _isComplete = true,
       isSynthetic = true)
   }
@@ -442,7 +442,8 @@ object SObjectDeployer {
   /** Standard fields for custom objects, this is a superset, filtering may be needed to trim do to available. */
   val standardCustomObjectFields: Array[FieldDeclaration] = {
     PlatformTypes.sObjectType.fields ++
-      Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, None),
+      Array(
+        CustomFieldDeclaration(Names.Id, TypeNames.IdType, None),
         CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
         CustomFieldDeclaration(XNames.RecordTypeId, TypeNames.IdType, None),
         CustomFieldDeclaration(XNames.RecordType, TypeNames.RecordType, None),
@@ -488,7 +489,13 @@ object SObjectDeployer {
   }
 
   /** Standard fields for a \_\_Share SObject. */
-  val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+  def shareFieldsFor(typeName: TypeName): Array[FieldDeclaration] = {
+    shareFields ++ Array(
+      CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
+      CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true))
+  }
+
+  private val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
     CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
     CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
     CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
@@ -498,8 +505,14 @@ object SObjectDeployer {
     CustomFieldDeclaration(Names.RowCause, PlatformTypes.stringType.typeName, None),
     CustomFieldDeclaration(Names.UserOrGroupId, PlatformTypes.idType.typeName, None))
 
+  def feedFieldsFor(typeName: TypeName): Array[FieldDeclaration] = {
+    feedFields ++ Array(
+    CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
+    CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true))
+  }
+
   /** Standard fields for a \_\_Feed SObject. */
-  val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+  private val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
     CustomFieldDeclaration(XNames.BestCommentId, TypeNames.IdType, None),
     CustomFieldDeclaration(XNames.Body, TypeNames.String, None),
     CustomFieldDeclaration(XNames.CommentCount, TypeNames.Decimal, None),
@@ -526,7 +539,11 @@ object SObjectDeployer {
   )
 
   def historyFieldsFor(typeName: TypeName): Array[FieldDeclaration] =
-    historyFields ++ Array(CustomFieldDeclaration(XNames.ParentId, typeName, None))
+    historyFields ++ Array(
+      CustomFieldDeclaration(XNames.ParentId, typeName, None),
+      CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
+      CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true)
+    )
 
   private val historyFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
     CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
