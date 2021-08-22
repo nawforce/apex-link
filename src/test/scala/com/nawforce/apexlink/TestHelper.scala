@@ -153,6 +153,7 @@ trait TestHelper {
                    fields: Seq[(String, Option[String], Option[String])],
                    fieldSets: Set[String] = Set(),
                    sharingReason: Set[String] = Set(),
+                   sharingModel: String = "",
                    extending: Boolean = false): String = {
     val fieldMetadata = fields.map(field => {
       s"""
@@ -190,7 +191,7 @@ trait TestHelper {
        |    ${if (!extending) "<pluralLabel/>" else ""}
        |    ${if (!extending) "<nameField/>" else ""}
        |    ${if (!extending) "<deploymentStatus/>" else ""}
-       |    ${if (!extending) "<sharingModel/>" else ""}
+       |    ${if (sharingModel.nonEmpty) s"<sharingModel>$sharingModel</sharingModel>" else ""}
        |    $fieldMetadata
        |    $fieldSetMetadata
        |    $sharingReasonMetadata

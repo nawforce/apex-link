@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.types
 
+import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
@@ -425,36 +426,36 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Share visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Share.SObjectType;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Share.RowCause;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get,
-                                                                            unmanagedSObject("Foo__Share").get))
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet ==
+          Set(unmanagedSObject("Foo__Share").get))
     }
   }
 
   test("History visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__History.SObjectType;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__History.Field;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get,
-                                                                            unmanagedSObject("Foo__History").get))
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet ==
+          Set(unmanagedSObject("Foo__History").get))
     }
   }
 
   test("Feed visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Feed.SObjectType;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Feed.BestCommentId;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get,
-                                                                            unmanagedSObject("Foo__Feed").get))
+        unmanagedClass("Dummy").get.blocks.head.dependencies().toSet ==
+          Set(unmanagedSObject("Foo__Feed").get))
     }
   }
 
@@ -474,31 +475,62 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" ->
             s"""public class Dummy {
-           |  public static Foo__c a;
-           |  {
-           |    Id id = a.Id;
-           |    String name = a.Name;
-           |    Id recordTypeId = a.RecordTypeId;
-           |    User createdBy = a.CreatedBy;
-           |    Id createdById = a.CreatedById;
-           |    Datetime createdDate = a.CreatedDate;
-           |    User lastModifiedBy = a.LastModifiedBy;
-           |    Id lastModifiedById = a.LastModifiedById;
-           |    Datetime lastModifiedDate = a.LastModifiedDate;
-           |    Boolean isDeleted = a.isDeleted;
-           |    Datetime systemModstamp = a.SystemModstamp;
-           |  }
-           |  }""".stripMargin)) { root: PathLike =>
+               |  public static Foo__c a;
+               |  {
+               |    System.debug(a.RecordTypeId);
+               |    System.debug(a.RecordType);
+               |    System.debug(a.OwnerId);
+               |    System.debug(a.Owner);
+               |    System.debug(a.CurrencyIsoCode);
+               |    System.debug(a.CreatedBy);
+               |    System.debug(a.CreatedById);
+               |    System.debug(a.CreatedDate);
+               |    System.debug(a.Id);
+               |    System.debug(a.LastModifiedBy);
+               |    System.debug(a.LastModifiedById);
+               |    System.debug(a.LastModifiedDate);
+               |    System.debug(a.LastReferencedDate);
+               |    System.debug(a.LastViewedDate);
+               |    System.debug(a.LastActivityDate);
+               |    System.debug(a.Name);
+               |    System.debug(a.isDeleted);
+               |    System.debug(a.Tasks);
+               |    System.debug(a.Notes);
+               |    System.debug(a.NotesAndAttachments);
+               |    System.debug(a.Attachments);
+               |    System.debug(a.ContentDocumentLinks);
+               |    System.debug(a.ProcessSteps);
+               |    System.debug(a.SystemModstamp);
+               |  }
+               |  }""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
+    }
+  }
+
+  test("ControllerByParent has no Owner") {
+    FileSystemHelper.run(
+      Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None)), Set(), Set(), "ControlledByParent"),
+        "Dummy.cls" ->
+          s"""public class Dummy {
+             |  {
+             |    Foo__c a;
+             |    System.debug(a.OwnerId);
+             |    System.debug(a.Owner);
+             |  }
+             |  }""".stripMargin)) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.getIssues(new IssueOptions) == "/Dummy.cls\n" +
+        "Missing: line 4 at 17-26: Unknown field 'OwnerId' on SObject 'Schema.Foo__c'\n" +
+        "Missing: line 5 at 17-24: Unknown field 'Owner' on SObject 'Schema.Foo__c'\n")
     }
   }
 
   test("Lookup SObjectField (via Id field)") {
     FileSystemHelper.run(
       Map("Bar__c.object" -> customObject("Bar", Seq(("MyField__c", Some("Text"), None))),
-          "Foo__c.object" -> customObject("Foo", Seq(("MyBar__c", Some("Lookup"), Some("Bar__c")))),
-          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.MyBar__c.MyField__c;} }")) { root: PathLike =>
+        "Foo__c.object" -> customObject("Foo", Seq(("MyBar__c", Some("Lookup"), Some("Bar__c")))),
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.MyBar__c.MyField__c;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(

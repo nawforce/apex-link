@@ -27,7 +27,7 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.pkgforce.stream.SObjectEvent
+import com.nawforce.pkgforce.stream.{HierarchyCustomSetting, ListCustomSetting, SObjectEvent}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
@@ -59,8 +59,8 @@ object SObjectNature {
       case _: PlatformEventDocument => PlatformEventNature
       case _: SObjectDocument =>
         event.customSettingsType match {
-          case Some("List") => ListCustomSettingNature
-          case Some("Hierarchy") => HierarchyCustomSettingsNature
+          case Some(ListCustomSetting) => ListCustomSettingNature
+          case Some(HierarchyCustomSetting) => HierarchyCustomSettingsNature
           case _ => CustomObjectNature
         }
     }

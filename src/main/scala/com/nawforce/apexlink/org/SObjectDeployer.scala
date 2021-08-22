@@ -16,9 +16,10 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.names.XNames.NameUtils
-import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
+import com.nawforce.apexlink.names.XNames.NameUtils
+import com.nawforce.apexlink.names.{TypeNames, XNames}
+import com.nawforce.apexlink.org.SObjectDeployer.{feedFields, historyFieldsFor}
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
@@ -184,7 +185,7 @@ class SObjectDeployer(module: Module) {
       val sobjectType = resolveBaseType(typeName)
       (event.isDefining, sobjectType.isEmpty) match {
         case (true, true) =>
-          createNewSObject(sources, typeName, nature, fields, fieldSets, sharingReasons)
+          createNewSObject(sources, typeName, nature, fields, fieldSets, sharingReasons, event.sharingModel)
         case (false, false) =>
           createReplacementSObject(sources, typeName, nature, fields, fieldSets, sharingReasons)
         case (false, true) =>
@@ -206,7 +207,8 @@ class SObjectDeployer(module: Module) {
                                nature: SObjectNature,
                                fields: Array[FieldDeclaration],
                                fieldSets: Array[Name],
-                               sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+                               sharingReasons: Array[Name],
+                               sharingModel: Option[SharingModel]): Array[SObjectDeclaration] = {
     val syntheticSObjects =
       if (nature == CustomObjectNature) {
         // FUTURE: Check fields & when these should be available
@@ -217,6 +219,13 @@ class SObjectDeployer(module: Module) {
         Array[SObjectDeclaration]()
       }
 
+    val hasOwner: Boolean = sharingModel match {
+      case Some(ControlledByParentSharingModel) => false
+      case Some(ControlledByLeadOrContractSharingModel) => false
+      case Some(ControlledByCampaignSharingModel) => false
+      case _ => true
+    }
+
     syntheticSObjects :+
       new SObjectDeclaration(sources,
         module,
@@ -224,7 +233,7 @@ class SObjectDeployer(module: Module) {
         nature,
         fieldSets,
         Name.emptyNames,
-        collectFields(typeName, nature, fields),
+        collectFields(typeName, nature, fields, hasOwner),
         _isComplete = true)
   }
 
@@ -232,38 +241,38 @@ class SObjectDeployer(module: Module) {
                           typeName: TypeName,
                           sharingReasons: Array[Name]): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__Share"),
-                       CustomObjectNature,
-                       Array(),
-                       sharingReasons,
-                       customObjectFields(typeName, CustomObjectNature, SObjectDeployer.shareFields),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__Share"),
+      CustomObjectNature,
+      Array(),
+      sharingReasons,
+      SObjectDeployer.shareFields,
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   private def createFeed(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__Feed"),
-                       CustomObjectNature,
-                       Name.emptyNames,
-                       Name.emptyNames,
-                       customObjectFields(typeName, CustomObjectNature, SObjectDeployer.feedFields),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__Feed"),
+      CustomObjectNature,
+      Name.emptyNames,
+      Name.emptyNames,
+      feedFields,
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   private def createHistory(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__History"),
-                       CustomObjectNature,
-                       Name.emptyNames,
-                       Name.emptyNames,
-                       customObjectFields(typeName, CustomObjectNature, SObjectDeployer.historyFields),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__History"),
+      CustomObjectNature,
+      Name.emptyNames,
+      Name.emptyNames,
+      historyFieldsFor(typeName),
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   /** Create an SObject to replace some existing SObject so that it can be extended. If no existing can be found then
@@ -339,7 +348,7 @@ class SObjectDeployer(module: Module) {
 
     val extend = base.getOrElse(PlatformTypes.sObjectType)
     val combinedSources = asSObject.map(_.sources).getOrElse(Array()) ++ sources
-    val combinedFields = collectFields(typeName, nature, extend.fields ++ fields)
+    val combinedFields = collectFields(typeName, nature, extend.fields ++ fields, hasOwner = base.isEmpty)
     val combinedFieldsets = fieldSets
       .foldLeft(asSObject.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
       .toArray
@@ -367,15 +376,16 @@ class SObjectDeployer(module: Module) {
   /** Collect fields for an SObject by folding custom fields over standard fields. */
   def collectFields(typeName: TypeName,
                     nature: SObjectNature,
-                    fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+                    fields: Array[FieldDeclaration],
+                    hasOwner: Boolean): Array[FieldDeclaration] = {
     nature match {
-      case ListCustomSettingNature => customObjectFields(typeName, nature, fields)
-      case HierarchyCustomSettingsNature => customObjectFields(typeName, nature, fields)
-      case CustomObjectNature => customObjectFields(typeName, nature, fields)
+      case ListCustomSettingNature => customObjectFields(typeName, nature, fields, hasOwner)
+      case HierarchyCustomSettingsNature => customObjectFields(typeName, nature, fields, hasOwner)
+      case CustomObjectNature => customObjectFields(typeName, nature, fields, hasOwner)
       case CustomMetadataNature => customMetadataFields(typeName, fields)
       case BigObjectNature => fields
       case PlatformEventNature => platformEventFields(typeName, fields)
-      case PlatformObjectNature => customObjectFields(typeName, nature, fields)
+      case PlatformObjectNature => fields
     }
   }
 
@@ -383,7 +393,7 @@ class SObjectDeployer(module: Module) {
   private def customObjectFields(typeName: TypeName,
                                  nature: SObjectNature,
                                  fields: Array[FieldDeclaration],
-                                 hasOwner: Boolean = true): Array[FieldDeclaration] = {
+                                 hasOwner: Boolean): Array[FieldDeclaration] = {
 
     def fieldFilter(field: FieldDeclaration): Boolean = {
       if (hasOwner)
@@ -430,82 +440,104 @@ class SObjectDeployer(module: Module) {
 object SObjectDeployer {
 
   /** Standard fields for custom objects, this is a superset, filtering may be needed to trim do to available. */
-  lazy val standardCustomObjectFields: Seq[FieldDeclaration] = {
-    Seq(CustomFieldDeclaration(Name("Id"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("Name"), TypeNames.String, None),
-      CustomFieldDeclaration(Name("RecordTypeId"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("RecordType"), TypeNames.RecordType, None),
-      CustomFieldDeclaration(Name("OwnerId"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("Owner"), TypeNames.NameSObject, None),
-      CustomFieldDeclaration(Name("CurrencyIsoCode"), TypeNames.String, None),
-      CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
-      CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None),
-      CustomFieldDeclaration(Name("LastModifiedBy"), TypeNames.User, None),
-      CustomFieldDeclaration(Name("LastModifiedById"), TypeNames.IdType, None),
-      CustomFieldDeclaration(Name("LastModifiedDate"), TypeNames.Datetime, None),
-      CustomFieldDeclaration(Name("LastReferencedDate"), TypeNames.Datetime, None),
-      CustomFieldDeclaration(Name("LastViewedDate"), TypeNames.Datetime, None),
-      CustomFieldDeclaration(Name("LastActivityDate"), TypeNames.Datetime, None),
-      CustomFieldDeclaration(Name("Tasks"), TypeNames.listOf(TypeNames.Task), None),
-      CustomFieldDeclaration(Name("Notes"), TypeNames.listOf(TypeNames.Note), None),
-      CustomFieldDeclaration(Name("NotesAndAttachments"), TypeNames.listOf(TypeNames.NoteAndAttachment), None),
-      CustomFieldDeclaration(Name("Attachments"), TypeNames.listOf(TypeNames.Attachment), None),
-      CustomFieldDeclaration(Name("ContentDocumentLinks"), TypeNames.listOf(TypeNames.ContentDocumentLink), None),
-      CustomFieldDeclaration(Name("ProcessSteps"), TypeNames.listOf(TypeNames.ProcessInstanceHistory), None),
-      CustomFieldDeclaration(Name("IsDeleted"), TypeNames.Boolean, None),
-      CustomFieldDeclaration(Name("SystemModstamp"), TypeNames.Datetime, None)) ++
-      PlatformTypes.sObjectType.fields.filterNot(f => f.name == Names.SObjectType)
+  val standardCustomObjectFields: Array[FieldDeclaration] = {
+    PlatformTypes.sObjectType.fields ++
+      Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, None),
+        CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
+        CustomFieldDeclaration(XNames.RecordTypeId, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.RecordType, TypeNames.RecordType, None),
+        CustomFieldDeclaration(XNames.OwnerId, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.Owner, TypeNames.NameSObject, None),
+        CustomFieldDeclaration(XNames.CurrencyIsoCode, TypeNames.String, None),
+        CustomFieldDeclaration(XNames.CreatedBy, TypeNames.User, None),
+        CustomFieldDeclaration(XNames.CreatedById, TypeNames.NameSObject, None),
+        CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
+        CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.LastModifiedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastReferencedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastViewedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastActivityDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.Tasks, TypeNames.listOf(TypeNames.Task), None),
+        CustomFieldDeclaration(XNames.Notes, TypeNames.listOf(TypeNames.Note), None),
+        CustomFieldDeclaration(XNames.NotesAndAttachments, TypeNames.listOf(TypeNames.NoteAndAttachment), None),
+        CustomFieldDeclaration(XNames.Attachments, TypeNames.listOf(TypeNames.Attachment), None),
+        CustomFieldDeclaration(XNames.ContentDocumentLinks, TypeNames.listOf(TypeNames.ContentDocumentLink), None),
+        CustomFieldDeclaration(XNames.ProcessSteps, TypeNames.listOf(TypeNames.ProcessInstanceHistory), None),
+        CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
+        CustomFieldDeclaration(XNames.SystemModstamp, TypeNames.Datetime, None))
   }
 
   /** Standard fields for platform events. */
-  lazy val standardPlatformEventFields: Array[FieldDeclaration] = {
+  val standardPlatformEventFields: Array[FieldDeclaration] = {
     Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
-          CustomFieldDeclaration(Name("CreatedBy"), TypeNames.User, None),
-          CustomFieldDeclaration(Name("CreatedById"), TypeNames.IdType, None),
-          CustomFieldDeclaration(Name("CreatedDate"), TypeNames.Datetime, None))
+      CustomFieldDeclaration(XNames.CreatedBy, TypeNames.User, None),
+      CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
+      CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None))
   }
 
   /** Standard fields for custom metadata. */
-  lazy val standardCustomMetadataFields: Array[FieldDeclaration] = {
+  val standardCustomMetadataFields: Array[FieldDeclaration] = {
     Array(CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
-          CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
-          CustomFieldDeclaration(Names.Label, TypeNames.String, None),
-          CustomFieldDeclaration(Names.Language, TypeNames.String, None),
-          CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
-          CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
-          CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
+      CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
+      CustomFieldDeclaration(Names.Label, TypeNames.String, None),
+      CustomFieldDeclaration(Names.Language, TypeNames.String, None),
+      CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
+      CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
+      CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
   }
 
   /** Standard fields for a \_\_Share SObject. */
-  lazy val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
+  val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+    CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
+    CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
+    CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.LastModifiedDate, TypeNames.Datetime, None),
     CustomFieldDeclaration(Names.AccessLevel, PlatformTypes.stringType.typeName, None),
     CustomFieldDeclaration(Names.ParentId, PlatformTypes.idType.typeName, None),
     CustomFieldDeclaration(Names.RowCause, PlatformTypes.stringType.typeName, None),
     CustomFieldDeclaration(Names.UserOrGroupId, PlatformTypes.idType.typeName, None))
 
   /** Standard fields for a \_\_Feed SObject. */
-  lazy val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
-    CustomFieldDeclaration(Names.BestCommentId, PlatformTypes.idType.typeName, None),
-    CustomFieldDeclaration(Names.Body, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.CommentCount, PlatformTypes.decimalType.typeName, None),
-    CustomFieldDeclaration(Names.ConnectionId, PlatformTypes.idType.typeName, None),
-    CustomFieldDeclaration(Names.InsertedById, PlatformTypes.idType.typeName, None),
-    CustomFieldDeclaration(Names.IsRichText, PlatformTypes.booleanType.typeName, None),
-    CustomFieldDeclaration(Names.LikeCount, PlatformTypes.decimalType.typeName, None),
-    CustomFieldDeclaration(Names.LinkUrl, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.NetworkScope, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.ParentId, PlatformTypes.idType.typeName, None),
-    CustomFieldDeclaration(Names.RelatedRecordId, PlatformTypes.idType.typeName, None),
-    CustomFieldDeclaration(Names.Title, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.Type, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.Visibility, PlatformTypes.stringType.typeName, None),
+  val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+    CustomFieldDeclaration(XNames.BestCommentId, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.Body, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.CommentCount, TypeNames.Decimal, None),
+    CustomFieldDeclaration(Names.ConnectionId, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
+    CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),
+    CustomFieldDeclaration(XNames.InsertedById, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.InsertedBy, TypeNames.NameSObject, None),
+    CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
+    CustomFieldDeclaration(XNames.IsRichText, TypeNames.Boolean, None),
+    CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
+    CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.LastModifiedDate, TypeNames.Datetime, None),
+    CustomFieldDeclaration(XNames.LikeCount, TypeNames.Decimal, None),
+    CustomFieldDeclaration(XNames.LinkUrl, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.NetworkScope, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.ParentId, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.RelatedRecordId, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.RelatedRecord, TypeNames.SObject, None),
+    CustomFieldDeclaration(XNames.Title, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.Type, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.Visibility, TypeNames.String, None),
   )
 
-  lazy val historyFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Seq(
-    CustomFieldDeclaration(Names.Field, PlatformTypes.stringType.typeName, None),
-    CustomFieldDeclaration(Names.NewValue, PlatformTypes.objectType.typeName, None),
-    CustomFieldDeclaration(Names.OldValue, PlatformTypes.objectType.typeName, None),
+  def historyFieldsFor(typeName: TypeName): Array[FieldDeclaration] =
+    historyFields ++ Array(CustomFieldDeclaration(XNames.ParentId, typeName, None))
+
+  private val historyFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+    CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
+    CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
+    CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),
+    CustomFieldDeclaration(XNames.DataType, TypeNames.String, None),
+    CustomFieldDeclaration(XNames.Field, TypeNames.SObject, None),
+    CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
+    CustomFieldDeclaration(XNames.NewValue, TypeNames.InternalObject, None),
+    CustomFieldDeclaration(XNames.OldValue, TypeNames.InternalObject, None),
+    CustomFieldDeclaration(XNames.ParentId, TypeNames.InternalObject, None),
   )
 
   val referenceFieldTypes: Set[Name] =
@@ -514,18 +546,18 @@ object SObjectDeployer {
   /** Convert a field type string to the platform type used for it in Apex. */
   def platformTypeOfFieldType(field: CustomFieldEvent): TypeDeclaration = {
     field.rawType.value match {
-      case "MasterDetail"        => PlatformTypes.idType
-      case "Lookup"              => PlatformTypes.idType
-      case "AutoNumber"          => PlatformTypes.stringType
-      case "Checkbox"            => PlatformTypes.booleanType
-      case "Currency"            => PlatformTypes.decimalType
-      case "Date"                => PlatformTypes.dateType
-      case "DateTime"            => PlatformTypes.datetimeType
-      case "Email"               => PlatformTypes.stringType
-      case "EncryptedText"       => PlatformTypes.stringType
-      case "Number"              => PlatformTypes.decimalType
-      case "Percent"             => PlatformTypes.decimalType
-      case "Phone"               => PlatformTypes.stringType
+      case "MasterDetail" => PlatformTypes.idType
+      case "Lookup" => PlatformTypes.idType
+      case "AutoNumber" => PlatformTypes.stringType
+      case "Checkbox" => PlatformTypes.booleanType
+      case "Currency" => PlatformTypes.decimalType
+      case "Date" => PlatformTypes.dateType
+      case "DateTime" => PlatformTypes.datetimeType
+      case "Email" => PlatformTypes.stringType
+      case "EncryptedText" => PlatformTypes.stringType
+      case "Number" => PlatformTypes.decimalType
+      case "Percent" => PlatformTypes.decimalType
+      case "Phone" => PlatformTypes.stringType
       case "Picklist"            => PlatformTypes.stringType
       case "MultiselectPicklist" => PlatformTypes.stringType
       case "Summary"             => PlatformTypes.decimalType

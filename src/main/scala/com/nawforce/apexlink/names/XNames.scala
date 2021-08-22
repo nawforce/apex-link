@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.names
 
+import com.nawforce.pkgforce.names.Names.cache
 import com.nawforce.pkgforce.names._
 
 /** Name handling support.
@@ -27,7 +28,48 @@ object XNames {
 
   def apply(name: String): Name = com.nawforce.pkgforce.names.Names(name)
 
-  lazy val Iterable: Name = XNames("Iterable")
+  val Iterable: Name = XNames("Iterable")
+  val IsDeleted: Name = XNames("IsDeleted")
+  val RecordTypeId: Name = XNames("RecordTypeId")
+  val RecordType: Name = XNames("RecordType")
+  val OwnerId: Name = XNames("OwnerId")
+  val Owner: Name = XNames("Owner")
+  val CurrencyIsoCode: Name = XNames("CurrencyIsoCode")
+  val CreatedBy: Name = XNames("CreatedBy")
+  val CreatedById: Name = XNames("CreatedById")
+  val CreatedDate: Name = XNames("CreatedDate")
+  val LastModifiedBy: Name = XNames("LastModifiedBy")
+  val LastModifiedById: Name = XNames("LastModifiedById")
+  val LastModifiedDate: Name = XNames("LastModifiedDate")
+  val LastReferencedDate: Name = XNames("LastReferencedDate")
+  val LastViewedDate: Name = XNames("LastViewedDate")
+  val LastActivityDate: Name = XNames("LastActivityDate")
+  val InsertedById: Name = XNames("InsertedById")
+  val InsertedBy: Name = XNames("InsertedBy")
+  val Tasks: Name = XNames("Tasks")
+  val Notes: Name = XNames("Notes")
+  val NotesAndAttachments: Name = XNames("NotesAndAttachments")
+  val Attachments: Name = XNames("Attachments")
+  val ContentDocumentLinks: Name = XNames("ContentDocumentLinks")
+  val ProcessSteps: Name = XNames("ProcessSteps")
+  val SystemModstamp: Name = XNames("SystemModstamp")
+  val Field: Name = XNames("Field")
+  val NewValue: Name = XNames("NewValue")
+  val OldValue: Name = XNames("OldValue")
+  val BestCommentId: Name = XNames("BestCommentId")
+  val Body: Name = XNames("Body")
+  val CommentCount: Name = XNames("CommentCount")
+  val IsRichText: Name = XNames("IsRichText")
+  val LikeCount: Name = XNames("LikeCount")
+  val LinkUrl: Name = XNames("LinkUrl")
+  val NetworkScope: Name = XNames("NetworkScope")
+  val RelatedRecordId: Name = XNames("RelatedRecordId")
+  val RelatedRecord: Name = XNames("RelatedRecord")
+  val Title: Name = XNames("Title")
+  val Visibility: Name = XNames("Visibility")
+  val ParentId: Name = XNames("ParentId")
+  val Type: Name = XNames("Type")
+  val DataType: Name = XNames("DataType")
 
   /** Name extensions */
   implicit class NameUtils(name: Name) {
