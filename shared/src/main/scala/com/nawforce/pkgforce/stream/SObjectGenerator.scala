@@ -37,10 +37,25 @@ import com.nawforce.runtime.xml.XMLDocument
 
 import scala.collection.mutable
 
+sealed abstract class SharingModel(val value: String)
+case object PrivateSharingModel extends SharingModel("Private")
+case object ReadSharingModel extends SharingModel("Read")
+case object ReadWriteSharingModel extends SharingModel("ReadWrite")
+case object ReadWriteTransferSharingModel extends SharingModel("ReadWriteTransfer")
+case object FullAccessSharingModel extends SharingModel("FullAccess")
+case object ControlledByParentSharingModel extends SharingModel("ControlledByParent")
+case object ControlledByCampaignSharingModel extends SharingModel("ControlledByCampaign")
+case object ControlledByLeadOrContractSharingModel extends SharingModel("ControlledByLeadOrContract")
+
+sealed trait CustomSettingType
+case object ListCustomSetting extends CustomSettingType
+case object HierarchyCustomSetting extends CustomSettingType
+
 final case class SObjectEvent(sourceInfo: Option[SourceInfo],
                               reportingPath: PathLike,            // SFDX SObject directory or MDAPI .object file
                               isDefining: Boolean,                // Metadata is defining a new SObject
-                              customSettingsType: Option[String])
+                              customSettingsType: Option[CustomSettingType],
+                              sharingModel: Option[SharingModel])
     extends PackageEvent
 final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],
                                   name: Name,
@@ -97,8 +112,8 @@ object SObjectGenerator {
       return IssuesEvent.iterator(parsed.get.issues)
 
     val doc = parsed.flatMap(_.value)
-    val customSettingsType =
-      doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
+    val customSettingsType = doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
+    val sharingModelType = doc.map(doc => extractSharingModel(doc)).getOrElse(IssuesAnd(None))
     val isDefining = doc.exists(doc => doc.rootElement.getChildren("label").nonEmpty)
     val reportingPath =
       if (document.path.toString.endsWith("object-meta.xml"))
@@ -107,8 +122,8 @@ object SObjectGenerator {
         document.path
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(sourceInfo, reportingPath, isDefining, customSettingsType.value)) ++
-      IssuesEvent.iterator(customSettingsType.issues) ++
+    Iterator(SObjectEvent(sourceInfo, reportingPath, isDefining, customSettingsType.value, sharingModelType.value)) ++
+      IssuesEvent.iterator(customSettingsType.issues) ++ IssuesEvent.iterator(sharingModelType.issues) ++
       doc
         .map(doc => {
           val rootElement = doc.rootElement
@@ -126,10 +141,10 @@ object SObjectGenerator {
       collectSfdxSharingReason(document.path)
   }
 
-  private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[String]] = {
+  private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[CustomSettingType]] = {
     doc.rootElement.getOptionalSingleChildAsString("customSettingsType") match {
-      case Some("List")      => IssuesAnd(Some("List"))
-      case Some("Hierarchy") => IssuesAnd(Some("Hierarchy"))
+      case Some("List")      => IssuesAnd(Some(ListCustomSetting))
+      case Some("Hierarchy") => IssuesAnd(Some(HierarchyCustomSetting))
       case Some(x) =>
         IssuesAnd(
           Array(
@@ -139,6 +154,30 @@ object SObjectGenerator {
                   s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")),
           None)
       case None => IssuesAnd(None)
+    }
+  }
+
+  private val allSharingModels = Seq(PrivateSharingModel, ReadSharingModel, ReadWriteSharingModel,
+    ReadWriteTransferSharingModel, FullAccessSharingModel, ControlledByParentSharingModel,
+    ControlledByCampaignSharingModel, ControlledByLeadOrContractSharingModel )
+
+  private def extractSharingModel(doc: XMLDocumentLike): IssuesAnd[Option[SharingModel]] = {
+    val sharingModel = doc.rootElement.getOptionalSingleChildAsString("sharingModel")
+    if (sharingModel.nonEmpty) {
+      val matched = allSharingModels.find(_.value == sharingModel.get)
+      if (matched.nonEmpty) {
+        IssuesAnd(matched)
+      } else {
+        IssuesAnd(
+          Array(
+            Issue(doc.path,
+              ERROR_CATEGORY,
+              Location(doc.rootElement.line),
+              s"Unexpected sharingModel value '${sharingModel.get}'")),
+          None)
+      }
+    } else {
+      IssuesAnd(None)
     }
   }
 
