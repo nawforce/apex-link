@@ -207,8 +207,9 @@ trait DefinitionProvider {
   }
 
   private def findLimit(forward: Boolean, content: String, offset: Int): Option[Int] = {
+    val regex = if (forward) "[0-9a-zA-Z_]" else "[0-9a-zA-Z_\\.]"
     val ch = "" + content(offset)
-    if (!ch.matches("[0-9a-zA-Z_\\.]")) {
+    if (!ch.matches(regex)) {
       None
     } else {
       val nextOffset = if (forward) offset + 1 else offset - 1

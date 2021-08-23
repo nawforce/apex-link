@@ -87,7 +87,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Match.txt"), line = 1, offset = 1, None)
+            .getDefinition(root.join("Match.txt"), line = 1, offset = 6, None)
             .contains(
               LocationLink(Location(1, 0, 1, 11),
                            root.join("Dummy.cls").toString,
@@ -146,7 +146,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None)
             .contains(
               LocationLink(Location(1, 23, 1, 32),
                            root.join("Foo.cls").toString,
@@ -192,7 +192,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None)
             .contains(
               LocationLink(Location(1, 23, 1, 33),
                 root.join("Foo.cls").toString,
@@ -208,7 +208,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 28, None)
             .contains(
               LocationLink(Location(1, 23, 1, 30),
                 root.join("Foo.cls").toString,
@@ -224,7 +224,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 29, None)
             .toSet.equals(
             Set(
               LocationLink(Location(1, 23, 1, 33),
