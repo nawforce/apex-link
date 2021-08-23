@@ -28,7 +28,7 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
   def validate(): Set[Dependent] = {
     val controllers = getControllers
     val controllerContexts = controllers.map(controller => {
-      val context = new TypeVerifyContext(None, controller)
+      val context = new TypeVerifyContext(None, controller, None)
       context.addDependency(controller)
       context
     })

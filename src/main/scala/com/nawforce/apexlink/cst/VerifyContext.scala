@@ -23,13 +23,14 @@ import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
 trait VerifyContext {
+
   def parent(): Option[VerifyContext]
 
   /** Module for current outer type */
@@ -49,6 +50,9 @@ trait VerifyContext {
 
   /** Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
+
+  /** Save the result of an expression evaluation for later analysis */
+  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext
 
   /** Test if issues are currently being suppressed */
   def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
@@ -162,9 +166,18 @@ trait HolderVerifyContext {
   }
 }
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration)
-    extends HolderVerifyContext
-    with VerifyContext {
+class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]]) {
+  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext = {
+    val result = op()
+    if (exprMap.nonEmpty)
+      exprMap.get.put(location, result)
+    result._2
+  }
+}
+
+final class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
+                        exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
+    extends ExprResultHolder(exprMap) with  HolderVerifyContext with VerifyContext {
 
   private val typeCache = mutable.Map[(TypeName, TypeDeclaration), TypeResponse]()
 
@@ -187,12 +200,11 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)
-
 }
 
-class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
-    extends HolderVerifyContext
-    with VerifyContext {
+final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration,
+                                         exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
+  extends ExprResultHolder(exprMap) with HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -278,9 +290,12 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
             Diagnostic(UNUSED_CATEGORY, location.location, s"Unused local variable '${v._1}'")))
       })
   }
+
+  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext =
+    parentContext.saveExpressionContext(location)(op)
 }
 
-class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
+final class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
     extends BlockVerifyContext(parentContext) {
 
   assert(!parentContext.isInstanceOf[BlockVerifyContext])
@@ -288,7 +303,7 @@ class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boo
   override val isStatic: Boolean = isStaticContext
 }
 
-class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
+final class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
 
   override def isStatic: Boolean = parentContext.isStatic
 
@@ -296,7 +311,7 @@ class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVe
     super.getVar(name, markUsed).orElse(parentContext.getVar(name, markUsed))
 }
 
-class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyContext {
+final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -313,6 +328,9 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
 
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
+
+  override def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext =
+    parentContext.saveExpressionContext(location)(op)
 
   def isVar(name: Name, markUsed: Boolean = false): Option[TypeDeclaration] =
     parentContext.getVar(name, markUsed: Boolean)

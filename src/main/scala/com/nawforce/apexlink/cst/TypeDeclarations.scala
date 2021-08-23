@@ -53,7 +53,7 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     verifyCommon(context)
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 
   private def verifyCommon(context: VerifyContext): Unit = {
@@ -131,7 +131,7 @@ final case class InterfaceDeclaration(_source: Source, _module: Module, _typeCon
   override val nature: Nature = INTERFACE_NATURE
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 }
 
@@ -175,7 +175,7 @@ final case class EnumDeclaration(_source: Source, _module: Module, _typeContext:
   override val nature: Nature = ENUM_NATURE
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    super.verify(new TypeVerifyContext(Some(context), this))
+    super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 
   override lazy val _localMethods: Array[ApexVisibleMethodLike] =

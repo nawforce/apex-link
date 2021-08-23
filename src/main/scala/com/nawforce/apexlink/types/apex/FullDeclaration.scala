@@ -124,7 +124,7 @@ abstract class FullDeclaration(val source: Source,
     LoggerOps.debugTime(s"Validated ${location.path}") {
       // Validate inside a parsing context as LazyBlock may call parser
       CST.sourceContext.withValue(Some(source)) {
-        val context = new TypeVerifyContext(None, this)
+        val context = new TypeVerifyContext(None, this, None)
         modifierIssues.foreach(context.log)
         verify(context)
         propagateOuterDependencies(new TypeCache())
@@ -180,7 +180,7 @@ abstract class FullDeclaration(val source: Source,
     })
 
     // Detail check each body declaration
-    bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd)))
+    bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
     // Log dependencies logged against this context
     setDepends(context.dependencies)

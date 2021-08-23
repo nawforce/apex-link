@@ -85,7 +85,7 @@ final case class TriggerDeclaration(source: Source,
       duplicateCases.foreach(triggerCase =>
         OrgImpl.logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'"))
 
-      val context = new TypeVerifyContext(None, this)
+      val context = new TypeVerifyContext(None, this, None)
       val tdOpt = context.getTypeAndAddDependency(objectTypeName, this)
 
       tdOpt match {
