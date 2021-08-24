@@ -104,6 +104,8 @@ trait Package {
     */
   def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
+  def getDependencyHoldersOfInterfaces(typeId: TypeIdentifier): Array[TypeIdentifier]
+
   /** Refresh a type in the package.
     *
     * This registers that the metadata in a file may need updating. The refresh is queued until the Org metadata is

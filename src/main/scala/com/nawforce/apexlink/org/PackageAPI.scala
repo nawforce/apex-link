@@ -19,7 +19,7 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex._
-import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
+import com.nawforce.apexlink.types.core.{DependentType, INTERFACE_NATURE, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other.Page
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
@@ -173,6 +173,27 @@ trait PackageAPI extends Package {
                 _.isInstanceOf[ApexDeclaration]))
             .map(_.asTypeIdentifier)
             .toArray)
+        .orNull
+    } else {
+      null
+    }
+  }
+
+  override def getDependencyHoldersOfInterfaces(typeId: TypeIdentifier): Array[TypeIdentifier] = {
+    if (typeId != null && typeId.namespace == namespace) {
+      getDependentType(typeId.typeName)
+        .filter(dt => dt.nature == INTERFACE_NATURE)
+        .map{
+          dt =>
+            import com.nawforce.apexlink.types.apex.{SummaryDeclaration, SummaryConstructor, SummaryBlock, SummaryField}
+            dt.getDependencyHolders.flatMap {
+              case mth: SummaryMethod => Option(getTypeOfPath(mth.fullLocation.path))
+              case fld: SummaryField => Option(getTypeOfPath(fld.fullLocation.path))
+              case cons: SummaryConstructor => Option(getTypeOfPath(cons.fullLocation.path))
+              case summary: SummaryDeclaration => Option(getTypeOfPath(summary.path.toString))
+              case _ => None
+            }
+            .toArray}
         .orNull
     } else {
       null

@@ -14,10 +14,9 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeDependentSummary, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
-import com.nawforce.apexlink.deps.DownWalker
-import com.nawforce.apexlink.deps.TransitiveCollector
+import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
 import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
@@ -296,27 +295,24 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
     propagateAllDependencies()
 
-    def findPackageAndIdentifier(path: String): Option[(Package, TypeIdentifier)] = {
-      packages.view
-        .flatMap(pkg => {
-          Option(pkg.getTypeOfPath(path)) match {
-            case None => None
-            case Some(typeIdentifier) => Some((pkg, typeIdentifier))
-          }
+    def findPackageIdentifierAndSummary(path: String): Option[(Package, TypeIdentifier, TypeSummary)] = {
+      packages.view.flatMap(pkg => {
+          Option(pkg.getTypeOfPath(path))
+            .flatMap( typeId => Option(pkg.getSummaryOfType(typeId))
+              .map( summary => (pkg, typeId, summary) ))
         }).headOption
     }
 
-    def isValidDependent(path: String, pkg: Package, typeId: TypeIdentifier): Boolean = {
-      Option(pkg.getDependencies(typeId, apexOnly = true, outerInheritanceOnly = false)).getOrElse(Array.empty)
-        .flatMap {
-          dependencyTypeId => pkg.getPathsOfType(dependencyTypeId).headOption
-        }
-        .exists {
-          dependencyPath => dependencyPath.contains(path)
-        }
+    def getDependenciesOfInterfaces(pkg: Package, summary: TypeSummary): Array[(TypeIdentifier, TypeSummary)] = {
+      summary.dependents.flatMap {
+        case tds: TypeDependentSummary =>
+          Option(pkg.getDependencyHoldersOfInterfaces(tds.typeId)).getOrElse(Array.empty)
+            .flatMap(dependentTypeId => Option(pkg.getSummaryOfType(dependentTypeId)).map(summary => (dependentTypeId, summary)))
+        case _ => Array[(TypeIdentifier, TypeSummary)]()
+      }
     }
 
-    def findReferencedTestPaths(path: String, pkg: Package, typeId: TypeIdentifier, summary: TypeSummary): Array[String] = {
+    def findReferencedTestPaths(pkg: Package, typeId: TypeIdentifier, summary: TypeSummary): Array[String] = {
       val testTag = "@IsTest"
       if (summary.modifiers.contains(testTag)) return Array(summary.name)
       if (!findTests) return Array.empty
@@ -327,24 +323,28 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
             .filter {
               dependentSummary => dependentSummary.modifiers.contains(testTag)
             }
-            .filter {
-              _ => isValidDependent(path, pkg, dependentTypeId)
-            }
             .map {
               dependentSummary => dependentSummary.name
             }
       }
     }
 
-    paths
-      .flatMap {
-        path =>
-          findPackageAndIdentifier(path).toArray.flatMap {
-            case (pkg, typeId) => Option(pkg.getSummaryOfType(typeId)).toArray.flatMap {
-              summary => findReferencedTestPaths(path, pkg, typeId, summary)
-            }
+    val x1 = paths.flatMap { path =>
+      findPackageIdentifierAndSummary(path).toArray.flatMap {
+        case (pkg, typeId, summary) =>
+
+          val directDependencies = getDependenciesOfInterfaces(pkg, summary)
+          val nestedDependencies = summary.nestedTypes.flatMap {
+            nestedSummary => getDependenciesOfInterfaces(pkg, nestedSummary)
+          }
+
+          (Seq( (typeId, summary) ) ++ directDependencies ++ nestedDependencies).flatMap {
+            case (typeId, summary) => findReferencedTestPaths(pkg, typeId, summary)
           }
       }
+    }.distinct
+
+    x1
   }
 
   def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {
@@ -353,7 +353,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
 
-    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Seq[TypeIdentifier]):Int = {
+    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Array[TypeIdentifier]):Int = {
       transitiveDependencies.count(t => t != typeId)
     }
 
