@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeDependentSummary, TypeSummary}
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
 import com.nawforce.apexlink.rpc._
@@ -303,25 +303,19 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         }).headOption
     }
 
-    def getDependenciesOfInterfaces(pkg: Package, summary: TypeSummary): Array[(TypeIdentifier, TypeSummary)] = {
-      summary.dependents.flatMap {
-        case tds: TypeDependentSummary =>
-          Option(pkg.getDependencyHoldersOfInterfaces(tds.typeId)).getOrElse(Array.empty)
-            .flatMap(dependentTypeId => Option(pkg.getSummaryOfType(dependentTypeId)).map(summary => (dependentTypeId, summary)))
-        case _ => Array[(TypeIdentifier, TypeSummary)]()
-      }
-    }
-
-    def findReferencedTestPaths(pkg: Package, typeId: TypeIdentifier, summary: TypeSummary): Array[String] = {
+    def findReferencedTestPaths(pkg: Package, typeId: TypeIdentifier, summary: TypeSummary, filterTypeId: TypeIdentifier): Array[String] = {
       val testTag = "@IsTest"
-      if (summary.modifiers.map(_.toLowerCase).exists(_ == testTag.toLowerCase)) return Array(summary.name)
+      if (summary.modifiers.contains(testTag)) return Array(summary.name)
       if (!findTests) return Array.empty
 
       Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap {
         dependentTypeId =>
           Option(pkg.getSummaryOfType(dependentTypeId)).toArray
             .filter {
-              dependentSummary => dependentSummary.modifiers.map(_.toLowerCase).exists(_ == testTag.toLowerCase)
+              dependentSummary => dependentSummary.modifiers.contains(testTag)
+            }
+            .filter {
+              _ => pkg.hasDependency(dependentTypeId, filterTypeId)
             }
             .map {
               dependentSummary => dependentSummary.name
@@ -329,22 +323,31 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       }
     }
 
-    val x1 = paths.flatMap { path =>
+    def targetsForInterfaces(pkg: Package, summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+      summary.interfaces.flatMap { interface =>
+        Option(pkg.getTypeIdentifier(interface))
+          .flatMap { interfaceTypeId =>
+            val outerTypeId = interfaceTypeId.typeName.outer.map(pkg.getTypeIdentifier(_)).getOrElse(interfaceTypeId)
+            Option(pkg.getSummaryOfType(outerTypeId))
+              .map((interfaceTypeId, outerTypeId, _))
+          }
+      }
+    }
+
+    paths.flatMap { path =>
       findPackageIdentifierAndSummary(path).toArray.flatMap {
         case (pkg, typeId, summary) =>
 
-          val directDependencies = getDependenciesOfInterfaces(pkg, summary)
-          val nestedDependencies = summary.nestedTypes.flatMap {
-            nestedSummary => getDependenciesOfInterfaces(pkg, nestedSummary)
-          }
+          val interfaces = targetsForInterfaces(pkg, summary)
+          val nestedInterfaces = summary.nestedTypes.flatMap{ nestedSummary => targetsForInterfaces(pkg, nestedSummary) }
 
-          (Seq( (typeId, summary) ) ++ directDependencies ++ nestedDependencies).flatMap {
-            case (typeId, summary) => findReferencedTestPaths(pkg, typeId, summary)
+          val targets = Seq((typeId, typeId, summary) ) ++ interfaces ++ nestedInterfaces
+
+          targets.flatMap{
+            case (actualTypeId, outerTypeId, outerSummary) => findReferencedTestPaths(pkg, outerTypeId, outerSummary, actualTypeId)
+            }
           }
-      }
     }.distinct
-
-    x1
   }
 
   def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {

@@ -219,8 +219,7 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="HelloTest")
+      assert(classes.testClassNames.toSet==Set("HelloTest"))
     }
   }
 
@@ -248,8 +247,7 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="ServiceTest")
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
     }
   }
 
@@ -263,8 +261,7 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="APITest")
+      assert(classes.testClassNames.toSet==Set("APITest"))
     }
   }
 
@@ -278,8 +275,21 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="ServiceTest")
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
+    }
+  }
+
+  test("Get Test Class Names (service)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/Service.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest", "ServiceTest"))
     }
   }
 

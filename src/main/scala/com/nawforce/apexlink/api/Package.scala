@@ -104,7 +104,7 @@ trait Package {
     */
   def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
-  def getDependencyHoldersOfInterfaces(typeId: TypeIdentifier): Array[TypeIdentifier]
+  def hasDependency(typeId: TypeIdentifier, other: TypeIdentifier): Boolean
 
   /** Refresh a type in the package.
     *

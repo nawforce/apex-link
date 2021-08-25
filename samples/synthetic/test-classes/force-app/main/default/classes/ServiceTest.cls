@@ -1,6 +1,6 @@
 @IsTest
-public class ServiceTest {
-    void testFunc() {
-        Service.API sut = Service.getInstance();
+public class ServiceTest{
+    public void testFunc() {
+        Service sut = new Service();
     }
 }
