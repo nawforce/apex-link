@@ -314,14 +314,14 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
     def findReferencedTestPaths(pkg: Package, typeId: TypeIdentifier, summary: TypeSummary): Array[String] = {
       val testTag = "@IsTest"
-      if (summary.modifiers.contains(testTag)) return Array(summary.name)
+      if (summary.modifiers.map(_.toLowerCase).exists(_ == testTag.toLowerCase)) return Array(summary.name)
       if (!findTests) return Array.empty
 
       Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap {
         dependentTypeId =>
           Option(pkg.getSummaryOfType(dependentTypeId)).toArray
             .filter {
-              dependentSummary => dependentSummary.modifiers.contains(testTag)
+              dependentSummary => dependentSummary.modifiers.map(_.toLowerCase).exists(_ == testTag.toLowerCase)
             }
             .map {
               dependentSummary => dependentSummary.name
