@@ -23,52 +23,69 @@ import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 
 import scala.collection.mutable
 
 trait VerifyContext {
+
   def parent(): Option[VerifyContext]
 
-  /* Module for current outer type */
+  /** Module for current outer type */
   def module: Module
 
-  /* Get type declaration of 'this', this may be a trigger declaration */
+  /** Get type declaration of 'this', this may be a trigger declaration */
   def thisType: TypeDeclaration
 
-  /* Get type declaration of 'super' */
+  /** Get type declaration of 'super' */
   def superType: Option[TypeDeclaration]
 
-  /* Declare a dependency on dependent */
+  /** Declare a dependency on dependent */
   def addDependency(dependent: Dependent): Unit
 
-  /* Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
+  /** Locate a type, typeName may be relative so searching must be performed wrt a typeDeclaration */
   def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
-  /* Helper to locate a relative or absolute type and add as dependency if found */
+  /** Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
-  def suppressWarnings: Boolean = parent().exists(_.suppressWarnings)
+  /** Save the result of an expression evaluation for later analysis */
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext
+
+  /** Test if issues are currently being suppressed */
+  def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
+
+  /** Turn on/off issue suppression */
+  private var disableIssueDepth: Integer = 0
+
+  def disableIssueReporting[T]()(op: => T): T = {
+    disableIssueDepth += 1
+    try {
+      op
+    } finally {
+      disableIssueDepth -= 1
+    }
+  }
 
   def missingType(location: PathLocation, typeName: TypeName): Unit = {
-    if (!module.isGhostedType(typeName) && !suppressWarnings)
+    if (!module.isGhostedType(typeName) && !suppressIssues)
       OrgImpl.log(IssueOps.noTypeDeclaration(location, typeName))
   }
 
   def missingIdentifier(location: PathLocation, typeName: TypeName, name: Name): Unit = {
-    if (!module.isGhostedType(EncodedName(name).asTypeName) && !suppressWarnings)
+    if (!module.isGhostedType(EncodedName(name).asTypeName) && !suppressIssues)
       OrgImpl.log(IssueOps.noVariableOrType(location, name, typeName))
   }
 
   def logError(location: PathLocation, msg: String): Unit = {
-    if (!suppressWarnings)
+    if (!suppressIssues)
       OrgImpl.logError(location, msg)
   }
 
   def log(issue: Issue): Unit = {
-    if (!suppressWarnings)
+    if (!suppressIssues)
       OrgImpl.log(issue)
   }
 
@@ -149,9 +166,18 @@ trait HolderVerifyContext {
   }
 }
 
-class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration)
-    extends HolderVerifyContext
-    with VerifyContext {
+class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]]) {
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext = {
+    val result = op
+    if (exprMap.nonEmpty)
+      exprMap.get.put(expression.location.location, (expression, result))
+    result
+  }
+}
+
+final class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
+                        exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
+    extends ExprResultHolder(exprMap) with  HolderVerifyContext with VerifyContext {
 
   private val typeCache = mutable.Map[(TypeName, TypeDeclaration), TypeResponse]()
 
@@ -166,20 +192,19 @@ class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: A
   override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
 
-  override def suppressWarnings: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+  override def suppressIssues: Boolean =
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
 
   def propagateDependencies(): Unit =
     typeDeclaration.propagateDependencies()
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)
-
 }
 
-class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration)
-    extends HolderVerifyContext
-    with VerifyContext {
+final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration,
+                                         exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
+  extends ExprResultHolder(exprMap) with HolderVerifyContext with VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -192,8 +217,8 @@ class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDe
   override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
 
-  override def suppressWarnings: Boolean =
-    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressWarnings)
+  override def suppressIssues: Boolean =
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
 
   def propagateDependencies(): Unit =
     classBodyDeclaration.propagateDependencies()
@@ -265,9 +290,12 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
             Diagnostic(UNUSED_CATEGORY, location.location, s"Unused local variable '${v._1}'")))
       })
   }
+
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+    parentContext.saveExpressionContext(expression)(op)
 }
 
-class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
+final class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
     extends BlockVerifyContext(parentContext) {
 
   assert(!parentContext.isInstanceOf[BlockVerifyContext])
@@ -275,7 +303,7 @@ class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boo
   override val isStatic: Boolean = isStaticContext
 }
 
-class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
+final class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
 
   override def isStatic: Boolean = parentContext.isStatic
 
@@ -283,7 +311,7 @@ class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVe
     super.getVar(name, markUsed).orElse(parentContext.getVar(name, markUsed))
 }
 
-class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyContext {
+final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -300,6 +328,9 @@ class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends VerifyC
 
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
+
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+    parentContext.saveExpressionContext(expression)(op)
 
   def isVar(name: Name, markUsed: Boolean = false): Option[TypeDeclaration] =
     parentContext.getVar(name, markUsed: Boolean)

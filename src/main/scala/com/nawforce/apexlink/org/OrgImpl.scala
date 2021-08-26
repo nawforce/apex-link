@@ -269,10 +269,12 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
-    packages
-      .find(_.isPackagePath(path))
-      .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
-      .getOrElse(Array.empty)
+    OrgImpl.current.withValue(this) {
+      packages
+        .find(_.isPackagePath(path))
+        .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
+        .getOrElse(Array.empty)
+    }
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
@@ -303,7 +305,10 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         }).headOption
     }
 
-    def findReferencedTestPaths(pkg: Package, typeId: TypeIdentifier, summary: TypeSummary, filterTypeId: TypeIdentifier): Array[String] = {
+    def findReferencedTestPaths(pkg: Package,
+                                typeId: TypeIdentifier,
+                                summary: TypeSummary,
+                                filterTypeId: TypeIdentifier): Array[String] = {
       val testTag = "@IsTest"
       if (summary.modifiers.contains(testTag)) return Array(summary.name)
       if (!findTests) return Array.empty
@@ -356,7 +361,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
 
-    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Array[TypeIdentifier]):Int = {
+    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Array[TypeIdentifier]): Int = {
       transitiveDependencies.count(t => t != typeId)
     }
 
@@ -365,8 +370,12 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     paths
       .flatMap { path =>
         getTypeOfPath(path)
-            .map { typeId => (typeId, collector.transitives(typeId))}
-            .map { case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))}
+          .map { typeId =>
+            (typeId, collector.transitives(typeId))
+          }
+          .map {
+            case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))
+          }
       }
   }
 }

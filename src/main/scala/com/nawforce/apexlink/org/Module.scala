@@ -185,15 +185,15 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def findType(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
 
-    var td = findPackageType(typeName).map(Right(_))
-    if (td.nonEmpty)
-      return td.get
-
     if (namespace.nonEmpty) {
-      td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+      val td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
       if (td.nonEmpty)
         return td.get
     }
+
+    var td = findPackageType(typeName).map(Right(_))
+    if (td.nonEmpty)
+      return td.get
 
     // From may be used to locate type variable types so must be accurate even for a platform type request
     from.map(TypeResolver.platformType(typeName, _)).orElse(Some(TypeResolver.platformTypeOnly(typeName, this))).get

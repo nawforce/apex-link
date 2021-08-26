@@ -15,10 +15,12 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.apex.ApexClassDeclaration
+import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexparser.ApexParser._
@@ -26,37 +28,37 @@ import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
 
-trait ExprContext {
-  def isStatic: Option[Boolean]
-  def isDefined: Boolean
+final case class ExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclaration], definition: Option[CST] = None) {
+  def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isInstanceOf[AnyDeclaration])
 
-  def typeDeclarationOpt: Option[TypeDeclaration]
-  def moduleDeclarationOpt: Option[Module]
+  def moduleDeclarationOpt: Option[Module] = declaration.flatMap(_.moduleDeclaration)
 
-  def typeDeclaration: TypeDeclaration = typeDeclarationOpt.get
+  def typeDeclaration: TypeDeclaration = declaration.get
+
   def moduleDeclaration: Module = moduleDeclarationOpt.get
-  def typeName: TypeName = typeDeclarationOpt.get.typeName
-}
 
-case class TypeExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclaration])
-    extends ExprContext {
-  override def isDefined: Boolean =
-    declaration.nonEmpty && !declaration.exists(_.isInstanceOf[AnyDeclaration])
-
-  override def typeDeclarationOpt: Option[TypeDeclaration] = declaration
-  override def moduleDeclarationOpt: Option[Module] =
-    typeDeclarationOpt.flatMap(_.moduleDeclaration)
+  def typeName: TypeName = declaration.get.typeName
 }
 
 object ExprContext {
-  lazy val empty: ExprContext = TypeExprContext(None, None)
+  lazy val empty: ExprContext = ExprContext(None, None)
 
   def apply(isStatic: Option[Boolean], typeDeclaration: TypeDeclaration): ExprContext = {
-    TypeExprContext(isStatic, Some(typeDeclaration))
+    ExprContext(isStatic, Some(typeDeclaration))
   }
 
-  def apply(isStatic: Option[Boolean], typeDeclaration: Option[TypeDeclaration]): ExprContext = {
-    TypeExprContext(isStatic, typeDeclaration)
+  def apply(isStatic: Option[Boolean], typeDeclaration: TypeDeclaration, field: FieldDeclaration): ExprContext = {
+    field match {
+      case cst: CST => ExprContext(isStatic, Some(typeDeclaration), Some(cst))
+      case _ => ExprContext(isStatic, Some(typeDeclaration), None)
+    }
+  }
+
+  def apply(isStatic: Option[Boolean], typeDeclaration: Option[TypeDeclaration], method: MethodDeclaration): ExprContext = {
+    method match {
+      case cst: CST => ExprContext(isStatic, typeDeclaration, Some(cst))
+      case _ => ExprContext(isStatic, typeDeclaration, None)
+    }
   }
 }
 
@@ -83,37 +85,65 @@ object DotExpression {
   }
 }
 
-final case class DotExpressionWithId(expression: Expression, safeNavigation: Boolean, target: Id)
-    extends Expression {
+final case class DotExpressionWithId(expression: Expression, safeNavigation: Boolean, target: Id) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.typeDeclarationOpt.nonEmpty)
+    assert(input.declaration.nonEmpty)
 
-    interceptNamespaceReference(input, context)
-      .getOrElse({
-        val inter = expression.verify(input, context)
-        if (inter.isDefined) {
-          if (inter.isStatic.contains(true) && safeNavigation) {
-            context.logError(location,
-                             "Safe navigation operator (?.) can not be used on static references")
-            ExprContext.empty
+    // When we have a leading IdPrimary there are a couple of special cases to handle
+    val intercept = getInterceptPrimary(input, context).flatMap(primary => {
+      // It might be a static reference to an outer class that failed normal analysis due to class name shadowing
+      TypeResolver(TypeName(primary.id.name), context.module).toOption match {
+        case Some(td: ApexClassDeclaration) =>
+          context.addDependency(td)
+          Some(verifyWithId(ExprContext(isStatic = Some(true), td), context))
+        case _ =>
+          // Else it might be a namespace
+          if (isNamespace(primary.id.name, input.declaration.get)) {
+            val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
+            val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+            td.map(td => ExprContext(isStatic = Some(true), td))
           } else {
-            verifyWithId(inter, context)
+            None
           }
-        } else {
-          ExprContext.empty
-        }
-      })
+      }
+    })
+    intercept.map(result => context.saveExpressionContext(this)(result))
+    intercept.getOrElse(verifyInternal(input, context))
   }
 
-  private def interceptNamespaceReference(input: ExprContext,
-                                          context: ExpressionVerifyContext): Option[ExprContext] = {
+  private def getInterceptPrimary(input: ExprContext, context: ExpressionVerifyContext): Option[IdPrimary] = {
     expression match {
-      case PrimaryExpression(primary: IdPrimary)
-          if isNamespace(primary.id.name, input.typeDeclarationOpt.get) =>
-        val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
-        val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-        td.map(td => ExprContext(isStatic = Some(true), td))
+      case PrimaryExpression(primary: IdPrimary) if !safeNavigation =>
+        // Found one but we must check normal analysis would fail (quietly), it has priority
+        val result = context.disableIssueReporting() {
+          val inter = expression.verify(input, context)
+          if (inter.isDefined)
+            verifyWithId(inter, context)
+          else
+            inter
+        }
+        if (result.declaration.isEmpty)
+          Some(primary)
+        else {
+          None
+        }
       case _ => None
+    }
+  }
+
+  private def verifyInternal(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    val inter = expression.verify(input, context)
+    if (inter.isDefined) {
+      if (inter.isStatic.contains(true) && safeNavigation) {
+        context.logError(location, "Safe navigation operator (?.) can not be used on static references")
+        ExprContext.empty
+      } else {
+        context.saveExpressionContext(this) {
+          verifyWithId(inter, context)
+        }
+      }
+    } else {
+      ExprContext.empty
     }
   }
 
@@ -125,9 +155,9 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   }
 
   def verifyWithId(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.typeDeclarationOpt.nonEmpty)
+    assert(input.declaration.nonEmpty)
 
-    input.typeDeclarationOpt.get match {
+    input.declaration.get match {
       case inputType: TypeDeclaration =>
         val name = target.name
         val field: Option[FieldDeclaration] =
@@ -139,13 +169,12 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
             context.missingType(location, field.get.typeName)
             return ExprContext.empty
           }
-          return ExprContext(isStatic = Some(false), target.get)
+          return ExprContext(isStatic = Some(false), target.get, field.get)
         }
 
         // TODO: Private/protected types?
         if (input.isStatic.contains(true)) {
-          val nt = input.typeDeclarationOpt.get
-            .findLocalType(TypeName(name))
+          val nt = input.declaration.get.findLocalType(TypeName(name))
           if (nt.nonEmpty) {
             return ExprContext(isStatic = Some(true), nt.get)
           }
@@ -169,23 +198,21 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   }
 }
 
-final case class DotExpressionWithMethod(expression: Expression,
-                                         safeNavigation: Boolean,
-                                         target: MethodCallWithId)
+final case class DotExpressionWithMethod(expression: Expression, safeNavigation: Boolean, target: MethodCallWithId)
     extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.typeDeclarationOpt.nonEmpty)
+    assert(input.declaration.nonEmpty)
 
     interceptAmbiguousMethodCall(input, context)
       .getOrElse({
         val inter = expression.verify(input, context)
         if (inter.isDefined) {
           if (inter.isStatic.contains(true) && safeNavigation) {
-            context.logError(location,
-                             "Safe navigation operator (?.) can not be used on static references")
+            context.logError(location, "Safe navigation operator (?.) can not be used on static references")
             ExprContext.empty
-          } else
+          } else {
             target.verify(location, inter.typeDeclaration, inter.isStatic, input, context)
+          }
         } else {
           // When we can't find method we should still verify args for dependency side-effects
           target.arguments.map(_.verify(input, context))
@@ -196,9 +223,8 @@ final case class DotExpressionWithMethod(expression: Expression,
 
   /** Intercept static method call to BusinessHours or Site as these operate on System.* rather than Schema.* classes.
     * This hack avoids having to pass additional context into platform type loading to disambiguate. */
-  private def interceptAmbiguousMethodCall(
-    input: ExprContext,
-    context: ExpressionVerifyContext): Option[ExprContext] = {
+  private def interceptAmbiguousMethodCall(input: ExprContext,
+                                           context: ExpressionVerifyContext): Option[ExprContext] = {
     expression match {
       case PrimaryExpression(primary: IdPrimary)
           if DotExpressionWithMethod.isAmbiguousName.contains(primary.id.name) &&
@@ -207,8 +233,7 @@ final case class DotExpressionWithMethod(expression: Expression,
               .findField(primary.id.name, input.typeDeclaration, context.module, None)
               .isEmpty =>
         context
-          .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)),
-                                   context.thisType)
+          .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)), context.thisType)
           .toOption
           .map(td => {
             target.verify(location, td, Some(true), input, context)
@@ -222,17 +247,15 @@ object DotExpressionWithMethod {
   private val isAmbiguousName = Set(Name("BusinessHours"), Name("Site"))
 }
 
-final case class ArrayExpression(expression: Expression, arrayExpression: Expression)
-    extends Expression {
+final case class ArrayExpression(expression: Expression, arrayExpression: Expression) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
     val index =
       arrayExpression.verify(ExprContext(isStatic = Some(false), context.thisType), context)
-    if (index.typeDeclarationOpt.isEmpty)
+    if (index.declaration.isEmpty)
       return ExprContext.empty
     if (index.typeName != TypeNames.Integer) {
-      context.logError(arrayExpression.location,
-                       s"Array indexes must be Integers, found '${index.typeName}'")
+      context.logError(arrayExpression.location, s"Array indexes must be Integers, found '${index.typeName}'")
       return ExprContext.empty
     }
 
@@ -242,8 +265,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
 
     val listType = inter.typeName.getArrayType
     if (inter.isStatic.contains(true) || listType.isEmpty) {
-      context.logError(location,
-                       s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
+      context.logError(location, s"Only Lists can be de-referenced as an array, found '${inter.typeName}'")
       return ExprContext.empty
     }
 
@@ -288,11 +310,12 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
                 context.log(error.asIssue(location))
               ExprContext.empty
             case Right(td) =>
-              ExprContext(isStatic = Some(false), td)
+              context.saveExpressionContext(this){ExprContext(isStatic = Some(false), Some(td), method)}
           }
         } else {
           // TODO: How to error if attempt to use return
           ExprContext.empty
+          context.saveExpressionContext(this){ExprContext(None, None, method)}
         }
       })
       .getOrElse({
@@ -302,10 +325,9 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
               location,
               s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
           else
-            context.logError(
-              location,
-              s"No matching method found for '${target.name}' on '${callee.typeName}' " +
-                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+            context.logError(location,
+                             s"No matching method found for '${target.name}' on '${callee.typeName}' " +
+                               s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
         }
         ExprContext.empty
       })
@@ -324,16 +346,15 @@ object MethodCall {
     CodeParser
       .toScala(from.id())
       .map(id => {
-        MethodCallWithId(Id.construct(id), expressions(from.expressionList()))
+        MethodCallWithId(Id.construct(id), expressions(from.expressionList())).withContext(from)
       })
       .getOrElse({
-        MethodCallCtor(CodeParser.toScala(from.SUPER()).nonEmpty,
-                       expressions(from.expressionList()))
+        MethodCallCtor(CodeParser.toScala(from.SUPER()).nonEmpty, expressions(from.expressionList())).withContext(from)
       })
   }
 
   def construct(from: DotMethodCallContext): MethodCallWithId = {
-    MethodCallWithId(Id.constructAny(from.anyId()), expressions(from.expressionList()))
+    MethodCallWithId(Id.constructAny(from.anyId()), expressions(from.expressionList())).withContext(from)
   }
 
   private def expressions(from: ExpressionListContext) = {
@@ -376,14 +397,13 @@ final case class PostfixExpression(expression: Expression, op: String) extends E
     if (!inter.isDefined)
       return inter
 
-    val td = inter.typeDeclarationOpt.get
+    val td = inter.declaration.get
     td.typeName match {
       case TypeNames.Integer | TypeNames.Long | TypeNames.Decimal | TypeNames.Double
           if inter.isStatic.contains(false) =>
         inter
       case _ =>
-        OrgImpl.logError(location,
-                         s"Postfix increment/decrement is not supported on type '${td.typeName}'")
+        OrgImpl.logError(location, s"Postfix increment/decrement is not supported on type '${td.typeName}'")
         ExprContext.empty
     }
   }
@@ -395,7 +415,7 @@ final case class PrefixExpression(expression: Expression, op: String) extends Ex
     if (!inter.isDefined)
       return inter
 
-    val td = inter.typeDeclarationOpt.get
+    val td = inter.declaration.get
     td.typeName match {
       case TypeNames.Integer | TypeNames.Long | TypeNames.Decimal | TypeNames.Double
           if inter.isStatic.contains(false) =>
@@ -415,7 +435,7 @@ final case class NegationExpression(expression: Expression, isBitwise: Boolean) 
     if (!inter.isDefined)
       return inter
 
-    val td = inter.typeDeclarationOpt.get
+    val td = inter.declaration.get
     td.typeName match {
       case TypeNames.Boolean if !isBitwise && inter.isStatic.contains(false) => inter
       case TypeNames.Integer if isBitwise && inter.isStatic.contains(false)  => inter
@@ -471,12 +491,10 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
       return ExprContext.empty
 
     if (leftInter.isStatic.contains(true))
-      OrgImpl.logError(location,
-                       s"Expecting instance for operation, not type '${leftInter.typeName}'")
+      OrgImpl.logError(location, s"Expecting instance for operation, not type '${leftInter.typeName}'")
 
     if (rightInter.isStatic.contains(true))
-      OrgImpl.logError(location,
-                       s"Expecting instance for operation, not type '${rightInter.typeName}'")
+      OrgImpl.logError(location, s"Expecting instance for operation, not type '${rightInter.typeName}'")
 
     operation.verify(leftInter, rightInter, op, context) match {
       case Left(error) =>
@@ -487,8 +505,7 @@ final case class BinaryExpression(lhs: Expression, rhs: Expression, op: String) 
   }
 }
 
-final case class InstanceOfExpression(expression: Expression, typeName: TypeName)
-    extends Expression {
+final case class InstanceOfExpression(expression: Expression, typeName: TypeName) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     val instanceOfType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (instanceOfType.isEmpty)
@@ -498,8 +515,7 @@ final case class InstanceOfExpression(expression: Expression, typeName: TypeName
   }
 }
 
-final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression)
-    extends Expression {
+final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expression) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     query.verify(input, context)
     val leftInter = lhs.verify(input, context)
@@ -538,22 +554,19 @@ object Expression {
                                   Id.constructAny(id))
             })
             .getOrElse({
-              DotExpressionWithMethod(
-                Expression.construct(expr.expression()),
-                CodeParser.toScala(expr.DOT()).isEmpty,
-                MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get))
+              DotExpressionWithMethod(Expression.construct(expr.expression()),
+                                      CodeParser.toScala(expr.DOT()).isEmpty,
+                                      MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get))
             })
         case expr: ArrayExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          ArrayExpression(Expression.construct(expressions.head),
-                          Expression.construct(expressions(1)))
+          ArrayExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)))
         case expr: MethodCallExpressionContext =>
           MethodCall.construct(expr.methodCall())
         case expr: NewExpressionContext =>
           NewExpression(Creator.construct(expr.creator()))
         case expr: CastExpressionContext =>
-          CastExpression(TypeReference.construct(expr.typeRef()),
-                         Expression.construct(expr.expression()))
+          CastExpression(TypeReference.construct(expr.typeRef()), Expression.construct(expr.expression()))
         case expr: SubExpressionContext =>
           SubExpression(Expression.construct(expr.expression()))
 
@@ -573,8 +586,7 @@ object Expression {
           val op = CodeParser
             .toScala(expr.BANG())
             .orElse(CodeParser.toScala(expr.TILDE()))
-          NegationExpression(Expression.construct(expr.expression()),
-                             CodeParser.getText(op.get) == "~")
+          NegationExpression(Expression.construct(expr.expression()), CodeParser.getText(op.get) == "~")
         case expr: Arth1ExpressionContext =>
           val op = CodeParser
             .toScala(expr.DIV())
@@ -597,13 +609,10 @@ object Expression {
           val lt = "<" * CodeParser.toScala(expr.LT()).size
           assert(gt.nonEmpty != lt.nonEmpty)
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           gt + lt)
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), gt + lt)
         case expr: CmpExpressionContext =>
           val assign = CodeParser.toScala(expr.ASSIGN()).nonEmpty
-          val op = CodeParser.getText(
-            CodeParser.toScala(expr.GT()).orElse(CodeParser.toScala(expr.LT())).get)
+          val op = CodeParser.getText(CodeParser.toScala(expr.GT()).orElse(CodeParser.toScala(expr.LT())).get)
           val opText = (assign, op) match {
             case (true, ">") => ">="
             case (true, "<") => "<="
@@ -611,12 +620,9 @@ object Expression {
             case _           => assert(false); ""
           }
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           opText)
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), opText)
         case expr: InstanceOfExpressionContext =>
-          InstanceOfExpression(Expression.construct(expr.expression()),
-                               TypeReference.construct(expr.typeRef()))
+          InstanceOfExpression(Expression.construct(expr.expression()), TypeReference.construct(expr.typeRef()))
         case expr: EqualityExpressionContext =>
           val op = CodeParser
             .toScala(expr.EQUAL())
@@ -630,29 +636,19 @@ object Expression {
                            CodeParser.getText(op.get))
         case expr: BitAndExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           "&")
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&")
         case expr: BitNotExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           "^")
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "^")
         case expr: BitOrExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           "|")
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "|")
         case expr: LogAndExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           "&&")
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&&")
         case expr: LogOrExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           "||")
+          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "||")
         case expr: CondExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
           QueryExpression(Expression.construct(expressions.head),

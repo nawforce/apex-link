@@ -182,9 +182,7 @@ case class GetDefinition(promise: Promise[Array[LocationLink]],
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
-    OrgImpl.current.withValue(orgImpl) {
-      promise.success(orgImpl.getDefinition(path, line, offset, content.orNull))
-    }
+    promise.success(orgImpl.getDefinition(path, line, offset, content.orNull))
   }
 }
 

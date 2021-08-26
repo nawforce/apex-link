@@ -37,7 +37,6 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
        |    <pluralLabel/>
        |    <nameField/>
        |    <deploymentStatus/>
-       |    <sharingModel/>
        |    $fieldMetadata
        |</CustomObject>
        |""".stripMargin

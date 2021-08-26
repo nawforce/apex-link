@@ -73,7 +73,7 @@ object IdCreatedNamePair {
 
 final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.typeDeclarationOpt.nonEmpty)
+    assert(input.declaration.nonEmpty)
     creatorRest.verify(createdName, input, context)
   }
 }
@@ -120,7 +120,7 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
     val creating = createdName.verify(context)
 
     val isFieldConstructed =
-      creating.typeDeclarationOpt
+      creating.declaration
         .map(_.isFieldConstructed)
         .getOrElse({
           context.module.isGhostedType(createdName.typeName) && EncodedName(
@@ -128,7 +128,7 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
 
         })
 
-    if (isFieldConstructed && creating.typeDeclarationOpt.isEmpty) {
+    if (isFieldConstructed && creating.declaration.isEmpty) {
       validateFieldConstructorArgumentsGhosted(createdName.typeName, input, arguments, context)
       ExprContext.empty
     } else if (isFieldConstructed) {
@@ -231,10 +231,10 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
     pairs.foreach(_.verify(input, context))
 
     val creating = createdName.verify(context)
-    if (creating.typeDeclarationOpt.isEmpty)
+    if (creating.declaration.isEmpty)
       return ExprContext.empty
 
-    val td = creating.typeDeclarationOpt.get
+    val td = creating.declaration.get
     val enclosedTypes = td.typeName.getMapType
 
     if (enclosedTypes.isEmpty) {
@@ -299,10 +299,10 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
     parts.foreach(_.verify(input, context))
 
     val creating = createdName.verify(context)
-    if (creating.typeDeclarationOpt.isEmpty)
+    if (creating.declaration.isEmpty)
       return ExprContext.empty
 
-    val td = creating.typeDeclarationOpt.get
+    val td = creating.declaration.get
     val enclosedType = td.typeName.getSetOrListType
 
     if (enclosedType.isEmpty) {
