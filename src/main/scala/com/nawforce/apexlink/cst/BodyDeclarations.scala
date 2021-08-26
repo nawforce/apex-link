@@ -174,7 +174,7 @@ final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block)
 
 object ApexInitializerBlock {
   def construct(parser: CodeParser, modifiers: ModifierResults, block: BlockContext): ApexInitializerBlock = {
-    ApexInitializerBlock(modifiers, Block.constructLazy(parser, block))
+    ApexInitializerBlock(modifiers, Block.constructLazy(parser, block)).withContext(block)
   }
 }
 

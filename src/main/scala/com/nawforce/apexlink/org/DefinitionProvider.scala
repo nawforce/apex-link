@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.org
 
+import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.rpc.LocationLink
@@ -27,6 +28,7 @@ import com.nawforce.runtime.parsers.ByteArraySourceData
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
 
@@ -34,13 +36,24 @@ trait DefinitionProvider {
   this: PackageImpl =>
 
   def getDefinition(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[LocationLink] = {
-    val sourceOpt = content.orElse(path.read().toOption)
-    if (sourceOpt.isEmpty)
+    // Make sure we have access to source code and a type to resolve things against
+    val sourceAndType = loadSourceAndType(path, content)
+    if (sourceAndType.isEmpty)
       return Array.empty
-    val source = sourceOpt.get
 
-    val fullExprAndLocation = extractExpression(source, line, offset)
+    // Extract something to search for from the source
+    val source = sourceAndType.get._1
+    val sourceTD = sourceAndType.get._2
+    val searchTermAndLocation = extractSearchTerm(source, line, offset)
+    if (searchTermAndLocation.isEmpty)
+      return Array.empty
+    val searchTerm = searchTermAndLocation.get._1
+    val sourceLocation = searchTermAndLocation.get._2
 
+    locateFromTypeLookup(searchTerm, sourceLocation, sourceTD)
+      .getOrElse(locateFromValidation(sourceTD, sourceLocation))
+
+    /*
     val exprLocationAndType = fullExprAndLocation
       .flatMap(expr => findTypeInExpression(path, line, offset, source, expr))
 
@@ -58,7 +71,101 @@ trait DefinitionProvider {
         case _ => Array.empty
       }
     } else loc
+     */
   }
+
+  private def locateFromTypeLookup(searchTerm: String, location: Location, from: FullDeclaration): Option[Array[LocationLink]] = {
+    TypeName(searchTerm).toOption match {
+      case Some(typeName: TypeName) =>
+        resolveTypeName(typeName, location, from)
+          .map(ad => {
+            Array(LocationLink(location, ad.path.toString, ad.fullLocation, ad.nameLocation))
+          })
+      case _ => None
+      case _ => None
+    }
+  }
+
+  private def loadSourceAndType(path: PathLike, content: Option[String]): Option[(String, FullDeclaration)] = {
+    // We need source code no matter what
+    val sourceOpt = content.orElse(path.read().toOption)
+    if (sourceOpt.isEmpty)
+      return None
+
+    // If we don't have new source we can assume the loaded type is current, but it could be a summary
+    if (content.isEmpty) {
+      MetadataDocument(path)
+        .collect { case doc: ApexClassDocument => doc }
+        .flatMap(doc => orderedModules.view.flatMap(_.moduleType(doc.typeName(namespace))).headOption)
+        .collect { case td: FullDeclaration => td }
+        .orElse({
+          // If not try and load a temp version to work with, this is expensive
+          loadClass(path, sourceOpt.get)
+        })
+        .map(td => (sourceOpt.get, td))
+    } else {
+      // No option but to load it as content is being provided
+      loadClass(path, sourceOpt.get).map(td => (sourceOpt.get, td))
+    }
+  }
+
+  /** Extract a location link from an expression at the passed location */
+  private def locateFromValidation(td: FullDeclaration, location: Location): Array[LocationLink] = {
+    getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
+      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+      val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
+      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
+      context.disableIssueReporting() {
+        typeAndBody._2.validate(context)
+      }
+      exprMap.keys.find(_.contains(location.startLine, location.endPosition)).foreach(loc => {
+        exprMap(loc)._2.definition.foreach(definition => {
+          return Array(LocationLink(location, definition.locationPath.toString, definition.location.location, definition.location.location))
+        })
+      })
+    })
+    Array()
+  }
+
+  private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration, line: Int, offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
+    typeDeclaration match {
+      case td: FullDeclaration =>
+        td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _)).orElse({
+          td.nestedTypes.view.flatMap(td => getTypeBodyDeclaration(td, line, offset)).headOption
+        })
+    }
+  }
+
+  /*
+  private def findBodyDeclaration(path: PathLike,
+                                  line: Int,
+                                  offset: Int,
+                                  source: String,
+                                  exprAndLocation: (String, Location)): Option[(String, Location, ApexDeclaration)] = {
+
+    def findTypeForExpression(path: PathLike,
+                              line: Int,
+                              offset: Int,
+                              source: String,
+                              exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
+      TypeName(exprAndLocation._1).toOption match {
+        case Some(typeName: TypeName) =>
+          resolveTypeName(typeName, path, source, line, offset)
+        case _ => None
+      }
+    }
+
+    findTypeForExpression(path, line, offset, source, exprAndLocation) match {
+      case Some(ad: ApexDeclaration) => Some((exprAndLocation._1, exprAndLocation._2, ad))
+      case Some(_) => None
+      case None =>
+        lessSpecificExpression(exprAndLocation) match {
+          case Some(expr) => findTypeInExpression(path, line, offset, source, expr)
+          case None => None
+        }
+    }
+  }
+*/
 
   private def locationForStaticMethodOrField(expr: String,
                                              srcLocation: Location,
@@ -89,6 +196,7 @@ trait DefinitionProvider {
       Array.empty
   }
 
+  /*
   @tailrec
   private def findTypeInExpression(path: PathLike,
                                    line: Int,
@@ -103,7 +211,7 @@ trait DefinitionProvider {
                               exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
       TypeName(exprAndLocation._1).toOption match {
         case Some(typeName: TypeName) =>
-          findType(typeName, path, source, line, offset)
+          resolveTypeName(typeName, path, source, line, offset)
         case _ => None
       }
     }
@@ -117,7 +225,7 @@ trait DefinitionProvider {
           case None       => None
         }
     }
-  }
+  }*/
 
   def lessSpecificExpression(exprAndLocation: (String, Location)): Option[(String, Location)] = {
     def shrinkLocation(src: Location, difference: Int): Location = {
@@ -130,19 +238,15 @@ trait DefinitionProvider {
       (exprAndLocation._1.substring(0, index), shrinkLocation(exprAndLocation._2, exprAndLocation._1.length - index)))
   }
 
-  private def findType(typeName: TypeName,
-                       path: PathLike,
-                       source: String,
-                       line: Int,
-                       offset: Int): Option[TypeDeclaration] = {
-    loadClass(path, source)
-      .flatMap(td =>
-        findEnclosingClass(td, line, offset).flatMap(td => {
-          TypeResolver(typeName, td).toOption
-        }))
-      .orElse(findType(typeName))
+  /** Locate the ApexDeclaration for the passed typeName that was extracted from 'location' within 'from' */
+  private def resolveTypeName(typeName: TypeName, location: Location,
+                              from: FullDeclaration): Option[ApexDeclaration] = {
+    findEnclosingClass(from, location.startLine, location.startPosition).flatMap(td => {
+      TypeResolver(typeName, td).toOption.collect { case td: ApexDeclaration => td }
+    })
   }
 
+  /** Find the outer or inner class that contains the passed cursor position */
   private def findEnclosingClass(td: FullDeclaration, line: Int, offset: Int): Option[FullDeclaration] = {
     td.nestedTypes
       .collect { case nested: FullDeclaration => nested }
@@ -154,6 +258,8 @@ trait DefinitionProvider {
       })
   }
 
+  /** Load a class to obtain it's FullDeclaration, issues are not updated, this is just a temporary version so
+    * that can be inspected in case different contents are provided from the version saved on disk. */
   private def loadClass(path: PathLike, source: String): Option[FullDeclaration] = {
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
@@ -163,10 +269,10 @@ trait DefinitionProvider {
             val asBytes = source.getBytes(StandardCharsets.UTF_8)
             FullDeclaration
               .create(module,
-                      doc,
-                      ByteArraySourceData(asBytes, 0, asBytes.length),
-                      extendedApex = false,
-                      forceConstruct = true)
+                doc,
+                ByteArraySourceData(asBytes, 0, asBytes.length),
+                extendedApex = false,
+                forceConstruct = true)
           } catch {
             case _: Exception => None
           } finally {
@@ -177,7 +283,7 @@ trait DefinitionProvider {
     }
   }
 
-  /* This is does simple outer/inner lookup, no parsing needed ! */
+  /* Find a type in this package, with or without a namespace prefix on it. */
   private def findType(typeName: TypeName): Option[TypeDeclaration] = {
     orderedModules.view
       .flatMap(_.moduleType(typeName.withNamespace(namespace)))
@@ -187,18 +293,19 @@ trait DefinitionProvider {
       })
   }
 
-  private def extractExpression(source: String, lineNumber: Int, offset: Int): Option[(String, Location)] = {
-    val line: Option[String] = getLine(source, lineNumber - 1) match {
+  /** Extract what to search for from source code given line & offset of cursor */
+  private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location)] = {
+    val lineText: Option[String] = getLine(source, line - 1) match {
       case Success(Some(expr)) => Some(expr)
-      case _                   => None
+      case _ => None
     }
 
-    line.flatMap(line => {
-      if (offset >= 0 && offset < line.length) {
-        val start = findLimit(forward = false, line, offset)
-        val end = findLimit(forward = true, line, offset)
+    lineText.flatMap(lineText => {
+      if (offset >= 0 && offset < lineText.length) {
+        val start = findLimit(forward = false, lineText, offset)
+        val end = findLimit(forward = true, lineText, offset)
         if (start != end && start.nonEmpty && end.nonEmpty)
-          Some((line.substring(start.get, end.get + 1), Location(lineNumber, start.get, lineNumber, end.get + 1)))
+          Some((lineText.substring(start.get, end.get + 1), Location(line, start.get, line, end.get + 1)))
         else None
       } else {
         None
@@ -206,6 +313,7 @@ trait DefinitionProvider {
     })
   }
 
+  /** Search for limit of a search term either forwards or backwards */
   private def findLimit(forward: Boolean, content: String, offset: Int): Option[Int] = {
     val regex = if (forward) "[0-9a-zA-Z_]" else "[0-9a-zA-Z_\\.]"
     val ch = "" + content(offset)
@@ -220,6 +328,7 @@ trait DefinitionProvider {
     }
   }
 
+  /** Find a specific line in source contents */
   private def getLine(contents: String, line: Int): Try[Option[String]] = {
     Using(new BufferedReader(new StringReader(contents))) { reader =>
       val lines = reader.lines().iterator().asScala.toArray

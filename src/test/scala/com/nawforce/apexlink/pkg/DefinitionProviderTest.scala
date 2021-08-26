@@ -82,14 +82,16 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
   }
 
   test("Inner class match") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {class Inner{} }", "Match.txt" -> "Dummy.Inner")) {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {class Inner{} }",
+      "Match.cls" -> "public class Match {/* Dummy.Inner */}")) {
       root: PathLike =>
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Match.txt"), line = 1, offset = 6, None)
+            .getDefinition(root.join("Match.cls"), line = 1, offset = 30, None)
             .contains(
-              LocationLink(Location(1, 0, 1, 11),
+              LocationLink(Location(1, 23, 1, 34),
                            root.join("Dummy.cls").toString,
                            Location(1, 20, 1, 33),
                            Location(1, 26, 1, 31))))
@@ -187,54 +189,56 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
 
   test("Static method") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {/* Foo.method() */}", "Foo.cls" -> "public class Foo { static void method() {} }")) {
+      Map(
+        "Dummy.cls" -> "public class Dummy {{Foo.method();}}",
+        "Foo.cls" -> "public class Foo { static void method() {} }")) {
       root: PathLike =>
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 25, None)
             .contains(
-              LocationLink(Location(1, 23, 1, 33),
+              LocationLink(Location(1, 21, 1, 31),
                 root.join("Foo.cls").toString,
                 Location(1, 26, 1, 42),
-                Location(1, 31, 1, 37))))
+                Location(1, 26, 1, 42))))
     }
   }
 
   test("Static field") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {/* Foo.FOO */}", "Foo.cls" -> "public class Foo { static String FOO = 'foo'; }")) {
+      Map(
+        "Dummy.cls" -> "public class Dummy {{String a = Foo.FOO;}}",
+        "Foo.cls" -> "public class Foo { static String FOO = 'foo'; }")) {
       root: PathLike =>
-        val org = createHappyOrg(root)
-        assert(
-          org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 28, None)
-            .contains(
-              LocationLink(Location(1, 23, 1, 30),
-                root.join("Foo.cls").toString,
-                Location(1, 26, 1, 45),
-                Location(1, 33, 1, 36))))
+        createHappyOrg(root)
+        withOrg { org =>
+          assert(
+            org.unmanaged
+              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 37, None)
+              .contains(
+                LocationLink(Location(1, 32, 1, 39),
+                  root.join("Foo.cls").toString,
+                  Location(1, 26, 1, 45),
+                  Location(1, 26, 1, 45))))
+        }
     }
   }
 
   test("Overloaded static method") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {/* Foo.method() */}", "Foo.cls" -> "public class Foo { static void method(Integer p) {} static void method(String p) {}}")) {
+      Map("Dummy.cls" -> "public class Dummy { {Foo.method('');} }",
+        "Foo.cls" -> "public class Foo { static void method(Integer p) {} static void method(String p) {}}")) {
       root: PathLike =>
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 29, None)
-            .toSet.equals(
-            Set(
-              LocationLink(Location(1, 23, 1, 33),
-                root.join("Foo.cls").toString,
-                Location(1, 26, 1, 51),
-                Location(1, 31, 1, 37)),
-              LocationLink(Location(1, 23, 1, 33),
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 26, None)
+            sameElements Array(
+              LocationLink(Location(1, 22, 1, 32),
                 root.join("Foo.cls").toString,
                 Location(1, 59, 1, 83),
-                Location(1, 64, 1, 70)))))
+                Location(1, 59, 1, 83))))
     }
   }
 

@@ -269,10 +269,12 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
-    packages
-      .find(_.isPackagePath(path))
-      .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
-      .getOrElse(Array.empty)
+    OrgImpl.current.withValue(this) {
+      packages
+        .find(_.isPackagePath(path))
+        .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
+        .getOrElse(Array.empty)
+    }
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {

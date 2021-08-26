@@ -17,7 +17,7 @@ import com.nawforce.pkgforce.diagnostics.Location
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
 /** A link for a given position, can be used for definition or reference links. origin is the calculated extent of
-  * the link that was selected. targetPath is where the definition or reference refers to. Within target path target
+  * the link that was selected. targetPath is where the definition or reference refers to. Within target path, target
   * is the full extend of the definition whereas targetSelection is just the extent of the link itself. */
 case class LocationLink(origin: Location, targetPath: String, target: Location, targetSelection: Location)
 

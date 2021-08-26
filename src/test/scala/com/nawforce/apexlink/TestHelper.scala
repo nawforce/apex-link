@@ -31,9 +31,9 @@ trait TestHelper {
   }
 
   def createHappyOrg(path: PathLike): OrgImpl = {
-    val org = createOrg(path)
+    defaultOrg = createOrg(path)
     assert(!hasIssues)
-    org
+    defaultOrg
   }
 
   def emptyOrg(): OrgImpl = {

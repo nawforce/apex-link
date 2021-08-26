@@ -52,7 +52,7 @@ trait VerifyContext {
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
   /** Save the result of an expression evaluation for later analysis */
-  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext
 
   /** Test if issues are currently being suppressed */
   def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
@@ -167,11 +167,11 @@ trait HolderVerifyContext {
 }
 
 class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]]) {
-  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext = {
-    val result = op()
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext = {
+    val result = op
     if (exprMap.nonEmpty)
-      exprMap.get.put(location, result)
-    result._2
+      exprMap.get.put(expression.location.location, (expression, result))
+    result
   }
 }
 
@@ -291,8 +291,8 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
       })
   }
 
-  def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext =
-    parentContext.saveExpressionContext(location)(op)
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+    parentContext.saveExpressionContext(expression)(op)
 }
 
 final class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
@@ -329,8 +329,8 @@ final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends V
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
 
-  override def saveExpressionContext(location: Location)(op: () => (Expression, ExprContext)) : ExprContext =
-    parentContext.saveExpressionContext(location)(op)
+  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+    parentContext.saveExpressionContext(expression)(op)
 
   def isVar(name: Name, markUsed: Boolean = false): Option[TypeDeclaration] =
     parentContext.getVar(name, markUsed: Boolean)
