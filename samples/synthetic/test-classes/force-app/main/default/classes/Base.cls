@@ -1,3 +1,3 @@
-abstract public class Base {
+abstract public class Base implements API {
     abstract void func();
 }

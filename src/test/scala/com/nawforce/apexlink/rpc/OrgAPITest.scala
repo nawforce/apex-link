@@ -293,6 +293,20 @@ class OrgAPITest extends AsyncFunSuite {
     }
   }
 
+  test("Get Test Class Names (with superclass)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("DerivedTest", "BaseTest", "APITest"))
+    }
+  }
+
   test("Get DependencyCounts") {
     val workspace = PathFactory("samples/synthetic/dependency-counts")
     val orgAPI = OrgAPI()

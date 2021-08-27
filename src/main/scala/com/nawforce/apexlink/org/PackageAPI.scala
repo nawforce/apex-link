@@ -183,10 +183,10 @@ trait PackageAPI extends Package {
     if (typeId == null || typeId.namespace != namespace) return false
 
     getDependentType(typeId.typeName) match {
-      case Some(summary: SummaryDeclaration) =>
+      case Some(decl: ApexDeclaration) =>
         val typeCache = new TypeCache()
         val dependencies = mutable.Set[TypeId]()
-        summary.collectDependencies(dependencies, true, typeCache)
+        decl.collectDependencies(dependencies, true, typeCache)
         dependencies.map(_.asTypeIdentifier).toArray.contains(dependentTypeId)
       case _ => false
     }
