@@ -104,7 +104,10 @@ trait Package {
     */
   def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
-  def hasDependency(typeId: TypeIdentifier, other: TypeIdentifier): Boolean
+  /** Returns true if the type identified by typeId depends in the type identified dependencyTypeId
+    *
+    */
+  def hasDependency(typeId: TypeIdentifier, dependencyTypeId: TypeIdentifier): Boolean
 
   /** Refresh a type in the package.
     *
