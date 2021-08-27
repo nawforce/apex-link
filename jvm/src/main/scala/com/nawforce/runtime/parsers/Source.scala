@@ -34,14 +34,33 @@ import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CharStream
 
+/** Trait for things we can locate in some file at some position. */
 trait Locatable {
-  var locationPath: PathLike
-  var startLine: Int
-  var startOffset: Int
-  var endLine: Int
-  var endOffset: Int
+  def location: PathLocation
+}
+
+/** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. */
+class Positionable extends Locatable {
+  private var locationPath: PathLike = _
+  private var startLine: Int = _
+  private var startOffset: Int = _
+  private var endLine: Int = _
+  private var endOffset: Int = _
+
+  def setLocation(path: PathLike,
+                  startLine: Int,
+                  startOffset: Int,
+                  endLine: Int,
+                  endOffset: Int): Unit = {
+    this.locationPath = path
+    this.startLine = startLine
+    this.startOffset = startOffset
+    this.endLine = endLine
+    this.endOffset = endOffset
+  }
 
   def location: PathLocation = {
+    assert(locationPath != null)
     PathLocation(locationPath.toString, Location(startLine, startOffset, endLine, endOffset))
   }
 }
@@ -103,20 +122,18 @@ case class Source(path: PathLike,
     Location(startLine, startPosition, endLine, endPosition)
   }
 
-  def stampLocation(locatable: Locatable, context: ParserRuleContext): Unit = {
-    locatable.locationPath = path
-    locatable.startLine = context.start.getLine + lineOffset
-    locatable.startOffset =
-      if (context.start.getLine == 1)
-        context.start.getCharPositionInLine + columnOffset
-      else
-        context.start.getCharPositionInLine
-    locatable.endLine = context.stop.getLine + lineOffset
-    locatable.endOffset =
-      if (context.stop.getLine == 1)
-        context.stop.getCharPositionInLine + context.stop.getText.length + columnOffset
-      else
-        context.stop.getCharPositionInLine + context.stop.getText.length
+  def stampLocation(positionable: Positionable, context: ParserRuleContext): Unit = {
+    positionable.setLocation(path,
+                             context.start.getLine + lineOffset,
+                             if (context.start.getLine == 1)
+                               context.start.getCharPositionInLine + columnOffset
+                             else
+                               context.start.getCharPositionInLine,
+                             context.stop.getLine + lineOffset,
+                             if (context.stop.getLine == 1)
+                               context.stop.getCharPositionInLine + context.stop.getText.length + columnOffset
+                             else
+                               context.stop.getCharPositionInLine + context.stop.getText.length)
   }
 }
 
