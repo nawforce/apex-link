@@ -179,7 +179,7 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def hasDependency(typeId: TypeIdentifier, dependentTypeId: TypeIdentifier): Boolean = {
+  override def hasDependency(typeId: TypeIdentifier, dependencyTypeId: TypeIdentifier): Boolean = {
     if (typeId == null || typeId.namespace != namespace) return false
 
     getDependentType(typeId.typeName) match {
@@ -187,7 +187,7 @@ trait PackageAPI extends Package {
         val typeCache = new TypeCache()
         val dependencies = mutable.Set[TypeId]()
         decl.collectDependencies(dependencies, true, typeCache)
-        dependencies.map(_.asTypeIdentifier).toArray.contains(dependentTypeId)
+        dependencies.map(_.asTypeIdentifier).toArray.contains(dependencyTypeId)
       case _ => false
     }
   }

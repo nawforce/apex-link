@@ -82,7 +82,6 @@ trait DefinitionProvider {
             Array(LocationLink(location, ad.path.toString, ad.fullLocation, ad.nameLocation))
           })
       case _ => None
-      case _ => None
     }
   }
 
