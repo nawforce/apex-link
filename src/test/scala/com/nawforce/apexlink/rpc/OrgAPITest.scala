@@ -219,8 +219,7 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="HelloTest")
+      assert(classes.testClassNames.toSet==Set("HelloTest"))
     }
   }
 
@@ -235,6 +234,76 @@ class OrgAPITest extends AsyncFunSuite {
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.isEmpty)
+    }
+  }
+
+  test("Get Test Class Names (indirect to inner interface)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/ServiceImpl.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
+    }
+  }
+
+  test("Get Test Class Names (indirect to interface)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/APIImpl.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("APITest"))
+    }
+  }
+
+  test("Get Test Class Names (indirect to inner implementation)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/InnerServiceImpl.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
+    }
+  }
+
+  test("Get Test Class Names (service)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/Service.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("ServiceAPITest", "ServiceTest"))
+    }
+  }
+
+  test("Get Test Class Names (with superclass)") {
+    val workspace = PathFactory("samples/synthetic/test-classes")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
+        Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"), true))
+      _ <- orgAPI.reset()
+    } yield {
+      assert(result.error.isEmpty)
+      assert(classes.testClassNames.toSet==Set("DerivedTest", "BaseTest", "APITest"))
     }
   }
 

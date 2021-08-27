@@ -56,6 +56,10 @@ trait DependentType extends TypeDeclaration {
   /** Collect set of TypeNames that this declaration is dependent on */
   def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit
 
+  def collectDependencies(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache) : Unit = {
+    collectDependenciesByTypeName(dependents, apexOnly, typeCache)
+  }
+
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
     if (typeId != this.typeId) {
       if (typeDependencyHolders == null || typeDependencyHolders == DependentType.emptyTypeDependencyHolders)

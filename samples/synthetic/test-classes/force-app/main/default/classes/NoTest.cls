@@ -1,3 +1,3 @@
-public class Hello {
+public class NoTest {
     public void func() {}
 }

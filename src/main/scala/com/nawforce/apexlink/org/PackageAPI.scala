@@ -179,6 +179,19 @@ trait PackageAPI extends Package {
     }
   }
 
+  override def hasDependency(typeId: TypeIdentifier, dependentTypeId: TypeIdentifier): Boolean = {
+    if (typeId == null || typeId.namespace != namespace) return false
+
+    getDependentType(typeId.typeName) match {
+      case Some(decl: ApexDeclaration) =>
+        val typeCache = new TypeCache()
+        val dependencies = mutable.Set[TypeId]()
+        decl.collectDependencies(dependencies, true, typeCache)
+        dependencies.map(_.asTypeIdentifier).toArray.contains(dependentTypeId)
+      case _ => false
+    }
+  }
+
   /** Get a array of type identifiers from this packages modules. */
   override def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier] = {
     modules

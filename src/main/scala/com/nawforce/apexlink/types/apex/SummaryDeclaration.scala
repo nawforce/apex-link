@@ -388,6 +388,35 @@ class SummaryDeclaration(val path: PathLike,
     })
   }
 
+  override def collectDependencies(dependsOn: mutable.Set[TypeId],
+                                             apexOnly: Boolean,
+                                             typeCache: TypeCache): Unit = {
+    val localDependencies = mutable.Set[TypeId]()
+    def collect(dependents: Seq[Dependent]): Unit = {
+      dependents.foreach({
+        case d: ApexClassDeclaration              => localDependencies.add(d.typeId)
+        case d: LabelDeclaration if !apexOnly     => localDependencies.add(d.typeId)
+        case d: InterviewDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: PageDeclaration if !apexOnly      => localDependencies.add(d.typeId)
+        case d: ComponentDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: SObjectDeclaration if !apexOnly   => localDependencies.add(d.typeId)
+        case _                                    => ()
+      })
+    }
+
+    // Collect them all
+    collect(populateDependencies(typeCache))
+    _blocks.foreach(x => collect(x.populateDependencies(typeCache)))
+    _localFields.foreach(x => collect(x.populateDependencies(typeCache)))
+    _constructors.foreach(x => collect(x.populateDependencies(typeCache)))
+    _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
+    nestedTypes
+      .collect { case x: SummaryDeclaration => x }
+      .foreach(_.collectDependenciesByTypeName(dependsOn, apexOnly, typeCache))
+
+    dependsOn.addAll(localDependencies)
+  }
+
   private def getOutermostDeclaration(typeName: TypeName, typeCache: TypeCache): Option[TypeId] = {
     typeCache.getOrElseUpdate((typeName, module), TypeResolver(typeName, module)) match {
       case Right(d: ApexClassDeclaration) =>
