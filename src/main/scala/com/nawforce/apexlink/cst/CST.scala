@@ -19,7 +19,7 @@ import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{CodeParser, Locatable, Source}
+import com.nawforce.runtime.parsers.{CodeParser, Locatable, Positionable, Source}
 
 import scala.util.DynamicVariable
 
@@ -35,13 +35,7 @@ case class CSTParsingContext(path: PathLike, lineAdjust: Int = 0, columnAdjust: 
   * location information from the parser. It also supports lines & column adjustments for when we re-parse blocks,
   * see LazyBlock for details.
   */
-class CST extends Locatable {
-  // We store the location unwrapped to reduce object count, use location() to access
-  override var locationPath: PathLike = _
-  override var startLine: Int = _
-  override var startOffset: Int = _
-  override var endLine: Int = _
-  override var endOffset: Int = _
+class CST extends Positionable {
 
   def withContext(context: CodeParser.ParserRuleContext): this.type = {
     CST.sourceContext.value.get.stampLocation(this, context)

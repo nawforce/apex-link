@@ -25,24 +25,29 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.parsers.Locatable
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
+/** Extension of Locatable for things that can also provide an additional location for some form of identifier. */
+trait IdLocatable extends Locatable {
+  def idLocation: Location
+  def idPathLocation: PathLocation = PathLocation(location.path, idLocation)
+}
+
 /** Apex block core features, be they full or summary style */
-trait ApexBlockLike extends BlockDeclaration {
-  def summary: BlockSummary = BlockSummary(isStatic, dependencySummary())
+trait ApexBlockLike extends BlockDeclaration with Locatable {
+  def location: PathLocation
+
+  def summary: BlockSummary = BlockSummary(location.location, isStatic, dependencySummary())
 }
 
 /** Apex defined constructor core features, be they full or summary style */
-trait ApexConstructorLike extends ConstructorDeclaration {
-  def fullLocation: PathLocation
-  def nameLocation: PathLocation
-
+trait ApexConstructorLike extends ConstructorDeclaration with IdLocatable {
   def summary: ConstructorSummary = {
-    ConstructorSummary(fullLocation.location,
-                       nameLocation.location,
+    ConstructorSummary(location.location,
+                       idLocation,
                        modifiers.map(_.toString).sorted,
                        parameters.map(_.serialise).sortBy(_.name),
                        dependencySummary())
@@ -56,10 +61,8 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 }
 
 /** Apex defined method core features, be they full or summary style */
-trait ApexMethodLike extends ApexVisibleMethodLike {
+trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   val outerTypeId: TypeId
-  def fullLocation: PathLocation
-  def nameLocation: PathLocation
 
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
@@ -89,8 +92,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
   }
 
   def summary: MethodSummary = {
-    MethodSummary(fullLocation.location,
-                  nameLocation.location,
+    MethodSummary(location.location,
+                  idLocation,
                   name.toString,
                   modifiers.map(_.toString).sorted,
                   typeName,
@@ -101,10 +104,8 @@ trait ApexMethodLike extends ApexVisibleMethodLike {
 }
 
 /** Apex defined fields core features, be they full or summary style */
-trait ApexFieldLike extends FieldDeclaration {
+trait ApexFieldLike extends FieldDeclaration with IdLocatable {
   val outerTypeId: TypeId
-  def fullLocation: PathLocation
-  def nameLocation: PathLocation
   val idTarget: Option[TypeName] = None
 
   def isEntry: Boolean = {
@@ -116,8 +117,8 @@ trait ApexFieldLike extends FieldDeclaration {
   }
 
   def summary: FieldSummary = {
-    FieldSummary(fullLocation.location,
-                 nameLocation.location,
+    FieldSummary(location.location,
+                 idLocation,
                  name.toString,
                  modifiers.map(_.toString).sorted,
                  typeName,
@@ -128,23 +129,20 @@ trait ApexFieldLike extends FieldDeclaration {
 }
 
 /** Apex defined types core features, be they full or summary style */
-trait ApexDeclaration extends TypeDeclaration with DependentType {
-  val path: PathLike
+trait ApexDeclaration extends TypeDeclaration with DependentType with IdLocatable {
   val sourceHash: Int
   val module: Module
-  def fullLocation: Location
-  val nameLocation: Location
 
-  // Get summary of this type
   def summary: TypeSummary
 }
 
-trait ApexFullDeclaration extends ApexDeclaration {
-  def summary: TypeSummary
-}
+/** Apex defined type for parsed (aka Full) classes, interfaces, enums & triggers */
+trait ApexFullDeclaration extends ApexDeclaration
 
+/** Apex defined trigger of either full or summary type */
 trait ApexTriggerDeclaration extends ApexDeclaration
 
+/** Apex defined classes, interfaces, enum of either full or summary type */
 trait ApexClassDeclaration extends ApexDeclaration {
   val localFields: Array[ApexFieldLike]
   val localMethods: Array[MethodDeclaration]
@@ -183,7 +181,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
         case (_, duplicates) =>
           duplicates.tail.foreach {
             case af: ApexFieldLike =>
-              OrgImpl.logError(af.nameLocation, s"Duplicate field/property: '${af.name}'")
+              OrgImpl.logError(af.idPathLocation, s"Duplicate field/property: '${af.name}'")
             case _ => assert(false)
           }
           duplicates.head
@@ -223,7 +221,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   private var _methodMap: Option[MethodMap] = None
 
   def createMethodMap: MethodMap = {
-    val errorLocation = Some(PathLocation(path.toString, nameLocation))
+    val errorLocation = Some(idPathLocation)
     val allMethods = outerStaticMethods ++ localMethods
     val methods = superClassDeclaration match {
       case Some(at: ApexClassDeclaration) =>
@@ -276,23 +274,20 @@ trait ApexClassDeclaration extends ApexDeclaration {
             case _                               => None
           }
           .map(field =>
-            new Issue(
-              field.nameLocation.path,
-              Diagnostic(UNUSED_CATEGORY, field.nameLocation.location, s"Unused Field or Property '${field.name}'"))) ++
+            new Issue(field.location.path,
+                      Diagnostic(UNUSED_CATEGORY, field.idLocation, s"Unused Field or Property '${field.name}'"))) ++
         localMethods
           .flatMap {
             case am: ApexMethodLike if !am.isUsed(module) => Some(am)
             case _                                        => None
           }
-          .map(
-            method =>
-              new Issue(
-                method.nameLocation.path,
-                Diagnostic(UNUSED_CATEGORY, method.nameLocation.location, s"Unused Method '${method.signature}'")))
+          .map(method =>
+            new Issue(method.location.path,
+                      Diagnostic(UNUSED_CATEGORY, method.idLocation, s"Unused Method '${method.signature}'")))
     }
 
     if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
-      Array(new Issue(path.toString, Diagnostic(UNUSED_CATEGORY, nameLocation, s"Type '$typeName' is unused")))
+      Array(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
     } else {
       unused
     }

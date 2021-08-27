@@ -216,7 +216,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   override def getIdentifierLocation(identifier: TypeIdentifier): PathLocation = {
     OrgImpl.current.withValue(this) {
       (findTypeIdentifier(identifier) match {
-        case Some(ad: ApexDeclaration) => Some(PathLocation(ad.path.toString, ad.nameLocation))
+        case Some(ad: ApexDeclaration) => Some(PathLocation(ad.location.path, ad.idLocation))
         case _                         => None
       }).orNull
     }
@@ -298,11 +298,14 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     propagateAllDependencies()
 
     def findPackageIdentifierAndSummary(path: String): Option[(Package, TypeIdentifier, TypeSummary)] = {
-      packages.view.flatMap(pkg => {
+      packages.view
+        .flatMap(pkg => {
           Option(pkg.getTypeOfPath(path))
-            .flatMap( typeId => Option(pkg.getSummaryOfType(typeId))
-              .map( summary => (pkg, typeId, summary) ))
-        }).headOption
+            .flatMap(typeId =>
+              Option(pkg.getSummaryOfType(typeId))
+                .map(summary => (pkg, typeId, summary)))
+        })
+        .headOption
     }
 
     def findReferencedTestPaths(pkg: Package,
@@ -313,22 +316,22 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       if (summary.modifiers.contains(testTag)) return Array(summary.name)
       if (!findTests) return Array.empty
 
-      Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap {
-        dependentTypeId =>
-          Option(pkg.getSummaryOfType(dependentTypeId)).toArray
-            .filter {
-              dependentSummary => dependentSummary.modifiers.contains(testTag)
-            }
-            .filter {
-              _ => pkg.hasDependency(dependentTypeId, filterTypeId)
-            }
-            .map {
-              dependentSummary => dependentSummary.name
-            }
+      Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap { dependentTypeId =>
+        Option(pkg.getSummaryOfType(dependentTypeId)).toArray
+          .filter { dependentSummary =>
+            dependentSummary.modifiers.contains(testTag)
+          }
+          .filter { _ =>
+            pkg.hasDependency(dependentTypeId, filterTypeId)
+          }
+          .map { dependentSummary =>
+            dependentSummary.name
+          }
       }
     }
 
-    def targetsForInterfaces(pkg: Package, summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+    def targetsForInterfaces(pkg: Package,
+                             summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
       summary.interfaces.flatMap { interface =>
         Option(pkg.getTypeIdentifier(interface))
           .flatMap { interfaceTypeId =>
@@ -339,31 +342,38 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       }
     }
 
-    def targetsForSuperclass(pkg: Package, summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
-        summary.superClass.flatMap{ tn => Option(pkg.getTypeIdentifier(tn))
-          .flatMap{ tid => Option(pkg.getSummaryOfType(tid))
-            .flatMap { summary =>
-              val otid = tid.typeName.outer.map(pkg.getTypeIdentifier(_)).getOrElse(tid)
-              Some(Array( (tid, otid, summary) ) ++ targetsForInterfaces(pkg, summary))
+    def targetsForSuperclass(pkg: Package,
+                             summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+      summary.superClass
+        .flatMap { tn =>
+          Option(pkg.getTypeIdentifier(tn))
+            .flatMap { tid =>
+              Option(pkg.getSummaryOfType(tid))
+                .flatMap { summary =>
+                  val otid = tid.typeName.outer.map(pkg.getTypeIdentifier(_)).getOrElse(tid)
+                  Some(Array((tid, otid, summary)) ++ targetsForInterfaces(pkg, summary))
+                }
             }
-          }
-        }.getOrElse(Array.empty)
+        }
+        .getOrElse(Array.empty)
     }
 
     paths.flatMap { path =>
       findPackageIdentifierAndSummary(path).toArray.flatMap {
         case (pkg, typeId, summary) =>
-
           val interfaces = targetsForInterfaces(pkg, summary)
-          val nestedInterfaces = summary.nestedTypes.flatMap{ nestedSummary => targetsForInterfaces(pkg, nestedSummary) }
+          val nestedInterfaces = summary.nestedTypes.flatMap { nestedSummary =>
+            targetsForInterfaces(pkg, nestedSummary)
+          }
           val superClassTargets = targetsForSuperclass(pkg, summary)
 
-          val targets = Seq((typeId, typeId, summary) ) ++ interfaces ++ nestedInterfaces ++ superClassTargets
+          val targets = Seq((typeId, typeId, summary)) ++ interfaces ++ nestedInterfaces ++ superClassTargets
 
-          targets.flatMap{
-            case (actualTypeId, outerTypeId, outerSummary) => findReferencedTestPaths(pkg, outerTypeId, outerSummary, actualTypeId)
-            }
+          targets.flatMap {
+            case (actualTypeId, outerTypeId, outerSummary) =>
+              findReferencedTestPaths(pkg, outerTypeId, outerSummary, actualTypeId)
           }
+      }
     }.distinct
   }
 

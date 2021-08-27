@@ -284,7 +284,7 @@ trait PackageAPI extends Package {
           None
         case Some(summary: SummaryDeclaration) =>
           // Replace direct use summary types, no need to revalidate these
-          refreshInternal(summary.path)
+          refreshInternal(PathFactory(summary.location.path))
           None
         case x => x
     })

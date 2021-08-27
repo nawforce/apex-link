@@ -24,11 +24,11 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
 
@@ -50,20 +50,12 @@ abstract class FullDeclaration(val source: Source,
     with ApexFullDeclaration {
 
   lazy val sourceHash: Int = source.hash
-  override val path: PathLike = source.path
-  override val paths: Array[PathLike] = Array(path)
+  override def paths: Array[PathLike] = Array(source.path)
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
-  override val nameLocation: Location = id.location.location
-  override def fullLocation: Location = location.location
-  override def idLocation: Option[PathLocation] = Some(PathLocation(path.toString, nameLocation))
+  override val idLocation: Location = id.location.location
   override val nature: Nature
   var flushedToCache = false
-
-  def containsPosition(line: Int, offset: Int): Boolean =
-    fullLocation.startLine <= line && fullLocation.endLine >= line &&
-      (fullLocation.startPosition <= offset || fullLocation.startLine < line) &&
-      (fullLocation.endPosition >= offset || fullLocation.endLine > line)
 
   override lazy val nestedTypes: Array[TypeDeclaration] =
     _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
@@ -144,8 +136,9 @@ abstract class FullDeclaration(val source: Source,
 
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
-    if (outerTypeName.isEmpty && !path.basename.equalsIgnoreCase(s"${id.name}.cls")) {
-      context.logError(id.location, s"Type name '${id.name}' does not match file name '${path.basename}'")
+    val pathBasename = PathFactory(location.path).basename
+    if (outerTypeName.isEmpty && !pathBasename.equalsIgnoreCase(s"${id.name}.cls")) {
+      context.logError(id.location, s"Type name '${id.name}' does not match file name '${pathBasename}'")
     }
 
     // Check super class is visible

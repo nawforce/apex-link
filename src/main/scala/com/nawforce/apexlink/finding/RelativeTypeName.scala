@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.finding
 
-import com.nawforce.apexlink.cst.{BlockVerifyContext, VerifyContext}
+import com.nawforce.apexlink.cst.{BlockVerifyContext, CST, VerifyContext}
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
@@ -105,13 +105,13 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
   }
 
   /** Helper for introducing formal parameters into a block context. */
-  def addVar(location: PathLocation, name: Name, context: BlockVerifyContext): Unit = {
+  def addVar(definition: CST, name: Name, context: BlockVerifyContext): Unit = {
     typeContext.resolve(relativeTypeName) match {
       case Some(Right(td)) =>
-        context.addVar(name, Some(location), td)
+        context.addVar(name, Some(definition), td)
         context.addDependency(td)
       case _ =>
-        context.missingType(location, relativeTypeName)
+        context.missingType(definition.location, relativeTypeName)
         context.addVar(name, None, typeContext.contextTypeDeclaration.module.any)
     }
   }

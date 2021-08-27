@@ -314,7 +314,6 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
           }
         } else {
           // TODO: How to error if attempt to use return
-          ExprContext.empty
           context.saveExpressionContext(this){ExprContext(None, None, method)}
         }
       })
@@ -535,7 +534,9 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    primary.verify(ExprContext(isStatic = input.isStatic, context.thisType), context)
+    context.saveExpressionContext(this) {
+      primary.verify(ExprContext(isStatic = input.isStatic, context.thisType), context)
+    }
   }
 }
 

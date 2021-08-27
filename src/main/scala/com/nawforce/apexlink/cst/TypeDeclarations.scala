@@ -16,7 +16,7 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration}
+import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration, IdLocatable}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
@@ -60,11 +60,10 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
     if (!modifiers.contains(GLOBAL_MODIFIER)) {
       bodyDeclarations
           .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
+          .collect {case l: IdLocatable => l}
           .foreach(
             child =>
-              child.idLocation.foreach(l => {
-                context.logError(l, "Enclosing class must be declared global to use global or webservice modifiers")
-              })
+              context.logError(child.idPathLocation, "Enclosing class must be declared global to use global or webservice modifiers")
           )
     }
 

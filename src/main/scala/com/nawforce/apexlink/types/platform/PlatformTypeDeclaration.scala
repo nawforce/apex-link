@@ -41,7 +41,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
-  override lazy val paths: Array[PathLike] = PathLike.emptyPaths
+  override def paths: Array[PathLike] = PathLike.emptyPaths
   override lazy val moduleDeclaration: Option[Module] = None
 
   override lazy val name: Name = typeName.name

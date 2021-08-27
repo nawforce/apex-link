@@ -17,7 +17,7 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.types.apex.ApexFieldLike
 import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
-import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
@@ -31,9 +31,7 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
     with ApexFieldLike {
 
   override val name: Name = id.name
-  override val idLocation: Option[PathLocation] = Some(id.location)
-  override val nameLocation: PathLocation = id.location
-  override def fullLocation: PathLocation = location
+  override def idLocation: Location = id.location.location
 
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {

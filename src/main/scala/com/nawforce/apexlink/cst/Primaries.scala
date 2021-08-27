@@ -101,8 +101,8 @@ final case class IdPrimary(id: Id) extends Primary {
   private def isVarReference(context: ExpressionVerifyContext): Option[ExprContext] = {
     context
       .isVar(id.name, markUsed = true)
-      .map(varType => {
-        ExprContext(isStatic = Some(false), varType)
+      .map(varTypeAndDefinition => {
+          ExprContext(isStatic = Some(false), Some(varTypeAndDefinition.declaration), varTypeAndDefinition.definition)
       })
   }
 
@@ -119,7 +119,7 @@ final case class IdPrimary(id: Id) extends Primary {
           .getTypeAndAddDependency(field.get.typeName, td)
           .toOption
           .map(target => {
-            ExprContext(isStatic = Some(false), target)
+            ExprContext(isStatic = Some(false), target, field.get)
           })
           .getOrElse({
             context.missingType(location, field.get.typeName)

@@ -19,7 +19,7 @@ import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.rpc.LocationLink
 import com.nawforce.apexlink.types.apex.{ApexDeclaration, ApexFieldLike, ApexMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -27,7 +27,6 @@ import com.nawforce.runtime.parsers.ByteArraySourceData
 
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
@@ -71,15 +70,17 @@ trait DefinitionProvider {
         case _ => Array.empty
       }
     } else loc
-     */
+   */
   }
 
-  private def locateFromTypeLookup(searchTerm: String, location: Location, from: FullDeclaration): Option[Array[LocationLink]] = {
+  private def locateFromTypeLookup(searchTerm: String,
+                                   location: Location,
+                                   from: FullDeclaration): Option[Array[LocationLink]] = {
     TypeName(searchTerm).toOption match {
       case Some(typeName: TypeName) =>
         resolveTypeName(typeName, location, from)
           .map(ad => {
-            Array(LocationLink(location, ad.path.toString, ad.fullLocation, ad.nameLocation))
+            Array(LocationLink(location, ad.location.path, ad.location.location, ad.idLocation))
           })
       case _ => None
     }
@@ -110,28 +111,42 @@ trait DefinitionProvider {
 
   /** Extract a location link from an expression at the passed location */
   private def locateFromValidation(td: FullDeclaration, location: Location): Array[LocationLink] = {
-    getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
-      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-      val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
-      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
-      context.disableIssueReporting() {
-        typeAndBody._2.validate(context)
-      }
-      exprMap.keys.find(_.contains(location.startLine, location.endPosition)).foreach(loc => {
-        exprMap(loc)._2.definition.foreach(definition => {
-          return Array(LocationLink(location, definition.locationPath.toString, definition.location.location, definition.location.location))
-        })
+    LoggerOps.debugTime("locateFromValidation") {
+      getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
+        val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+        val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
+        val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
+        context.disableIssueReporting() {
+          typeAndBody._2.validate(context)
+        }
+        exprMap.keys
+          .find(_.contains(location.startLine, location.endPosition))
+          .foreach(loc => {
+            exprMap(loc)._2.definition.foreach(definition => {
+              val definitionLocation = definition.location
+              return Array(
+                LocationLink(location,
+                             definitionLocation.path,
+                             definitionLocation.location,
+                             definitionLocation.location))
+            })
+          })
       })
-    })
-    Array()
+      Array()
+    }
   }
 
-  private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration, line: Int, offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
+  private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
+                                     line: Int,
+                                     offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
     typeDeclaration match {
       case td: FullDeclaration =>
-        td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _)).orElse({
-          td.nestedTypes.view.flatMap(td => getTypeBodyDeclaration(td, line, offset)).headOption
-        })
+        td.nestedTypes.view
+          .flatMap(td => getTypeBodyDeclaration(td, line, offset))
+          .headOption
+          .orElse({
+            td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _))
+          })
     }
   }
 
@@ -164,7 +179,7 @@ trait DefinitionProvider {
         }
     }
   }
-*/
+   */
 
   private def locationForStaticMethodOrField(expr: String,
                                              srcLocation: Location,
@@ -175,7 +190,7 @@ trait DefinitionProvider {
       val methods = td.methods.filter(m => m.name == Name(name))
       methods.flatMap {
         case method: ApexMethodLike =>
-          Some(LocationLink(srcLocation, td.path.toString, method.fullLocation.location, method.nameLocation.location))
+          Some(LocationLink(srcLocation, td.location.path, method.location.location, method.idLocation))
         case _ => None
       }
     }
@@ -184,7 +199,7 @@ trait DefinitionProvider {
       val fields = td.fields.filter(f => f.name == Name(name))
       fields.flatMap {
         case field: ApexFieldLike =>
-          Some(LocationLink(srcLocation, td.path.toString, field.fullLocation.location, field.nameLocation.location))
+          Some(LocationLink(srcLocation, td.location.toString, field.location.location, field.idLocation))
         case _ => None
       }
     }
@@ -238,7 +253,8 @@ trait DefinitionProvider {
   }
 
   /** Locate the ApexDeclaration for the passed typeName that was extracted from 'location' within 'from' */
-  private def resolveTypeName(typeName: TypeName, location: Location,
+  private def resolveTypeName(typeName: TypeName,
+                              location: Location,
                               from: FullDeclaration): Option[ApexDeclaration] = {
     findEnclosingClass(from, location.startLine, location.startPosition).flatMap(td => {
       TypeResolver(typeName, td).toOption.collect { case td: ApexDeclaration => td }
@@ -249,9 +265,9 @@ trait DefinitionProvider {
   private def findEnclosingClass(td: FullDeclaration, line: Int, offset: Int): Option[FullDeclaration] = {
     td.nestedTypes
       .collect { case nested: FullDeclaration => nested }
-      .find(_.containsPosition(line, offset))
+      .find(_.location.location.contains(line, offset))
       .orElse({
-        if (td.containsPosition(line, offset))
+        if (td.location.location.contains(line, offset))
           Some(td)
         else None
       })
@@ -268,10 +284,10 @@ trait DefinitionProvider {
             val asBytes = source.getBytes(StandardCharsets.UTF_8)
             FullDeclaration
               .create(module,
-                doc,
-                ByteArraySourceData(asBytes, 0, asBytes.length),
-                extendedApex = false,
-                forceConstruct = true)
+                      doc,
+                      ByteArraySourceData(asBytes, 0, asBytes.length),
+                      extendedApex = false,
+                      forceConstruct = true)
           } catch {
             case _: Exception => None
           } finally {
@@ -296,7 +312,7 @@ trait DefinitionProvider {
   private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location)] = {
     val lineText: Option[String] = getLine(source, line - 1) match {
       case Success(Some(expr)) => Some(expr)
-      case _ => None
+      case _                   => None
     }
 
     lineText.flatMap(lineText => {

@@ -34,7 +34,7 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
-    context.addVar(id.name, location, typeName)
+    context.addVar(id.name, this, typeName)
   }
 }
 

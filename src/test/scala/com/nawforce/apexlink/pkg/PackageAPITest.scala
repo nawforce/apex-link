@@ -172,7 +172,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "Dummy")
-      assert(summary.nameLocation == Location(1, 13, 1, 18))
+      assert(summary.idLocation == Location(1, 13, 1, 18))
       assert(summary.modifiers sameElements Seq("public"))
     }
   }
@@ -199,7 +199,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
-      assert(summary.nameLocation == Location(1, 21, 1, 26))
+      assert(summary.idLocation == Location(1, 21, 1, 26))
       assert(summary.modifiers sameElements Array("@IsTest", "public"))
     }
   }
@@ -237,7 +237,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             .isInstanceOf[SummaryDeclaration])
         assert(summary.name == "Dummy")
         assert(summary.typeName.toString == "test.Dummy")
-        assert(summary.nameLocation == Location(1, 21, 1, 26))
+        assert(summary.idLocation == Location(1, 21, 1, 26))
         assert(summary.modifiers sameElements Array("@IsTest", "public"))
 
       }
@@ -259,7 +259,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
         assert(summary.name == "__sfdc_trigger/Dummy")
         assert(summary.typeName.toString == "__sfdc_trigger/Dummy")
-        assert(summary.nameLocation == Location(1, 8, 1, 13))
+        assert(summary.idLocation == Location(1, 8, 1, 13))
         assert(summary.modifiers.isEmpty)
     }
   }
@@ -285,7 +285,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(summary.name == "__sfdc_trigger/test/Dummy")
       assert(summary.typeName.toString == "__sfdc_trigger/test/Dummy")
-      assert(summary.nameLocation == Location(1, 8, 1, 13))
+      assert(summary.idLocation == Location(1, 8, 1, 13))
       assert(summary.modifiers.isEmpty)
     }
   }

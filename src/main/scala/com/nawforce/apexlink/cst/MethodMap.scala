@@ -258,15 +258,15 @@ object MethodMap {
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
     method match {
-      case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.nameLocation.path, Diagnostic(ERROR_CATEGORY, am.nameLocation.location, error)))
-      case am: ApexMethodLike => errors.append(new Issue(am.nameLocation.path, Diagnostic(ERROR_CATEGORY, am.nameLocation.location, error)))
+      case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
+      case am: ApexMethodLike => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
       case _ => ()
     }
   }
 
   private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
     (m1, m2) match {
-      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.nameLocation.path == am2.nameLocation.path
+      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.location.path == am2.location.path
       case _ => false
     }
   }

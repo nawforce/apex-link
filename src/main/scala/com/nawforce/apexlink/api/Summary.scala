@@ -30,7 +30,7 @@ case class ApexSummary(typeSummary: TypeSummary, diagnostics: Array[Diagnostic])
 /** Summary of a type */
 case class TypeSummary(sourceHash: Int,
                        location: Location,
-                       nameLocation: Location,
+                       idLocation: Location,
                        name: String,
                        typeName: TypeName,
                        nature: String,
@@ -57,7 +57,7 @@ case class TypeSummary(sourceHash: Int,
   private def doesEqual(other: TypeSummary): Boolean = {
     this.sourceHash == other.sourceHash &&
     this.location == other.location &&
-    this.nameLocation == other.nameLocation &&
+    this.idLocation == other.idLocation &&
     this.name == other.name &&
     this.typeName == other.typeName &&
     this.nature == other.nature &&
@@ -73,7 +73,7 @@ case class TypeSummary(sourceHash: Int,
   }
 }
 
-case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) {
+case class BlockSummary(location: Location, isStatic: Boolean, dependents: Array[DependentSummary]) {
 
   override def equals(that: Any): Boolean = {
     that match {
@@ -85,6 +85,7 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[BlockSummary]
 
   private def doesEqual(other: BlockSummary): Boolean = {
+    this.location == other.location &&
     this.isStatic == other.isStatic &&
     this.dependents.sameElements(other.dependents)
   }
@@ -92,7 +93,7 @@ case class BlockSummary(isStatic: Boolean, dependents: Array[DependentSummary]) 
 
 /** Summary of a type field (or property)*/
 case class FieldSummary(location: Location,
-                        nameLocation: Location,
+                        idLocation: Location,
                         name: String,
                         modifiers: Array[String],
                         typeName: TypeName,
@@ -110,7 +111,7 @@ case class FieldSummary(location: Location,
 
   private def doesEqual(other: FieldSummary): Boolean = {
     this.location == other.location &&
-    this.nameLocation == other.nameLocation &&
+    this.idLocation == other.idLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&
     this.typeName == other.typeName &&
@@ -122,7 +123,7 @@ case class FieldSummary(location: Location,
 
 /** Summary of a type constructor*/
 case class ConstructorSummary(location: Location,
-                              nameLocation: Location,
+                              idLocation: Location,
                               modifiers: Array[String],
                               parameters: Array[ParameterSummary],
                               dependents: Array[DependentSummary]) {
@@ -137,7 +138,7 @@ case class ConstructorSummary(location: Location,
 
   private def doesEqual(other: ConstructorSummary): Boolean = {
     this.location == other.location &&
-    this.nameLocation == other.nameLocation &&
+    this.idLocation == other.idLocation &&
     this.modifiers.sameElements(other.modifiers) &&
     this.parameters.sameElements(other.parameters) &&
     this.dependents.sameElements(other.dependents)
@@ -146,7 +147,7 @@ case class ConstructorSummary(location: Location,
 
 /** Summary of a type method*/
 case class MethodSummary(location: Location,
-                         nameLocation: Location,
+                         idLocation: Location,
                          name: String,
                          modifiers: Array[String],
                          var typeName: TypeName,
@@ -167,7 +168,7 @@ case class MethodSummary(location: Location,
 
   private def doesEqual(other: MethodSummary): Boolean = {
     this.location == other.location &&
-    this.nameLocation == other.nameLocation &&
+    this.idLocation == other.idLocation &&
     this.name == other.name &&
     this.modifiers.sameElements(other.modifiers) &&
     this.typeName == other.typeName &&
@@ -199,9 +200,7 @@ case class FieldDependentSummary(var typeId: TypeIdentifier, name: String) exten
 
 /** Dependency information for a method */
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(var typeId: TypeIdentifier,
-                                  name: String,
-                                  parameterTypes: Array[TypeName])
+case class MethodDependentSummary(var typeId: TypeIdentifier, name: String, parameterTypes: Array[TypeName])
     extends DependentSummary {
 
   typeId = typeId.intern

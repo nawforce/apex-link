@@ -192,7 +192,7 @@ final case class EnhancedForControl(typeName: TypeName, id: Id, expression: Expr
   }
 
   def addVars(context: BlockVerifyContext): Unit = {
-    context.addVar(id.name, location, typeName)
+    context.addVar(id.name, this, typeName)
   }
 }
 

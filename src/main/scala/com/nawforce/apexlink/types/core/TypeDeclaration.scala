@@ -25,10 +25,11 @@ import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.parsers.Locatable
 
 import scala.collection.mutable
 
@@ -225,7 +226,7 @@ trait AbstractTypeDeclaration {
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
-  val paths: Array[PathLike]
+  def paths: Array[PathLike]
   val moduleDeclaration: Option[Module]
 
   val name: Name

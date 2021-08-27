@@ -52,7 +52,7 @@ trait VerifyContext {
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
   /** Save the result of an expression evaluation for later analysis */
-  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext
+  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext
 
   /** Test if issues are currently being suppressed */
   def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
@@ -89,7 +89,8 @@ trait VerifyContext {
       OrgImpl.log(issue)
   }
 
-  def withOuterBlockVerifyContext[T](isStatic: Boolean, noUnused: Boolean = false)(op: OuterBlockVerifyContext => T): T = {
+  def withOuterBlockVerifyContext[T](isStatic: Boolean, noUnused: Boolean = false)(
+    op: OuterBlockVerifyContext => T): T = {
     val context = new OuterBlockVerifyContext(this, isStatic)
     try {
       op(context)
@@ -167,7 +168,7 @@ trait HolderVerifyContext {
 }
 
 class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]]) {
-  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext = {
+  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext = {
     val result = op
     if (exprMap.nonEmpty)
       exprMap.get.put(expression.location.location, (expression, result))
@@ -175,9 +176,12 @@ class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprCo
   }
 }
 
-final class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclaration: ApexDeclaration,
-                        exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
-    extends ExprResultHolder(exprMap) with  HolderVerifyContext with VerifyContext {
+final class TypeVerifyContext(parentContext: Option[VerifyContext],
+                              typeDeclaration: ApexDeclaration,
+                              exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
+    extends ExprResultHolder(exprMap)
+    with HolderVerifyContext
+    with VerifyContext {
 
   private val typeCache = mutable.Map[(TypeName, TypeDeclaration), TypeResponse]()
 
@@ -202,9 +206,12 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext], typeDeclarat
     super.getTypeAndAddDependency(typeName, from, module)
 }
 
-final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, classBodyDeclaration: ClassBodyDeclaration,
+final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
+                                         classBodyDeclaration: ClassBodyDeclaration,
                                          exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
-  extends ExprResultHolder(exprMap) with HolderVerifyContext with VerifyContext {
+    extends ExprResultHolder(exprMap)
+    with HolderVerifyContext
+    with VerifyContext {
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
 
@@ -227,9 +234,11 @@ final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext, class
     super.getTypeAndAddDependency(typeName, from, parentContext.module)
 }
 
+case class VarTypeAndDefinition(declaration: TypeDeclaration, definition: Option[CST])
+
 abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyContext {
 
-  private val vars = mutable.Map[Name, (TypeDeclaration, Option[PathLocation])]()
+  private val vars = mutable.Map[Name, VarTypeAndDefinition]()
   private val usedVars = mutable.Set[Name]()
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
@@ -248,26 +257,26 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
 
-  def getVar(name: Name, markUsed: Boolean): Option[TypeDeclaration] = {
-    val td = vars.get(name)
-    if (td.nonEmpty && markUsed)
+  def getVar(name: Name, markUsed: Boolean): Option[VarTypeAndDefinition] = {
+    val varType = vars.get(name)
+    if (varType.nonEmpty && markUsed)
       usedVars.add(name)
-    td.map(_._1)
+    varType
   }
 
-  def addVar(name: Name, location: Option[PathLocation], typeDeclaration: TypeDeclaration): Unit =
-    vars.put(name, (typeDeclaration, location))
+  def addVar(name: Name, definition: Option[CST], typeDeclaration: TypeDeclaration): Unit =
+    vars.put(name, VarTypeAndDefinition(typeDeclaration, definition))
 
-  def addVar(name: Name, location: PathLocation, typeName: TypeName): Unit = {
+  def addVar(name: Name, definition: CST, typeName: TypeName): Unit = {
     if (getVar(name, markUsed = false).nonEmpty) {
-      logError(location, s"Duplicate variable '$name'")
+      logError(definition.location, s"Duplicate variable '$name'")
     }
 
     val td = getTypeAndAddDependency(typeName, thisType).toOption
     if (td.isEmpty)
-      missingType(location, typeName)
+      missingType(definition.location, typeName)
 
-    vars.put(name, td.map((_, Some(location))).getOrElse((module.any, None)))
+    vars.put(name, td.map(VarTypeAndDefinition(_, Some(definition))).getOrElse(VarTypeAndDefinition(module.any, None)))
   }
 
   def isStatic: Boolean
@@ -283,15 +292,16 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
 
   def report(): Unit = {
     vars
-      .filter(v => !usedVars.contains(v._1) && v._2._2.nonEmpty)
+      .filter(v => !usedVars.contains(v._1) && v._2.definition.nonEmpty)
       .foreach(v => {
-        val location = v._2._2.get
-        log(new Issue(location.path,
-            Diagnostic(UNUSED_CATEGORY, location.location, s"Unused local variable '${v._1}'")))
+        val definition = v._2.definition.get
+        log(
+          new Issue(definition.location.path,
+                    Diagnostic(UNUSED_CATEGORY, definition.location.location, s"Unused local variable '${v._1}'")))
       })
   }
 
-  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext =
     parentContext.saveExpressionContext(expression)(op)
 }
 
@@ -307,7 +317,7 @@ final class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends B
 
   override def isStatic: Boolean = parentContext.isStatic
 
-  override def getVar(name: Name, markUsed: Boolean): Option[TypeDeclaration] =
+  override def getVar(name: Name, markUsed: Boolean): Option[VarTypeAndDefinition] =
     super.getVar(name, markUsed).orElse(parentContext.getVar(name, markUsed))
 }
 
@@ -329,10 +339,10 @@ final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends V
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
 
-  def saveExpressionContext(expression: Expression)(op: => ExprContext) : ExprContext =
+  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext =
     parentContext.saveExpressionContext(expression)(op)
 
-  def isVar(name: Name, markUsed: Boolean = false): Option[TypeDeclaration] =
+  def isVar(name: Name, markUsed: Boolean = false): Option[VarTypeAndDefinition] =
     parentContext.getVar(name, markUsed: Boolean)
 
   def defaultNamespace(name: Name): Name =

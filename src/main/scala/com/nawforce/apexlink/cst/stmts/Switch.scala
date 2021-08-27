@@ -141,7 +141,7 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
   }
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.addVar(ids(1).name, ids.head.location, EncodedName(ids.head.name).asTypeName)
+    context.addVar(ids(1).name, ids.head, EncodedName(ids.head.name).asTypeName)
   }
 }
 

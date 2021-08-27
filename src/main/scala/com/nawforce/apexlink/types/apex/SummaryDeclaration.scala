@@ -204,17 +204,14 @@ class SummaryParameter(parameterSummary: ParameterSummary) extends ParameterDecl
   override val typeName: TypeName = parameterSummary.typeName.intern
 }
 
-class SummaryMethod(val module: Module,
-                    path: PathLike,
-                    val outerTypeId: TypeId,
-                    methodSummary: MethodSummary)
+class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId, methodSummary: MethodSummary)
     extends ApexMethodLike
     with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
 
-  override val fullLocation: PathLocation = PathLocation(path.toString, methodSummary.location)
-  override val nameLocation: PathLocation = PathLocation(path.toString, methodSummary.nameLocation)
+  override val location: PathLocation = PathLocation(path.toString, methodSummary.location)
+  override val idLocation: Location = methodSummary.idLocation
   override val name: Name = Names(methodSummary.name)
   override val modifiers: Array[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
@@ -223,10 +220,13 @@ class SummaryMethod(val module: Module,
   override def hasBlock: Boolean = methodSummary.hasBlock
 }
 
-class SummaryBlock(val module: Module, blockSummary: BlockSummary) extends ApexBlockLike with SummaryDependencyHandler {
+class SummaryBlock(val module: Module, path: PathLike, blockSummary: BlockSummary)
+    extends ApexBlockLike
+    with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = blockSummary.dependents.map(_.intern)
 
+  override def location: PathLocation = PathLocation(path.toString, blockSummary.location)
   override val isStatic: Boolean = blockSummary.isStatic
 }
 
@@ -236,8 +236,8 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
 
   override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
 
-  override val fullLocation: PathLocation = PathLocation(path.toString, fieldSummary.location)
-  override val nameLocation: PathLocation = PathLocation(path.toString, fieldSummary.nameLocation)
+  override val location: PathLocation = PathLocation(path.toString, fieldSummary.location)
+  override val idLocation: Location = fieldSummary.idLocation
   override val name: Name = Names(fieldSummary.name)
   override val modifiers: Array[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = fieldSummary.typeName.intern
@@ -251,14 +251,14 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
 
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
-  override val fullLocation: PathLocation = PathLocation(path.toString, constructorSummary.location)
-  override val nameLocation: PathLocation = PathLocation(path.toString, constructorSummary.nameLocation)
+  override val location: PathLocation = PathLocation(path.toString, constructorSummary.location)
+  override val idLocation: Location = constructorSummary.idLocation
   override val modifiers: Array[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
   override val parameters: Array[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_))
 }
 
-class SummaryDeclaration(val path: PathLike,
+class SummaryDeclaration(path: PathLike,
                          val module: Module,
                          val outerTypeName: Option[TypeName],
                          typeSummary: TypeSummary)
@@ -267,10 +267,10 @@ class SummaryDeclaration(val path: PathLike,
 
   override val dependents: Array[DependentSummary] = typeSummary.dependents.map(_.intern)
 
-  override val paths: Array[PathLike] = Array(path)
+  override def paths: Array[PathLike] = Array(path)
   override val sourceHash: Int = typeSummary.sourceHash
-  override val fullLocation: Location = typeSummary.location
-  override val nameLocation: Location = typeSummary.nameLocation
+  override val location: PathLocation = PathLocation(path.toString, typeSummary.location)
+  override val idLocation: Location = typeSummary.idLocation
 
   override val moduleDeclaration: Option[Module] = Some(module)
 
@@ -285,7 +285,7 @@ class SummaryDeclaration(val path: PathLike,
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
   }
 
-  private val _blocks: Array[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, _))
+  private val _blocks: Array[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
   override val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
   private val _localFields: Array[SummaryField] =
     typeSummary.fields.map(new SummaryField(module, path, typeId, _))
@@ -302,8 +302,8 @@ class SummaryDeclaration(val path: PathLike,
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                fullLocation,
-                nameLocation,
+                location.location,
+                idLocation,
                 name.toString,
                 typeName,
                 nature.value,
@@ -369,20 +369,18 @@ class SummaryDeclaration(val path: PathLike,
     })
   }
 
-  override def collectDependencies(dependsOn: mutable.Set[TypeId],
-                                   apexOnly: Boolean,
-                                   typeCache: TypeCache): Unit = {
+  override def collectDependencies(dependsOn: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit = {
     val localDependencies = mutable.Set[TypeId]()
 
     def collect(dependents: Seq[Dependent]): Unit = {
       dependents.foreach({
-        case d: ApexClassDeclaration => localDependencies.add(d.typeId)
-        case d: LabelDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: ApexClassDeclaration              => localDependencies.add(d.typeId)
+        case d: LabelDeclaration if !apexOnly     => localDependencies.add(d.typeId)
         case d: InterviewDeclaration if !apexOnly => localDependencies.add(d.typeId)
-        case d: PageDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case d: PageDeclaration if !apexOnly      => localDependencies.add(d.typeId)
         case d: ComponentDeclaration if !apexOnly => localDependencies.add(d.typeId)
-        case d: SObjectDeclaration if !apexOnly => localDependencies.add(d.typeId)
-        case _ => ()
+        case d: SObjectDeclaration if !apexOnly   => localDependencies.add(d.typeId)
+        case _                                    => ()
       })
     }
 

@@ -20,12 +20,12 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.core.{BlockDeclaration, _}
+import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.{TriggerCaseContext, TriggerUnitContext}
 import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
 import scala.collection.mutable
@@ -51,11 +51,9 @@ final case class TriggerDeclaration(source: Source,
     with ApexTriggerDeclaration
     with ApexFullDeclaration {
 
-  override val path: PathLike = source.path
-  override def fullLocation: Location = location.location
-  override val nameLocation: Location = nameId.location.location
+  override val idLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
-  override val paths: Array[PathLike] = Array(path)
+  override def paths: Array[PathLike] = Array(PathFactory(location.path))
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
@@ -78,7 +76,7 @@ final case class TriggerDeclaration(source: Source,
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(): Unit = {
-    LoggerOps.debugTime(s"Validated $path") {
+    LoggerOps.debugTime(s"Validated ${location.path}") {
       nameId.validate()
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
@@ -135,7 +133,7 @@ final case class TriggerDeclaration(source: Source,
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                fullLocation,
+                location.location,
                 nameId.location.location,
                 name.toString,
                 typeName,

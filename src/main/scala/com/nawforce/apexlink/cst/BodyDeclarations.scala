@@ -20,17 +20,16 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.apexlink.types.core._
-import com.nawforce.pkgforce.diagnostics.{Issue, PathLocation}
-import com.nawforce.pkgforce.modifiers.{MethodModifiers, _}
-import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder {
 
-  def idLocation: Option[PathLocation]
   val modifiers: Array[Modifier] = modifierResults.modifiers
   def modifierIssues: Array[Issue] = modifierResults.issues
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
@@ -160,7 +159,6 @@ final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block)
     extends ClassBodyDeclaration(_modifiers)
     with ApexBlockLike {
 
-  override val idLocation: Option[PathLocation] = None
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
@@ -187,9 +185,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
 
-  override def idLocation: Option[PathLocation] = Some(id.location)
-  override def nameLocation: PathLocation = id.location
-  override def fullLocation: PathLocation = location
+  override def idLocation: Location = id.location.location
   override val name: Name = id.name
   override def hasBlock: Boolean = block.nonEmpty
 
@@ -279,10 +275,8 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
     extends ClassBodyDeclaration(_modifiers)
     with ApexFieldLike {
 
-  val id: Id = variableDeclarator.id
-  override val idLocation: Option[PathLocation] = Some(id.location)
-  override val nameLocation: PathLocation = id.location
-  override def fullLocation: PathLocation = location
+  def id: Id = variableDeclarator.id
+  override def idLocation: Location = id.location.location
   override val name: Name = id.name
   private val visibility: Option[Modifier] =
     _modifiers.modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
@@ -293,7 +287,7 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
     val staticContext = if (isStatic) Some(true) else None
 
     variableDeclarator.verify(ExprContext(staticContext, context.thisType),
-      new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
+                              new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     setDepends(context.dependencies)
 
     context.propagateDependencies()
@@ -321,9 +315,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
     extends ClassBodyDeclaration(_modifiers)
     with ApexConstructorLike {
 
-  override val idLocation: Option[PathLocation] = Some(qualifiedName.location)
-  override val nameLocation: PathLocation = qualifiedName.location
-  override def fullLocation: PathLocation = location
+  override def idLocation: Location = qualifiedName.location.location
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
@@ -332,7 +324,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
     formalParameters.foreach(_.verify(context))
 
     context.withOuterBlockVerifyContext(isStatic = false, noUnused = true) { blockContext =>
-      formalParameters.foreach(param => blockContext.addVar(param.name, param.id.location, param.typeName))
+      formalParameters.foreach(param => blockContext.addVar(param.name, param.id, param.typeName))
       block.verify(blockContext)
     }
 
@@ -371,7 +363,7 @@ final case class FormalParameter(module: Module,
   override def typeName: TypeName = relativeTypeName.typeName
 
   def addVar(context: BlockVerifyContext): Unit = {
-    relativeTypeName.addVar(id.location, id.name, context)
+    relativeTypeName.addVar(id, id.name, context)
   }
 
   def verify(context: BodyDeclarationVerifyContext): Unit = {

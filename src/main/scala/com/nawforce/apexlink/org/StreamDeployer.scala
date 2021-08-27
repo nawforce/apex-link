@@ -184,7 +184,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
         cls.declaration.propagateOuterDependencies(typeCache)
 
         // Report any (existing) diagnostics
-        val path = cls.declaration.path.toString
+        val path = cls.declaration.location.path
         cls.diagnostics.foreach(diagnostic => module.pkg.org.issues.add(Issue(path, diagnostic)))
       })
   }
