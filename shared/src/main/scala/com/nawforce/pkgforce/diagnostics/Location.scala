@@ -58,6 +58,11 @@ sealed case class Location(startLine: Int, startPosition: Int, endLine: Int, end
       (line == endLine && offset > endPosition)
       )
   }
+
+  def contains(other: Location): Boolean = {
+    contains(other.startLine, other.startPosition) &&
+      contains(other.endLine, other.endPosition)
+  }
 }
 
 object Location {
