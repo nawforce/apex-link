@@ -41,7 +41,7 @@ object FlowGenerator {
     val source = document.source
     source.value
       .map(source => {
-        Iterator(FlowEvent(SourceInfo(PathLocation(document.path.toString, Location.all), source)))
+        Iterator(FlowEvent(SourceInfo(SourceLocation(document.path, Location.all), source)))
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }

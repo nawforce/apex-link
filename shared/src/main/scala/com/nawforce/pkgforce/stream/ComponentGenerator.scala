@@ -59,7 +59,7 @@ object ComponentGenerator {
           val attributes = extractAttributes(parser, logger, result.value)
           (if (logger.issues.isEmpty)
              Iterator(
-               ComponentEvent(SourceInfo(PathLocation(location._1.toString, location._2), source),
+               ComponentEvent(SourceInfo(SourceLocation(location._1, location._2), source),
                               attributes,
                               VFEvent.extractControllers(parser.source,
                                                          result.value,

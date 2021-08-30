@@ -55,7 +55,7 @@ object PageGenerator {
         } else {
           val location = parser.getPathAndLocation(result.value)
           val logger = new CatchingLogger
-          Iterator(PageEvent(SourceInfo(PathLocation(location._1.toString, location._2), source),
+          Iterator(PageEvent(SourceInfo(SourceLocation(location._1, location._2), source),
                              VFEvent.extractControllers(parser.source, result.value, isPage = true),
                              VFEvent.extractExpressions(parser.source, result.value))) ++
             IssuesEvent.iterator(logger.issues)

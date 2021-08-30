@@ -109,7 +109,7 @@ object SObjectGenerator {
     // Which makes parsing more fun
     val sourceData = path.flatMap(_.readSourceData().toOption)
     val sourceInfo =
-      sourceData.map(source => SourceInfo(PathLocation(path.get.toString, Location.all), source))
+      sourceData.map(source => SourceInfo(SourceLocation(path.get, Location.all), source))
     val parsed = sourceData.map(source => XMLDocument(path.get, source))
     if (parsed.nonEmpty && parsed.get.issues.nonEmpty)
       return IssuesEvent.iterator(parsed.get.issues)
@@ -140,7 +140,7 @@ object SObjectGenerator {
           rootElement
             .getChildren("fields")
             .flatMap(field => {
-              createField(SourceInfo(PathLocation(path.toString, Location(field.line)),
+              createField(SourceInfo(SourceLocation(path.get, Location(field.line)),
                                      sourceData.get),
                           field,
                           path.get)
@@ -148,7 +148,7 @@ object SObjectGenerator {
             rootElement
               .getChildren("fieldSets")
               .flatMap(fieldSet => {
-                createFieldSet(SourceInfo(PathLocation(path.toString, Location(fieldSet.line)),
+                createFieldSet(SourceInfo(SourceLocation(path.get, Location(fieldSet.line)),
                                           sourceData.get),
                                fieldSet,
                                path.get)
@@ -156,7 +156,7 @@ object SObjectGenerator {
             rootElement
               .getChildren("sharingReasons")
               .flatMap(sharingReason => {
-                createSharingReason(SourceInfo(PathLocation(path.toString,
+                createSharingReason(SourceInfo(SourceLocation(path.get,
                                                             Location(sharingReason.line)),
                                                sourceData.get),
                                     sharingReason,
@@ -303,7 +303,7 @@ object SObjectGenerator {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
                     case IssuesAnd(_, doc) =>
                       doc.get.rootElement.checkIsOrThrow(rootElement)
-                      op(SourceInfo(PathLocation(filePath.toString, Location.all), sourceData),
+                      op(SourceInfo(SourceLocation(filePath, Location.all), sourceData),
                          doc.get.rootElement,
                          filePath)
                   }

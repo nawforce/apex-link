@@ -69,7 +69,7 @@ object LabelGenerator {
                       Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))
                   }
                 })
-              labels ++ Iterator(LabelFileEvent(SourceInfo(PathLocation(document.path.toString, Location.all), source)))
+              labels ++ Iterator(LabelFileEvent(SourceInfo(SourceLocation(document.path, Location.all), source)))
             } catch {
               case e: XMLException =>
                 Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))

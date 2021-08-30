@@ -28,7 +28,7 @@
 package com.nawforce.pkgforce.workspace
 
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.documents.SourceInfo
+import com.nawforce.pkgforce.documents.{SourceInfo, SourceLocation}
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
@@ -58,8 +58,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(LabelFileEvent(SourceInfo(PathLocation(labelsPath, Location.all), _)))
-            if labelsPath == root.join("pkg").join("CustomLabels.labels").toString =>
+        case List(LabelFileEvent(SourceInfo(SourceLocation(labelsPath, Location.all), _)))
+            if labelsPath == root.join("pkg").join("CustomLabels.labels") =>
       }
     }
   }
@@ -98,8 +98,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
                   LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(4, 0, 4, 0)),
                              Name("TestLabel2"),
                              true),
-                  LabelFileEvent(SourceInfo(PathLocation(labelsPath, Location.all), _)))
-            if labelsPath == root.join("pkg").join("CustomLabels.labels").toString =>
+                  LabelFileEvent(SourceInfo(SourceLocation(labelsPath, Location.all), _)))
+            if labelsPath == root.join("pkg").join("CustomLabels.labels") =>
       }
     }
   }
@@ -111,8 +111,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.issues.isEmpty)
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
-          case List(PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 17)), _), _, _))
-              if pagePath == root.join("pkg").join("MyPage.page").toString =>
+          case List(PageEvent(SourceInfo(SourceLocation(pagePath, Location(1, 0, 1, 17)), _), _, _))
+              if pagePath == root.join("pkg").join("MyPage.page") =>
         }
     }
   }
@@ -126,10 +126,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 43)), _),
+              PageEvent(SourceInfo(SourceLocation(pagePath, Location(1, 0, 1, 43)), _),
                         controllers,
                         _))
-              if pagePath == root.join("pkg").join("MyPage.page").toString &&
+              if pagePath == root.join("pkg").join("MyPage.page") &&
                 (controllers sameElements Array(
                   LocationAnd(Location(1, 11, 1, 36), Name("MyController")))) =>
         }
@@ -146,10 +146,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 67)), _),
+              PageEvent(SourceInfo(SourceLocation(pagePath, Location(1, 0, 1, 67)), _),
                         controllers,
                         _))
-              if pagePath == root.join("pkg").join("MyPage.page").toString &&
+              if pagePath == root.join("pkg").join("MyPage.page") &&
                 (controllers sameElements Array(
                   LocationAnd(Location(1, 11, 1, 36), Name("MyController")),
                   LocationAnd(Location(1, 37, 1, 60), Name("Ext1")),
@@ -167,8 +167,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 74)), _), _, exprs))
-              if pagePath == root.join("pkg").join("MyPage.page").toString &&
+              PageEvent(SourceInfo(SourceLocation(pagePath, Location(1, 0, 1, 74)), _), _, exprs))
+              if pagePath == root.join("pkg").join("MyPage.page") &&
                 (exprs.toSet == Set(LocationAnd(Location(1, 33, 1, 39), "bar"),
                                     LocationAnd(Location(1, 48, 1, 54), "baz"),
                                     LocationAnd(Location(1, 16, 1, 22), "foo"))) =>
@@ -186,8 +186,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 59)), _), _, exprs))
-              if pagePath == root.join("pkg").join("MyPage.page").toString &&
+              PageEvent(SourceInfo(SourceLocation(pagePath, Location(1, 0, 1, 59)), _), _, exprs))
+              if pagePath == root.join("pkg").join("MyPage.page") &&
                 (exprs.toSet == Set(LocationAnd(Location(1, 24, 1, 32), "bar"),
                                     LocationAnd(Location(1, 36, 1, 42), "baz"),
                                     LocationAnd(Location(1, 11, 1, 21), "foo"))) =>
@@ -201,8 +201,8 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(FlowEvent(SourceInfo(PathLocation(flowPath, Location.all), _)))
-            if flowPath == root.join("pkg").join("MyFlow.flow").toString =>
+        case List(FlowEvent(SourceInfo(SourceLocation(flowPath, Location.all), _)))
+            if flowPath == root.join("pkg").join("MyFlow.flow") =>
       }
     }
   }
@@ -219,11 +219,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 4, 5)), _),
+            ComponentEvent(SourceInfo(SourceLocation(componentPath, Location(1, 0, 4, 5)), _),
                            Array(Name("test")),
                            _,
-                           _))
-            if componentPath == root.join("pkg").join("MyComponent.component").toString =>
+                           _)) if componentPath == root.join("pkg").join("MyComponent.component") =>
       }
     }
   }
@@ -240,11 +239,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 4, 5)), _),
+            ComponentEvent(SourceInfo(SourceLocation(componentPath, Location(1, 0, 4, 5)), _),
                            Array(Name("test")),
                            controllers,
                            _))
-            if componentPath == root.join("pkg").join("MyComponent.component").toString &&
+            if componentPath == root.join("pkg").join("MyComponent.component") &&
               (controllers sameElements Array(
                 LocationAnd(Location(1, 16, 1, 41), Name("MyController")))) =>
       }
@@ -260,11 +259,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 1, 84)), _),
+              ComponentEvent(SourceInfo(SourceLocation(componentPath, Location(1, 0, 1, 84)), _),
                              _,
                              _,
                              exprs))
-              if componentPath == root.join("pkg").join("MyComponent.component").toString &&
+              if componentPath == root.join("pkg").join("MyComponent.component") &&
                 (exprs.toSet == Set(LocationAnd(Location(1, 38, 1, 44), "bar"),
                                     LocationAnd(Location(1, 53, 1, 59), "baz"),
                                     LocationAnd(Location(1, 21, 1, 27), "foo"))) =>
@@ -281,11 +280,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 1, 69)), _),
+              ComponentEvent(SourceInfo(SourceLocation(componentPath, Location(1, 0, 1, 69)), _),
                              _,
                              _,
                              exprs))
-              if componentPath == root.join("pkg").join("MyComponent.component").toString &&
+              if componentPath == root.join("pkg").join("MyComponent.component") &&
                 (exprs.toSet == Set(LocationAnd(Location(1, 29, 1, 37), "bar"),
                                     LocationAnd(Location(1, 41, 1, 47), "baz"),
                                     LocationAnd(Location(1, 16, 1, 26), "foo"))) =>
@@ -341,7 +340,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None))
             if sourceInfo.get.location == location && path == reportingPath =>
@@ -375,7 +374,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, Some(ListCustomSetting), None))
             if sourceInfo.get.location == location && path == reportingPath =>
@@ -394,7 +393,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, Some(HierarchyCustomSetting), None))
             if sourceInfo.get.location == location && path == reportingPath =>
@@ -413,7 +412,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
             SObjectEvent(sourceInfo, path, false, None, None),
@@ -435,7 +434,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, Some(ReadWriteSharingModel)))
             if sourceInfo.get.location == location && path == reportingPath =>
@@ -454,7 +453,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
             SObjectEvent(sourceInfo, path, false, None, None),
@@ -476,7 +475,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
                   CustomFieldEvent(_, Name("Name__c"), Name("Text"), None))
@@ -496,10 +495,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(SObjectEvent(sourceInfo, path, false, None, None),
-                  FieldsetEvent(_, Name("Name")))
+        case List(SObjectEvent(sourceInfo, path, false, None, None), FieldsetEvent(_, Name("Name")))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }
@@ -516,7 +514,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val reportingPath = root.join("pkg").join("MyObject.object")
-      val location = PathLocation(reportingPath.toString, Location.all)
+      val location = SourceLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
                   SharingReasonEvent(_, Name("Name")))
@@ -542,9 +540,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
 
       val objectPath = root.join("pkg").join("MyObject")
       val objectLocation =
-        PathLocation(objectPath.join("MyObject.object-meta.xml").toString, Location.all)
+        SourceLocation(objectPath.join("MyObject.object-meta.xml"), Location.all)
       val fieldPath = objectPath.join("fields").join("Name__c.field-meta.xml")
-      val fieldLocation = PathLocation(fieldPath.toString, Location.all)
+      val fieldLocation = SourceLocation(fieldPath, Location.all)
 
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
@@ -571,9 +569,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
 
       val objectPath = root.join("pkg").join("MyObject")
       val objectLocation =
-        PathLocation(objectPath.join("MyObject.object-meta.xml").toString, Location.all)
+        SourceLocation(objectPath.join("MyObject.object-meta.xml"), Location.all)
       val fieldsetPath = objectPath.join("fieldSets").join("Name.fieldSet-meta.xml")
-      val fieldsetLocation = PathLocation(fieldsetPath.toString, Location.all)
+      val fieldsetLocation = SourceLocation(fieldsetPath, Location.all)
 
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
@@ -601,9 +599,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
 
       val objectPath = root.join("pkg").join("MyObject")
       val objectLocation =
-        PathLocation(objectPath.join("MyObject.object-meta.xml").toString, Location.all)
+        SourceLocation(objectPath.join("MyObject.object-meta.xml"), Location.all)
       val sharingPath = objectPath.join("sharingReasons").join("Name.sharingReason-meta.xml")
-      val sharingLocation = PathLocation(sharingPath.toString, Location.all)
+      val sharingLocation = SourceLocation(sharingPath, Location.all)
 
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
@@ -636,9 +634,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.issues.isEmpty)
       assert(issuesAndWS.value.nonEmpty)
       val masterReportingPath = root.join("pkg").join("MyMaster.object")
-      val masterLocation = PathLocation(masterReportingPath.toString, Location.all)
+      val masterLocation = SourceLocation(masterReportingPath, Location.all)
       val detailReportingPath = root.join("pkg").join("sub").join("MyDetail.object")
-      val detailLocation = PathLocation(detailReportingPath.toString, Location.all)
+      val detailLocation = SourceLocation(detailReportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo1, masterPath, false, None, None),
                   SObjectEvent(sourceInfo2, detailPath, false, None, None),
@@ -675,9 +673,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
 
       val masterReportingPath = root.join("pkg").join("sub").join("MyMaster.object")
-      val masterLocation = PathLocation(masterReportingPath.toString, Location.all)
+      val masterLocation = SourceLocation(masterReportingPath, Location.all)
       val detailReportingPath = root.join("pkg").join("MyDetail.object")
-      val detailLocation = PathLocation(detailReportingPath.toString, Location.all)
+      val detailLocation = SourceLocation(detailReportingPath, Location.all)
 
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo1, masterPath, false, None, None),

@@ -27,14 +27,24 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.diagnostics.PathLocation
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.SourceData
 
+/** Path & Location, similar to PathLocation but used a PathLike to enable VFS testing */
+final case class SourceLocation(path: PathLike, location: Location) {
+  override def toString: String = {
+    s"$path: ${location.displayPosition}"
+  }
+
+  def pathLocation: PathLocation = PathLocation(path.toString, location)
+}
+
 /** Metadata file information for originating source of something */
-final case class SourceInfo(location: PathLocation, hash: Int)
+final case class SourceInfo(location: SourceLocation, hash: Int)
 
 object SourceInfo {
-  def apply(location: PathLocation, data: SourceData): SourceInfo = {
+  def apply(location: SourceLocation, data: SourceData): SourceInfo = {
     new SourceInfo(location, data.hash)
   }
 }
