@@ -479,7 +479,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val location = PathLocation(reportingPath.toString, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
-                  CustomFieldEvent(None, Name("Name__c"), Name("Text"), None))
+                  CustomFieldEvent(_, Name("Name__c"), Name("Text"), None))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }
@@ -499,7 +499,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val location = PathLocation(reportingPath.toString, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
-                  FieldsetEvent(None, Name("Name")))
+                  FieldsetEvent(_, Name("Name")))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }
@@ -519,7 +519,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val location = PathLocation(reportingPath.toString, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
-                  SharingReasonEvent(None, Name("Name")))
+                  SharingReasonEvent(_, Name("Name")))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }
@@ -550,7 +550,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
                   CustomFieldEvent(sourceInfoField, Name("Name__c"), Name("Text"), None))
             if sourceInfo.get.location == objectLocation &&
-              sourceInfoField.get.location == fieldLocation && path == objectPath =>
+              sourceInfoField.location == fieldLocation && path == objectPath =>
       }
     }
   }
@@ -579,7 +579,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
                   FieldsetEvent(sourceInfoFieldset, Name("Name")))
             if sourceInfo.get.location == objectLocation &&
-              sourceInfoFieldset.get.location == fieldsetLocation
+              sourceInfoFieldset.location == fieldsetLocation
               && path == objectPath =>
       }
     }
@@ -609,7 +609,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(SObjectEvent(sourceInfo, path, false, None, None),
                   SharingReasonEvent(sourceInfoSharingReason, Name("Name")))
             if sourceInfo.get.location == objectLocation &&
-              sourceInfoSharingReason.get.location == sharingLocation
+              sourceInfoSharingReason.location == sharingLocation
               && path == objectPath =>
       }
     }
@@ -642,7 +642,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo1, masterPath, false, None, None),
                   SObjectEvent(sourceInfo2, detailPath, false, None, None),
-                  CustomFieldEvent(None,
+                  CustomFieldEvent(_,
                                    Name("Lookup__c"),
                                    Name("MasterDetail"),
                                    Some((Name("MyMaster"), Name("Master")))))
@@ -682,7 +682,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(SObjectEvent(sourceInfo1, masterPath, false, None, None),
                   SObjectEvent(sourceInfo2, detailPath, false, None, None),
-                  CustomFieldEvent(None,
+                  CustomFieldEvent(_,
                                    Name("Lookup__c"),
                                    Name("MasterDetail"),
                                    Some((Name("MyMaster"), Name("Master")))))

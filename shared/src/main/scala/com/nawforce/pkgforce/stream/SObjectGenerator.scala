@@ -59,13 +59,13 @@ final case class SObjectEvent(
   customSettingsType: Option[CustomSettingType],
   sharingModel: Option[SharingModel])
     extends PackageEvent
-final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],
+final case class CustomFieldEvent(sourceInfo: SourceInfo,
                                   name: Name,
                                   rawType: Name,
                                   referenceTo: Option[(Name, Name)])
     extends PackageEvent
-final case class FieldsetEvent(sourceInfo: Option[SourceInfo], name: Name) extends PackageEvent
-final case class SharingReasonEvent(sourceInfo: Option[SourceInfo], name: Name) extends PackageEvent
+final case class FieldsetEvent(sourceInfo: SourceInfo, name: Name) extends PackageEvent
+final case class SharingReasonEvent(sourceInfo: SourceInfo, name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
   * present to collect the SFDX fields, fieldSets and sharingRules. */
@@ -137,13 +137,31 @@ object SObjectGenerator {
       doc
         .map(doc => {
           val rootElement = doc.rootElement
-          rootElement.getChildren("fields").flatMap(field => createField(None, field, path.get)) ++
+          rootElement
+            .getChildren("fields")
+            .flatMap(field => {
+              createField(SourceInfo(PathLocation(path.toString, Location(field.line)),
+                                     sourceData.get),
+                          field,
+                          path.get)
+            }) ++
             rootElement
               .getChildren("fieldSets")
-              .flatMap(field => createFieldSet(None, field, path.get)) ++
+              .flatMap(fieldSet => {
+                createFieldSet(SourceInfo(PathLocation(path.toString, Location(fieldSet.line)),
+                                          sourceData.get),
+                               fieldSet,
+                               path.get)
+              }) ++
             rootElement
               .getChildren("sharingReasons")
-              .flatMap(field => createSharingReason(None, field, path.get))
+              .flatMap(sharingReason => {
+                createSharingReason(SourceInfo(PathLocation(path.toString,
+                                                            Location(sharingReason.line)),
+                                               sourceData.get),
+                                    sharingReason,
+                                    path.get)
+              })
         })
         .getOrElse(Iterator()) ++
       collectSfdxFields(document.path) ++
@@ -211,7 +229,7 @@ object SObjectGenerator {
                     createSharingReason)
   }
 
-  private def createField(sourceInfo: Option[SourceInfo],
+  private def createField(sourceInfo: SourceInfo,
                           elem: XMLElementLike,
                           path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
@@ -244,7 +262,7 @@ object SObjectGenerator {
     }
   }
 
-  private def createFieldSet(sourceInfo: Option[SourceInfo],
+  private def createFieldSet(sourceInfo: SourceInfo,
                              elem: XMLElementLike,
                              path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
@@ -252,22 +270,19 @@ object SObjectGenerator {
     }
   }
 
-  private def createSharingReason(sourceInfo: Option[SourceInfo],
+  private def createSharingReason(sourceInfo: SourceInfo,
                                   elem: XMLElementLike,
                                   path: PathLike): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
-      Iterator(
-        SharingReasonEvent(sourceInfo: Option[SourceInfo],
-                           Name(elem.getSingleChildAsString("fullName"))))
+      Iterator(SharingReasonEvent(sourceInfo, Name(elem.getSingleChildAsString("fullName"))))
     }
   }
 
   private def collectMetadata(path: PathLike,
                               suffix: String,
                               rootElement: String,
-                              op: (Option[SourceInfo],
-                                   XMLElementLike,
-                                   PathLike) => Iterator[PackageEvent]): Iterator[PackageEvent] = {
+                              op: (SourceInfo, XMLElementLike, PathLike) => Iterator[PackageEvent])
+    : Iterator[PackageEvent] = {
     if (!path.isDirectory)
       return Iterator()
 
@@ -288,10 +303,9 @@ object SObjectGenerator {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
                     case IssuesAnd(_, doc) =>
                       doc.get.rootElement.checkIsOrThrow(rootElement)
-                      op(
-                        Some(SourceInfo(PathLocation(filePath.toString, Location.all), sourceData)),
-                        doc.get.rootElement,
-                        filePath)
+                      op(SourceInfo(PathLocation(filePath.toString, Location.all), sourceData),
+                         doc.get.rootElement,
+                         filePath)
                   }
               }
             }
