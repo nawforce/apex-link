@@ -66,7 +66,7 @@ final case class Component(module: Module,
 
 object Component {
   def apply(module: Module, event: ComponentEvent): Component = {
-    val path = event.sourceInfo.path
+    val path = event.sourceInfo.location.path
     val document = MetadataDocument(path)
     new Component(module, Some(path), document.get.name, Some(event.attributes), Some(new VFContainer(module, event)))
   }

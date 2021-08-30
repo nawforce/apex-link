@@ -26,7 +26,7 @@ import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{HierarchyCustomSetting, ListCustomSetting, SObjectEvent}
 
 import scala.collection.mutable
@@ -55,13 +55,13 @@ object SObjectNature {
   def apply(doc: MetadataDocument, event: SObjectEvent): SObjectNature = {
     doc match {
       case _: CustomMetadataDocument => CustomMetadataNature
-      case _: BigObjectDocument => BigObjectNature
-      case _: PlatformEventDocument => PlatformEventNature
+      case _: BigObjectDocument      => BigObjectNature
+      case _: PlatformEventDocument  => PlatformEventNature
       case _: SObjectDocument =>
         event.customSettingsType match {
-          case Some(ListCustomSetting) => ListCustomSettingNature
+          case Some(ListCustomSetting)      => ListCustomSettingNature
           case Some(HierarchyCustomSetting) => HierarchyCustomSettingsNature
-          case _ => CustomObjectNature
+          case _                            => CustomObjectNature
         }
     }
   }
@@ -85,7 +85,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
-  override val paths: Array[PathLike] = sources.map(_.path)
+  override val paths: Array[PathLike] = sources.map(source => source.location.path)
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
   private val depends = mutable.Set[Dependent]()
 

@@ -22,25 +22,31 @@ import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSE
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
+import com.nawforce.runtime.parsers.Locatable
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
-/** A individual Label being represented as a static field. */
-case class Label(outerTypeId: Option[TypeId], location: Option[PathLocation], name: Name, isProtected: Boolean)
-    extends FieldDeclaration {
-  override lazy val modifiers: Array[Modifier] = Label.modifiers
+abstract class LabelField extends FieldDeclaration {
+  override lazy val modifiers: Array[Modifier] = LabelField.modifiers
   override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
   override val idTarget: Option[TypeName] = None
 }
 
-object Label {
+object LabelField {
   val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
 }
+
+/** A individual Label being represented as a static field. */
+final case class Label(outerTypeId: TypeId, location: PathLocation, name: Name, isProtected: Boolean)
+    extends LabelField
+    with Locatable
+
+final case class GhostLabel(name: Name) extends LabelField
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
@@ -48,7 +54,7 @@ final class LabelDeclaration(override val module: Module,
                              val sources: Array[SourceInfo],
                              val labels: Array[Label],
                              val nestedLabels: Array[NestedLabels])
-    extends BasicTypeDeclaration(sources.map(s => s.path), module, TypeNames.Label)
+    extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
     with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
@@ -67,8 +73,7 @@ final class LabelDeclaration(override val module: Module,
 
   def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
-    val newLabels = labels ++ labelEvents.map(le =>
-      Label(Some(outerTypeId), Some(le.location), le.name, le.isProtected))
+    val newLabels = labels ++ labelEvents.map(le => Label(outerTypeId, le.location, le.name, le.isProtected))
     val sourceInfo = (sources ++ labelFileEvents.map(_.sourceInfo)).distinct
     new LabelDeclaration(module, sourceInfo, newLabels, nestedLabels)
   }
@@ -85,10 +90,10 @@ final class LabelDeclaration(override val module: Module,
   def unused(): Array[Issue] = {
     labels
       .filterNot(_.hasHolders)
-      .filterNot(_.location.isEmpty)
-      .map(label =>
-        new Issue(label.location.get.path,
-                  Diagnostic(UNUSED_CATEGORY, label.location.get.location, s"Label '$typeName.${label.name}'")))
+      .map(
+        label =>
+          new Issue(label.location.path,
+                    Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
   }
 }
 
@@ -136,7 +141,7 @@ final class GhostedLabels(module: Module, ghostedNamespace: Name)
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (staticContext.contains(true)) {
-      Some(Label(None, None, name, isProtected = false))
+      Some(GhostLabel(name))
     } else {
       None
     }

@@ -16,23 +16,20 @@ package com.nawforce.apexlink.types.synthetic
 
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.FieldDeclaration
+import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.runtime.parsers.Locatable
 
-final case class CustomFieldDeclaration(name: Name,
-                                        typeName: TypeName,
-                                        idTarget: Option[TypeName],
-                                        asStatic: Boolean = false)
-    extends FieldDeclaration {
-
-  override val modifiers: Array[Modifier] = CustomFieldDeclaration.getModifiers(asStatic)
+abstract class CustomField(asStatic: Boolean) extends FieldDeclaration {
+  override val modifiers: Array[Modifier] = CustomField.getModifiers(asStatic)
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
-
-  override lazy val isStatic: Boolean = asStatic
+  override def isStatic: Boolean = asStatic
+  override def isPrivate: Boolean = false
 }
 
-object CustomFieldDeclaration {
+object CustomField {
   val standardModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER)
   val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
 
@@ -43,11 +40,27 @@ object CustomFieldDeclaration {
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
-      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal |
-          TypeNames.Integer | TypeNames.Date | TypeNames.Datetime | TypeNames.Time |
-          TypeNames.Blob | TypeNames.Location | TypeNames.Address =>
+      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
+          TypeNames.Date | TypeNames.Datetime | TypeNames.Time | TypeNames.Blob | TypeNames.Location |
+          TypeNames.Address =>
         true
       case _ => false
     }
   }
+}
+
+final case class CustomFieldDeclaration(name: Name,
+                                        typeName: TypeName,
+                                        idTarget: Option[TypeName],
+                                        asStatic: Boolean = false)
+    extends CustomField(asStatic) {
+}
+
+final case class LocatableCustomFieldDeclaration(location: PathLocation,
+                                                 name: Name,
+                                                 typeName: TypeName,
+                                                 idTarget: Option[TypeName],
+                                                 asStatic: Boolean = false)
+    extends CustomField(asStatic)
+    with Locatable {
 }

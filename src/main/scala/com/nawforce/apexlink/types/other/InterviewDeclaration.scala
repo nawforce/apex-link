@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
 
 import scala.collection.mutable
@@ -45,7 +45,7 @@ final case class Interview(module: Module, path: Option[PathLike], interviewName
 
 object Interview {
   def apply(module: Module, event: FlowEvent): Interview = {
-    val path = event.sourceInfo.path
+    val path = event.sourceInfo.location.path
     val document = MetadataDocument(path)
     new Interview(module, Some(path), document.get.name)
   }

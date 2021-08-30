@@ -24,12 +24,10 @@ import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
-import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
+import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.Locatable
 
 import scala.collection.mutable
 
@@ -66,8 +64,8 @@ trait FieldDeclaration extends DependencyHolder {
   val readAccess: Modifier
   val writeAccess: Modifier
 
-  lazy val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
-  lazy val isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
+  def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+  def isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
 
   // Create an SObjectField version of this field
   def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
@@ -80,7 +78,7 @@ trait FieldDeclaration extends DependencyHolder {
       // Id field that carries a target SObjectType returns 'fields'
       preloadSObject(idTarget.get)
       CustomFieldDeclaration(name, TypeNames.sObjectFields$(idTarget.get), None, asStatic = true)
-    } else if (CustomFieldDeclaration.isSObjectPrimitive(typeName)) {
+    } else if (CustomField.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       if (shareTypeName.nonEmpty && name == Names.RowCause)
         CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)

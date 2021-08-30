@@ -119,7 +119,7 @@ final case class IdPrimary(id: Id) extends Primary {
           .getTypeAndAddDependency(field.get.typeName, td)
           .toOption
           .map(target => {
-            ExprContext(isStatic = Some(false), target, field.get)
+            ExprContext(isStatic = Some(false), Some(target), field.get)
           })
           .getOrElse({
             context.missingType(location, field.get.typeName)

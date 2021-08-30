@@ -15,15 +15,14 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.types.apex.{ApexDeclaration, ApexFieldLike, ApexMethodLike, FullDeclaration}
+import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration, IdLocatable}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
-import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.ByteArraySourceData
+import com.nawforce.runtime.parsers.{ByteArraySourceData, Locatable}
 
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
@@ -49,28 +48,9 @@ trait DefinitionProvider {
     val searchTerm = searchTermAndLocation.get._1
     val sourceLocation = searchTermAndLocation.get._2
 
-    locateFromTypeLookup(searchTerm, sourceLocation, sourceTD)
-      .getOrElse(locateFromValidation(sourceTD, sourceLocation))
-
-    /*
-    val exprLocationAndType = fullExprAndLocation
-      .flatMap(expr => findTypeInExpression(path, line, offset, source, expr))
-
-    if (fullExprAndLocation.isEmpty || exprLocationAndType.isEmpty)
-      return Array.empty
-
-    val loc = locationForStaticMethodOrField(exprLocationAndType.get._1,
-                                             fullExprAndLocation.get._2,
-                                             exprLocationAndType.get._3,
-                                             fullExprAndLocation.get._1)
-    if (loc.isEmpty) {
-      exprLocationAndType match {
-        case Some((_: String, srcLocation: Location, ad: ApexDeclaration)) =>
-          Array(LocationLink(srcLocation, ad.path.toString, ad.fullLocation, ad.nameLocation))
-        case _ => Array.empty
-      }
-    } else loc
-   */
+    locateFromValidation(sourceTD, sourceLocation)
+      .orElse(locateFromTypeLookup(searchTerm, sourceLocation, sourceTD))
+      .getOrElse(Array())
   }
 
   private def locateFromTypeLookup(searchTerm: String,
@@ -110,29 +90,34 @@ trait DefinitionProvider {
   }
 
   /** Extract a location link from an expression at the passed location */
-  private def locateFromValidation(td: FullDeclaration, location: Location): Array[LocationLink] = {
+  private def locateFromValidation(td: FullDeclaration, location: Location): Option[Array[LocationLink]] = {
     LoggerOps.debugTime("locateFromValidation") {
       getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
+        // Validate the body declaration for the side-effect of being able to collect a map of expression results
         val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
         val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
         val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
         context.disableIssueReporting() {
           typeAndBody._2.validate(context)
         }
-        exprMap.keys
-          .find(_.contains(location.startLine, location.endPosition))
+
+        // Find the inner-most expression containing location from those that do
+        val exprLocations = exprMap.keys.filter(_.contains(location.startLine, location.endPosition))
+        exprLocations
+          .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
           .foreach(loc => {
-            exprMap(loc)._2.definition.foreach(definition => {
-              val definitionLocation = definition.location
-              return Array(
-                LocationLink(location,
-                             definitionLocation.path,
-                             definitionLocation.location,
-                             definitionLocation.location))
-            })
+            // If the result has a locatable we can use that as the target
+            exprMap(loc)._2.locatable match {
+              case Some(l: IdLocatable) =>
+                return Some(Array(LocationLink(location, l.location.path, l.location.location, l.idLocation)))
+              case Some(l: Locatable) =>
+                return Some(Array(LocationLink(location, l.location.path, l.location.location, l.location.location)))
+              case _ =>
+                return None
+            }
           })
       })
-      Array()
+      None
     }
   }
 
@@ -148,108 +133,6 @@ trait DefinitionProvider {
             td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _))
           })
     }
-  }
-
-  /*
-  private def findBodyDeclaration(path: PathLike,
-                                  line: Int,
-                                  offset: Int,
-                                  source: String,
-                                  exprAndLocation: (String, Location)): Option[(String, Location, ApexDeclaration)] = {
-
-    def findTypeForExpression(path: PathLike,
-                              line: Int,
-                              offset: Int,
-                              source: String,
-                              exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
-      TypeName(exprAndLocation._1).toOption match {
-        case Some(typeName: TypeName) =>
-          resolveTypeName(typeName, path, source, line, offset)
-        case _ => None
-      }
-    }
-
-    findTypeForExpression(path, line, offset, source, exprAndLocation) match {
-      case Some(ad: ApexDeclaration) => Some((exprAndLocation._1, exprAndLocation._2, ad))
-      case Some(_) => None
-      case None =>
-        lessSpecificExpression(exprAndLocation) match {
-          case Some(expr) => findTypeInExpression(path, line, offset, source, expr)
-          case None => None
-        }
-    }
-  }
-   */
-
-  private def locationForStaticMethodOrField(expr: String,
-                                             srcLocation: Location,
-                                             td: ApexDeclaration,
-                                             fullExpr: String): Array[LocationLink] = {
-
-    def staticMethod(name: String): Array[LocationLink] = {
-      val methods = td.methods.filter(m => m.name == Name(name))
-      methods.flatMap {
-        case method: ApexMethodLike =>
-          Some(LocationLink(srcLocation, td.location.path, method.location.location, method.idLocation))
-        case _ => None
-      }
-    }
-
-    def staticField(name: String): Array[LocationLink] = {
-      val fields = td.fields.filter(f => f.name == Name(name))
-      fields.flatMap {
-        case field: ApexFieldLike =>
-          Some(LocationLink(srcLocation, td.location.toString, field.location.location, field.idLocation))
-        case _ => None
-      }
-    }
-
-    if (expr != fullExpr)
-      staticMethod(fullExpr.substring(expr.length + 1)) ++ staticField(fullExpr.substring(expr.length + 1))
-    else
-      Array.empty
-  }
-
-  /*
-  @tailrec
-  private def findTypeInExpression(path: PathLike,
-                                   line: Int,
-                                   offset: Int,
-                                   source: String,
-                                   exprAndLocation: (String, Location)): Option[(String, Location, ApexDeclaration)] = {
-
-    def findTypeForExpression(path: PathLike,
-                              line: Int,
-                              offset: Int,
-                              source: String,
-                              exprAndLocation: (String, Location)): Option[TypeDeclaration] = {
-      TypeName(exprAndLocation._1).toOption match {
-        case Some(typeName: TypeName) =>
-          resolveTypeName(typeName, path, source, line, offset)
-        case _ => None
-      }
-    }
-
-    findTypeForExpression(path, line, offset, source, exprAndLocation) match {
-      case Some(ad: ApexDeclaration) => Some((exprAndLocation._1, exprAndLocation._2, ad))
-      case Some(_)                   => None
-      case None =>
-        lessSpecificExpression(exprAndLocation) match {
-          case Some(expr) => findTypeInExpression(path, line, offset, source, expr)
-          case None       => None
-        }
-    }
-  }*/
-
-  def lessSpecificExpression(exprAndLocation: (String, Location)): Option[(String, Location)] = {
-    def shrinkLocation(src: Location, difference: Int): Location = {
-      src.copy(endPosition = src.endPosition - difference)
-    }
-
-    val index = exprAndLocation._1.lastIndexOf(".")
-    if (index == -1) return None
-    Some(
-      (exprAndLocation._1.substring(0, index), shrinkLocation(exprAndLocation._2, exprAndLocation._1.length - index)))
   }
 
   /** Locate the ApexDeclaration for the passed typeName that was extracted from 'location' within 'from' */
@@ -298,16 +181,6 @@ trait DefinitionProvider {
     }
   }
 
-  /* Find a type in this package, with or without a namespace prefix on it. */
-  private def findType(typeName: TypeName): Option[TypeDeclaration] = {
-    orderedModules.view
-      .flatMap(_.moduleType(typeName.withNamespace(namespace)))
-      .headOption
-      .orElse({
-        orderedModules.view.flatMap(_.moduleType(typeName)).headOption
-      })
-  }
-
   /** Extract what to search for from source code given line & offset of cursor */
   private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location)] = {
     val lineText: Option[String] = getLine(source, line - 1) match {
@@ -316,30 +189,39 @@ trait DefinitionProvider {
     }
 
     lineText.flatMap(lineText => {
-      if (offset >= 0 && offset < lineText.length) {
-        val start = findLimit(forward = false, lineText, offset)
-        val end = findLimit(forward = true, lineText, offset)
-        if (start != end && start.nonEmpty && end.nonEmpty)
-          Some((lineText.substring(start.get, end.get + 1), Location(line, start.get, line, end.get + 1)))
-        else None
-      } else {
-        None
-      }
+      // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
+      findLimit(forward = false, lineText, offset - 1).flatMap(start => {
+        findLimit(forward = true, lineText, start).map(end => {
+          // Split & rebuild so not so sensitive to cursor being close to a "."
+          val searchTerm = new mutable.StringBuilder()
+          val parts = lineText.substring(start, end + 1).split('.')
+          var canAppend = true
+          parts.foreach(part => {
+            if (canAppend) {
+              if (searchTerm.nonEmpty)
+                searchTerm.append(".")
+              searchTerm.append(part)
+              canAppend = start + searchTerm.length < offset
+            }
+          })
+          (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
+        })
+      })
     })
   }
 
   /** Search for limit of a search term either forwards or backwards */
   private def findLimit(forward: Boolean, content: String, offset: Int): Option[Int] = {
-    val regex = if (forward) "[0-9a-zA-Z_]" else "[0-9a-zA-Z_\\.]"
-    val ch = "" + content(offset)
-    if (!ch.matches(regex)) {
+    if (offset < 0 || offset >= content.length) {
       None
     } else {
-      val nextOffset = if (forward) offset + 1 else offset - 1
-      if (nextOffset == -1 || nextOffset == content.length)
-        Some(offset)
-      else
+      val ch = "" + content(offset)
+      if (!ch.matches("[0-9a-zA-Z_\\.]")) {
+        None
+      } else {
+        val nextOffset = if (forward) offset + 1 else offset - 1
         Some(findLimit(forward, content, nextOffset).getOrElse(offset))
+      }
     }
   }
 

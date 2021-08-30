@@ -44,6 +44,9 @@ case class TypeSummary(sourceHash: Int,
                        nestedTypes: Array[TypeSummary],
                        dependents: Array[DependentSummary]) {
 
+  // For backwards compatibility in ApexFlow
+  def nameLocation: Location = idLocation
+
   override def equals(that: Any): Boolean = {
     that match {
       case other: TypeSummary =>

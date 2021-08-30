@@ -16,13 +16,12 @@ package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
 
 import scala.collection.mutable
@@ -48,7 +47,7 @@ case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFConta
 
 object Page {
   def apply(module: Module, event: PageEvent): Seq[Page] = {
-    val path = event.sourceInfo.path
+    val path = event.sourceInfo.location.path
     val document = MetadataDocument(path)
     val container = new VFContainer(module, event)
     Seq(new Page(module, path, document.get.name, container)) ++

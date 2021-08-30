@@ -47,7 +47,7 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
         case Left(_) =>
           if (!module.isGhostedType(controllerType)) {
             OrgImpl.log(
-              IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.path.toString, controller.location),
+              IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.location.path.toString, controller.location),
                 controllerType))
           }
           None

@@ -49,7 +49,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val path = root.join("Dummy.cls")
       assert(
         org.unmanaged
-          .getDefinition(path, line = 1, offset = 13, None)
+          .getDefinition(path, line = 1, offset = 14, None)
           .contains(LocationLink(Location(1, 13, 1, 18), path.toString, Location(1, 0, 1, 21), Location(1, 13, 1, 18))))
     }
   }
@@ -72,7 +72,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val path = root.join("Dummy.cls")
         assert(
           org.unmanaged
-            .getDefinition(path, line = 1, offset = 23, None)
+            .getDefinition(path, line = 1, offset = 24, None)
             .contains(
               LocationLink(Location(1, 23, 1, 26),
                            root.join("Foo.cls").toString,
@@ -103,7 +103,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val org = createHappyOrg(root)
       assert(
         org.unmanaged
-          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22, None)
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
           .contains(
             LocationLink(Location(1, 22, 1, 27),
                          root.join("Dummy.cls").toString,
@@ -117,7 +117,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
       val org = createHappyOrg(root)
       assert(
         org.unmanaged
-          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35, None)
+          .getDefinition(root.join("Dummy.cls"), line = 1, offset = 36, None)
           .contains(
             LocationLink(Location(1, 35, 1, 40),
                          root.join("Dummy.cls").toString,
@@ -132,7 +132,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 35, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 36, None)
             .contains(
               LocationLink(Location(1, 35, 1, 40),
                            root.join("Dummy.cls").toString,
@@ -177,7 +177,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         withOrg(org => {
           assert(
             org.unmanaged
-              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 22, None)
+              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
               .contains(
                 LocationLink(Location(1, 22, 1, 27),
                              root.join("Dummy.cls").toString,
@@ -196,12 +196,12 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 25, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 26, None)
             .contains(
               LocationLink(Location(1, 21, 1, 31),
                 root.join("Foo.cls").toString,
                 Location(1, 26, 1, 42),
-                Location(1, 26, 1, 42))))
+                Location(1, 31, 1, 37))))
     }
   }
 
@@ -215,12 +215,12 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         withOrg { org =>
           assert(
             org.unmanaged
-              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 37, None)
+              .getDefinition(root.join("Dummy.cls"), line = 1, offset = 38, None)
               .contains(
                 LocationLink(Location(1, 32, 1, 39),
                   root.join("Foo.cls").toString,
                   Location(1, 26, 1, 45),
-                  Location(1, 26, 1, 45))))
+                  Location(1, 33, 1, 36))))
         }
     }
   }
@@ -233,12 +233,12 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 26, None)
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None)
             sameElements Array(
               LocationLink(Location(1, 22, 1, 32),
                 root.join("Foo.cls").toString,
                 Location(1, 59, 1, 83),
-                Location(1, 59, 1, 83))))
+                Location(1, 64, 1, 70))))
     }
   }
 
@@ -249,12 +249,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         val org = createHappyOrg(root)
         assert(
           org.unmanaged
-            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 23, None)
-            .contains(
-              LocationLink(Location(1, 23, 1, 26),
-                root.join("Foo.cls").toString,
-                Location(1, 0, 1, 20),
-                Location(1, 13, 1, 16))))
+            .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None).isEmpty)
     }
   }
 }

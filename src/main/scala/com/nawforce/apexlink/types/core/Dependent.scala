@@ -83,9 +83,8 @@ trait DependencyHolder extends Dependent {
 
         case ld: LabelDeclaration =>
           Some(TypeDependentSummary(ld.typeId.asTypeIdentifier, ld.sourceHash))
-        case label: Label if label.outerTypeId.nonEmpty =>
-          Some(FieldDependentSummary(label.outerTypeId.get.asTypeIdentifier, label.name.value))
-        case _: Label => None
+        case label: Label =>
+          Some(FieldDependentSummary(label.outerTypeId.asTypeIdentifier, label.name.value))
 
         case i: Interview =>
           val id = i.module.interviews

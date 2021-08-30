@@ -20,15 +20,17 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex.ApexClassDeclaration
-import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.parsers.{CodeParser, Locatable}
 
-final case class ExprContext(isStatic: Option[Boolean], declaration: Option[TypeDeclaration], definition: Option[CST] = None) {
+final case class ExprContext(isStatic: Option[Boolean],
+                             declaration: Option[TypeDeclaration],
+                             locatable: Option[Locatable] = None) {
   def isDefined: Boolean = declaration.nonEmpty && !declaration.exists(_.isInstanceOf[AnyDeclaration])
 
   def moduleDeclarationOpt: Option[Module] = declaration.flatMap(_.moduleDeclaration)
@@ -41,23 +43,17 @@ final case class ExprContext(isStatic: Option[Boolean], declaration: Option[Type
 }
 
 object ExprContext {
-  lazy val empty: ExprContext = ExprContext(None, None)
+  val empty: ExprContext = new ExprContext(None, None)
 
-  def apply(isStatic: Option[Boolean], typeDeclaration: TypeDeclaration): ExprContext = {
-    ExprContext(isStatic, Some(typeDeclaration))
+  def apply(isStatic: Option[Boolean], declaration: TypeDeclaration): ExprContext = {
+    new ExprContext(isStatic, Some(declaration))
   }
 
-  def apply(isStatic: Option[Boolean], typeDeclaration: TypeDeclaration, field: FieldDeclaration): ExprContext = {
-    field match {
-      case cst: CST => ExprContext(isStatic, Some(typeDeclaration), Some(cst))
-      case _ => ExprContext(isStatic, Some(typeDeclaration), None)
-    }
-  }
-
-  def apply(isStatic: Option[Boolean], typeDeclaration: Option[TypeDeclaration], method: MethodDeclaration): ExprContext = {
-    method match {
-      case cst: CST => ExprContext(isStatic, typeDeclaration, Some(cst))
-      case _ => ExprContext(isStatic, typeDeclaration, None)
+  /* We allow flex here on the locatable type as it a cross cutting concern of many sorts of things */
+  def apply(isStatic: Option[Boolean], declaration: Option[TypeDeclaration], locatable: Any): ExprContext = {
+    locatable match {
+      case l: Locatable => new ExprContext(isStatic, declaration, Some(l))
+      case _            => new ExprContext(isStatic, declaration, None)
     }
   }
 }
@@ -169,7 +165,7 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
             context.missingType(location, field.get.typeName)
             return ExprContext.empty
           }
-          return ExprContext(isStatic = Some(false), target.get, field.get)
+          return ExprContext(isStatic = Some(false), target, field.get)
         }
 
         // TODO: Private/protected types?
@@ -310,11 +306,11 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
                 context.log(error.asIssue(location))
               ExprContext.empty
             case Right(td) =>
-              context.saveExpressionContext(this){ExprContext(isStatic = Some(false), Some(td), method)}
+              context.saveExpressionContext(this) { ExprContext(isStatic = Some(false), Some(td), method) }
           }
         } else {
           // TODO: How to error if attempt to use return
-          context.saveExpressionContext(this){ExprContext(None, None, method)}
+          context.saveExpressionContext(this) { ExprContext(None, None, method) }
         }
       })
       .getOrElse({

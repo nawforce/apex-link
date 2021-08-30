@@ -346,7 +346,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
           assert(
             org.getIssues(new IssueOptions()) ==
-              "/Foo__c.object\nError: line 0: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+              "/Foo__c.object\nError: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
       }
     }
   }
@@ -366,7 +366,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
           assert(
             org.getIssues(new IssueOptions()) ==
-              "/Foo__c/Foo__c.object-meta.xml\nError: line 0: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+              "/Foo__c/Foo__c.object-meta.xml\nError: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
       }
     }
   }
