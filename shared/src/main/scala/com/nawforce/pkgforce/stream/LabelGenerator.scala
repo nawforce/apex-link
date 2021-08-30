@@ -28,7 +28,7 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{ERROR_CATEGORY, Issue, IssuesAnd, Location, PathLocation}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.xml.XMLException
@@ -69,7 +69,7 @@ object LabelGenerator {
                       Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))
                   }
                 })
-              labels ++ Iterator(LabelFileEvent(SourceInfo(document.path, source)))
+              labels ++ Iterator(LabelFileEvent(SourceInfo(PathLocation(document.path.toString, Location.all), source)))
             } catch {
               case e: XMLException =>
                 Iterator(IssuesEvent(Issue(document.path, ERROR_CATEGORY, e.where, e.msg)))

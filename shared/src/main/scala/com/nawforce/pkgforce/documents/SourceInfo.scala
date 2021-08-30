@@ -27,14 +27,14 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.runtime.parsers.SourceData
 
-/** Source information carrier. */
-final case class SourceInfo(path: PathLike, hash: Int)
+/** Metadata file information for originating source of something */
+final case class SourceInfo(location: PathLocation, hash: Int)
 
 object SourceInfo {
-  def apply(path: PathLike, data: SourceData): SourceInfo = {
-    new SourceInfo(path, data.hash)
+  def apply(location: PathLocation, data: SourceData): SourceInfo = {
+    new SourceInfo(location, data.hash)
   }
 }

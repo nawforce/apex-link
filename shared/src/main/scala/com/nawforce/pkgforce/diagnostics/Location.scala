@@ -48,20 +48,19 @@ sealed case class Location(startLine: Int, startPosition: Int, endLine: Int, end
       if (startPosition == 0 && endPosition == 0)
         s"line $startLine to $endLine"
       else
-        s"line $startLine at $startPosition-$endPosition"
+        s"line $startLine:$startPosition to $endLine:$endPosition"
     }
   }
 
   def contains(line: Int, offset: Int): Boolean = {
     !(line < startLine || line > endLine ||
       (line == startLine && offset < startPosition) ||
-      (line == endLine && offset > endPosition)
-      )
+      (line == endLine && offset > endPosition))
   }
 
   def contains(other: Location): Boolean = {
     contains(other.startLine, other.startPosition) &&
-      contains(other.endLine, other.endPosition)
+    contains(other.endLine, other.endPosition)
   }
 }
 
@@ -69,6 +68,7 @@ object Location {
   implicit val rw: RW[Location] = macroRW
 
   val empty: Location = Location(1)
+  val all: Location = Location(1, 0, Int.MaxValue, 0)
 
   def apply(line: Int) = new Location(line, 0, line, 0)
   def apply(line: Int, position: Int) = new Location(line, position, line, position)

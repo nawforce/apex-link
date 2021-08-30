@@ -28,6 +28,7 @@
 
 package com.nawforce.pkgforce.stream
 
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.documents._
 
 final case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
@@ -40,7 +41,7 @@ object FlowGenerator {
     val source = document.source
     source.value
       .map(source => {
-        Iterator(FlowEvent(SourceInfo(document.path, source)))
+        Iterator(FlowEvent(SourceInfo(PathLocation(document.path.toString, Location.all), source)))
       })
       .getOrElse(Iterator.empty) ++ IssuesEvent.iterator(source.issues)
   }

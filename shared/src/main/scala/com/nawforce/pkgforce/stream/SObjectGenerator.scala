@@ -45,17 +45,19 @@ case object ReadWriteTransferSharingModel extends SharingModel("ReadWriteTransfe
 case object FullAccessSharingModel extends SharingModel("FullAccess")
 case object ControlledByParentSharingModel extends SharingModel("ControlledByParent")
 case object ControlledByCampaignSharingModel extends SharingModel("ControlledByCampaign")
-case object ControlledByLeadOrContractSharingModel extends SharingModel("ControlledByLeadOrContract")
+case object ControlledByLeadOrContractSharingModel
+    extends SharingModel("ControlledByLeadOrContract")
 
 sealed trait CustomSettingType
 case object ListCustomSetting extends CustomSettingType
 case object HierarchyCustomSetting extends CustomSettingType
 
-final case class SObjectEvent(sourceInfo: Option[SourceInfo],
-                              reportingPath: PathLike,            // SFDX SObject directory or MDAPI .object file
-                              isDefining: Boolean,                // Metadata is defining a new SObject
-                              customSettingsType: Option[CustomSettingType],
-                              sharingModel: Option[SharingModel])
+final case class SObjectEvent(
+  sourceInfo: Option[SourceInfo],
+  reportingPath: PathLike, // SFDX SObject directory or MDAPI .object file
+  isDefining: Boolean, // Metadata is defining a new SObject
+  customSettingsType: Option[CustomSettingType],
+  sharingModel: Option[SharingModel])
     extends PackageEvent
 final case class CustomFieldEvent(sourceInfo: Option[SourceInfo],
                                   name: Name,
@@ -106,13 +108,15 @@ object SObjectGenerator {
 
     // Which makes parsing more fun
     val sourceData = path.flatMap(_.readSourceData().toOption)
-    val sourceInfo = sourceData.map(source => SourceInfo(path.get, source))
+    val sourceInfo =
+      sourceData.map(source => SourceInfo(PathLocation(path.get.toString, Location.all), source))
     val parsed = sourceData.map(source => XMLDocument(path.get, source))
     if (parsed.nonEmpty && parsed.get.issues.nonEmpty)
       return IssuesEvent.iterator(parsed.get.issues)
 
     val doc = parsed.flatMap(_.value)
-    val customSettingsType = doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
+    val customSettingsType =
+      doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
     val sharingModelType = doc.map(doc => extractSharingModel(doc)).getOrElse(IssuesAnd(None))
     val isDefining = doc.exists(doc => doc.rootElement.getChildren("label").nonEmpty)
     val reportingPath =
@@ -122,8 +126,14 @@ object SObjectGenerator {
         document.path
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
-    Iterator(SObjectEvent(sourceInfo, reportingPath, isDefining, customSettingsType.value, sharingModelType.value)) ++
-      IssuesEvent.iterator(customSettingsType.issues) ++ IssuesEvent.iterator(sharingModelType.issues) ++
+    Iterator(
+      SObjectEvent(sourceInfo,
+                   reportingPath,
+                   isDefining,
+                   customSettingsType.value,
+                   sharingModelType.value)) ++
+      IssuesEvent.iterator(customSettingsType.issues) ++ IssuesEvent.iterator(
+      sharingModelType.issues) ++
       doc
         .map(doc => {
           val rootElement = doc.rootElement
@@ -141,7 +151,8 @@ object SObjectGenerator {
       collectSfdxSharingReason(document.path)
   }
 
-  private def extractCustomSettingsType(doc: XMLDocumentLike): IssuesAnd[Option[CustomSettingType]] = {
+  private def extractCustomSettingsType(
+    doc: XMLDocumentLike): IssuesAnd[Option[CustomSettingType]] = {
     doc.rootElement.getOptionalSingleChildAsString("customSettingsType") match {
       case Some("List")      => IssuesAnd(Some(ListCustomSetting))
       case Some("Hierarchy") => IssuesAnd(Some(HierarchyCustomSetting))
@@ -157,9 +168,14 @@ object SObjectGenerator {
     }
   }
 
-  private val allSharingModels = Seq(PrivateSharingModel, ReadSharingModel, ReadWriteSharingModel,
-    ReadWriteTransferSharingModel, FullAccessSharingModel, ControlledByParentSharingModel,
-    ControlledByCampaignSharingModel, ControlledByLeadOrContractSharingModel )
+  private val allSharingModels = Seq(PrivateSharingModel,
+                                     ReadSharingModel,
+                                     ReadWriteSharingModel,
+                                     ReadWriteTransferSharingModel,
+                                     FullAccessSharingModel,
+                                     ControlledByParentSharingModel,
+                                     ControlledByCampaignSharingModel,
+                                     ControlledByLeadOrContractSharingModel)
 
   private def extractSharingModel(doc: XMLDocumentLike): IssuesAnd[Option[SharingModel]] = {
     val sharingModel = doc.rootElement.getOptionalSingleChildAsString("sharingModel")
@@ -168,13 +184,12 @@ object SObjectGenerator {
       if (matched.nonEmpty) {
         IssuesAnd(matched)
       } else {
-        IssuesAnd(
-          Array(
-            Issue(doc.path,
-              ERROR_CATEGORY,
-              Location(doc.rootElement.line),
-              s"Unexpected sharingModel value '${sharingModel.get}'")),
-          None)
+        IssuesAnd(Array(
+                    Issue(doc.path,
+                          ERROR_CATEGORY,
+                          Location(doc.rootElement.line),
+                          s"Unexpected sharingModel value '${sharingModel.get}'")),
+                  None)
       }
     } else {
       IssuesAnd(None)
@@ -273,7 +288,10 @@ object SObjectGenerator {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
                     case IssuesAnd(_, doc) =>
                       doc.get.rootElement.checkIsOrThrow(rootElement)
-                      op(Some(SourceInfo(filePath, sourceData)), doc.get.rootElement, filePath)
+                      op(
+                        Some(SourceInfo(PathLocation(filePath.toString, Location.all), sourceData)),
+                        doc.get.rootElement,
+                        filePath)
                   }
               }
             }

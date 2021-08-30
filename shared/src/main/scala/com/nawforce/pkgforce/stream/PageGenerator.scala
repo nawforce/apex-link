@@ -28,7 +28,7 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, LocationAnd}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, LocationAnd, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.runtime.parsers.PageParser
@@ -53,8 +53,9 @@ object PageGenerator {
         if (result.issues.nonEmpty) {
           IssuesEvent.iterator(result.issues)
         } else {
+          val location = parser.getPathAndLocation(result.value)
           val logger = new CatchingLogger
-          Iterator(PageEvent(SourceInfo(document.path, source),
+          Iterator(PageEvent(SourceInfo(PathLocation(location._1.toString, location._2), source),
                              VFEvent.extractControllers(parser.source, result.value, isPage = true),
                              VFEvent.extractExpressions(parser.source, result.value))) ++
             IssuesEvent.iterator(logger.issues)
