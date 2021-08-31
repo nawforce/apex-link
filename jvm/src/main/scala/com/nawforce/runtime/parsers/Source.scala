@@ -39,6 +39,12 @@ trait Locatable {
   def location: PathLocation
 }
 
+
+/** Variation on locatable for when we don't know, may return null! */
+trait UnsafeLocatable extends Locatable {
+  def location: PathLocation
+}
+
 /** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. */
 class Positionable extends Locatable {
   private var locationPath: PathLike = _
