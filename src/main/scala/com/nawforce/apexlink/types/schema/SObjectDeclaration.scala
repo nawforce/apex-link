@@ -22,12 +22,13 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{HierarchyCustomSetting, ListCustomSetting, SObjectEvent}
+import com.nawforce.runtime.parsers.UnsafeLocatable
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
@@ -80,8 +81,10 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     isSynthetic: Boolean = false)
     extends SObjectLikeDeclaration
     with SObjectFieldFinder
-    with SObjectMethods {
+    with SObjectMethods
+    with UnsafeLocatable {
 
+  override def location: PathLocation = sources.headOption.map(_.location.pathLocation).orNull
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 

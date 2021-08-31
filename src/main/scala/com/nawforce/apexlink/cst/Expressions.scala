@@ -97,7 +97,9 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
           if (isNamespace(primary.id.name, input.declaration.get)) {
             val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
             val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-            td.map(td => ExprContext(isStatic = Some(true), td))
+            td.map(td => context.saveExpressionContext(this) {
+              ExprContext(isStatic = Some(true), Some(td), td)
+            })
           } else {
             None
           }

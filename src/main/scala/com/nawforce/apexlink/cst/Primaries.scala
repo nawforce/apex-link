@@ -132,7 +132,7 @@ final case class IdPrimary(id: Id) extends Primary {
 
   private def isTypeReference(context: ExpressionVerifyContext): Option[ExprContext] = {
     context.getTypeAndAddDependency(TypeName(id.name), context.thisType) match {
-      case Right(td) => Some(ExprContext(isStatic = Some(true), td))
+      case Right(td) => Some(ExprContext(isStatic = Some(true), Some(td), td))
       case _         => None
     }
   }

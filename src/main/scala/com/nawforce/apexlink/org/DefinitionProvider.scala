@@ -18,11 +18,11 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.rpc.LocationLink
 import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration, IdLocatable}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
+import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{ByteArraySourceData, Locatable}
+import com.nawforce.runtime.parsers.{ByteArraySourceData, Locatable, UnsafeLocatable}
 
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
@@ -91,34 +91,34 @@ trait DefinitionProvider {
 
   /** Extract a location link from an expression at the passed location */
   private def locateFromValidation(td: FullDeclaration, location: Location): Option[Array[LocationLink]] = {
-    LoggerOps.debugTime("locateFromValidation") {
-      getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
-        // Validate the body declaration for the side-effect of being able to collect a map of expression results
-        val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-        val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
-        val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
-        context.disableIssueReporting() {
-          typeAndBody._2.validate(context)
-        }
+    getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
+      // Validate the body declaration for the side-effect of being able to collect a map of expression results
+      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+      val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
+      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
+      context.disableIssueReporting() {
+        typeAndBody._2.validate(context)
+      }
 
-        // Find the inner-most expression containing location from those that do
-        val exprLocations = exprMap.keys.filter(_.contains(location.startLine, location.endPosition))
-        exprLocations
-          .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-          .foreach(loc => {
-            // If the result has a locatable we can use that as the target
-            exprMap(loc)._2.locatable match {
-              case Some(l: IdLocatable) =>
-                return Some(Array(LocationLink(location, l.location.path, l.location.location, l.idLocation)))
-              case Some(l: Locatable) =>
-                return Some(Array(LocationLink(location, l.location.path, l.location.location, l.location.location)))
-              case _ =>
-                return None
-            }
-          })
-      })
-      None
-    }
+      // Find the inner-most expression containing location from those that do
+      val exprLocations = exprMap.keys.filter(_.contains(location.startLine, location.endPosition))
+      exprLocations
+        .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
+        .foreach(loc => {
+          // If the result has a locatable we can use that as the target
+          exprMap(loc)._2.locatable match {
+            case Some(l: UnsafeLocatable) =>
+              return Option(l.location).map(l => Array(LocationLink(location, l.path, l.location, l.location)))
+            case Some(l: IdLocatable) =>
+              return Some(Array(LocationLink(location, l.location.path, l.location.location, l.idLocation)))
+            case Some(l: Locatable) =>
+              return Some(Array(LocationLink(location, l.location.path, l.location.location, l.location.location)))
+            case _ =>
+              return None
+          }
+        })
+    })
+    None
   }
 
   private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
