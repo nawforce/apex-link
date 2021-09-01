@@ -24,10 +24,11 @@ import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
-import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration}
+import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration, LocatableCustomFieldDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.parsers.UnsafeLocatable
 
 import scala.collection.mutable
 
@@ -56,7 +57,7 @@ object BlockDeclaration {
   val emptyBlockDeclarations: Array[BlockDeclaration] = Array()
 }
 
-trait FieldDeclaration extends DependencyHolder {
+trait FieldDeclaration extends DependencyHolder with UnsafeLocatable {
   val name: Name
   val modifiers: Array[Modifier]
   val typeName: TypeName
@@ -68,7 +69,7 @@ trait FieldDeclaration extends DependencyHolder {
   def isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
 
   // Create an SObjectField version of this field
-  def getSObjectField(shareTypeName: Option[TypeName], module: Option[Module]): CustomFieldDeclaration = {
+  def getSObjectStaticField(shareTypeName: Option[TypeName], module: Option[Module]): CustomField = {
     def preloadSObject(typeName: TypeName): TypeResponse = {
       module.map(m => TypeResolver(typeName, m)).getOrElse(PlatformTypes.get(typeName, None))
     }
@@ -82,8 +83,11 @@ trait FieldDeclaration extends DependencyHolder {
       // Primitives (including other Id types)
       if (shareTypeName.nonEmpty && name == Names.RowCause)
         CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)
-      else
-        CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true)
+      else {
+        Option(location)
+          .map(l => LocatableCustomFieldDeclaration(l, name, TypeNames.SObjectField, None, asStatic = true))
+          .getOrElse(CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true))
+      }
     } else if (name.value.endsWith("__r") && typeName.isRecordSet) {
       // Relationship field that needs unwrapping
       val targetSObject = typeName.params.head

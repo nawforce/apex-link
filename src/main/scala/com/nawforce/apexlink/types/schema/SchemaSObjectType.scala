@@ -233,7 +233,7 @@ final case class SObjectFields(baseType: TypeName, module: Module)
     TypeResolver(baseType, module).toOption match {
       case Some(sobject: TypeDeclaration) =>
         sobject.fields
-          .map(field => (field.name, field.getSObjectField(shareTypeName, Some(module))))
+          .map(field => (field.name, field.getSObjectStaticField(shareTypeName, Some(module))))
           .toMap
       case _ => Map()
     }

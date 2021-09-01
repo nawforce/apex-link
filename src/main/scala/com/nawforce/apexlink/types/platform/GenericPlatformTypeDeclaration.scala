@@ -18,6 +18,7 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
+import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
@@ -69,10 +70,10 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 }
 
-class GenericPlatformField(platformField: PlatformField,
-                           _typeDeclaration: GenericPlatformTypeDeclaration)
+class GenericPlatformField(platformField: PlatformField, _typeDeclaration: GenericPlatformTypeDeclaration)
     extends FieldDeclaration {
 
+  override def location: PathLocation = null
   override val name: Name = platformField.name
   override val modifiers: Array[Modifier] = platformField.modifiers
   override val readAccess: Modifier = platformField.readAccess
@@ -85,8 +86,7 @@ class GenericPlatformField(platformField: PlatformField,
   }
 }
 
-class GenericPlatformMethod(platformMethod: PlatformMethod,
-                            _typeDeclaration: GenericPlatformTypeDeclaration)
+class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: GenericPlatformTypeDeclaration)
     extends MethodDeclaration {
 
   override lazy val name: Name = platformMethod.name
@@ -109,8 +109,7 @@ class GenericPlatformMethod(platformMethod: PlatformMethod,
       parameters.map(_.toString).mkString(", ") + ")"
 }
 
-class GenericPlatformParameter(platformParameter: PlatformParameter,
-                               _typeDeclaration: GenericPlatformTypeDeclaration)
+class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclaration: GenericPlatformTypeDeclaration)
     extends ParameterDeclaration {
 
   override lazy val name: Name = platformParameter.name
@@ -151,9 +150,7 @@ object GenericPlatformTypeDeclaration {
           case Left(error: TypeError)            => error.typeName
           case Right(paramType: TypeDeclaration) => paramType.typeName
       })
-      Right(
-        new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes),
-                                           genericDecl.get))
+      Right(new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get))
     } else {
       Left(MissingType(typeName))
     }

@@ -22,7 +22,7 @@ import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSE
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
 import com.nawforce.runtime.parsers.Locatable
 
@@ -42,11 +42,13 @@ object LabelField {
 }
 
 /** A individual Label being represented as a static field. */
-final case class Label(outerTypeId: TypeId, location: PathLocation, name: Name, isProtected: Boolean)
+final case class Label(outerTypeId: TypeId, override val location: PathLocation, name: Name, isProtected: Boolean)
     extends LabelField
     with Locatable
 
-final case class GhostLabel(name: Name) extends LabelField
+final case class GhostLabel(name: Name) extends LabelField {
+  override def location: PathLocation = null
+}
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */

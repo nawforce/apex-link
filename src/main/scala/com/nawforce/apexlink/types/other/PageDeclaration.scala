@@ -18,10 +18,11 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
+import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
 
 import scala.collection.mutable
@@ -29,6 +30,7 @@ import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
 case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFContainer) extends FieldDeclaration {
+  override def location: PathLocation = null
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER

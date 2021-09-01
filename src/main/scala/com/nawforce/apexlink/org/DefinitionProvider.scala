@@ -105,12 +105,13 @@ trait DefinitionProvider {
       exprLocations
         .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
         .foreach(loc => {
-          // If the result has a locatable we can use that as the target
+          // If the result has a locatable we can use that as the target, beware the order here matters due
+          // to both inheritance and some objects supporting multiple Locatable traits
           exprMap(loc)._2.locatable match {
-            case Some(l: UnsafeLocatable) =>
-              return Option(l.location).map(l => Array(LocationLink(location, l.path, l.location, l.location)))
             case Some(l: IdLocatable) =>
               return Some(Array(LocationLink(location, l.location.path, l.location.location, l.idLocation)))
+            case Some(l: UnsafeLocatable) =>
+              return Option(l.location).map(l => Array(LocationLink(location, l.path, l.location, l.location)))
             case Some(l: Locatable) =>
               return Some(Array(LocationLink(location, l.location.path, l.location.location, l.location.location)))
             case _ =>

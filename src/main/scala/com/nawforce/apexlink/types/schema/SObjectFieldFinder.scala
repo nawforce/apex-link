@@ -79,7 +79,7 @@ trait SObjectFieldFinder {
         }
 
       case _ =>
-        field.getSObjectField(shareTypeName, module)
+        field.getSObjectStaticField(shareTypeName, module)
     }
   }
 

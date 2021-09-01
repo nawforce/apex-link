@@ -22,7 +22,7 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.schema.SObjectFieldFinder
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
@@ -150,6 +150,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 }
 
 class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration {
+  override def location: PathLocation = null
   override lazy val name: Name = Name(decodeName(field.getName))
   override lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)

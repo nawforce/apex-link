@@ -54,13 +54,13 @@ final case class CustomFieldDeclaration(name: Name,
                                         idTarget: Option[TypeName],
                                         asStatic: Boolean = false)
     extends CustomField(asStatic) {
+  override def location: PathLocation = null
 }
 
-final case class LocatableCustomFieldDeclaration(location: PathLocation,
+final case class LocatableCustomFieldDeclaration(override val location: PathLocation,
                                                  name: Name,
                                                  typeName: TypeName,
                                                  idTarget: Option[TypeName],
                                                  asStatic: Boolean = false)
     extends CustomField(asStatic)
-    with Locatable {
-}
+    with Locatable {}
