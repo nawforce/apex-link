@@ -22,15 +22,14 @@ import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.pkgforce.stream.{PackageStream, PageEvent}
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual Page being represented as a static field. */
-case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFContainer) extends FieldDeclaration {
-  override def location: PathLocation = null
+case class Page(module: Module, location: PathLocation, name: Name, vfContainer: VFContainer) extends FieldDeclaration {
   override lazy val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
   override lazy val typeName: TypeName = TypeNames.PageReference
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
@@ -49,12 +48,12 @@ case class Page(module: Module, path: PathLike, name: Name, vfContainer: VFConta
 
 object Page {
   def apply(module: Module, event: PageEvent): Seq[Page] = {
-    val path = event.sourceInfo.location.path
-    val document = MetadataDocument(path)
+    val location = event.sourceInfo.location.pathLocation
+    val document = MetadataDocument(PathFactory(location.path))
     val container = new VFContainer(module, event)
-    Seq(new Page(module, path, document.get.name, container)) ++
+    Seq(new Page(module, location, document.get.name, container)) ++
       (if (module.namespace.nonEmpty)
-         Seq(new Page(module, path, Name(s"${module.namespace.get.value}__${document.get.name}"), container))
+         Seq(new Page(module, location, Name(s"${module.namespace.get.value}__${document.get.name}"), container))
        else
          Seq.empty)
   }
@@ -64,7 +63,7 @@ object Page {
   * base packages via the `namespace__name` format.
   */
 final case class PageDeclaration(sources: Array[SourceInfo], override val module: Module, pages: Array[Page])
-    extends BasicTypeDeclaration(pages.map(p => p.path).distinct, module, TypeNames.Page)
+    extends BasicTypeDeclaration(pages.map(p => PathFactory(p.location.path)).distinct, module, TypeNames.Page)
     with DependentType {
 
   // Propagate dependencies to base packages

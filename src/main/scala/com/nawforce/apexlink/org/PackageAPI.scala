@@ -98,7 +98,7 @@ trait PackageAPI extends Package {
               if (typeId.typeName.outer.contains(TypeNames.Page)) {
                 module.pages.fields
                   .find(_.name == typeId.typeName.name)
-                  .collect { case page: Page => Array(page.path.toString) }
+                  .collect { case page: Page if page.location != null => Array(page.location.path) }
               } else {
                 None
               }

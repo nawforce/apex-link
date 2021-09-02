@@ -20,17 +20,22 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, PackageImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
+import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
+import com.nawforce.runtime.parsers.UnsafeLocatable
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
-final case class Interview(module: Module, path: Option[PathLike], interviewName: Name)
-    extends InnerBasicTypeDeclaration(path.toArray, module, TypeName(interviewName, Nil, Some(TypeNames.Interview))) {
+final case class Interview(module: Module, location: PathLocation, interviewName: Name)
+    extends InnerBasicTypeDeclaration(Option(location).map(l => PathFactory(l.path)).toArray,
+                                      module,
+                                      TypeName(interviewName, Nil, Some(TypeNames.Interview)))
+    with UnsafeLocatable {
 
   override val superClass: Option[TypeName] = Some(TypeNames.Interview)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
@@ -45,9 +50,9 @@ final case class Interview(module: Module, path: Option[PathLike], interviewName
 
 object Interview {
   def apply(module: Module, event: FlowEvent): Interview = {
-    val path = event.sourceInfo.location.path
-    val document = MetadataDocument(path)
-    new Interview(module, Some(path), document.get.name)
+    val location = event.sourceInfo.location.pathLocation
+    val document = MetadataDocument(PathFactory(location.path))
+    new Interview(module, location, document.get.name)
   }
 }
 
@@ -148,7 +153,7 @@ final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
   override def addTypeDependencyHolder(typeId: TypeId): Unit = {}
 
   override def findNestedType(name: Name): Option[TypeDeclaration] = {
-    Some(Interview(module, None, name))
+    Some(Interview(module, null, name))
   }
 }
 

@@ -364,7 +364,7 @@ object MethodCall {
 
 final case class NewExpression(creator: Creator) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    creator.verify(input, context)
+    context.saveExpressionContext(this) {creator.verify(input, context)}
   }
 }
 

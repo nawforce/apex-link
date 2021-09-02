@@ -39,7 +39,6 @@ trait DefinitionProvider {
     if (sourceAndType.isEmpty)
       return Array.empty
 
-    // Extract something to search for from the source
     val source = sourceAndType.get._1
     val sourceTD = sourceAndType.get._2
     val searchTermAndLocation = extractSearchTerm(source, line, offset)
@@ -48,19 +47,21 @@ trait DefinitionProvider {
     val searchTerm = searchTermAndLocation.get._1
     val sourceLocation = searchTermAndLocation.get._2
 
-    locateFromValidation(sourceTD, sourceLocation)
-      .orElse(locateFromTypeLookup(searchTerm, sourceLocation, sourceTD))
-      .getOrElse(Array())
+    // These are really backwards but it works better this way for now, we need to capture more granular data from
+    // things such as new expressions to reverse them
+    locateFromTypeLookup(searchTerm, sourceLocation, sourceTD).orElse(
+      locateFromValidation(sourceAndType.get._2, line, offset)
+    ).toArray
   }
 
   private def locateFromTypeLookup(searchTerm: String,
                                    location: Location,
-                                   from: FullDeclaration): Option[Array[LocationLink]] = {
+                                   from: FullDeclaration): Option[LocationLink] = {
     TypeName(searchTerm).toOption match {
       case Some(typeName: TypeName) =>
         resolveTypeName(typeName, location, from)
           .map(ad => {
-            Array(LocationLink(location, ad.location.path, ad.location.location, ad.idLocation))
+            LocationLink(location, ad.location.path, ad.location.location, ad.idLocation)
           })
       case _ => None
     }
@@ -90,8 +91,8 @@ trait DefinitionProvider {
   }
 
   /** Extract a location link from an expression at the passed location */
-  private def locateFromValidation(td: FullDeclaration, location: Location): Option[Array[LocationLink]] = {
-    getTypeBodyDeclaration(td, location.startLine, location.endPosition).foreach(typeAndBody => {
+  private def locateFromValidation(td: FullDeclaration, line: Int, offset: Int): Option[LocationLink] = {
+    getTypeBodyDeclaration(td, line, offset).foreach(typeAndBody => {
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
       val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
@@ -101,7 +102,7 @@ trait DefinitionProvider {
       }
 
       // Find the inner-most expression containing location from those that do
-      val exprLocations = exprMap.keys.filter(_.contains(location.startLine, location.endPosition))
+      val exprLocations = exprMap.keys.filter(_.contains(line, offset))
       exprLocations
         .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
         .foreach(loc => {
@@ -109,11 +110,11 @@ trait DefinitionProvider {
           // to both inheritance and some objects supporting multiple Locatable traits
           exprMap(loc)._2.locatable match {
             case Some(l: IdLocatable) =>
-              return Some(Array(LocationLink(location, l.location.path, l.location.location, l.idLocation)))
+              return Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
             case Some(l: UnsafeLocatable) =>
-              return Option(l.location).map(l => Array(LocationLink(location, l.path, l.location, l.location)))
+              return Option(l.location).map(l => LocationLink(loc, l.path, l.location, l.location))
             case Some(l: Locatable) =>
-              return Some(Array(LocationLink(location, l.location.path, l.location.location, l.location.location)))
+              return Some(LocationLink(loc, l.location.path, l.location.location, l.location.location))
             case _ =>
               return None
           }

@@ -32,7 +32,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
     val newType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (newType.nonEmpty) {
-      ExprContext(isStatic = Some(false), newType.get)
+      ExprContext(isStatic = Some(false), newType, newType.get)
     } else {
       context.missingType(location, typeName)
       ExprContext.empty
