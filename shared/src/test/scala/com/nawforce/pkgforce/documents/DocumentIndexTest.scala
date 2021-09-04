@@ -27,7 +27,8 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY}
+import com.nawforce.pkgforce.diagnostics
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue, Location}
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
@@ -139,9 +140,14 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       Map[String, String]("pkg/foo/Foo.cls" -> "public class Foo {}",
         "/pkg/bar/Foo.xcls" -> "public class Foo {}")) { root: PathLike =>
       val index = DocumentIndex(logger, None, root.join("pkg"))
-      assert(index.get(ApexNature).size == 1)
+      assert(index.get(ApexNature).isEmpty)
       assert(index.get(ExtendedApexNature).size == 1)
-      assert(logger.issues.isEmpty)
+      assert(
+        logger.issues sameElements Array(Issue(root.join("pkg").join("foo").join("Foo.cls").toString,
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
+            Location.empty,
+            "File creates duplicate type 'Foo' as '/pkg/bar/Foo.xcls', ignoring"))))
     }
   }
 

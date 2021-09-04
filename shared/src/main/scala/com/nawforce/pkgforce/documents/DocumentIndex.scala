@@ -113,13 +113,14 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
     // Duplicate detect for documents that define a complete type
     val typeName = document.typeName(namespace)
     if (!document.nature.partialType) {
-      val existing = get(document.nature, typeName)
+      val existing = get(document.nature, typeName) ++
+        (if (document.nature == ApexNature) get(ExtendedApexNature, typeName) else Set())
       if (existing.nonEmpty) {
         logger.log(
           Issue(document.path.toString,
                 diagnostics.Diagnostic(
                   ERROR_CATEGORY,
-                  Location(0),
+                  Location.empty,
                   s"File creates duplicate type '$typeName' as '${existing.head.path}', ignoring")))
         return
       }
@@ -161,7 +162,7 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
       Issue(
         document.path.toString,
         Diagnostic(ERROR_CATEGORY,
-                   Location(0),
+                   Location.empty,
                    s"Duplicate type '$typeName' found in '${document.path}', ignoring this file")))
     false
   }
@@ -234,7 +235,7 @@ private class DocumentStore(namespace: Option[Name]) {
     if (document.nature.partialType) {
       val docMap = safePartialDocumentMap(document.nature)
       val typeName = document.typeName(namespace)
-      if (docMap.get(typeName).nonEmpty)
+      if (docMap.contains(typeName))
         docMap.put(typeName, docMap(typeName).filterNot(_ == document))
     } else {
       val docMap = safeFullDocumentMap(document.nature)
