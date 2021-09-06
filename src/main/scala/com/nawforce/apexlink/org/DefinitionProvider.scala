@@ -39,19 +39,19 @@ trait DefinitionProvider {
     if (sourceAndType.isEmpty)
       return Array.empty
 
-    val source = sourceAndType.get._1
-    val sourceTD = sourceAndType.get._2
-    val searchTermAndLocation = extractSearchTerm(source, line, offset)
-    if (searchTermAndLocation.isEmpty)
-      return Array.empty
-    val searchTerm = searchTermAndLocation.get._1
-    val sourceLocation = searchTermAndLocation.get._2
+    locateFromValidation(sourceAndType.get._2, line, offset).orElse({
 
-    // These are really backwards but it works better this way for now, we need to capture more granular data from
-    // things such as new expressions to reverse them
-    locateFromTypeLookup(searchTerm, sourceLocation, sourceTD).orElse(
-      locateFromValidation(sourceAndType.get._2, line, offset)
-    ).toArray
+      val source = sourceAndType.get._1
+      val sourceTD = sourceAndType.get._2
+      val searchTermAndLocation = extractSearchTerm(source, line, offset)
+      if (searchTermAndLocation.isEmpty)
+        return Array.empty
+      val searchTerm = searchTermAndLocation.get._1
+      val sourceLocation = searchTermAndLocation.get._2
+
+      locateFromTypeLookup(searchTerm, sourceLocation, sourceTD)
+
+    }).toArray
   }
 
   private def locateFromTypeLookup(searchTerm: String,
@@ -95,20 +95,20 @@ trait DefinitionProvider {
     getTypeBodyDeclaration(td, line, offset).foreach(typeAndBody => {
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-      val exprMap = mutable.Map[Location, (Expression, ExprContext)]()
-      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(exprMap))
+      val resultMap = mutable.Map[Location, (CST, ExprContext)]()
+      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
       context.disableIssueReporting() {
         typeAndBody._2.validate(context)
       }
 
       // Find the inner-most expression containing location from those that do
-      val exprLocations = exprMap.keys.filter(_.contains(line, offset))
+      val exprLocations = resultMap.keys.filter(_.contains(line, offset))
       exprLocations
         .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
         .foreach(loc => {
           // If the result has a locatable we can use that as the target, beware the order here matters due
           // to both inheritance and some objects supporting multiple Locatable traits
-          exprMap(loc)._2.locatable match {
+          resultMap(loc)._2.locatable match {
             case Some(l: IdLocatable) =>
               return Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
             case Some(l: UnsafeLocatable) =>

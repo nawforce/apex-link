@@ -51,8 +51,8 @@ trait VerifyContext {
   /** Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
 
-  /** Save the result of an expression evaluation for later analysis */
-  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext
+  /** Save some result of an validation for later analysis */
+  def saveResult(CST: CST, altLocation: Location)(op: => ExprContext): ExprContext
 
   /** Test if issues are currently being suppressed */
   def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
@@ -167,19 +167,21 @@ trait HolderVerifyContext {
   }
 }
 
-class ExprResultHolder(exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]]) {
-  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext = {
+class ValidateResultHolder(resultMap: Option[mutable.Map[Location, (CST, ExprContext)]]) {
+  def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext = {
     val result = op
-    if (exprMap.nonEmpty)
-      exprMap.get.put(expression.location.location, (expression, result))
+    if (resultMap.nonEmpty) {
+      resultMap.get.put(altLocation, (cst, result))
+      resultMap.get.put(cst.location.location, (cst, result))
+    }
     result
   }
 }
 
 final class TypeVerifyContext(parentContext: Option[VerifyContext],
                               typeDeclaration: ApexDeclaration,
-                              exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
-    extends ExprResultHolder(exprMap)
+                              resultMap: Option[mutable.Map[Location, (CST, ExprContext)]])
+    extends ValidateResultHolder(resultMap)
     with HolderVerifyContext
     with VerifyContext {
 
@@ -208,8 +210,8 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
 
 final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
                                          classBodyDeclaration: ClassBodyDeclaration,
-                                         exprMap: Option[mutable.Map[Location, (Expression, ExprContext)]])
-    extends ExprResultHolder(exprMap)
+                                         exprMap: Option[mutable.Map[Location, (CST, ExprContext)]])
+    extends ValidateResultHolder(exprMap)
     with HolderVerifyContext
     with VerifyContext {
 
@@ -301,8 +303,8 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
       })
   }
 
-  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext =
-    parentContext.saveExpressionContext(expression)(op)
+  def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext =
+    parentContext.saveResult(cst, altLocation)(op)
 }
 
 final class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContext: Boolean)
@@ -339,8 +341,11 @@ final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends V
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
 
-  def saveExpressionContext(expression: Expression)(op: => ExprContext): ExprContext =
-    parentContext.saveExpressionContext(expression)(op)
+  def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext =
+    parentContext.saveResult(cst, altLocation)(op)
+
+  def saveResult(cst: CST)(op: => ExprContext): ExprContext =
+    parentContext.saveResult(cst, cst.location.location)(op)
 
   def isVar(name: Name, markUsed: Boolean = false): Option[VarTypeAndDefinition] =
     parentContext.getVar(name, markUsed: Boolean)
