@@ -1,7 +1,7 @@
 {
   "packageDirectories": [
     {
-      "path": "NPSP/src",
+      "path": "NPSP/force-app",
       "default": true
     }
   ],
