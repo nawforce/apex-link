@@ -30,12 +30,12 @@ package com.nawforce.pkgforce.sfdx
 import com.nawforce.pkgforce.path.PathLike
 import ujson.Value
 
-case class Templates(projectPath: PathLike, path: PathLike, target: PathLike)
+case class XApex(projectPath: PathLike, path: PathLike, target: Option[PathLike])
 
-object Templates {
-  def apply(projectPath: PathLike, config: ValueWithPositions, value: Value.Value): Templates = {
+object XApex {
+  def apply(projectPath: PathLike, config: ValueWithPositions, value: Value.Value): XApex = {
     val path = projectPath.join(value.stringValue(config, "path"))
-    val target = projectPath.join(value.stringValue(config, "target"))
-    new Templates(projectPath, path, target)
+    val target = value.optStringValue(config, "target").map(projectPath.join)
+    new XApex(projectPath, path, target)
   }
 }

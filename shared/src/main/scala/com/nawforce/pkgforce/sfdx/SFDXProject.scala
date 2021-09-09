@@ -91,13 +91,13 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       case _: NoSuchElementException => Map()
     }
 
-  val templates: Option[Templates] =
-    plugins.get("templates").flatMap {
+  val xcls: Option[XApex] =
+    plugins.get("xcls").flatMap {
       case value: ujson.Obj =>
-        Some(Templates(projectPath, config, value))
+        Some(XApex(projectPath, config, value))
       case value =>
         config.lineAndOffsetOf(value).map(lineAndOffset => {
-          throw SFDXProjectError(lineAndOffset, "plugins 'templates' should be an object")
+          throw SFDXProjectError(lineAndOffset, "plugins 'xcls' should be an object")
         })
     }
 
@@ -129,10 +129,10 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       return Seq.empty
     }
 
-    val templateLayer = templates.map(tl => ModuleLayer(projectPath, tl.path, Seq.empty)).toSeq
+    val xclsLayer = xcls.map(tl => ModuleLayer(projectPath, tl.path, Seq.empty)).toSeq
     val localPackage = NamespaceLayer(
       namespace,
-      templateLayer ++
+      xclsLayer ++
       packageDirectories
         .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
           foldPackageDirectory(logger))

@@ -396,7 +396,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
           |    { "path": "foo"}
           |  ],
           |  "plugins": {
-          |    "templates": {"path": "template", "target": "target"}
+          |    "xcls": {"path": "xcls", "target": "target"}
           |  }
           |}
           |""".stripMargin)) { root: PathLike =>
@@ -405,7 +405,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       assert(project.nonEmpty)
 
       val dir = root.join("foo")
-      val dir2 = root.join("template")
+      val dir2 = root.join("xcls")
       project.get.layers(logger) should matchPattern {
         case List(
             NamespaceLayer(None,

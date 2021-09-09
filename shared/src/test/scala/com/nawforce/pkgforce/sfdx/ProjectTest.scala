@@ -116,7 +116,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(logger.issues.isEmpty)
         assert(project.nonEmpty)
         assert(project.get.packageDirectories.isEmpty)
-        assert(project.get.templates.isEmpty)
+        assert(project.get.xcls.isEmpty)
     }
   }
 
@@ -531,7 +531,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         """{
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": []
+          |   "xcls": []
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
@@ -540,8 +540,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         logger.issues sameElements Array(
           Issue(root.join("sfdx-project.json").toString,
                 diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location(4, 16),
-                                       "plugins 'templates' should be an object"))))
+                                       Location(4, 11),
+                                       "plugins 'xcls' should be an object"))))
     }
   }
 
@@ -551,7 +551,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         """{
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": {}
+          |   "xcls": {}
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
@@ -560,7 +560,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         logger.issues sameElements Array(
           Issue(root.join("sfdx-project.json").toString,
                 diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location(4, 16),
+                                       Location(4, 11),
                                        "'path' is required"))))
     }
   }
@@ -571,32 +571,26 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         """{
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": {"path": "path"}
+          |   "xcls": {"path": "path"}
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
-      assert(project.isEmpty)
-      assert(
-        logger.issues sameElements Array(
-          Issue(root.join("sfdx-project.json").toString,
-                diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location(4, 16),
-                                       "'target' is required"))))
+      assert(project.nonEmpty)
     }
   }
 
-  test("Templates well formed") {
+  test("Template with optional target") {
     FileSystemHelper.run(
       Map("sfdx-project.json" ->
         """{
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": {"path": "path", "target": "target"}
+          |   "xcls": {"path": "path", "target": "target"}
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
-      assert(project.get.templates.get.path == root.join("path"))
-      assert(project.get.templates.get.target == root.join("target"))
+      assert(project.get.xcls.get.path == root.join("path"))
+      assert(project.get.xcls.get.target.contains(root.join("target")))
     }
   }
 
@@ -607,7 +601,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           | "sourceApiVersion": "Hello",
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": {"path": "path", "target": "target"}
+          |   "xcls": {"path": "path", "target": "target"}
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
@@ -622,7 +616,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           | "sourceApiVersion": 23.4,
           | "packageDirectories": [],
           | "plugins": {
-          |   "templates": {"path": "path", "target": "target"}
+          |   "xcls": {"path": "path", "target": "target"}
           | }
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
