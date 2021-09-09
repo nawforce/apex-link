@@ -40,6 +40,8 @@ import scala.jdk.CollectionConverters._
 class CodeParser(val source: Source) {
   private val cis = source.asInsensitiveStream
 
+  var lastTokenStream: Option[CommonTokenStream] = None
+
   def parseClass(): IssuesAnd[ApexParser.CompilationUnitContext] = {
     parse(parser => parser.compilationUnit())
   }
@@ -82,6 +84,7 @@ class CodeParser(val source: Source) {
   def parse[T](parse: ApexParser => T): IssuesAnd[T] = {
     CodeParser.autoClearCache()
 
+    lastTokenStream = None
     val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
@@ -91,6 +94,7 @@ class CodeParser(val source: Source) {
     parser.addErrorListener(listener)
 
     val result = parse(parser)
+    lastTokenStream = Some(tokenStream)
     IssuesAnd(listener.issues, result)
   }
 }

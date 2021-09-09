@@ -39,6 +39,8 @@ class CodeParser(val source: Source) {
   // We would like to extend this but it angers the JavaScript gods
   val cis: CaseInsensitiveInputStream = source.asInsensitiveStream
 
+  var lastTokenStream: Option[CommonTokenStream] = None
+
   def parseClass(): IssuesAnd[ApexParser.CompilationUnitContext] = {
     parse(parser => parser.compilationUnit())
   }
@@ -79,6 +81,7 @@ class CodeParser(val source: Source) {
   }
 
   def parse[T](parse: ApexParser => T): IssuesAnd[T] = {
+    lastTokenStream = None
     val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
@@ -88,6 +91,7 @@ class CodeParser(val source: Source) {
     parser.addErrorListener(listener)
 
     val result = parse(parser)
+    lastTokenStream = Some(tokenStream)
     IssuesAnd(listener.issues, result)
   }
 }
