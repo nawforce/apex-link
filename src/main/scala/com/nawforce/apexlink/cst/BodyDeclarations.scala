@@ -66,6 +66,7 @@ object ClassBodyDeclaration {
                 methodOwnerNature: MethodOwnerNature,
                 isOuter: Boolean,
                 typeName: TypeName,
+                extendedApex: Boolean,
                 modifiers: Seq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext): Seq[ClassBodyDeclaration] = {
 
@@ -145,6 +146,7 @@ object ClassBodyDeclaration {
                 ClassDeclaration.constructInner(parser,
                                                 module,
                                                 typeName,
+                            extendedApex,
                                                 ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
                                                 x))))
 

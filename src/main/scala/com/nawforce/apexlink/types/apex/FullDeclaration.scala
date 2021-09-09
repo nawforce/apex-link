@@ -137,8 +137,8 @@ abstract class FullDeclaration(val source: Source,
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
     val pathBasename = PathFactory(location.path).basename
-    if (outerTypeName.isEmpty && !pathBasename.equalsIgnoreCase(s"${id.name}.cls")) {
-      context.logError(id.location, s"Type name '${id.name}' does not match file name '${pathBasename}'")
+    if (outerTypeName.isEmpty && !pathBasename.matches(s"(?i)${id.name}.x?cls")) {
+      context.logError(id.location, s"Type name '${id.name}' does not match file name '$pathBasename'")
     }
 
     // Check super class is visible
@@ -228,7 +228,7 @@ object FullDeclaration {
       None
   }
 
-  def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): FullDeclaration = {
+  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): FullDeclaration = {
 
     val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
     val thisType = TypeName(name).withNamespace(module.namespace)
@@ -238,11 +238,12 @@ object FullDeclaration {
       .map(
         cd =>
           ClassDeclaration.construct(parser,
-                                     module,
-                                     thisType,
-                                     None,
-                                     ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
-                                     cd))
+            module,
+            thisType,
+            None,
+            extendedApex,
+            ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
+            cd))
       .orElse(
         CodeParser
           .toScala(typeDecl.interfaceDeclaration())
