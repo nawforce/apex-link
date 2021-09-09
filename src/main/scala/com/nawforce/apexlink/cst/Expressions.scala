@@ -97,15 +97,16 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
           if (isNamespace(primary.id.name, input.declaration.get)) {
             val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
             val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-            td.map(td => context.saveExpressionContext(this) {
-              ExprContext(isStatic = Some(true), Some(td), td)
+            td.map(td =>
+              context.saveResult(this) {
+                ExprContext(isStatic = Some(true), Some(td), td)
             })
           } else {
             None
           }
       }
     })
-    intercept.map(result => context.saveExpressionContext(this)(result))
+    intercept.map(result => context.saveResult(this)(result))
     intercept.getOrElse(verifyInternal(input, context))
   }
 
@@ -136,7 +137,7 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
         context.logError(location, "Safe navigation operator (?.) can not be used on static references")
         ExprContext.empty
       } else {
-        context.saveExpressionContext(this) {
+        context.saveResult(this) {
           verifyWithId(inter, context)
         }
       }
@@ -306,13 +307,15 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
             case Left(error) =>
               if (!context.module.isGhostedType(method.typeName))
                 context.log(error.asIssue(location))
-              ExprContext.empty
+              context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
             case Right(td) =>
-              context.saveExpressionContext(this) { ExprContext(isStatic = Some(false), Some(td), method) }
+              context.saveResult(this, target.location.location) {
+                ExprContext(isStatic = Some(false), Some(td), method)
+              }
           }
         } else {
           // TODO: How to error if attempt to use return
-          context.saveExpressionContext(this) { ExprContext(None, None, method) }
+          context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
         }
       })
       .getOrElse({
@@ -364,7 +367,7 @@ object MethodCall {
 
 final case class NewExpression(creator: Creator) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    context.saveExpressionContext(this) {creator.verify(input, context)}
+    context.saveResult(this) { creator.verify(input, context) }
   }
 }
 
@@ -532,7 +535,7 @@ final case class QueryExpression(query: Expression, lhs: Expression, rhs: Expres
 
 final case class PrimaryExpression(var primary: Primary) extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    context.saveExpressionContext(this) {
+    context.saveResult(this) {
       primary.verify(ExprContext(isStatic = input.isStatic, context.thisType), context)
     }
   }

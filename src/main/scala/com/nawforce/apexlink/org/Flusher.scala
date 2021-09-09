@@ -14,13 +14,12 @@
 
 package com.nawforce.apexlink.org
 
-import java.util.concurrent.locks.ReentrantLock
-
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.pkgforce.documents.ParsedCache
 import com.nawforce.pkgforce.memory.Cleanable
 import com.nawforce.pkgforce.path.PathLike
 
+import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable
 
 case class RefreshRequest(pkg: PackageImpl, path: PathLike)
@@ -73,11 +72,12 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
 
 }
 
-class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache])
-    extends Flusher(org, parsedCache)
-    with Runnable {
+class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache]) extends Flusher(org, parsedCache) with Runnable {
 
-  new Thread(this).start()
+  private val t = new Thread(this)
+  t.setDaemon(true)
+  t.setName("apex-link cache flusher")
+  t.start()
 
   override def run(): Unit = {
     def queueSize: Int = lock.synchronized { refreshQueue.size }

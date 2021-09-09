@@ -193,7 +193,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
         org.unmanaged
           .getDefinition(root.join("Dummy.cls"), line = 1, offset = 26, None)
           .contains(
-            LocationLink(Location(1, 25, 1, 33),
+            LocationLink(Location(1, 25, 1, 31),
                          root.join("Foo.cls").toString,
                          Location(1, 26, 1, 42),
                          Location(1, 31, 1, 37))))
@@ -228,7 +228,7 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
           org.unmanaged
             .getDefinition(root.join("Dummy.cls"), line = 1, offset = 27, None)
             sameElements Array(
-              LocationLink(Location(1, 26, 1, 36),
+              LocationLink(Location(1, 26, 1, 32),
                            root.join("Foo.cls").toString,
                            Location(1, 59, 1, 83),
                            Location(1, 64, 1, 70))))
