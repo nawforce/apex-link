@@ -28,7 +28,7 @@ jobs:
 
       - name: pkgforce-compile
         working-directory: './pkgforce'
-        run: sbt crossJVM/publishM2
+        run: sbt pkgforceJVM/publishM2
 
       - name: runforce-checkout
         uses: actions/checkout@v2
