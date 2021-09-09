@@ -156,7 +156,11 @@ object LabelDeclaration {
   def apply(module: Module): LabelDeclaration = {
     module.baseModules.headOption
       .map(_.labels)
-      .map(base => new LabelDeclaration(module, base.sources, base.labels, base.nestedLabels))
+      .map(base => {
+        val newLabel = new LabelDeclaration(module, base.sources, base.labels, base.nestedLabels)
+        base.addTypeDependencyHolder(newLabel.typeId)
+        newLabel
+      })
       .getOrElse(new LabelDeclaration(module, Array(), Array(), createPackageLabels(module)))
   }
 

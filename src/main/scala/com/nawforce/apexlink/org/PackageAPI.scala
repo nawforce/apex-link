@@ -20,7 +20,7 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.apexlink.types.other.Page
+import com.nawforce.apexlink.types.other.{LabelDeclaration, Page}
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
@@ -285,6 +285,11 @@ trait PackageAPI extends Package {
         case Some(summary: SummaryDeclaration) =>
           // Replace direct use summary types, no need to revalidate these
           refreshInternal(PathFactory(summary.location.path))
+          None
+        case Some(labels: LabelDeclaration) =>
+          val pathOpt = labels.module.index.get(LabelNature).toArray.headOption
+          if(!pathOpt.isEmpty)
+            refreshInternal(pathOpt.get.path)
           None
         case x => x
     })
