@@ -290,6 +290,8 @@ trait PackageAPI extends Package {
           val pathOpt = labels.module.index.get(LabelNature).toArray.headOption
           if(!pathOpt.isEmpty)
             refreshInternal(pathOpt.get.path)
+          else
+            labels.module.refreshInternal(labels)
           None
         case x => x
     })

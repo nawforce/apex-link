@@ -261,6 +261,15 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     None
   }
 
+  def refreshInternal(existingLabels: LabelDeclaration): Unit = {
+    val newLabels = LabelDeclaration(this)
+    val holders = existingLabels
+      .getTypeDependencyHolders
+    newLabels.updateTypeDependencyHolders(holders)
+    replaceType(newLabels.typeName, Some(newLabels))
+    newLabels.validate()
+  }
+
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
   def refreshInternal(path: PathLike): Seq[(TypeId, Set[TypeId])] = {
