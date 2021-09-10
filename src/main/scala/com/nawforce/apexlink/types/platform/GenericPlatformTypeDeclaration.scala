@@ -103,10 +103,6 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
       .map(p => new GenericPlatformParameter(p, _typeDeclaration))
 
   override val hasBlock: Boolean = false
-
-  override def toString: String =
-    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
-      parameters.map(_.toString).mkString(", ") + ")"
 }
 
 class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclaration: GenericPlatformTypeDeclaration)
@@ -116,10 +112,6 @@ class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclar
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(platformParameter.getGenericTypeName)
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
-  }
-
-  override def toString: String = {
-    typeName.toString + " " + name.toString
   }
 }
 

@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.UnusedLog
+import com.nawforce.apexlink.cst.{ClassDeclaration, UnusedLog}
 import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
@@ -34,7 +34,7 @@ import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable
 
-class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
+class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder with GenericTypeFactory {
 
   val namespace: Option[Name] = pkg.namespace
   val baseModules: Seq[Module] = dependents.reverse
@@ -184,14 +184,13 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   }
 
   private def findType(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
-
     if (namespace.nonEmpty) {
       val td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
       if (td.nonEmpty)
         return td.get
     }
 
-    var td = findPackageType(typeName).map(Right(_))
+    val td = findPackageType(typeName).map(Right(_))
     if (td.nonEmpty)
       return td.get
 
@@ -201,6 +200,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   // Find locally, or fallback to a searching base packages
   def findPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {
+    // Might be an outer in this module
     var declaration = findModuleType(typeName)
     if (declaration.nonEmpty) {
       if (inPackage || declaration.get.modifiers.contains(GLOBAL_MODIFIER))
@@ -209,6 +209,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return None
     }
 
+    // Or maybe an inner
     if (typeName.outer.nonEmpty) {
       declaration = findPackageType(typeName.outer.get, inPackage = inPackage)
         .flatMap(_.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
@@ -216,6 +217,17 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return declaration
     }
 
+    // Or extended Apex generic
+    declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
+      findPackageType(genericTypeName).flatMap {
+        case cd: ClassDeclaration if cd.extendedApex => getOrCreateExtendedGeneric(typeName, cd)
+        case _ => None
+      }
+    )
+    if (declaration.nonEmpty)
+      return declaration
+
+    // Try base modules & packages of this module
     baseModules.view
       .flatMap(_.findPackageType(typeName))
       .headOption
@@ -230,10 +242,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     // Use aliased type name here so we don't mishandle an ambiguous typename when searching
     val targetType = TypeNames.aliasOrReturn(typeName)
 
+    // Direct hit
     var declaration = types.get(targetType)
     if (declaration.nonEmpty)
       return declaration
 
+    // SObject and alike, we want module specific version of these
     declaration = types.get(targetType.withTail(TypeNames.Schema))
     if (declaration.nonEmpty)
       return declaration

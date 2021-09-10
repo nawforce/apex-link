@@ -31,15 +31,15 @@ object CompilationUnit {
   def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext)
       : CompilationUnit = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      new CompilationUnit(FullDeclaration.construct(parser, module, name, compilationUnit.typeDeclaration()),
+      new CompilationUnit(FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration()),
         extendedApex).withContext(compilationUnit)
     }
   }
 }
 
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
-                                  _outerTypeName: Option[TypeName], _id: Id,
-                                  _modifiers: ModifierResults, _extendsType: Option[TypeName],
+                                  _outerTypeName: Option[TypeName], _id: Id, extendedApex: Boolean,
+                                  _modifiers: ModifierResults, typeArguments: Seq[Id], _extendsType: Option[TypeName],
                                   _implementsTypes: Array[TypeName], _bodyDeclarations: Array[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
     _bodyDeclarations) {
@@ -59,12 +59,27 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
   private def verifyCommon(context: VerifyContext): Unit = {
     if (!modifiers.contains(GLOBAL_MODIFIER)) {
       bodyDeclarations
-          .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
-          .collect {case l: IdLocatable => l}
-          .foreach(
-            child =>
-              context.logError(child.idPathLocation, "Enclosing class must be declared global to use global or webservice modifiers")
-          )
+        .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
+        .collect { case l: IdLocatable => l }
+        .foreach(
+          child =>
+            context.logError(child.idPathLocation, "Enclosing class must be declared global to use global or webservice modifiers")
+        )
+    }
+
+    if (!extendedApex) {
+      if (typeArguments.nonEmpty)
+        context.logError(typeArguments.head.location, "Class type arguments can only by used by 'Extended' Apex classes")
+    } else {
+      typeArguments
+        .groupBy(_.name)
+        .foreach {
+          case (_, single) if single.length == 1 => ()
+          case (_, duplicates) =>
+            duplicates.tail.foreach(dup => {
+              context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
+            })
+        }
     }
 
     // FUTURE: Eval method map for error handling side-effects
@@ -75,13 +90,13 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 object ClassDeclaration {
   val staticModifier: Array[Modifier] = Array(STATIC_MODIFIER)
 
-  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, modifiers: ModifierResults,
+  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, extendedApex: Boolean, modifiers: ModifierResults,
                      classDeclaration: ClassDeclarationContext): ClassDeclaration = {
     val thisType = TypeName(Names(CodeParser.getText(classDeclaration.id())), Nil, Some(outerType))
-    construct(parser, module, thisType, Some(outerType), modifiers, classDeclaration)
+    construct(parser, module, thisType, Some(outerType), extendedApex, modifiers, classDeclaration)
   }
 
-  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName],
+  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName], extendedApex: Boolean,
                 modifiers: ModifierResults, classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val extendType =
@@ -92,25 +107,30 @@ object ClassDeclaration {
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
         .getOrElse(TypeName.emptyTypeName)
+    val typeArguments =
+      CodeParser.toScala(classDeclaration.typeParameters())
+        .map(args => CodeParser.toScala(args.id()).map(Id.construct))
+        .getOrElse(Seq())
 
     val classBody = classDeclaration.classBody()
     val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
     val typeContext = new RelativeTypeContext
 
     val bodyDeclarations: Array[ClassBodyDeclaration] =
-        classBodyDeclarations.flatMap(cbd =>
-          CodeParser.toScala(cbd.block())
-            .map(x => Seq(ApexInitializerBlock.construct(parser,
-                ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
+      classBodyDeclarations.flatMap(cbd =>
+        CodeParser.toScala(cbd.block())
+          .map(x => Seq(ApexInitializerBlock.construct(parser,
+            ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
-              outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
+              outerTypeName.isEmpty, thisType, extendedApex, CodeParser.toScala(cbd.modifier()), x))
           )
           .orElse(throw new CSTException())
-        ).flatten.toArray
+      ).flatten.toArray
 
-    val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(classDeclaration.id()), modifiers,
-      Some(extendType),implementsType, bodyDeclarations).withContext(classDeclaration)
+    val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
+      Id.construct(classDeclaration.id()), extendedApex, modifiers, typeArguments,
+      Some(extendType), implementsType, bodyDeclarations).withContext(classDeclaration)
     typeContext.freeze(td)
     td
   }

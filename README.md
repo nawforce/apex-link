@@ -18,7 +18,7 @@ The main API for the library is based around the concept of a virtual (in-memory
 The [apex-assist](https://github.com/nawforce/apex-assist) VSCode extension makes use of a JSON-RPC server that is built into the library. The [API](https://javadoc.io/doc/com.github.nawforce/apexlink/latest/com/nawforce/common/rpc/OrgAPI.html) for this is not considered stable, but it may be more convenient for some use cases.
 
 ### Roadmap
-Building this library has been a multi-year effort, but there are still plenty of improvements to be made. Work is currently focused on a 2.0.0 release which has breaking API changes. This mainly adds the ability to layer metadata internally & support sharing of namespaces for 1GP MPD and 2GP support. Following this we expect to work on the following:
+Building this library has been a multi-year effort, but there are still plenty of features to add:  
  
 * Add ability to import metadata into a layer from external sources, such as directly from an org
 * Extended validations (this can be done incrementally with each release)
@@ -31,7 +31,7 @@ To use the jar in a maven project add the following to your pom.xml
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>apexlink</artifactId>
-        <version>2.0.0</version>
+        <version>2.1.0</version>
     </dependency>
 
 ### Source & Licenses

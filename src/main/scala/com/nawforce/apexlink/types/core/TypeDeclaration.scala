@@ -114,11 +114,18 @@ trait ParameterDeclaration {
   }
 
   def summary: ParameterSummary = serialise
+
+  override def toString: String = {
+    typeName.toString + " " + name.toString
+  }
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: Array[Modifier]
   val parameters: Array[ParameterDeclaration]
+
+  override def toString: String =
+    modifiers.map(_.toString).mkString(" ") + " constructor(" + parameters.map(_.toString).mkString(", ") + ")"
 }
 
 object ConstructorDeclaration {
@@ -144,6 +151,10 @@ trait MethodDeclaration extends DependencyHolder {
   def isOverride: Boolean = modifiers.contains(OVERRIDE_MODIFIER)
   def isVirtualOrOverride: Boolean = isVirtual || isOverride
   def isVirtualOrAbstract: Boolean = isVirtual || isAbstract
+
+  override def toString: String =
+    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
+      parameters.map(_.toString).mkString(", ") + ")"
 
   def hasSameSignature(other: MethodDeclaration): Boolean = {
     name == other.name &&
