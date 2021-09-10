@@ -271,8 +271,8 @@ jobs:
       - name: apex-recipes
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-recipes/apex-recipes
 
-      - name: NPSP
-        run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NPSP
+      #- name: NPSP
+      #  run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/NPSP
 
       - name: apex-mdapi
         run: java -cp "target/dependency/*:target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/apex-mdapi/apex-mdapi
