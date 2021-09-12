@@ -25,9 +25,13 @@ import scala.collection.mutable
 trait GenericTypeFactory {
   this: Module =>
 
+  private val genericTypes = mutable.Map[TypeName, Option[TypeDeclaration]]()
+
   def getOrCreateExtendedGeneric(typeName: TypeName, declaration: ClassDeclaration): Option[TypeDeclaration] = {
-    val typeArgs = typeName.name.value.split('_').tail.map(Name(_))
-    consumeTypeArgs(typeArgs, declaration).filter(_._1 == typeArgs.length).map(_._2)
+    genericTypes.getOrElseUpdate(typeName, {
+      val typeArgs = typeName.name.value.split('_').tail.map(Name(_))
+      consumeTypeArgs(typeArgs, declaration).filter(_._1 == typeArgs.length).map(_._2)
+    })
   }
 
   /** Find a declaration from type args returning number consumed. */
@@ -73,7 +77,7 @@ trait GenericTypeFactory {
 
       if (typeArgs.length > 1) {
         val tdWithNamespace = findPackageType(TypeName(typeArgs(1), Seq(), Some(TypeName(typeArgs.head))))
-        if (td.nonEmpty)
+        if (tdWithNamespace.nonEmpty)
           return Some(2, tdWithNamespace.get)
       }
     }

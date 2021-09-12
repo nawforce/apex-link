@@ -71,16 +71,19 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
       if (typeArguments.nonEmpty)
         context.logError(typeArguments.head.location, "Class type arguments can only by used by 'Extended' Apex classes")
     } else {
-      typeArguments
-        .groupBy(_.name)
-        .foreach {
-          case (_, single) if single.length == 1 => ()
-          case (_, duplicates) =>
-            duplicates.tail.foreach(dup => {
-              context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
-            })
-        }
+      if (typeArguments.nonEmpty && outerTypeName.nonEmpty)
+        context.logError(typeArguments.head.location, "Class type arguments can only by used by outer classes")
     }
+
+    typeArguments
+      .groupBy(_.name)
+      .foreach {
+        case (_, single) if single.length == 1 => ()
+        case (_, duplicates) =>
+          duplicates.tail.foreach(dup => {
+            context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
+          })
+      }
 
     // FUTURE: Eval method map for error handling side-effects
     methods

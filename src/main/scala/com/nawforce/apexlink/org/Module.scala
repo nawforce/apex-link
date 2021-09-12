@@ -220,7 +220,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     // Or extended Apex generic
     declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
       findPackageType(genericTypeName).flatMap {
-        case cd: ClassDeclaration if cd.extendedApex => getOrCreateExtendedGeneric(typeName, cd)
+        case cd: ClassDeclaration if cd.extendedApex && cd.outerTypeName.isEmpty => getOrCreateExtendedGeneric(typeName, cd)
         case _ => None
       }
     )

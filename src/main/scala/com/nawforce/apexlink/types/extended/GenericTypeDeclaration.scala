@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.types.extended
 
+import com.nawforce.apexlink.cst.ClassDeclaration
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.Module
@@ -23,11 +24,13 @@ import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
-class GenericTypeDeclaration(module: Module, override val typeName: TypeName, baseType: TypeDeclaration) extends TypeDeclaration {
+class GenericTypeDeclaration(module: Module, override val typeName: TypeName, baseType: ClassDeclaration) extends TypeDeclaration {
+
+  baseType.addDependencyHolder(this)
 
   override def paths: Array[PathLike] = baseType.paths
-
   override def isComplete: Boolean = baseType.isComplete
+  override def dependencies(): Iterable[Dependent] = Iterable(baseType)
 
   override val outerTypeName: Option[com.nawforce.pkgforce.names.TypeName] = None
   override val modifiers: Array[com.nawforce.pkgforce.modifiers.Modifier] = baseType.modifiers
@@ -39,7 +42,7 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, ba
   override def validate(): Unit = {}
 
   private val paramsMap: Map[Name, TypeName] = {
-    baseType.typeName.params
+    baseType.typeArguments
       .zip(typeName.params)
       .map(p => (p._1.name, p._2))
       .toMap
@@ -58,7 +61,11 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, ba
   override def nestedTypes: Array[TypeDeclaration] = Array()
 
   override lazy val fields: Array[FieldDeclaration] = {
-    baseType.fields.map(f => new GenericField(f, this))
+    baseType.fields.map(f =>
+      if (f.isStatic)
+        f
+      else
+        new GenericField(f, this))
   }
 
   override lazy val constructors: Array[ConstructorDeclaration] = {
@@ -66,7 +73,11 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, ba
   }
 
   override lazy val methods: Array[MethodDeclaration] = {
-    baseType.methods.map(m => new GenericMethod(m, this))
+    baseType.methods.map(m =>
+      if (m.isStatic)
+        m
+      else
+        new GenericMethod(m, this))
   }
 
   def replaceParams(typeName: TypeName): TypeName = {
