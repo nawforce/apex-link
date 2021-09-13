@@ -20,7 +20,7 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
-import com.nawforce.apexlink.types.other.Page
+import com.nawforce.apexlink.types.other.{LabelDeclaration, Page}
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
@@ -221,7 +221,27 @@ trait PackageAPI extends Package {
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
   def refreshInternal(path: PathLike): Seq[(TypeId, Set[TypeId])] = {
-    modules.find(_.isVisibleFile(path)).map(_.refreshInternal(path)).getOrElse(Seq())
+
+    def refreshLabels(labels: LabelDeclaration): Seq[(TypeId, Set[TypeId])] = {
+      labels.module.refreshInternal(labels)
+    }
+
+    def propagateLabelRefresh(toDo: Seq[TypeId], acc:Seq[(TypeId, Set[TypeId])]): Seq[(TypeId, Set[TypeId])] = {
+      toDo match {
+        case Seq() => acc
+        case head +: remaining => {
+          head.module.moduleType(head.typeName) match {
+            case Some(labels: LabelDeclaration) =>
+              val updates = refreshLabels(labels)
+              propagateLabelRefresh(remaining ++ updates.flatMap(t => t._2).toIndexedSeq, acc ++ updates)
+            case _ => propagateLabelRefresh(remaining, acc)
+          }
+        }
+      }
+    }
+
+    val updates = modules.find(_.isVisibleFile(path)).map(_.refreshInternal(path)).getOrElse(Seq())
+    propagateLabelRefresh(updates.flatMap(t => t._2).toIndexedSeq, updates)
   }
 
   def refreshBatched(refreshRequests: Seq[RefreshRequest]): Boolean = {

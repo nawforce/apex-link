@@ -261,6 +261,15 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     None
   }
 
+  def refreshInternal(existingLabels: LabelDeclaration): Seq[(TypeId, Set[TypeId])] = {
+    val newLabels = createLabelDeclaration()
+    val holders = existingLabels.getTypeDependencyHolders
+    newLabels.updateTypeDependencyHolders(holders)
+    replaceType(newLabels.typeName, Some(newLabels))
+    newLabels.validate()
+    Seq( (newLabels.typeId, holders.toSet) )
+  }
+
   /* Replace a path, returns the TypeId of the type that was updated and a Set of TypeIds for the dependency
    * holders of that type. */
   def refreshInternal(path: PathLike): Seq[(TypeId, Set[TypeId])] = {
@@ -315,6 +324,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       }
   }
 
+  private def createLabelDeclaration(): LabelDeclaration ={
+    val events = LabelGenerator.iterator(index)
+    val stream = new PackageStream(events.toArray)
+    LabelDeclaration(this).merge(stream)
+  }
+
   private def createTypes(doc: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
     doc match {
       case doc: ExtendedApexDocument =>
@@ -335,9 +350,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
           case _                        => Seq()
         }
       case _: LabelsDocument =>
-        val events = LabelGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
-        Seq(LabelDeclaration(this).merge(stream))
+        Seq(createLabelDeclaration())
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
         val stream = new PackageStream(events.toArray)
