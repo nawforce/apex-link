@@ -36,9 +36,10 @@ import scala.collection.mutable
 
 class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder with GenericTypeFactory {
 
-  val namespace: Option[Name] = pkg.namespace
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
+  val namespace: Option[Name] = pkg.namespace
+  def namespaces: Set[Name] = pkg.namespaces
 
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
   private val schemaManager = SchemaSObjectType(this)

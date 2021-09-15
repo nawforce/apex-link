@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.names
 
-import com.nawforce.pkgforce.names.Names.cache
 import com.nawforce.pkgforce.names._
 
 /** Name handling support.
@@ -70,6 +69,11 @@ object XNames {
   val ParentId: Name = XNames("ParentId")
   val Type: Name = XNames("Type")
   val DataType: Name = XNames("DataType")
+  val List$: Name = XNames("List")
+  val Set$: Name = XNames("Set")
+  val Map$: Name = XNames("Map")
+  val Iterator: Name = XNames("Iterator")
+  val Batchable: Name = XNames("Batchable")
 
   /** Name extensions */
   implicit class NameUtils(name: Name) {

@@ -1,3 +1,16 @@
+/*
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. The name of the author may not be used to endorse or promote products
+    derived from this software without specific prior written permission.
+ */
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
@@ -72,10 +85,26 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Generic Extended class reference in Apex class") {
+  test("Generic Extended class reference") {
     FileSystemHelper.run(
       Map("Dummy.xcls" -> "public class Dummy<X> { }",
         "Foo.cls" -> "public class Foo { {Dummy_String a;} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic Extended class reference with non-namespaced generic arg") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { }",
+        "Foo.cls" -> "public class Foo { {Dummy_List_String a;} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic Extended class reference with namespaced generic arg") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { }",
+        "Foo.cls" -> "public class Foo { {Dummy_SystemList_String a;} }")) { root: PathLike =>
       createHappyOrg(root)
     }
   }
@@ -103,14 +132,6 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
   }
 
   test("Generic Extended class nested reference in Apex class") {
-    FileSystemHelper.run(
-      Map("Dummy.xcls" -> "public class Dummy<X> { }",
-        "Foo.cls" -> "public class Foo { {Dummy_Dummy_String a;} }")) { root: PathLike =>
-      createHappyOrg(root)
-    }
-  }
-
-  test("Generic Extended class dual reference in Apex class") {
     FileSystemHelper.run(
       Map("Dummy.xcls" -> "public class Dummy<X> { }",
         "Foo.cls" -> "public class Foo { {Dummy_Dummy_String a;} }")) { root: PathLike =>
@@ -151,7 +172,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map(
         "sfdx-project.json" -> "{\"namespace\": \"ns\", \"packageDirectories\":[{\"path\":\"pkg\"}],\"plugins\":{\"xcls\":{\"path\":\"xcls\"}}}",
         "xcls/Dummy.xcls" -> "public class Dummy<X> { }",
-        "pkg/Foo.cls" -> "public class Foo { {Dummy_ns_Foo a;} }")) { root: PathLike =>
+        "pkg/Foo.cls" -> "public class Foo { {Dummy_nsFoo a;} }")) { root: PathLike =>
       createHappyOrg(root)
     }
   }
@@ -161,10 +182,10 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map(
         "sfdx-project.json" -> "{\"namespace\": \"ns\", \"packageDirectories\":[{\"path\":\"pkg\"}],\"plugins\":{\"xcls\":{\"path\":\"xcls\"}}}",
         "xcls/Dummy.xcls" -> "public class Dummy<X, Y> { }",
-        "pkg/Foo.cls" -> "public class Foo { {Dummy_ns_Foo a;} }")) { root: PathLike =>
+        "pkg/Foo.cls" -> "public class Foo { {Dummy_nsFoo a;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.getMessages("/pkg/Foo.cls") ==
-        "Missing: line 1 at 33-34: No type declaration found for 'Dummy_ns_Foo'\n")
+        "Missing: line 1 at 32-33: No type declaration found for 'Dummy_nsFoo'\n")
     }
   }
 
