@@ -93,6 +93,14 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Generic Extended class reference dual arguments") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X, Y> { }",
+        "Foo.cls" -> "public class Foo { {Dummy_String_Integer a;} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
   test("Generic Extended class reference with non-namespaced generic arg") {
     FileSystemHelper.run(
       Map("Dummy.xcls" -> "public class Dummy<X> { }",

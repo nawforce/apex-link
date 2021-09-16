@@ -32,12 +32,12 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, ba
   override def isComplete: Boolean = baseType.isComplete
   override def dependencies(): Iterable[Dependent] = Iterable(baseType)
 
-  override val outerTypeName: Option[com.nawforce.pkgforce.names.TypeName] = None
-  override val modifiers: Array[com.nawforce.pkgforce.modifiers.Modifier] = baseType.modifiers
-  override val moduleDeclaration: Option[com.nawforce.apexlink.org.Module] = Some(module)
-  override val name: com.nawforce.pkgforce.names.Name = typeName.name
-  override val nature: com.nawforce.apexlink.types.core.Nature = baseType.nature
-  override val blocks: Array[com.nawforce.apexlink.types.core.BlockDeclaration] = Array()
+  override val outerTypeName: Option[TypeName] = None
+  override val modifiers: Array[Modifier] = baseType.modifiers
+  override val moduleDeclaration: Option[Module] = Some(module)
+  override val name: Name = typeName.name
+  override val nature: Nature = baseType.nature
+  override val blocks: Array[BlockDeclaration] = Array()
 
   override def validate(): Unit = {}
 
