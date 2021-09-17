@@ -36,41 +36,11 @@ trait CompletionProvider {
 
   def getCompletions(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[CompletionItemLink] = {
 
-    Array()
-
-    /*
-    // Make sure we have access to source code and a type to resolve things against
     val sourceAndType = loadSourceAndType(path, content)
     if (sourceAndType.isEmpty)
       return Array.empty
 
-    locateFromValidation(sourceAndType.get._2, line, offset).orElse({
-
-      val source = sourceAndType.get._1
-      val sourceTD = sourceAndType.get._2
-      val searchTermAndLocation = extractSearchTerm(source, line, offset)
-      if (searchTermAndLocation.isEmpty)
-        return Array.empty
-      val searchTerm = searchTermAndLocation.get._1
-      val sourceLocation = searchTermAndLocation.get._2
-
-      locateFromTypeLookup(searchTerm, sourceLocation, sourceTD)
-
-    }).toArray
-     */
-  }
-
-  private def locateFromTypeLookup(searchTerm: String,
-                                   location: Location,
-                                   from: FullDeclaration): Option[LocationLink] = {
-    TypeName(searchTerm).toOption match {
-      case Some(typeName: TypeName) =>
-        resolveTypeName(typeName, location, from)
-          .map(ad => {
-            LocationLink(location, ad.location.path, ad.location.location, ad.idLocation)
-          })
-      case _ => None
-    }
+    completionsFromValidation(sourceAndType.get._2, line, offset)
   }
 
   private def loadSourceAndType(path: PathLike, content: Option[String]): Option[(String, FullDeclaration)] = {
@@ -97,8 +67,9 @@ trait CompletionProvider {
   }
 
   /** Extract a location link from an expression at the passed location */
-  private def locateFromValidation(td: FullDeclaration, line: Int, offset: Int): Option[LocationLink] = {
+  private def completionsFromValidation(td: FullDeclaration, line: Int, offset: Int): Array[CompletionItemLink] = {
     getTypeBodyDeclaration(td, line, offset).foreach(typeAndBody => {
+
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
       val resultMap = mutable.Map[Location, (CST, ExprContext)]()
@@ -109,24 +80,11 @@ trait CompletionProvider {
 
       // Find the inner-most expression containing location from those that do
       val exprLocations = resultMap.keys.filter(_.contains(line, offset))
-      exprLocations
-        .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-        .foreach(loc => {
-          // If the result has a locatable we can use that as the target, beware the order here matters due
-          // to both inheritance and some objects supporting multiple Locatable traits
-          resultMap(loc)._2.locatable match {
-            case Some(l: IdLocatable) =>
-              return Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
-            case Some(l: UnsafeLocatable) =>
-              return Option(l.location).map(l => LocationLink(loc, l.path, l.location, l.location))
-            case Some(l: Locatable) =>
-              return Some(LocationLink(loc, l.location.path, l.location.location, l.location.location))
-            case _ =>
-              return None
-          }
-        })
+      val target = exprLocations.find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
+
+      Array()
     })
-    None
+    Array()
   }
 
   private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
