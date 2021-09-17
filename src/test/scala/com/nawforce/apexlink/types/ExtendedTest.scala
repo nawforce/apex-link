@@ -253,7 +253,15 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
         "Foo.cls" -> "public class Foo { {Integer b; b = Dummy_String.myMethod();} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.getMessages("/Foo.cls") ==
-        "Missing: line 1 at 35-58: No type declaration found for 'X'\n")
+        "Error: line 1 at 31-58: Incompatible types in assignment, from 'Dummy.X' to 'System.Integer'\n")
     }
   }
+
+  test("Generic new reference") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { {Object a = new Dummy_X();} }")) { root: PathLike =>
+      val org = createHappyOrg(root)
+    }
+  }
+
 }

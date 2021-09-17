@@ -22,6 +22,7 @@ import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomPar
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -45,6 +46,22 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
     _bodyDeclarations) {
 
   override val nature: Nature = CLASS_NATURE
+
+  override lazy val nestedTypes: Array[TypeDeclaration] = {
+    typeArguments
+      .groupBy(_.name)
+      .map(_._2.head)
+      .map(typeArg => {
+        val typeContext = new RelativeTypeContext
+        val td = ClassDeclaration(source, module, typeContext, TypeName(typeArg.name, Nil, Some(typeName)), Some(typeName),
+          typeArg, extendedApex = true, ModifierResults(Array(PRIVATE_MODIFIER), Array()), Seq(), Some(TypeNames.Any),
+          Array(), Array())
+        td.setLocation(PathFactory(typeArg.location.path), typeArg.location.location.startLine, typeArg.location.location.startPosition,
+          typeArg.location.location.endLine, typeArg.location.location.endPosition)
+        typeContext.freeze(td)
+        td
+      }).toArray ++ super.nestedTypes
+  }
 
   override def verify(context: TypeVerifyContext): Unit = {
     verifyCommon(context)

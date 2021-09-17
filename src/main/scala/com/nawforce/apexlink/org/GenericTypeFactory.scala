@@ -28,10 +28,10 @@ trait GenericTypeFactory {
 
   private val genericTypes = mutable.Map[TypeName, Option[TypeDeclaration]]()
 
-  def getOrCreateExtendedGeneric(typeName: TypeName, genericBase: ClassDeclaration): Option[TypeDeclaration] = {
+  def getOrCreateExtendedGeneric(typeName: TypeName, from: TypeDeclaration, genericBase: ClassDeclaration): Option[TypeDeclaration] = {
     genericTypes.getOrElseUpdate(typeName, {
       val typeArgs = typeName.name.value.split('_').map(Name(_)).toList
-      constructTypeName(typeArgs).flatMap(decoded => {
+      constructTypeName(typeArgs, from).flatMap(decoded => {
         // We must consume all args and end up with same as the number of args as the base class
         if (decoded._1.isEmpty && decoded._2.params.length == genericBase.typeArguments.length) {
           Some(new GenericTypeDeclaration(this, decoded._2, genericBase))
@@ -43,49 +43,49 @@ trait GenericTypeFactory {
   }
 
   /** Construct a TypeName from some args using a rather specific model for resolving. */
-  private def constructTypeName(typeArgs: List[Name]): Option[(List[Name], TypeName)] = {
+  private def constructTypeName(typeArgs: List[Name], from: TypeDeclaration): Option[(List[Name], TypeName)] = {
     if (typeArgs.nonEmpty) {
-      return constructNoneGeneric(typeArgs)
-        .orElse(constructExtendedGeneric(typeArgs))
-        .orElse(constructPlatformGeneric(typeArgs))
+      return constructNoneGeneric(typeArgs, from)
+        .orElse(constructExtendedGeneric(typeArgs, from))
+        .orElse(constructPlatformGeneric(typeArgs, from))
     }
     None
   }
 
-  private def constructNoneGeneric(typeArgs: List[Name]): Option[(List[Name], TypeName)] = {
+  private def constructNoneGeneric(typeArgs: List[Name], from: TypeDeclaration): Option[(List[Name], TypeName)] = {
     val typeName = constructTypeName(typeArgs.head)
     if (typeName.outer.isEmpty && namespace.nonEmpty) {
-      val td = TypeResolver(typeName.withNamespace(namespace), this).toOption
+      val td = TypeResolver(typeName.withNamespace(namespace), from).toOption
       if (td.nonEmpty && asCompanion(td.get).isEmpty)
         return Some((typeArgs.tail, td.get.typeName))
     }
 
-    val td = TypeResolver(typeName, this).toOption
+    val td = TypeResolver(typeName, from).toOption
     if (td.nonEmpty && asCompanion(td.get).isEmpty)
       return Some((typeArgs.tail, td.get.typeName))
 
     None
   }
 
-  private def constructExtendedGeneric(typeArgs: List[Name]): Option[(List[Name], TypeName)] = {
+  private def constructExtendedGeneric(typeArgs: List[Name], from: TypeDeclaration): Option[(List[Name], TypeName)] = {
     var typeName = constructTypeName(typeArgs.head)
     if (typeName.outer.isEmpty) {
       // Add package namespace if not explicit
       typeName = typeName.withNamespace(namespace)
     }
 
-    val td = findPackageType(typeName)
+    val td = findPackageType(typeName, Some(from))
     val companion = td.flatMap(asCompanion)
     if (td.nonEmpty && companion.nonEmpty) {
       val requiredArgs = companion.get.typeArguments.length
-      val params = constructTypeNames(typeArgs.tail, requiredArgs)
+      val params = constructTypeNames(typeArgs.tail, from, requiredArgs)
       if (params._2.length == requiredArgs)
         return Some((params._1, td.get.typeName.withParams(params._2)))
     }
     None
   }
 
-  private def constructPlatformGeneric(typeArgs: List[Name]): Option[(List[Name], TypeName)] = {
+  private def constructPlatformGeneric(typeArgs: List[Name], from: TypeDeclaration): Option[(List[Name], TypeName)] = {
 
     var typeName = constructTypeName(typeArgs.head)
     if (typeName.outer.isEmpty) {
@@ -94,7 +94,7 @@ trait GenericTypeFactory {
     }
 
     GenericTypeFactory.platformGenerics.get(typeName.asDotName.names).flatMap(requiredArgs => {
-      val params = constructTypeNames(typeArgs.tail, requiredArgs)
+      val params = constructTypeNames(typeArgs.tail, from, requiredArgs)
       if (params._2.length == requiredArgs)
         Some((params._1, typeName.withParams(params._2)))
       else
@@ -103,13 +103,13 @@ trait GenericTypeFactory {
   }
 
   /** Construct a set number of TypeNames form some args, may not be possible, returns any unused type args. */
-  private def constructTypeNames(typeArgs: List[Name], count: Int): (List[Name], List[TypeName]) = {
+  private def constructTypeNames(typeArgs: List[Name], from: TypeDeclaration, count: Int): (List[Name], List[TypeName]) = {
     if (count == 0) {
       (typeArgs, List())
     } else {
-      constructTypeName(typeArgs) match {
+      constructTypeName(typeArgs, from) match {
         case Some((residual, typeName)) =>
-          val rest = constructTypeNames(residual, count - 1)
+          val rest = constructTypeNames(residual, from, count - 1)
           (rest._1, typeName :: rest._2)
         case None =>
           (typeArgs, List())
