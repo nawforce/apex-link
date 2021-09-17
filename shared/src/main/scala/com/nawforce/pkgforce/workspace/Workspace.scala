@@ -57,10 +57,10 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
       acc ++ layer.indexes)
 
   def get(typeName: TypeName): Set[MetadataDocument] = {
-    deployOrderedIndexes.toSeq.reverse
-      .map(index => index.value.get(typeName))
-      .headOption
-      .getOrElse(Set.empty)
+    val indexes = deployOrderedIndexes.toSeq.reverse.map(_.value)
+    indexes.find(_.get(typeName).nonEmpty).map(index => {
+      index.get(typeName)
+    }).getOrElse(Set())
   }
 
   def events: Iterator[PackageEvent] = {
@@ -77,7 +77,7 @@ object Workspace {
   def apply(path: PathLike): IssuesAnd[Option[Workspace]] = {
     val logger = new CatchingLogger
     val workspace = Workspace(path, logger)
-    IssuesAnd(logger.issues.toArray, workspace)
+    IssuesAnd(logger.issues, workspace)
   }
 
   def apply(path: PathLike, logger: IssueLogger): Option[Workspace] = {
