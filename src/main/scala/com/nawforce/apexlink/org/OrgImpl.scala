@@ -268,7 +268,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   /** Locate a definition for a symbol */
-  def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
+  override def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
@@ -276,6 +276,16 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         .getOrElse(Array.empty)
     }
   }
+
+  override def getCompletions(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+    OrgImpl.current.withValue(this) {
+      packages
+        .find(_.isPackagePath(path))
+        .map(_.getCompletions(PathFactory(path), line, offset, Option(content)))
+        .getOrElse(Array.empty)
+    }
+  }
+
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
     propagateAllDependencies()
@@ -335,7 +345,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       summary.interfaces.flatMap { interface =>
         Option(pkg.getTypeIdentifier(interface))
           .flatMap { interfaceTypeId =>
-            val outerTypeId = interfaceTypeId.typeName.outer.map(pkg.getTypeIdentifier(_)).getOrElse(interfaceTypeId)
+            val outerTypeId = interfaceTypeId.typeName.outer.map(pkg.getTypeIdentifier).getOrElse(interfaceTypeId)
             Option(pkg.getSummaryOfType(outerTypeId))
               .map((interfaceTypeId, outerTypeId, _))
           }
@@ -350,7 +360,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
             .flatMap { tid =>
               Option(pkg.getSummaryOfType(tid))
                 .flatMap { summary =>
-                  val otid = tid.typeName.outer.map(pkg.getTypeIdentifier(_)).getOrElse(tid)
+                  val otid = tid.typeName.outer.map(pkg.getTypeIdentifier).getOrElse(tid)
                   Some(Array((tid, otid, summary)) ++ targetsForInterfaces(pkg, summary))
                 }
             }

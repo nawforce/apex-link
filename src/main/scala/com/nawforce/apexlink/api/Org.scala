@@ -15,7 +15,7 @@
 package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.rpc.{BombScore, DependencyGraph, LocationLink}
+import com.nawforce.apexlink.rpc.{BombScore, CompletionItemLink, DependencyGraph, LocationLink}
 import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps, PathLocation}
 import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
@@ -117,6 +117,8 @@ trait Org {
     * If content is null, path will be used to load the source code. It is not necessary for the file being searched
     * from to be free of errors, but errors may impact the ability to locate inner classes within that file. */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink]
+
+  def getCompletions(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink]
 
   /** Calculate an ordered list of classes which are having a big impact on classes dependencies, aka the 'Bombs'.
     *

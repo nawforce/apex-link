@@ -25,7 +25,7 @@ import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
     extends PackageAPI
-    with DefinitionProvider {
+    with DefinitionProvider with CompletionProvider {
 
   /** Modules used in this package, this will be null during construction. */
   var modules: Array[Module] = _
