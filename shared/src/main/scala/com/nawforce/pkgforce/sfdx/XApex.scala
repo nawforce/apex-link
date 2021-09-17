@@ -30,12 +30,14 @@ package com.nawforce.pkgforce.sfdx
 import com.nawforce.pkgforce.path.PathLike
 import ujson.Value
 
-case class XApex(projectPath: PathLike, path: PathLike, target: Option[PathLike])
+case class XApex(projectPath: PathLike, relPath: String, target: Option[PathLike]) {
+  val path: PathLike = projectPath.join(relPath)
+}
 
 object XApex {
   def apply(projectPath: PathLike, config: ValueWithPositions, value: Value.Value): XApex = {
-    val path = projectPath.join(value.stringValue(config, "path"))
+    val relPath = value.stringValue(config, "path")
     val target = value.optStringValue(config, "target").map(projectPath.join)
-    new XApex(projectPath, path, target)
+    new XApex(projectPath, relPath, target)
   }
 }
