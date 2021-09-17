@@ -24,7 +24,7 @@ import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
-class GenericTypeDeclaration(module: Module, override val typeName: TypeName, baseType: ClassDeclaration) extends TypeDeclaration {
+class GenericTypeDeclaration(module: Module, override val typeName: TypeName, val baseType: ClassDeclaration) extends TypeDeclaration {
 
   baseType.addDependencyHolder(this)
 

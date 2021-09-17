@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.types
 
+import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
@@ -264,4 +265,42 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  private def refresh(pkg: PackageImpl, path: PathLike, source: String): Unit = {
+    path.write(source)
+    pkg.refresh(path)
+  }
+
+  test("Refresh fixes bad method") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
+          "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.otherMethod('');} }")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(org.issues.getMessages("/Foo.cls") ==
+          "Error: line 1 at 51-68: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
+
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("Foo.cls"), "public class Foo { {Dummy_String a; String b; b = a.myMethod('');} }")
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
+
+  test("Refresh fixes bad method (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
+          "Foo.cls" -> "public class Foo { {Dummy_String a; String b; b = a.otherMethod('');} }")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(org.issues.getMessages("/Foo.cls") ==
+          "Error: line 1 at 50-67: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
+
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("Dummy.xcls"), "public class Dummy<X> {public X otherMethod(X arg) {}}")
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
 }

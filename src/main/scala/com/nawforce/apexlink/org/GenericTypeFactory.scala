@@ -29,7 +29,7 @@ trait GenericTypeFactory {
   private val genericTypes = mutable.Map[TypeName, Option[TypeDeclaration]]()
 
   def getOrCreateExtendedGeneric(typeName: TypeName, from: TypeDeclaration, genericBase: ClassDeclaration): Option[TypeDeclaration] = {
-    genericTypes.getOrElseUpdate(typeName, {
+    //genericTypes.getOrElseUpdate(typeName, {
       val typeArgs = typeName.name.value.split('_').map(Name(_)).toList
       constructTypeName(typeArgs, from).flatMap(decoded => {
         // We must consume all args and end up with same as the number of args as the base class
@@ -39,7 +39,7 @@ trait GenericTypeFactory {
           None
         }
       })
-    })
+    //})
   }
 
   /** Construct a TypeName from some args using a rather specific model for resolving. */
