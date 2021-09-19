@@ -261,7 +261,21 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
   test("Generic new reference") {
     FileSystemHelper.run(
       Map("Dummy.xcls" -> "public class Dummy<X> { {Object a = new Dummy_X();} }")) { root: PathLike =>
-      val org = createHappyOrg(root)
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic method call on type argument") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { X value; {value.foo();} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic field reference on type argument") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { X value; {Object o = value.foo;} }")) { root: PathLike =>
+      createHappyOrg(root)
     }
   }
 

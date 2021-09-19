@@ -227,8 +227,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         }
       )
     })
-    if (declaration.nonEmpty)
+    if (declaration.nonEmpty) {
+      upsertMetadata(declaration.get)
       return declaration
+    }
 
     // Try base modules & packages of this module
     baseModules.view

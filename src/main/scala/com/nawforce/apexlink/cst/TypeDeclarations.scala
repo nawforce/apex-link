@@ -20,9 +20,10 @@ import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration,
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -30,12 +31,17 @@ class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Bo
 
 object CompilationUnit {
   def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext)
-      : CompilationUnit = {
+  : CompilationUnit = {
     CST.sourceContext.withValue(Some(parser.source)) {
       new CompilationUnit(FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration()),
         extendedApex).withContext(compilationUnit)
     }
   }
+}
+
+final case class TypeArgumentProxy(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
+  extends BasicTypeDeclaration(_paths, _module, _typeName) {
+  override lazy val isComplete: Boolean = false
 }
 
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
@@ -51,16 +57,14 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
     typeArguments
       .groupBy(_.name)
       .map(_._2.head)
-      .map(typeArg => {
-        val typeContext = new RelativeTypeContext
-        val td = ClassDeclaration(source, module, typeContext, TypeName(typeArg.name, Nil, Some(typeName)), Some(typeName),
-          typeArg, extendedApex = true, ModifierResults(Array(PRIVATE_MODIFIER), Array()), Seq(), Some(TypeNames.Any),
-          Array(), Array())
-        td.setLocation(PathFactory(typeArg.location.path), typeArg.location.location.startLine, typeArg.location.location.startPosition,
-          typeArg.location.location.endLine, typeArg.location.location.endPosition)
-        typeContext.freeze(td)
-        td
-      }).toArray ++ super.nestedTypes
+      .map(typeArg => TypeArgumentProxy(Array(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
+  }
+
+  override def unused(): Array[Issue] = {
+    if (extendedApex && typeArguments.nonEmpty)
+      Array()
+    else
+      super.unused()
   }
 
   override def verify(context: TypeVerifyContext): Unit = {

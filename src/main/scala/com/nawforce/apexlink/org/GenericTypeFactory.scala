@@ -26,20 +26,24 @@ import scala.collection.mutable
 trait GenericTypeFactory {
   this: Module =>
 
-  private val genericTypes = mutable.Map[TypeName, Option[TypeDeclaration]]()
+  private var creating = mutable.Set[TypeName]()
 
   def getOrCreateExtendedGeneric(typeName: TypeName, from: TypeDeclaration, genericBase: ClassDeclaration): Option[TypeDeclaration] = {
-    //genericTypes.getOrElseUpdate(typeName, {
-      val typeArgs = typeName.name.value.split('_').map(Name(_)).toList
-      constructTypeName(typeArgs, from).flatMap(decoded => {
-        // We must consume all args and end up with same as the number of args as the base class
-        if (decoded._1.isEmpty && decoded._2.params.length == genericBase.typeArguments.length) {
-          Some(new GenericTypeDeclaration(this, decoded._2, genericBase))
+    if (creating.contains(typeName)) {
+      None
+    } else {
+      try {
+        creating.add(typeName)
+        val typeArgs = constructTypeNames(typeName.name.value.split('_').tail.map(Name(_)).toList, from, genericBase.typeArguments.size)
+        if (typeArgs._1.isEmpty && typeArgs._2.size == genericBase.typeArguments.length) {
+          Some(new GenericTypeDeclaration(this, genericBase.typeName.withParams(typeArgs._2), genericBase))
         } else {
           None
         }
-      })
-    //})
+      } finally {
+        creating.remove(typeName)
+      }
+    }
   }
 
   /** Construct a TypeName from some args using a rather specific model for resolving. */

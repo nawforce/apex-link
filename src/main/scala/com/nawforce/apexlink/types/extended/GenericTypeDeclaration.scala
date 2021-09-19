@@ -89,9 +89,8 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, va
   def mapTypeName(typeName: TypeName): TypeName = {
     if (typeName.outer.isEmpty || typeName.outer.get == baseType.typeName) {
       paramsMap.getOrElse(typeName.name, typeName)
-        .withParams(typeName.params.map(mapTypeName))
     } else {
-      typeName
+      typeName.withParams(typeName.params.map(mapTypeName))
     }
   }
 }
@@ -128,9 +127,10 @@ class GenericMethod(method: MethodDeclaration, owningTypeDeclaration: GenericTyp
 
   override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(method.typeName)
 
-  override lazy val parameters: Array[ParameterDeclaration] =
+  override lazy val parameters: Array[ParameterDeclaration] = {
     method.parameters
       .map(p => new GenericParameter(p, owningTypeDeclaration))
+  }
 
   override val hasBlock: Boolean = false
 }
