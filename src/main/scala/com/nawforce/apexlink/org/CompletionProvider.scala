@@ -36,8 +36,9 @@ trait CompletionProvider {
 
   def getCompletions(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[CompletionItemLink] = {
     val sourceAndType = loadSourceAndType(path, content)
-    if (sourceAndType.isEmpty)
+    if (sourceAndType.isEmpty) {
       return Array.empty
+    }
 
     completionsFromValidation(sourceAndType.get._1, sourceAndType.get._2, line, offset)
   }
@@ -68,32 +69,43 @@ trait CompletionProvider {
   /** Extract a location link from an expression at the passed location */
   private def completionsFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Array[CompletionItemLink] = {
     getExpressionFromValidation(source,td,line,offset) match {
-      case Some(exprContext) =>
+      case Right(exprContext) =>
+        println(exprContext)
         exprContext.declaration match {
           case Some(typeDec) =>
-            accumulateCompletionItems(typeDec, exprContext.isStatic)
-          case _=> Array.empty
+            getAllCompletionItems(typeDec, exprContext.isStatic)
+            //If theres no declaration fallback to current declaration?
+          case _ => getAllCompletionItems(td, None)
         }
-      case _=>
-        //TODO: use current declaration
+      case Left(result)=>
+        result match {
+          case Some(searchTerm) =>
+            locateFromTypeLookup(searchTerm._1,searchTerm._2,td) match {
+              case Some(ad) =>
+                return getAllCompletionItems(ad, None)
+              case _ =>
+            }
+          case _ =>
+        }
         Array.empty
     }
   }
 
-  private def accumulateCompletionItems(td: TypeDeclaration, isStatic: Option[Boolean]) = {
+  private def getAllCompletionItems(td: TypeDeclaration, isStatic: Option[Boolean]) :Array[CompletionItemLink] = {
     //TODO: scopes statics etc
     var accumulator = Array[CompletionItemLink]()
     accumulator = accumulator ++ td.methods
-      .filter(_.isStatic == isStatic.get)
+      .filter(_.isStatic == isStatic.getOrElse(false))
       .map(x =>
         new CompletionItemLink(x.name.toString + "(" + x.parameters.map(_.toString).mkString(", ") + ")", "Method"))
 
-    accumulator = accumulator ++ td.fields.filter(_.isStatic == isStatic.get).map(x => new CompletionItemLink(x.name.toString, "Field"))
-    accumulator = accumulator ++ td.constructors.map(x => new CompletionItemLink(td.name.value, "Constructor"))
+    accumulator = accumulator ++ td.fields.filter(_.isStatic == isStatic.getOrElse(false)).map(x => new CompletionItemLink(x.name.toString, "Field"))
+    accumulator = accumulator ++ td.constructors.map(_ => new CompletionItemLink(td.name.value, "Constructor"))
+    accumulator = accumulator ++ td.nestedTypes.map(x => new CompletionItemLink(x.name.value,"TypeParameter"))
     accumulator
   }
 
-  private def getExpressionFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Option[ExprContext] = {
+  private def getExpressionFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Either[Option[(String, Location)], ExprContext] = {
     getTypeBodyDeclaration(td, line, offset).flatMap(typeAndBody => {
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
@@ -106,15 +118,17 @@ trait CompletionProvider {
 
       return extractSearchTerm(source,line, offset) match {
         case Some(searchTerm) =>
+          println(searchTerm)
           val exprLocations = resultMap.keys.filter(_.contains(searchTerm._2.startLine, searchTerm._2.startPosition))
           exprLocations
-            .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-            .flatMap(loc => {
-              Option(resultMap(loc)._2)
-            })
-        case _ => None
+            .find(exprLocation => exprLocations.forall(_.contains(exprLocation))) match {
+            case Some(loc) => Right(resultMap(loc)._2)
+            case _ => Left(Option(searchTerm))
+          }
+        case _ =>
+          Left(None)
       }
-    }).getOrElse(None)
+    }).getOrElse(Left(None))
   }
 
   private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
@@ -128,6 +142,16 @@ trait CompletionProvider {
           .orElse({
             td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _))
           })
+    }
+  }
+  
+  private def locateFromTypeLookup(searchTerm: String,
+                                   location: Location,
+                                   from: FullDeclaration): Option[ApexDeclaration] = {
+    TypeName(searchTerm).toOption match {
+      case Some(typeName: TypeName) =>
+        resolveTypeName(typeName, location, from)
+      case _ => None
     }
   }
 
@@ -191,9 +215,10 @@ trait CompletionProvider {
           // Split & rebuild so not so sensitive to cursor being close to a "."
           val searchTerm = new mutable.StringBuilder()
           val parts = lineText.substring(start, end + 1).split('.')
+          val dotOffset = if (parts.length > 1) 1 else -1
           var canAppendNext = true
           parts.foreach(part => {
-            canAppendNext = start + searchTerm.length + part.length + 1 < offset
+            canAppendNext = start + searchTerm.length + part.length + dotOffset < offset
             if (canAppendNext) {
               if (searchTerm.nonEmpty)
                 searchTerm.append(".")
