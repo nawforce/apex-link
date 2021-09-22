@@ -15,19 +15,19 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.rpc.CompletionItemLink
-import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration, IdLocatable}
+import com.nawforce.apexlink.rpc.{CompletionItemLink, LocationLink}
+import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{ByteArraySourceData, Locatable, UnsafeLocatable}
+import com.nawforce.runtime.parsers.ByteArraySourceData
 
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
+import scala.jdk.Accumulator
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
 
@@ -35,12 +35,11 @@ trait CompletionProvider {
   this: PackageImpl =>
 
   def getCompletions(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[CompletionItemLink] = {
-
     val sourceAndType = loadSourceAndType(path, content)
     if (sourceAndType.isEmpty)
       return Array.empty
 
-    completionsFromValidation(sourceAndType.get._2, line, offset)
+    completionsFromValidation(sourceAndType.get._1, sourceAndType.get._2, line, offset)
   }
 
   private def loadSourceAndType(path: PathLike, content: Option[String]): Option[(String, FullDeclaration)] = {
@@ -67,9 +66,35 @@ trait CompletionProvider {
   }
 
   /** Extract a location link from an expression at the passed location */
-  private def completionsFromValidation(td: FullDeclaration, line: Int, offset: Int): Array[CompletionItemLink] = {
-    getTypeBodyDeclaration(td, line, offset).foreach(typeAndBody => {
+  private def completionsFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Array[CompletionItemLink] = {
+    getExpressionFromValidation(source,td,line,offset) match {
+      case Some(exprContext) =>
+        exprContext.declaration match {
+          case Some(typeDec) =>
+            accumulateCompletionItems(typeDec, exprContext.isStatic)
+          case _=> Array.empty
+        }
+      case _=>
+        //TODO: use current declaration
+        Array.empty
+    }
+  }
 
+  private def accumulateCompletionItems(td: TypeDeclaration, isStatic: Option[Boolean]) = {
+    //TODO: scopes statics etc
+    var accumulator = Array[CompletionItemLink]()
+    accumulator = accumulator ++ td.methods
+      .filter(_.isStatic == isStatic.get)
+      .map(x =>
+        new CompletionItemLink(x.name.toString + "(" + x.parameters.map(_.toString).mkString(", ") + ")", "Method"))
+
+    accumulator = accumulator ++ td.fields.filter(_.isStatic == isStatic.get).map(x => new CompletionItemLink(x.name.toString, "Field"))
+    accumulator = accumulator ++ td.constructors.map(x => new CompletionItemLink(td.name.value, "Constructor"))
+    accumulator
+  }
+
+  private def getExpressionFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Option[ExprContext] = {
+    getTypeBodyDeclaration(td, line, offset).flatMap(typeAndBody => {
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
       val resultMap = mutable.Map[Location, (CST, ExprContext)]()
@@ -77,14 +102,19 @@ trait CompletionProvider {
       context.disableIssueReporting() {
         typeAndBody._2.validate(context)
       }
+      println(resultMap.keys)
 
-      // Find the inner-most expression containing location from those that do
-      val exprLocations = resultMap.keys.filter(_.contains(line, offset))
-      val target = exprLocations.find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-
-      Array()
-    })
-    Array()
+      return extractSearchTerm(source,line, offset) match {
+        case Some(searchTerm) =>
+          val exprLocations = resultMap.keys.filter(_.contains(searchTerm._2.startLine, searchTerm._2.startPosition))
+          exprLocations
+            .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
+            .flatMap(loc => {
+              Option(resultMap(loc)._2)
+            })
+        case _ => None
+      }
+    }).getOrElse(None)
   }
 
   private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
@@ -161,13 +191,13 @@ trait CompletionProvider {
           // Split & rebuild so not so sensitive to cursor being close to a "."
           val searchTerm = new mutable.StringBuilder()
           val parts = lineText.substring(start, end + 1).split('.')
-          var canAppend = true
+          var canAppendNext = true
           parts.foreach(part => {
-            if (canAppend) {
+            canAppendNext = start + searchTerm.length + part.length + 1 < offset
+            if (canAppendNext) {
               if (searchTerm.nonEmpty)
                 searchTerm.append(".")
               searchTerm.append(part)
-              canAppend = start + searchTerm.length < offset
             }
           })
           (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
@@ -182,7 +212,7 @@ trait CompletionProvider {
       None
     } else {
       val ch = "" + content(offset)
-      if (!ch.matches("[0-9a-zA-Z_\\.]")) {
+      if (!ch.matches("[0-9a-zA-Z_\\.]()")) {
         None
       } else {
         val nextOffset = if (forward) offset + 1 else offset - 1
