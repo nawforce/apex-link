@@ -15,7 +15,7 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
-import com.nawforce.apexlink.rpc.{CompletionItemLink, LocationLink}
+import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.Location
@@ -27,7 +27,6 @@ import com.nawforce.runtime.parsers.ByteArraySourceData
 import java.io.{BufferedReader, StringReader}
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
-import scala.jdk.Accumulator
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try, Using}
 
@@ -70,63 +69,66 @@ trait CompletionProvider {
   private def completionsFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Array[CompletionItemLink] = {
     getExpressionFromValidation(source,td,line,offset) match {
       case Right(exprContext) =>
-        println(exprContext)
-        exprContext.declaration match {
-          case Some(typeDec) =>
-            getAllCompletionItems(typeDec, exprContext.isStatic)
-            //If theres no declaration fallback to current declaration?
-          case _ => getAllCompletionItems(td, None)
-        }
-      case Left(result)=>
-        result match {
-          case Some(searchTerm) =>
-            locateFromTypeLookup(searchTerm._1,searchTerm._2,td) match {
-              case Some(ad) =>
-                return getAllCompletionItems(ad, None)
-              case _ =>
-            }
+        exprContext._1.declaration match {
+          case Some(typeDec) => return getAllCompletionItems(typeDec, exprContext._1.isStatic, exprContext._2)
           case _ =>
         }
-        Array.empty
+      case Left(result) =>
+        result match {
+          case Some(searchTerm) => return getCompletionsFromTypeLookup(searchTerm,td)
+          case None =>
+        }
+    }
+    Array.empty
+  }
+
+  private def getCompletionsFromTypeLookup(searchTermResult: (String,Location,String), fd: FullDeclaration): Array[CompletionItemLink] = {
+    //TODO:Fix for Variables. The search term could be a variable in which case we need resolve the type name and the below wont work
+    //Always assume a non static context for now when we don't have an expression
+    locateFromTypeLookup(searchTermResult._1,searchTermResult._2,fd) match {
+      case Some(ad) => getAllCompletionItems(ad, Some(false), searchTermResult._3)
+      //Fallback into the current declaration
+      case None     => getAllCompletionItems(fd, Some(false), searchTermResult._3)
     }
   }
 
-  private def getAllCompletionItems(td: TypeDeclaration, isStatic: Option[Boolean]) :Array[CompletionItemLink] = {
-    //TODO: scopes statics etc
-    var accumulator = Array[CompletionItemLink]()
-    accumulator = accumulator ++ td.methods
+  private def getAllCompletionItems(td: TypeDeclaration, isStatic: Option[Boolean], filterBy: String) :Array[CompletionItemLink] = {
+    var items = Array[CompletionItemLink]()
+   //TODO: Fix modifier issues
+    items = items ++ td.methods
       .filter(_.isStatic == isStatic.getOrElse(false))
       .map(x =>
-        new CompletionItemLink(x.name.toString + "(" + x.parameters.map(_.toString).mkString(", ") + ")", "Method"))
+        new CompletionItemLink(x.name.toString + "(" + x.parameters.map(_.name.toString()).mkString(", ") + ")", "Method"))
 
-    accumulator = accumulator ++ td.fields.filter(_.isStatic == isStatic.getOrElse(false)).map(x => new CompletionItemLink(x.name.toString, "Field"))
-    accumulator = accumulator ++ td.constructors.map(_ => new CompletionItemLink(td.name.value, "Constructor"))
-    accumulator = accumulator ++ td.nestedTypes.map(x => new CompletionItemLink(x.name.value,"TypeParameter"))
-    accumulator
+    items = items ++ td.fields.filter(_.isStatic == isStatic.getOrElse(false)).map(x => new CompletionItemLink(x.name.toString, "Field"))
+    items = items ++ td.constructors.map(_ => new CompletionItemLink(td.name.value, "Constructor"))
+    items = items ++ td.nestedTypes.map(x => new CompletionItemLink(x.name.value,"TypeParameter"))
+    items.filter(x => x.label.toLowerCase().startsWith(filterBy.toLowerCase()))
   }
 
-  private def getExpressionFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Either[Option[(String, Location)], ExprContext] = {
+  private def getExpressionFromValidation(source: String, td: FullDeclaration, line: Int, offset: Int): Either[Option[(String, Location, String)], (ExprContext, String)] = {
     getTypeBodyDeclaration(td, line, offset).flatMap(typeAndBody => {
       // Validate the body declaration for the side-effect of being able to collect a map of expression results
       val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
       val resultMap = mutable.Map[Location, (CST, ExprContext)]()
       val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
+
       context.disableIssueReporting() {
         typeAndBody._2.validate(context)
       }
-      println(resultMap.keys)
 
-      return extractSearchTerm(source,line, offset) match {
+      extractSearchTerm(source,line, offset) match {
         case Some(searchTerm) =>
-          println(searchTerm)
           val exprLocations = resultMap.keys.filter(_.contains(searchTerm._2.startLine, searchTerm._2.startPosition))
           exprLocations
             .find(exprLocation => exprLocations.forall(_.contains(exprLocation))) match {
-            case Some(loc) => Right(resultMap(loc)._2)
-            case _ => Left(Option(searchTerm))
+            case Some(loc) =>
+              return Right((resultMap(loc)._2, searchTerm._3))
+            case None =>
+              return Left(Some(searchTerm))
           }
         case _ =>
-          Left(None)
+          return Left(None)
       }
     }).getOrElse(Left(None))
   }
@@ -144,7 +146,7 @@ trait CompletionProvider {
           })
     }
   }
-  
+
   private def locateFromTypeLookup(searchTerm: String,
                                    location: Location,
                                    from: FullDeclaration): Option[ApexDeclaration] = {
@@ -202,7 +204,7 @@ trait CompletionProvider {
   }
 
   /** Extract what to search for from source code given line & offset of cursor */
-  private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location)] = {
+  private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location, String)]= {
     val lineText: Option[String] = getLine(source, line - 1) match {
       case Success(Some(expr)) => Some(expr)
       case _                   => None
@@ -225,7 +227,7 @@ trait CompletionProvider {
               searchTerm.append(part)
             }
           })
-          (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
+          (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()), parts.last)
         })
       })
     })
