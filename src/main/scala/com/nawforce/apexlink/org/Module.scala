@@ -186,12 +186,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def findType(typeName: TypeName, from: Option[TypeDeclaration]): TypeResponse = {
     if (namespace.nonEmpty) {
-      val td = findPackageType(typeName.withTail(TypeName(namespace.get))).map(Right(_))
+      val td = findPackageType(typeName.withTail(TypeName(namespace.get)), from).map(Right(_))
       if (td.nonEmpty)
         return td.get
     }
 
-    val td = findPackageType(typeName).map(Right(_))
+    val td = findPackageType(typeName, from).map(Right(_))
     if (td.nonEmpty)
       return td.get
 
@@ -200,7 +200,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   }
 
   // Find locally, or fallback to a searching base packages
-  def findPackageType(typeName: TypeName, inPackage: Boolean = true): Option[TypeDeclaration] = {
+  def findPackageType(typeName: TypeName, from: Option[TypeDeclaration], inPackage: Boolean = true): Option[TypeDeclaration] = {
     // Might be an outer in this module
     var declaration = findModuleType(typeName)
     if (declaration.nonEmpty) {
@@ -212,29 +212,33 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
     // Or maybe an inner
     if (typeName.outer.nonEmpty) {
-      declaration = findPackageType(typeName.outer.get, inPackage = inPackage)
+      declaration = findPackageType(typeName.outer.get, from, inPackage = inPackage)
         .flatMap(_.findNestedType(typeName.name).filter(td => td.isExternallyVisible || inPackage))
       if (declaration.nonEmpty)
         return declaration
     }
 
-    // Or extended Apex generic
-    declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
-      findPackageType(genericTypeName).flatMap {
-        case cd: ClassDeclaration if cd.extendedApex && cd.outerTypeName.isEmpty => getOrCreateExtendedGeneric(typeName, cd)
-        case _ => None
-      }
-    )
-    if (declaration.nonEmpty)
+    // Or extended Apex generic, we only need to support this when from is available
+    from.foreach(from => {
+      declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
+        findPackageType(genericTypeName, Some(from)).flatMap {
+          case cd: ClassDeclaration if cd.extendedApex && cd.outerTypeName.isEmpty => getOrCreateExtendedGeneric(typeName, from, cd)
+          case _ => None
+        }
+      )
+    })
+    if (declaration.nonEmpty) {
+      upsertMetadata(declaration.get)
       return declaration
+    }
 
     // Try base modules & packages of this module
     baseModules.view
-      .flatMap(_.findPackageType(typeName))
+      .flatMap(_.findPackageType(typeName, from))
       .headOption
       .orElse(
         basePackages.view
-          .flatMap(pkg => pkg.modules.headOption.flatMap(_.findPackageType(typeName, inPackage = false)))
+          .flatMap(pkg => pkg.modules.headOption.flatMap(_.findPackageType(typeName, from, inPackage = false)))
           .headOption)
   }
 
@@ -334,7 +338,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   private def createTypes(doc: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
     doc match {
       case doc: ExtendedApexDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = true, forceConstruct = false)).toSeq
       case doc: ApexClassDocument =>
         source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case _: ApexTriggerDocument =>

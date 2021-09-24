@@ -24,12 +24,14 @@ import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
-class GenericTypeDeclaration(module: Module, override val typeName: TypeName, baseType: ClassDeclaration) extends TypeDeclaration {
+class GenericTypeDeclaration(module: Module, override val typeName: TypeName, val baseType: ClassDeclaration) extends TypeDeclaration {
 
   baseType.addDependencyHolder(this)
 
   override def paths: Array[PathLike] = baseType.paths
+
   override def isComplete: Boolean = baseType.isComplete
+
   override def dependencies(): Iterable[Dependent] = Iterable(baseType)
 
   override val outerTypeName: Option[TypeName] = None
@@ -84,12 +86,12 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, ba
     typeName.withParams(typeName.params.map(p => paramsMap.getOrElse(p.name, p)))
   }
 
-  def getTypeVariable(typeName: TypeName): Option[TypeName] = {
-    // Type vars should not really be modeled as TypeNames but they are rare and this is easier
-    if (typeName.params.isEmpty && typeName.outer.isEmpty)
-      paramsMap.get(typeName.name)
-    else
-      None
+  def mapTypeName(typeName: TypeName): TypeName = {
+    if (typeName.outer.isEmpty || typeName.outer.get == baseType.typeName) {
+      paramsMap.getOrElse(typeName.name, typeName)
+    } else {
+      typeName.withParams(typeName.params.map(mapTypeName))
+    }
   }
 }
 
@@ -104,10 +106,7 @@ class GenericField(field: FieldDeclaration, owningTypeDeclaration: GenericTypeDe
   override val writeAccess: Modifier = field.writeAccess
   override val idTarget: Option[TypeName] = None
 
-  override lazy val typeName: TypeName = {
-    val fieldType = owningTypeDeclaration.replaceParams(field.typeName)
-    owningTypeDeclaration.getTypeVariable(fieldType).getOrElse(fieldType)
-  }
+  override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(field.typeName)
 }
 
 class GenericConstructor(constructor: ConstructorDeclaration, owningTypeDeclaration: GenericTypeDeclaration)
@@ -117,8 +116,7 @@ class GenericConstructor(constructor: ConstructorDeclaration, owningTypeDeclarat
   override lazy val modifiers: Array[Modifier] = constructor.modifiers
 
   override lazy val parameters: Array[ParameterDeclaration] =
-    constructor.parameters
-      .map(p => new GenericParameter(p, owningTypeDeclaration))
+    constructor.parameters.map(p => new GenericParameter(p, owningTypeDeclaration))
 }
 
 class GenericMethod(method: MethodDeclaration, owningTypeDeclaration: GenericTypeDeclaration)
@@ -127,14 +125,12 @@ class GenericMethod(method: MethodDeclaration, owningTypeDeclaration: GenericTyp
   override lazy val name: Name = method.name
   override lazy val modifiers: Array[Modifier] = method.modifiers
 
-  override lazy val typeName: TypeName = {
-    val paramType = owningTypeDeclaration.replaceParams(method.typeName)
-    owningTypeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
-  }
+  override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(method.typeName)
 
-  override lazy val parameters: Array[ParameterDeclaration] =
+  override lazy val parameters: Array[ParameterDeclaration] = {
     method.parameters
       .map(p => new GenericParameter(p, owningTypeDeclaration))
+  }
 
   override val hasBlock: Boolean = false
 }
@@ -143,8 +139,5 @@ class GenericParameter(parameter: ParameterDeclaration, owningTypeDeclaration: G
   extends ParameterDeclaration {
 
   override lazy val name: Name = parameter.name
-  override lazy val typeName: TypeName = {
-    val paramType = owningTypeDeclaration.replaceParams(parameter.typeName)
-    owningTypeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
-  }
+  override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(parameter.typeName)
 }

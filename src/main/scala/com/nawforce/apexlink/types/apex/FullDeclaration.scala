@@ -57,7 +57,7 @@ abstract class FullDeclaration(val source: Source,
   override val nature: Nature
   var flushedToCache = false
 
-  override lazy val nestedTypes: Array[TypeDeclaration] =
+  override def nestedTypes: Array[TypeDeclaration] =
     _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
   private lazy val _nestedTypes: Array[FullDeclaration] = {
     bodyDeclarations.flatMap {

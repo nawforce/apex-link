@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.types
 
+import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
@@ -253,7 +254,67 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
         "Foo.cls" -> "public class Foo { {Integer b; b = Dummy_String.myMethod();} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.getMessages("/Foo.cls") ==
-        "Missing: line 1 at 35-58: No type declaration found for 'X'\n")
+        "Error: line 1 at 31-58: Incompatible types in assignment, from 'Dummy.X' to 'System.Integer'\n")
+    }
+  }
+
+  test("Generic new reference") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { {Object a = new Dummy_X();} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic method call on type argument") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { X value; {value.foo();} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Generic field reference on type argument") {
+    FileSystemHelper.run(
+      Map("Dummy.xcls" -> "public class Dummy<X> { X value; {Object o = value.foo;} }")) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  private def refresh(pkg: PackageImpl, path: PathLike, source: String): Unit = {
+    path.write(source)
+    pkg.refresh(path)
+  }
+
+  test("Refresh fixes bad method") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
+          "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.otherMethod('');} }")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(org.issues.getMessages("/Foo.cls") ==
+          "Error: line 1 at 51-68: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
+
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("Foo.cls"), "public class Foo { {Dummy_String a; String b; b = a.myMethod('');} }")
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
+
+  test("Refresh fixes bad method (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
+          "Foo.cls" -> "public class Foo { {Dummy_String a; String b; b = a.otherMethod('');} }")) { root: PathLike =>
+        val org = createOrg(root)
+        assert(org.issues.getMessages("/Foo.cls") ==
+          "Error: line 1 at 50-67: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
+
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("Dummy.xcls"), "public class Dummy<X> {public X otherMethod(X arg) {}}")
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
     }
   }
 }
