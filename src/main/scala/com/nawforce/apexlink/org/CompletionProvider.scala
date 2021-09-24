@@ -33,7 +33,7 @@ import scala.util.{Success, Try, Using}
 trait CompletionProvider {
   this: PackageImpl =>
 
-  def getCompletions(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[CompletionItemLink] = {
+  def getCompletionItems(path: PathLike, line: Int, offset: Int, content: Option[String]): Array[CompletionItemLink] = {
     val sourceAndType = loadSourceAndType(path, content)
     if (sourceAndType.isEmpty) {
       return Array.empty

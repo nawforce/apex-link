@@ -7,7 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CompletionProviderTest extends AnyFunSuite with TestHelper {
 
-  test("Method class match") {
+  test("Method Completions") {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
       root: PathLike =>
@@ -16,7 +16,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val content = "public class Completion { public Completion() {String a = new Dummy().me"
         assert(
           org
-            .getCompletions(path.toString, line = 1, offset = content.length, content)
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
             .sameElements(
               Array(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"))))
     }
@@ -31,7 +31,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val content = "public class Completion { public Completion() {String a = new Dummy().fi"
         assert(
           org
-            .getCompletions(path.toString, line = 1, offset = content.length, content)
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
             .sameElements(Array(CompletionItemLink("fieldA", "Field"))))
     }
   }
@@ -45,7 +45,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val content = "public class Completion { public Completion() {String a = Dummy.fi"
         assert(
           org
-            .getCompletions(path.toString, line = 1, offset = content.length, content)
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
             .sameElements(Array(CompletionItemLink("fieldS", "Field") )))
     }
   }
@@ -57,7 +57,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Completion { public Completion() {Dummy.Inn"
       assert(
         org
-          .getCompletions(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
           .sameElements(Array(CompletionItemLink("Inner", "TypeParameter"))))
     }
   }
@@ -72,7 +72,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Dummy { public String method(){Baz.bar.me"
       assert(
         org
-          .getCompletions(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
           .sameElements(Array(CompletionItemLink("method()", "Method"))))
     }
   }

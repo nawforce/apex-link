@@ -277,11 +277,11 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
   }
 
-  override def getCompletions(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+  override def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
-        .map(_.getCompletions(PathFactory(path), line, offset, Option(content)))
+        .map(_.getCompletionItems(PathFactory(path), line, offset, Option(content)))
         .getOrElse(Array.empty)
     }
   }
