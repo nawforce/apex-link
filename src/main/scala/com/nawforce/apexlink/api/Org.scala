@@ -118,7 +118,7 @@ trait Org {
     * from to be free of errors, but errors may impact the ability to locate inner classes within that file. */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink]
 
-  def getCompletions(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink]
+  def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink]
 
   /** Calculate an ordered list of classes which are having a big impact on classes dependencies, aka the 'Bombs'.
     *
