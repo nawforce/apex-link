@@ -13,6 +13,7 @@
  */
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
@@ -25,8 +26,7 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 
 import scala.collection.mutable
 
-final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue])
-  extends AssignableSupport {
+final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
 
   /** Return all available methods */
   def allMethods: Array[MethodDeclaration] = {
