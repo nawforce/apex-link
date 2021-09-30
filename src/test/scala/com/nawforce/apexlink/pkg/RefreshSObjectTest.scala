@@ -370,4 +370,452 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       }
     }
   }
+
+  test("Custom metadata upsert") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Custom metadata upsert (new)") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        root.createDirectory("Foo__mdt")
+        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Custom metadata upsert (changed)") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata + " ")
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Field refresh updates custom metadata") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        val objectDir = root.createDirectory("Foo__mdt").toOption.get
+        objectDir.createFile("Foo__mdt.object-meta.xml", customObject("Foo", Seq()))
+        val fieldsDir = objectDir.createDirectory("fields").toOption.get
+        val fieldFile = fieldsDir
+          .createFile("Bar__c.field-meta.xml", customField("Bar__c", "Text", None))
+          .toOption
+          .get
+
+        pkg.refresh(fieldFile)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Valid custom metadata class dependent") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls" -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n")
+      }
+    }
+  }
+
+  test("Valid custom metadata class dependent (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq()),
+          "Dummy.cls" -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n")
+
+        refresh(pkg,
+          root.join("Foo__mdt").join("Foo__mdt.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
+
+  test("Custom Metadata MDAPI delete") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__mdt.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
+  test("Custom Metadata SFDX delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__mdt/Foo__mdt.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__mdt").join("Foo__mdt.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
+  test("Platform event upsert") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__e/Foo__e.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObjectMetadata)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Platform event upsert (new)") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        root.createDirectory("Foo__e")
+        refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Platform event upsert (changed)") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__e/Foo__e.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObjectMetadata + " ")
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Field refresh updates platform event") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        val objectDir = root.createDirectory("Foo__e").toOption.get
+        objectDir.createFile("Foo__e.object-meta.xml", customObject("Foo", Seq()))
+        val fieldsDir = objectDir.createDirectory("fields").toOption.get
+        val fieldFile = fieldsDir
+          .createFile("Bar__c.field-meta.xml", customField("Bar__c", "Text", None))
+          .toOption
+          .get
+
+        pkg.refresh(fieldFile)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Valid platform event class dependent") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__e/Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls" -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n")
+      }
+    }
+  }
+
+  test("Valid platform event class dependent (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__e/Foo__e.object" -> customObject("Foo", Seq()),
+          "Dummy.cls" -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n")
+
+        refresh(pkg,
+          root.join("Foo__e").join("Foo__e.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
+
+  test("Platform event MDAPI delete") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__e.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
+  test("Platform event SFDX delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__e/Foo__e.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__e").join("Foo__e.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
+  test("Big object upsert") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__b/Foo__b.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObjectMetadata)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Big object upsert (new)") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        root.createDirectory("Foo__b")
+        refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Big object upsert (changed)") {
+    withManualFlush {
+      val customObjectMetadata = customObject("Foo", Seq())
+      FileSystemHelper.run(Map("Foo__b/Foo__b.object" -> customObjectMetadata)) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObjectMetadata + " ")
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Field refresh updates big object") {
+    withManualFlush {
+      FileSystemHelper.run(Map()) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        val objectDir = root.createDirectory("Foo__b").toOption.get
+        objectDir.createFile("Foo__b.object-meta.xml", customObject("Foo", Seq()))
+        val fieldsDir = objectDir.createDirectory("fields").toOption.get
+        val fieldFile = fieldsDir
+          .createFile("Bar__c.field-meta.xml", customField("Bar__c", "Text", None))
+          .toOption
+          .get
+
+        pkg.refresh(fieldFile)
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+        assert(
+          pkg.orderedModules.head.types
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+      }
+    }
+  }
+
+  test("Valid big object class dependent") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__b/Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls" -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(!org.issues.hasErrorsOrWarnings)
+
+        refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObject("Foo", Seq()))
+        assert(org.flush())
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n")
+      }
+    }
+  }
+
+  test("Valid big object class dependent (reversed)") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__b/Foo__b.object" -> customObject("Foo", Seq()),
+          "Dummy.cls" -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}")) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(
+          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n")
+
+        refresh(pkg,
+          root.join("Foo__b").join("Foo__b.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        assert(org.flush())
+        assert(!org.issues.hasErrorsOrWarnings)
+      }
+    }
+  }
+
+  test("Big object MDAPI delete") {
+    withManualFlush {
+      FileSystemHelper.run(Map("Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__b.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
+  test("Big object SFDX delete") {
+    withManualFlush {
+      FileSystemHelper.run(
+        Map("Foo__b/Foo__b.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
+        root: PathLike =>
+          val org = createHappyOrg(root)
+
+          val startTypes = org.unmanaged.modules.head.types.size
+          val basePath = root.join("Foo__b").join("Foo__b.object")
+          basePath.delete()
+          org.unmanaged.refresh(basePath)
+          assert(org.flush())
+
+          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+      }
+    }
+  }
+
 }

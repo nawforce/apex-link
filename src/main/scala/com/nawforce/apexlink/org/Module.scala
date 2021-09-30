@@ -343,7 +343,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, doc.path, s)).toSeq
-      case doc: SObjectDocument =>
+      case doc: SObjectLike =>
         if (doc.path.toString.endsWith("object-meta.xml"))
           refreshSObject(doc.path.parent)
         else
@@ -351,7 +351,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case _: SObjectFieldDocument | _: SObjectFieldSetDocument | _: SObjectSharingReasonDocument =>
         val sObjectDir = doc.path.parent.parent
         MetadataDocument(sObjectDir.join(s"${sObjectDir.basename}.object-meta.xml")) match {
-          case Some(_: SObjectDocument) => refreshSObject(sObjectDir)
+          case Some(_: SObjectLike) => refreshSObject(sObjectDir)
           case _                        => Seq()
         }
       case _: LabelsDocument =>
@@ -399,13 +399,17 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   }
 
   private def refreshSObject(sObjectPath: PathLike): Seq[DependentType] = {
-    clearSObjectErrors(sObjectPath)
-    val deployer = new SObjectDeployer(this)
-    val sobjects = deployer.createSObjects(
-      SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
+    if (sObjectPath.exists) {
+      clearSObjectErrors(sObjectPath)
+      val deployer = new SObjectDeployer(this)
+      val sobjects = deployer.createSObjects(
+        SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
 
-    sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
-    sobjects.toIndexedSeq
+      sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
+      sobjects.toIndexedSeq
+    } else {
+      Seq()
+    }
   }
 
   private def clearSObjectErrors(path: PathLike): Unit = {
