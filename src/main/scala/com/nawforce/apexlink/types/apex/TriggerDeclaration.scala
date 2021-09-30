@@ -46,7 +46,7 @@ final case class TriggerDeclaration(source: Source,
                                     objectNameId: Id,
                                     typeName: TypeName,
                                     cases: Seq[TriggerCase],
-                                    block: Block)
+                                    block: Option[Block])
     extends CST
     with ApexTriggerDeclaration
     with ApexFullDeclaration {
@@ -100,7 +100,7 @@ final case class TriggerDeclaration(source: Source,
           try {
             context.withOuterBlockVerifyContext(isStatic = false) { blockContext =>
               blockContext.addVar(Names.Trigger, None, tc)
-              block.verify(blockContext)
+              block.foreach(_.verify(blockContext))
             }
           } finally {
             module.removeMetadata(tc)
@@ -157,20 +157,27 @@ object TriggerDeclaration {
     val parser = CodeParser(path, data)
     val result = parser.parseTrigger()
     result.issues.foreach(OrgImpl.log)
-    Some(TriggerDeclaration.construct(parser, module, result.value))
+    TriggerDeclaration.construct(parser, module, result.value)
   }
 
-  def construct(parser: CodeParser, module: Module, trigger: TriggerUnitContext): TriggerDeclaration = {
+  def construct(parser: CodeParser, module: Module, trigger: TriggerUnitContext): Option[TriggerDeclaration] = {
     CST.sourceContext.withValue(Some(parser.source)) {
       val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
-      new TriggerDeclaration(parser.source,
-                             module,
-                             ids.head,
-                             ids(1),
-                             constructTypeName(module.namespace, ids.head.name),
-                             cases,
-                             Block.constructLazy(parser, trigger.block(), isTrigger = true)).withContext(trigger)
+      val block = CodeParser
+        .toScala(trigger.block())
+        .map(block => Block.constructLazy(parser, block, isTrigger = true))
+      if (ids.length == 2) {
+        Some(new TriggerDeclaration(parser.source,
+          module,
+          ids.head,
+          ids(1),
+          constructTypeName(module.namespace, ids.head.name),
+          cases,
+          block).withContext(trigger))
+      } else {
+        None
+      }
     }
   }
 

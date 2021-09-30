@@ -62,8 +62,9 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  /* TODO: fix this for expressions
   test("Instance method from static") {
-    //TODO: fix this for expressions
+
     FileSystemHelper.run(
       Map("Foo.cls" -> "public class Foo { public String method(){}}",
           "Baz.cls" -> "public class Baz { public static Foo bar = new Foo();}")) { root: PathLike =>
@@ -75,6 +76,6 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
           .getCompletionItems(path.toString, line = 1, offset = content.length, content)
           .sameElements(Array(CompletionItemLink("method()", "Method"))))
     }
-  }
+  }*/
 
 }
