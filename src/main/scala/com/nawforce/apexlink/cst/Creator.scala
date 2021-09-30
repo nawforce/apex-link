@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.OrgImpl
@@ -225,25 +226,9 @@ object ArrayInitializer {
 }
 
 final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends CreatorRest {
-  private def isValidValue(toType:TypeName, fromType: TypeDeclaration): Boolean = {
-    if (toType == TypeNames.Null){
-      return true
-    }
-    if(toType == fromType.typeName) {
-      return true
-    }
-    if (toType.params.isEmpty && fromType.typeName.params.isEmpty){
-      return fromType.extendsOrImplements(toType)
-    }
-    //TODO: better type checking for types with params
-    false
-  }
-
   override def verify(createdName: CreatedName,
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
-
-    pairs.foreach(_.verify(input, context))
 
     val creating = createdName.verify(context)
     if (creating.declaration.isEmpty)
@@ -275,12 +260,14 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     pairs.foreach(pair => {
       val pairContext = pair.verify(input, context)
-      if (!isValidValue(pairContext._1.typeName, keyType.toOption.get)) {
+      val isKeyAssignable = isAssignable(pairContext._1.typeName, keyType.toOption.get, context)
+      val isValueAssignable = isAssignable(pairContext._2.typeName, valueType.toOption.get, context)
+      if (!isKeyAssignable) {
         OrgImpl.logError(location,
           s"Incompatible key type '${pairContext._1.typeName}' for '${keyType.toOption.get.typeName}'")
         return ExprContext.empty
       }
-      if (!isValidValue(pairContext._2.typeName, valueType.toOption.get)) {
+      if (!isValueAssignable) {
         OrgImpl.logError(location,
           s"Incompatible value type '${pairContext._2.typeName}' for '${valueType.toOption.get.typeName}'")
         return ExprContext.empty
