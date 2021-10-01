@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
+import com.nawforce.apexlink.cst.AssignableSupport.couldBeEqual
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.OrgImpl
@@ -229,7 +229,6 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
   override def verify(createdName: CreatedName,
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
-
     val creating = createdName.verify(context)
     if (creating.declaration.isEmpty)
       return ExprContext.empty
@@ -260,17 +259,21 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     pairs.foreach(pair => {
       val pairContext = pair.verify(input, context)
-      val isKeyAssignable = isAssignable(pairContext._1.typeName, keyType.toOption.get, context)
-      val isValueAssignable = isAssignable(pairContext._2.typeName, valueType.toOption.get, context)
-      if (!isKeyAssignable) {
-        OrgImpl.logError(location,
-          s"Incompatible key type '${pairContext._1.typeName}' for '${keyType.toOption.get.typeName}'")
-        return ExprContext.empty
+      if (pairContext._1 != ExprContext.empty) {
+        val isKeyAssignable = couldBeEqual(pairContext._1.typeDeclaration, keyType.toOption.get, context)
+        if (!isKeyAssignable) {
+          OrgImpl.logError(location,
+            s"Incompatible key type '${pairContext._1.typeName}' for '${keyType.toOption.get.typeName}'")
+          return ExprContext.empty
+        }
       }
-      if (!isValueAssignable) {
-        OrgImpl.logError(location,
-          s"Incompatible value type '${pairContext._2.typeName}' for '${valueType.toOption.get.typeName}'")
-        return ExprContext.empty
+      if (pairContext._2 != ExprContext.empty) {
+        val isValueAssignable = couldBeEqual(pairContext._2.typeDeclaration, valueType.toOption.get, context)
+        if (!isValueAssignable) {
+          OrgImpl.logError(location,
+            s"Incompatible value type '${pairContext._2.typeName}' for '${valueType.toOption.get.typeName}'")
+          return ExprContext.empty
+        }
       }
     })
 
