@@ -18,7 +18,7 @@ import com.nawforce.pkgforce.diagnostics.Location
 import java.io.{BufferedReader, StringReader}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import scala.util.{Success, Try, Using}
+import scala.util.{Success, Using}
 
 object TextOps {
   implicit class TestOpsUtils(text: String) {
@@ -27,12 +27,7 @@ object TextOps {
       * If inclusive is set the term encompasses the offset, if not the term includes all segments upto the preceding
       * dot. */
     def extractDotTerm(allowed: Set[Char], line: Int, offset: Int, inclusive: Boolean): Option[(String, Location, String)] = {
-      val lineText: Option[String] = text.getLine(line - 1) match {
-        case Success(Some(expr)) => Some(expr)
-        case _ => None
-      }
-
-      lineText.flatMap(lineText => {
+      text.getLine(line - 1).flatMap(lineText => {
         // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
         lineText.findLimit(allowed, forward = false, offset - 1).flatMap(start => {
           lineText.findLimit(allowed, forward = true, start).map(end => {
@@ -72,14 +67,24 @@ object TextOps {
       }
     }
 
+    def splitLines: Array[String] = {
+      Using(new BufferedReader(new StringReader(text))) { reader =>
+        reader.lines().iterator().asScala.toArray
+      } match {
+        case Success(array) => array
+      }
+    }
+
     /** Find a specific line in text contents */
-    def getLine(line: Int): Try[Option[String]] = {
+    def getLine(line: Int): Option[String] = {
       Using(new BufferedReader(new StringReader(text))) { reader =>
         val lines = reader.lines().iterator().asScala.toArray
         if (line >= 0 && line < lines.length)
           Some(lines(line))
         else
           None
+      } match {
+        case Success(line) => line
       }
     }
   }

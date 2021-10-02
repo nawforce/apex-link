@@ -22,13 +22,32 @@ import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.path.PathLike
 
+import scala.collection.mutable
+
 trait CompletionProvider {
   this: PackageImpl =>
 
   def getCompletionItems(path: PathLike, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
-    loadClass(path, content)
-      .map(typeDef => completionsFromValidation(content, typeDef, line, offset))
+    val terminatedContent = injectStatementTerminator(line, offset, content)
+    loadClass(path, terminatedContent)
+      .map(typeDef => completionsFromValidation(terminatedContent, typeDef, line, offset))
       .getOrElse(Array.empty)
+  }
+
+  private def injectStatementTerminator(line: Int, offset: Int, content: String): String = {
+    val lines = content.splitLines
+    val result = new mutable.StringBuilder()
+    for (i <- lines.indices) {
+      val currentLine = lines(i)
+      if (i == line - 1) {
+        result.append(currentLine.substring(0, offset))
+        result.append(';')
+        result.append(currentLine.substring(offset))
+      } else {
+        result.append(currentLine)
+      }
+    }
+    result.toString()
   }
 
   /** Extract a location link from an expression at the passed location */
@@ -97,7 +116,7 @@ trait CompletionProvider {
     source.extractDotTerm(CompletionProvider.allowedCharacters, line, offset, inclusive = false) match {
       case Some(searchTerm) =>
         val resultMap = td.getBodyDeclarationValidationMap(line, offset)
-        val exprLocations = resultMap.keys.filter(_.contains(searchTerm._2.startLine, searchTerm._2.startPosition))
+        val exprLocations = resultMap.keys.filter(_.contains(searchTerm._2.endLine, searchTerm._2.endPosition))
         exprLocations
           .find(exprLocation => exprLocations.forall(_.contains(exprLocation))) match {
           case Some(loc) =>
