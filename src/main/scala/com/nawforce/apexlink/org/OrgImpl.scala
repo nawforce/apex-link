@@ -269,6 +269,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Locate a definition for a symbol */
   override def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
+    if (path == null)
+      return Array.empty
+
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
@@ -278,6 +281,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   override def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+    if (path == null || content == null)
+      return Array.empty
+
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))

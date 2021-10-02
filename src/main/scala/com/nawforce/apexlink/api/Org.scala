@@ -118,6 +118,14 @@ trait Org {
     * from to be free of errors, but errors may impact the ability to locate inner classes within that file. */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink]
 
+  /** Get a array of completion suggestion given a source file contents and a position.
+    *
+    * This will attempt to provide a list of possible completion suggestions at the position of the provided source
+    * file details. If none can be found it will return an empty array. Both the path and content must be provided for
+    * this. The path determines the scope of the search while the content is needed a we assume the on-disk source
+    * is not current. It is not necessary for the source content to be free of errors, but errors may impact the
+    * results.
+    */
   def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink]
 
   /** Calculate an ordered list of classes which are having a big impact on classes dependencies, aka the 'Bombs'.

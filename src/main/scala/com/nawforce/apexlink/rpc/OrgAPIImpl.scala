@@ -254,11 +254,11 @@ case class GetCompletionItems(promise: Promise[Array[CompletionItemLink]],
                          path: String,
                          line: Int,
                          offset: Int,
-                         content: Option[String])
+                         content: String)
   extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
-    promise.success(orgImpl.getCompletionItems(path, line, offset, content.orNull))
+    promise.success(orgImpl.getCompletionItems(path, line, offset, content))
   }
 }
 
@@ -267,7 +267,7 @@ object GetCompletionItems {
             path: String,
             line: Int,
             offset: Int,
-            content: Option[String]): Future[Array[CompletionItemLink]] = {
+            content: String): Future[Array[CompletionItemLink]] = {
     val promise = Promise[Array[CompletionItemLink]]()
     queue.add(new GetCompletionItems(promise, path, line, offset, content))
     promise.future
@@ -359,7 +359,7 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
   override def getCompletionItems(path: String,
                              line: Int,
                              offset: Int,
-                             content: Option[String]): Future[Array[CompletionItemLink]] = {
+                             content: String): Future[Array[CompletionItemLink]] = {
     GetCompletionItems(OrgQueue.instance(), path, line, offset, content)
   }
 }

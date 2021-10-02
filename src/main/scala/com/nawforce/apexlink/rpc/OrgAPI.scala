@@ -166,7 +166,7 @@ trait OrgAPI {
   def getDependencyCounts(paths: GetDependencyCountsRequest): Future[GetDependencyCountsResult]
 
   @api.JSONRPCMethod(name = "getCompletionItems")
-  def getCompletionItems(path: String, line: Int, offset: Int, content: Option[String]): Future[Array[CompletionItemLink]]
+  def getCompletionItems(path: String, line: Int, offset: Int, content: String): Future[Array[CompletionItemLink]]
 }
 
 object OrgAPI {
