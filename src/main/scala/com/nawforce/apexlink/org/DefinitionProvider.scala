@@ -13,22 +13,12 @@
  */
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst._
-import com.nawforce.apexlink.finding.TypeResolver
+import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.types.apex.{ApexDeclaration, FullDeclaration, IdLocatable}
-import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.apexlink.types.apex.{FullDeclaration, IdLocatable}
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
-import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{ByteArraySourceData, Locatable, UnsafeLocatable}
-
-import java.io.{BufferedReader, StringReader}
-import java.nio.charset.StandardCharsets
-import scala.collection.mutable
-import scala.jdk.CollectionConverters._
-import scala.util.{Success, Try, Using}
+import com.nawforce.runtime.parsers.{Locatable, UnsafeLocatable}
 
 trait DefinitionProvider {
   this: PackageImpl =>
@@ -43,28 +33,17 @@ trait DefinitionProvider {
 
       val source = sourceAndType.get._1
       val sourceTD = sourceAndType.get._2
-      val searchTermAndLocation = extractSearchTerm(source, line, offset)
+      val searchTermAndLocation = source.extractDotTerm(DefinitionProvider.allowedCharacters, line, offset, inclusive = true)
       if (searchTermAndLocation.isEmpty)
         return Array.empty
       val searchTerm = searchTermAndLocation.get._1
       val sourceLocation = searchTermAndLocation.get._2
 
-      locateFromTypeLookup(searchTerm, sourceLocation, sourceTD)
-
+      sourceTD.findDeclarationFromSourceReference(searchTerm, sourceLocation)
+        .map(ad => {
+          LocationLink(sourceLocation, ad.location.path, ad.location.location, ad.idLocation)
+        })
     }).toArray
-  }
-
-  private def locateFromTypeLookup(searchTerm: String,
-                                   location: Location,
-                                   from: FullDeclaration): Option[LocationLink] = {
-    TypeName(searchTerm).toOption match {
-      case Some(typeName: TypeName) =>
-        resolveTypeName(typeName, location, from)
-          .map(ad => {
-            LocationLink(location, ad.location.path, ad.location.location, ad.idLocation)
-          })
-      case _ => None
-    }
   }
 
   private def loadSourceAndType(path: PathLike, content: Option[String]): Option[(String, FullDeclaration)] = {
@@ -92,149 +71,31 @@ trait DefinitionProvider {
 
   /** Extract a location link from an expression at the passed location */
   private def locateFromValidation(td: FullDeclaration, line: Int, offset: Int): Option[LocationLink] = {
-    getTypeBodyDeclaration(td, line, offset).foreach(typeAndBody => {
-      // Validate the body declaration for the side-effect of being able to collect a map of expression results
-      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-      val resultMap = mutable.Map[Location, (CST, ExprContext)]()
-      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
-      context.disableIssueReporting() {
-        typeAndBody._2.validate(context)
-      }
+    val resultMap = td.getBodyDeclarationValidationMap(line, offset)
 
-      // Find the inner-most expression containing location from those that do
-      val exprLocations = resultMap.keys.filter(_.contains(line, offset))
-      exprLocations
-        .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-        .foreach(loc => {
-          // If the result has a locatable we can use that as the target, beware the order here matters due
-          // to both inheritance and some objects supporting multiple Locatable traits
-          resultMap(loc)._2.locatable match {
-            case Some(l: IdLocatable) =>
-              return Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
-            case Some(l: UnsafeLocatable) =>
-              return Option(l.location).map(l => LocationLink(loc, l.path, l.location, l.location))
-            case Some(l: Locatable) =>
-              return Some(LocationLink(loc, l.location.path, l.location.location, l.location.location))
-            case _ =>
-              return None
-          }
-        })
-    })
-    None
-  }
+    // Find the inner-most expression containing location from those that do
+    val exprLocations = resultMap.keys.filter(_.contains(line, offset))
+    val innerExprLocation = resultMap.keys.filter(_.contains(line, offset))
+      .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
 
-  private def getTypeBodyDeclaration(typeDeclaration: TypeDeclaration,
-                                     line: Int,
-                                     offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
-    typeDeclaration match {
-      case td: FullDeclaration =>
-        td.nestedTypes.view
-          .flatMap(td => getTypeBodyDeclaration(td, line, offset))
-          .headOption
-          .orElse({
-            td.bodyDeclarations.find(_.location.location.contains(line, offset)).map((td, _))
-          })
-    }
-  }
-
-  /** Locate the ApexDeclaration for the passed typeName that was extracted from 'location' within 'from' */
-  private def resolveTypeName(typeName: TypeName,
-                              location: Location,
-                              from: FullDeclaration): Option[ApexDeclaration] = {
-    findEnclosingClass(from, location.startLine, location.startPosition).flatMap(td => {
-      TypeResolver(typeName, td).toOption.collect { case td: ApexDeclaration => td }
-    })
-  }
-
-  /** Find the outer or inner class that contains the passed cursor position */
-  private def findEnclosingClass(td: FullDeclaration, line: Int, offset: Int): Option[FullDeclaration] = {
-    td.nestedTypes
-      .collect { case nested: FullDeclaration => nested }
-      .find(_.location.location.contains(line, offset))
-      .orElse({
-        if (td.location.location.contains(line, offset))
-          Some(td)
-        else None
+    innerExprLocation
+      .flatMap(loc => {
+        // If the result has a locatable we can use that as the target, beware the order here matters due
+        // to both inheritance and some objects supporting multiple Locatable traits
+        resultMap(loc)._2.locatable match {
+          case Some(l: IdLocatable) =>
+            Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
+          case Some(l: UnsafeLocatable) =>
+            Option(l.location).map(l => LocationLink(loc, l.path, l.location, l.location))
+          case Some(l: Locatable) =>
+            Some(LocationLink(loc, l.location.path, l.location.location, l.location.location))
+          case _ =>
+            None
+        }
       })
   }
+}
 
-  /** Load a class to obtain it's FullDeclaration, issues are not updated, this is just a temporary version so
-    * that can be inspected in case different contents are provided from the version saved on disk. */
-  private def loadClass(path: PathLike, source: String): Option[FullDeclaration] = {
-    MetadataDocument(path) match {
-      case Some(doc: ApexClassDocument) =>
-        getPackageModule(path).flatMap(module => {
-          val existingIssues = org.issues.pop(path.toString)
-          try {
-            val asBytes = source.getBytes(StandardCharsets.UTF_8)
-            FullDeclaration
-              .create(module,
-                      doc,
-                      ByteArraySourceData(asBytes, 0, asBytes.length),
-                      extendedApex = false,
-                      forceConstruct = true)
-          } catch {
-            case _: Exception => None
-          } finally {
-            org.issues.push(path.toString, existingIssues)
-          }
-        })
-      case _ => None
-    }
-  }
-
-  /** Extract what to search for from source code given line & offset of cursor */
-  private def extractSearchTerm(source: String, line: Int, offset: Int): Option[(String, Location)] = {
-    val lineText: Option[String] = getLine(source, line - 1) match {
-      case Success(Some(expr)) => Some(expr)
-      case _                   => None
-    }
-
-    lineText.flatMap(lineText => {
-      // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
-      findLimit(forward = false, lineText, offset - 1).flatMap(start => {
-        findLimit(forward = true, lineText, start).map(end => {
-          // Split & rebuild so not so sensitive to cursor being close to a "."
-          val searchTerm = new mutable.StringBuilder()
-          val parts = lineText.substring(start, end + 1).split('.')
-          var canAppend = true
-          parts.foreach(part => {
-            if (canAppend) {
-              if (searchTerm.nonEmpty)
-                searchTerm.append(".")
-              searchTerm.append(part)
-              canAppend = start + searchTerm.length < offset
-            }
-          })
-          (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
-        })
-      })
-    })
-  }
-
-  /** Search for limit of a search term either forwards or backwards */
-  private def findLimit(forward: Boolean, content: String, offset: Int): Option[Int] = {
-    if (offset < 0 || offset >= content.length) {
-      None
-    } else {
-      val ch = "" + content(offset)
-      if (!ch.matches("[0-9a-zA-Z_\\.]")) {
-        None
-      } else {
-        val nextOffset = if (forward) offset + 1 else offset - 1
-        Some(findLimit(forward, content, nextOffset).getOrElse(offset))
-      }
-    }
-  }
-
-  /** Find a specific line in source contents */
-  private def getLine(contents: String, line: Int): Try[Option[String]] = {
-    Using(new BufferedReader(new StringReader(contents))) { reader =>
-      val lines = reader.lines().iterator().asScala.toArray
-      if (line >= 0 && line < lines.length)
-        Some(lines(line))
-      else
-        None
-    }
-  }
+object DefinitionProvider {
+  val allowedCharacters: Set[Char] = (('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z') ++ Seq('_', '.')).toSet
 }

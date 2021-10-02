@@ -16,11 +16,14 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names._
+import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.parsers.ByteArraySourceData
 
+import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
@@ -99,7 +102,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
   /** Check if a field name is ghosted in this package. */
   def isGhostedFieldName(name: Name): Boolean = {
     EncodedName(name).namespace match {
-      case None     => false
+      case None => false
       case Some(ns) => basePackages.filter(_.isGhosted).exists(_.namespace.contains(ns))
     }
   }
@@ -107,5 +110,30 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
   /** Check all summary types have propagated their dependencies. */
   def propagateAllDependencies(): Unit = {
     modules.foreach(_.propagateAllDependencies())
+  }
+
+  /** Load a class to obtain it's FullDeclaration, issues are not updated, this just returns a temporary version of
+    * the class so that it can be inspected. */
+  protected def loadClass(path: PathLike, source: String): Option[FullDeclaration] = {
+    MetadataDocument(path) match {
+      case Some(doc: ApexClassDocument) =>
+        getPackageModule(path).flatMap(module => {
+          val existingIssues = org.issues.pop(path.toString)
+          try {
+            val asBytes = source.getBytes(StandardCharsets.UTF_8)
+            FullDeclaration
+              .create(module,
+                doc,
+                ByteArraySourceData(asBytes, 0, asBytes.length),
+                extendedApex = false,
+                forceConstruct = true)
+          } catch {
+            case _: Exception => None
+          } finally {
+            org.issues.push(path.toString, existingIssues)
+          }
+        })
+      case _ => None
+    }
   }
 }

@@ -16,8 +16,8 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
-import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
+import com.nawforce.apexlink.finding.{RelativeTypeContext, TypeResolver}
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
@@ -192,23 +192,76 @@ abstract class FullDeclaration(val source: Source,
     bodyDeclarations.foreach(_.collectDependencies(dependsOn))
   }
 
+  /** Locate an ApexDeclaration for the passed typeName that was extracted from location. */
+  def findDeclarationFromSourceReference(searchTerm: String,
+                                         location: Location
+                                        ): Option[ApexDeclaration] = {
+    /** Find the outer or inner class that contains the passed cursor position */
+    def findEnclosingClass(line: Int, offset: Int): Option[FullDeclaration] = {
+      nestedTypes
+        .collect { case nested: FullDeclaration => nested }
+        .find(_.location.location.contains(line, offset))
+        .orElse({
+          if (this.location.location.contains(line, offset))
+            Some(this)
+          else
+            None
+        })
+    }
+
+    TypeName(searchTerm).toOption match {
+      case Some(typeName: TypeName) =>
+        findEnclosingClass(location.startLine, location.startPosition).flatMap(td => {
+          TypeResolver(typeName, td).toOption.collect { case td: ApexDeclaration => td }
+        })
+      case _ => None
+    }
+  }
+
+  /** Get a validation result map for the body declaration at the specified location. */
+  def getBodyDeclarationValidationMap(line: Int, offset: Int): Map[Location, (CST, ExprContext)] = {
+    getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
+      // Validate the body declaration for the side-effect of being able to collect a map of expression results
+      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+      val resultMap = mutable.Map[Location, (CST, ExprContext)]()
+      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
+      context.disableIssueReporting() {
+        typeAndBody._2.validate(context)
+      }
+      resultMap.toMap
+    }).getOrElse(Map.empty)
+  }
+
+  private def getBodyDeclarationFromLocation(
+                                              line: Int,
+                                              offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
+    nestedTypes.view
+      .collect { case nested: FullDeclaration => nested }
+      .flatMap(td => td.getBodyDeclarationFromLocation(line, offset))
+      .headOption
+      .orElse({
+        bodyDeclarations.find(_.location.location.contains(line, offset)).map((this, _))
+      })
+  }
+
+
   // Override to avoid super class access (use local fields & methods) & provide location information
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                location.location,
-                id.location.location,
-                name.toString,
-                typeName,
-                nature.value,
-                modifiers.map(_.toString).sorted,
-                superClass,
-                interfaces,
-                _blocks.map(_.summary),
-                localFields.map(_.summary).sortBy(_.name),
-                _constructors.map(_.summary).sortBy(_.parameters.length),
-                _localMethods.map(_.summary).sortBy(_.name),
-                _nestedTypes.map(_.summary).sortBy(_.name),
-                dependencySummary())
+      location.location,
+      id.location.location,
+      name.toString,
+      typeName,
+      nature.value,
+      modifiers.map(_.toString).sorted,
+      superClass,
+      interfaces,
+      _blocks.map(_.summary),
+      localFields.map(_.summary).sortBy(_.name),
+      _constructors.map(_.summary).sortBy(_.parameters.length),
+      _localMethods.map(_.summary).sortBy(_.name),
+      _nestedTypes.map(_.summary).sortBy(_.name),
+      dependencySummary())
   }
 }
 

@@ -281,7 +281,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
-        .map(_.getCompletionItems(PathFactory(path), line, offset, Option(content)))
+        .map(_.getCompletionItems(PathFactory(path), line, offset, content))
         .getOrElse(Array.empty)
     }
   }
