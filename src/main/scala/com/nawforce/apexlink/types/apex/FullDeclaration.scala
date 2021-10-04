@@ -220,16 +220,23 @@ abstract class FullDeclaration(val source: Source,
 
   /** Get a validation result map for the body declaration at the specified location. */
   def getBodyDeclarationValidationMap(line: Int, offset: Int): Map[Location, (CST, ExprContext)] = {
-    getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
-      // Validate the body declaration for the side-effect of being able to collect a map of expression results
-      val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-      val resultMap = mutable.Map[Location, (CST, ExprContext)]()
-      val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
-      context.disableIssueReporting() {
-        typeAndBody._2.validate(context)
-      }
-      resultMap.toMap
-    }).getOrElse(Map.empty)
+    try {
+      getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
+        // Validate the body declaration for the side-effect of being able to collect a map of expression results
+        val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+        val resultMap = mutable.Map[Location, (CST, ExprContext)]()
+        val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
+        context.disableIssueReporting() {
+          typeAndBody._2.validate(context)
+        }
+        resultMap.toMap
+      }).getOrElse(Map.empty)
+    } catch {
+      case ex: Throwable =>
+        val at = ex.getStackTrace.headOption.getOrElse("Unknown")
+        LoggerOps.debug(s"Body validation failure: ${ex.toString} $at")
+        Map.empty
+    }
   }
 
   private def getBodyDeclarationFromLocation(

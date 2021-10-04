@@ -149,7 +149,6 @@ object ClassDeclaration {
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
               outerTypeName.isEmpty, thisType, extendedApex, CodeParser.toScala(cbd.modifier()), x))
           )
-          .orElse(throw new CSTException())
       ).flatten.toArray
 
     val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName,

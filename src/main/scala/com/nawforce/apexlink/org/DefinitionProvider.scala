@@ -33,7 +33,7 @@ trait DefinitionProvider {
 
       val source = sourceAndType.get._1
       val sourceTD = sourceAndType.get._2
-      val searchTermAndLocation = source.extractDotTerm(DefinitionProvider.allowedCharacters, line, offset, inclusive = true)
+      val searchTermAndLocation = source.extractDotTermInclusive(() => new IdentifierLimiter, line, offset)
       if (searchTermAndLocation.isEmpty)
         return Array.empty
       val searchTerm = searchTermAndLocation.get._1
@@ -94,8 +94,4 @@ trait DefinitionProvider {
         }
       })
   }
-}
-
-object DefinitionProvider {
-  val allowedCharacters: Set[Char] = (('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z') ++ Seq('_', '.')).toSet
 }

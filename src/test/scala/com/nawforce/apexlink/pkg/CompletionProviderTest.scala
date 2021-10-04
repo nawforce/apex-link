@@ -22,6 +22,48 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Method Completions (in statement)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public static String methodA(){} public String methodB(String a, String b){} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {if ( Dummy.me"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+            .sameElements(
+              Array(CompletionItemLink("methodA()", "Method"))))
+    }
+  }
+
+  test("Method Completions (no context)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {String a = new Dummy()."
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).toSet ==
+            Set("methodA()", "methodB(a, b)", "clone()", "hashCode()", "toString()", "equals(other)"))
+    }
+  }
+
+  test("Method Completions (at end)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {String a = new Dummy()"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
+    }
+  }
+
   test("Instance Field completions") {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy { public static String FieldS = ''; public string fieldA = '';}")) {
@@ -75,5 +117,4 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
           .sameElements(Array(CompletionItemLink("method()", "Method"))))
     }
   }
-
 }
