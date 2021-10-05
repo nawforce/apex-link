@@ -14,11 +14,13 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.cst.AssignableSupport.couldBeEqual
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexparser.ApexParser._
-import com.nawforce.pkgforce.names.{EncodedName, TypeName, _}
+import com.nawforce.pkgforce.names._
 import com.nawforce.runtime.parsers.CodeParser
 
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
@@ -227,9 +229,6 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
   override def verify(createdName: CreatedName,
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
-
-    pairs.foreach(_.verify(input, context))
-
     val creating = createdName.verify(context)
     if (creating.declaration.isEmpty)
       return ExprContext.empty
@@ -258,6 +257,26 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
       return ExprContext.empty
     }
 
+    pairs.foreach(pair => {
+      val pairContext = pair.verify(input, context)
+      if (pairContext._1 != ExprContext.empty) {
+        val isKeyAssignable = couldBeEqual(pairContext._1.typeDeclaration, keyType.toOption.get, context)
+        if (!isKeyAssignable) {
+          OrgImpl.logError(location,
+            s"Incompatible key type '${pairContext._1.typeName}' for '${keyType.toOption.get.typeName}'")
+          return ExprContext.empty
+        }
+      }
+      if (pairContext._2 != ExprContext.empty) {
+        val isValueAssignable = couldBeEqual(pairContext._2.typeDeclaration, valueType.toOption.get, context)
+        if (!isValueAssignable) {
+          OrgImpl.logError(location,
+            s"Incompatible value type '${pairContext._2.typeName}' for '${valueType.toOption.get.typeName}'")
+          return ExprContext.empty
+        }
+      }
+    })
+
     creating
   }
 }
@@ -270,10 +289,10 @@ object MapCreatorRest {
 }
 
 final case class MapCreatorRestPair(from: Expression, to: Expression) extends CST {
-  def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
-    // FUTURE: Validate the expressions are assignable to Map
-    from.verify(input, context)
-    to.verify(input, context)
+  def verify(input: ExprContext, context: ExpressionVerifyContext): (ExprContext, ExprContext) = {
+    val fromContext = from.verify(input, context)
+    val toContext = to.verify(input, context)
+    (fromContext, toContext)
   }
 }
 
@@ -296,6 +315,7 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
                       context: ExpressionVerifyContext): ExprContext = {
 
     // FUTURE: Validate the expressions are assignable to 'creating'
+
     parts.foreach(_.verify(input, context))
 
     val creating = createdName.verify(context)

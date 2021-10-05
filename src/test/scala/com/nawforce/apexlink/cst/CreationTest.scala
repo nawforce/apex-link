@@ -86,6 +86,12 @@ class CreationTest extends AnyFunSuite with TestHelper {
         "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
   }
 
+  test("Map with incorrect input type") {
+    typeDeclaration(
+      "public class Dummy {{Object a = new Map<Id, String>{new Account() => null};}}")
+    assert(dummyIssues == "Error: line 1 at 51-74: Incompatible key type 'Schema.Account' for 'System.Id'\n")
+  }
+
   test("Empty List") {
     typeDeclaration("public class Dummy {{Object a = new List<Address>();}}")
     assert(dummyIssues.isEmpty)
