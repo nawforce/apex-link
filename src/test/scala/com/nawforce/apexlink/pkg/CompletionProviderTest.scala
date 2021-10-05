@@ -7,53 +7,180 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CompletionProviderTest extends AnyFunSuite with TestHelper {
 
-  test("Method Completions") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
+  test("Internal Completion") {
+    FileSystemHelper.run(Map()) {
       root: PathLike =>
         val org = createOrg(root)
         val path = root.join("Completion.cls")
-        val content = "public class Completion { public Completion() {String a = new Dummy().me"
+        val content =
+          """public class Dummy { public void someMethod() {m}
+            |public String methodA(){}
+            |public String methodB(String a, String b){}
+            |public static String methodStatic(){}
+            |private String methodPrivate(){}
+            |public String myField;
+            |public static String myStaticField;
+            |private String myPrivateField;
+            |public class MyInner{};
+            |private interface MyPrivateInner{};
+            |}""".stripMargin
+        val offset = content.split('\n').head.length - 1
         assert(
           org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-            .sameElements(
-              Array(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"))))
+            .getCompletionItems(path.toString, line = 1, offset, content).toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
+              CompletionItemLink("methodPrivate()", "Method"), CompletionItemLink("methodStatic()", "Method"),
+              CompletionItemLink("myField", "Field"), CompletionItemLink("myStaticField", "Field"),
+              CompletionItemLink("myPrivateField", "Field"), CompletionItemLink("MyInner", "Class"),
+              CompletionItemLink("MyPrivateInner", "Interface"))
+        )
     }
   }
 
-  test("Method Completions (in statement)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public static String methodA(){} public String methodB(String a, String b){} }")) {
+  test("Internal Completion (multiple chars)") {
+    FileSystemHelper.run(Map()) {
       root: PathLike =>
         val org = createOrg(root)
         val path = root.join("Completion.cls")
-        val content = "public class Completion { public Completion() {if ( Dummy.me"
+        val content =
+          """public class Dummy { public void someMethod() {me}
+            |public String methodA(){}
+            |public String methodB(String a, String b){}
+            |public static String methodStatic(){}
+            |private String methodPrivate(){}
+            |public String meField;
+            |public static String myStaticField;
+            |private String myPrivateField;
+            |public class MeInner{};
+            |private interface MyPrivateInner{};
+            |}""".stripMargin
+        val offset = content.split('\n').head.length - 1
         assert(
           org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-            .sameElements(
-              Array(CompletionItemLink("methodA()", "Method"))))
+            .getCompletionItems(path.toString, line = 1, offset, content).toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
+              CompletionItemLink("methodPrivate()", "Method"), CompletionItemLink("methodStatic()", "Method"),
+              CompletionItemLink("meField", "Field"), CompletionItemLink("MeInner", "Class"))
+        )
     }
   }
 
-  test("Method Completions (no context)") {
+  test("Instance Completions") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          |public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |public String myField;
+          |public static String myStaticField;
+          |private String myPrivateField;
+          |public class MyInner{};
+          |private interface MyPrivateInner{};
+          |}""".stripMargin)) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {String a = new Dummy().m"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
+              CompletionItemLink("myField", "Field")))
+    }
+  }
+
+  test("Static Completions") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          |public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |public String myField;
+          |public static String myStaticField;
+          |private String myPrivateField;
+          |public class MyInner{};
+          |private interface MyPrivateInner{};
+          |}""".stripMargin)) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {String a = Dummy.m"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
+            Set(CompletionItemLink("methodStatic()", "Method"), CompletionItemLink("myStaticField", "Field"),
+              CompletionItemLink("MyInner", "Class")))
+    }
+  }
+
+  test("Instance Completions (in statement)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          |public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |public String myField;
+          |public static String myStaticField;
+          |private String myPrivateField;
+          |public class MyInner{};
+          |private interface MyPrivateInner{};
+          |}""".stripMargin)) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.cls")
+        val content = "public class Completion { public Completion() {Dummy a; if ( a.m"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
+              CompletionItemLink("myField", "Field")
+            ))
+    }
+  }
+
+  test("Instance Completions (no context)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          |public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |public String myField;
+          |public static String myStaticField;
+          |private String myPrivateField;
+          |public class MyInner{};
+          |private interface MyPrivateInner{};
+          |}""".stripMargin)) {
       root: PathLike =>
         val org = createOrg(root)
         val path = root.join("Completion.cls")
         val content = "public class Completion { public Completion() {String a = new Dummy()."
         assert(
           org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).toSet ==
-            Set("methodA()", "methodB(a, b)", "clone()", "hashCode()", "toString()", "equals(other)"))
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
+            Set(CompletionItemLink("methodA()", "Method"), CompletionItemLink("methodB(a, b)", "Method"),
+              CompletionItemLink("clone()", "Method"), CompletionItemLink("hashCode()", "Method"),
+              CompletionItemLink("toString()", "Method"), CompletionItemLink("equals(other)", "Method"),
+              CompletionItemLink("myField", "Field")))
     }
   }
 
-  test("Method Completions (at end)") {
+  test("External Method Completions (at end)") {
     FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy {public String methodA(){} public String methodB(String a, String b){} }")) {
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          | public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |}""".stripMargin)) {
       root: PathLike =>
         val org = createOrg(root)
         val path = root.join("Completion.cls")
@@ -61,60 +188,6 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         assert(
           org
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
-    }
-  }
-
-  test("Instance Field completions") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { public static String FieldS = ''; public string fieldA = '';}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val path = root.join("Completion.cls")
-        val content = "public class Completion { public Completion() {String a = new Dummy().fi"
-        assert(
-          org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-            .sameElements(Array(CompletionItemLink("fieldA", "Field"))))
-    }
-  }
-
-  test("Static Field completions") {
-    FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { public static String fieldS = ''; public string fieldA = '';}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val path = root.join("Completion.cls")
-        val content = "public class Completion { public Completion() {String a = Dummy.fi"
-        assert(
-          org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-            .sameElements(Array(CompletionItemLink("fieldS", "Field") )))
-    }
-  }
-
-  test("Inner class completion") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {class Inner{} }")) { root: PathLike =>
-      val org = createOrg(root)
-      val path = root.join("Completion.cls")
-      val content = "public class Completion { public Completion() {Dummy.Inn"
-      assert(
-        org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-          .sameElements(Array(CompletionItemLink("Inner", "TypeParameter"))))
-    }
-  }
-
-  test("Instance method from static") {
-    FileSystemHelper.run(
-      Map("Foo.cls" -> "public class Foo { public String method(){}}",
-          "Baz.cls" -> "public class Baz { public static Foo bar = new Foo();}")) { root: PathLike =>
-      val org = createOrg(root)
-      val path = root.join("Dummy.cls")
-      val content = "public class Dummy { public String method(){Baz.bar.me"
-      assert(
-        org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
-          .sameElements(Array(CompletionItemLink("method()", "Method"))))
     }
   }
 }

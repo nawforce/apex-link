@@ -17,7 +17,7 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.FullDeclaration
-import com.nawforce.apexlink.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE, TypeDeclaration}
+import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
 import com.nawforce.pkgforce.path.PathLike
 
@@ -101,7 +101,7 @@ trait CompletionProvider {
                                         line: Int,
                                         offset: Int): Array[CompletionItemLink] = {
     if (searchTerm.prefixExpr.isEmpty) {
-      getAllCompletionItems(td, Some(false), searchTerm.residualExpr, hasPrivateAccess = true)
+      getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)
     } else {
       getExpressionFromValidation(searchTerm, td, line, offset)
         .filter(_._1.declaration.nonEmpty)
@@ -117,27 +117,30 @@ trait CompletionProvider {
     var items = Array[CompletionItemLink]()
 
     items = items ++ td.methods
-      .filter(_.isStatic == isStatic.getOrElse(false))
+      .filter(isStatic.isEmpty || _.isStatic == isStatic.get)
       .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
       .map(method =>
         new CompletionItemLink(method.name.toString + "(" + method.parameters.map(_.name.toString()).mkString(", ") + ")",
           "Method"))
 
     items = items ++ td.fields
-      .filter(_.isStatic == isStatic.getOrElse(false))
+      .filter(isStatic.isEmpty || _.isStatic == isStatic.get)
       .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
       .map(x => new CompletionItemLink(x.name.toString, "Field"))
 
     items = items ++ td.constructors.map(ctor =>
       new CompletionItemLink(td.name.value + "(" + ctor.parameters.map(_.name.toString()).mkString(", ") + ")", "Constructor"))
 
-    items = items ++ td.nestedTypes.flatMap(nested =>
-      nested.nature match {
-        case CLASS_NATURE => Some(CompletionItemLink(nested.name.value, "Class"))
-        case INTERFACE_NATURE => Some(CompletionItemLink(nested.name.value, "Interface"))
-        case ENUM_NATURE => Some(CompletionItemLink(nested.name.value, "Enum"))
-        case TRIGGER_NATURE => None
-      })
+    if (isStatic.isEmpty || isStatic.contains(true)) {
+      items = items ++ td.nestedTypes
+        .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
+        .flatMap(nested => nested.nature match {
+          case CLASS_NATURE => Some(CompletionItemLink(nested.name.value, "Class"))
+          case INTERFACE_NATURE => Some(CompletionItemLink(nested.name.value, "Interface"))
+          case ENUM_NATURE => Some(CompletionItemLink(nested.name.value, "Enum"))
+          case TRIGGER_NATURE => None
+        })
+    }
 
     if (filterBy.nonEmpty)
       items.filter(x => x.label.toLowerCase().startsWith(filterBy.toLowerCase()))
