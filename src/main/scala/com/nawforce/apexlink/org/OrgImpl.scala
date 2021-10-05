@@ -300,11 +300,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.nonTestClasses.toSeq))
     val bombs = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
     allClasses.foreach(cls => {
-      val score = cls.bombScore(allClasses.size)
-      if (score._3 > 0)
-        bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._2, score._1, score._3))
-      if (bombs.size > maxBombs) {
-        bombs.dequeue()
+      if (!cls.isTest) {
+        val score = cls.bombScore(allClasses.size)
+        if (score._3 > 0)
+          bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._2, score._1, score._3))
+        if (bombs.size > maxBombs) {
+          bombs.dequeue()
+        }
       }
     })
     bombs.dequeueAll.toArray.reverse
