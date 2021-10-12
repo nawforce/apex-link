@@ -86,10 +86,30 @@ class CreationTest extends AnyFunSuite with TestHelper {
         "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
   }
 
-  test("Map with incorrect input type") {
+  test("Map with any key type") {
+    // SOQL currently produces an any result, this should break if we fix that as String != RecordSet<Account>
+    typeDeclaration(
+      "public class Dummy {{Object a = new Map<String, String>{[Select Id From Account] => ''};}}")
+    assert(dummyIssues.isEmpty)
+  }
+
+  test("Map with any value type") {
+    // SOQL currently produces an any result, this should break if we fix that as String != RecordSet<Account>
+    typeDeclaration(
+      "public class Dummy {{Object a = new Map<String, String>{'' => [Select Id From Account]};}}")
+    assert(dummyIssues.isEmpty)
+  }
+
+  test("Map with incorrect key type") {
     typeDeclaration(
       "public class Dummy {{Object a = new Map<Id, String>{new Account() => null};}}")
     assert(dummyIssues == "Error: line 1 at 51-74: Incompatible key type 'Schema.Account' for 'System.Id'\n")
+  }
+
+  test("Map with incorrect value type") {
+    typeDeclaration(
+      "public class Dummy {{Object a = new Map<Id, String>{null => new Account()};}}")
+    assert(dummyIssues == "Error: line 1 at 51-74: Incompatible value type 'Schema.Account' for 'System.String'\n")
   }
 
   test("Empty List") {

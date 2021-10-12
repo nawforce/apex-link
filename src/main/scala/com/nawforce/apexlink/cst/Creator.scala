@@ -259,7 +259,7 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
     pairs.foreach(pair => {
       val pairContext = pair.verify(input, context)
-      if (pairContext._1 != ExprContext.empty) {
+      if (pairContext._1.isDefined) {
         val isKeyAssignable = couldBeEqual(pairContext._1.typeDeclaration, keyType.toOption.get, context)
         if (!isKeyAssignable) {
           OrgImpl.logError(location,
@@ -267,7 +267,7 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
           return ExprContext.empty
         }
       }
-      if (pairContext._2 != ExprContext.empty) {
+      if (pairContext._2.isDefined) {
         val isValueAssignable = couldBeEqual(pairContext._2.typeDeclaration, valueType.toOption.get, context)
         if (!isValueAssignable) {
           OrgImpl.logError(location,
