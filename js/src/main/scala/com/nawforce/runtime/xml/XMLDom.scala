@@ -82,7 +82,7 @@ trait Document extends js.Object {
 }
 
 @js.native
-@JSImport("xmldom", "DOMParser")
+@JSImport("@xmldom/xmldom", "DOMParser")
 class DOMParser(options: js.Dynamic) extends js.Object {
   def parseFromString(xmlSource: String, mimeType: String): Document = js.native
 }
