@@ -31,18 +31,18 @@ To use in a JVM project
     <dependency>
         <groupId>com.github.nawforce</groupId>
         <artifactId>pkgforce</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.1.3</version>
     </dependency>
 
 ### Scala/Scala.js 
 
 For scala.js:
 
-    libraryDependencies += "com.github.nawforce" %%% "pkgforce" % "2.1.0-SNAPSHOT"
+    libraryDependencies += "com.github.nawforce" %%% "pkgforce" % "2.1.3"
 
 For scala:
 
-    libraryDependencies += "com.github.nawforce" % "pkgforce" % "2.1.0-SNAPSHOT"
+    libraryDependencies += "com.github.nawforce" % "pkgforce" % "2.1.3"
 
 ### Building
 
