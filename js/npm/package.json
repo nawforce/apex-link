@@ -18,18 +18,18 @@
     "src/pkgforce.d.ts"
   ],
   "dependencies": {
-    "antlr4ts": "0.5.0-alpha.3",
+    "antlr4ts": "0.5.0-alpha.4",
     "apex-parser": "2.10.0",
     "vf-parser": "1.0.0",
-    "xmldom": "0.5.0"
+    "@xmldom/xmldom": "0.7.5"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "fs-monkey": "0.3.3",
-    "memfs": "3.0.5",
-    "@types/jest": "^26.0.9",
-    "jest": "^26.2.2",
-    "ts-jest": "^26.1.4",
-    "typescript": "^3.9.7"
+    "jest": "^27.2.5",
+    "memfs": "3.2.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.4"
   },
   "engines": {
     "node": ">=8.0.0"
