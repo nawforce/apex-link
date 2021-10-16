@@ -31,7 +31,7 @@ package com.nawforce.pkgforce.stream
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.{Location, PathLike}
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLException, XMLFactory}
 import com.nawforce.runtime.xml.XMLDocument
 
@@ -110,7 +110,7 @@ object SObjectGenerator {
     // Which makes parsing more fun
     val sourceData = path.flatMap(_.readSourceData().toOption)
     val sourceInfo =
-      sourceData.map(source => SourceInfo(SourceLocation(path.get, Location.all), source))
+      sourceData.map(source => SourceInfo(PathLocation(path.get, Location.all), source))
     val parsed = sourceData.map(source => XMLDocument(path.get, source))
     if (parsed.nonEmpty && parsed.get.issues.nonEmpty)
       return IssuesEvent.iterator(parsed.get.issues)
@@ -141,27 +141,27 @@ object SObjectGenerator {
           rootElement
             .getChildren("fields")
             .flatMap(field => {
-              createField(SourceInfo(SourceLocation(path.get, Location(field.line)),
-                                     sourceData.get),
-                          field,
-                          path.get)
+              createField(SourceInfo(PathLocation(path.get, Location(field.line)),
+                sourceData.get),
+                field,
+                path.get)
             }) ++
             rootElement
               .getChildren("fieldSets")
               .flatMap(fieldSet => {
-                createFieldSet(SourceInfo(SourceLocation(path.get, Location(fieldSet.line)),
-                                          sourceData.get),
-                               fieldSet,
-                               path.get)
+                createFieldSet(SourceInfo(PathLocation(path.get, Location(fieldSet.line)),
+                  sourceData.get),
+                  fieldSet,
+                  path.get)
               }) ++
             rootElement
               .getChildren("sharingReasons")
               .flatMap(sharingReason => {
-                createSharingReason(SourceInfo(SourceLocation(path.get,
-                                                            Location(sharingReason.line)),
-                                               sourceData.get),
-                                    sharingReason,
-                                    path.get)
+                createSharingReason(SourceInfo(PathLocation(path.get,
+                  Location(sharingReason.line)),
+                  sourceData.get),
+                  sharingReason,
+                  path.get)
               })
         })
         .getOrElse(Iterator()) ++
@@ -304,9 +304,9 @@ object SObjectGenerator {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
                     case IssuesAnd(_, doc) =>
                       doc.get.rootElement.checkIsOrThrow(rootElement)
-                      op(SourceInfo(SourceLocation(filePath, Location.all), sourceData),
-                         doc.get.rootElement,
-                         filePath)
+                      op(SourceInfo(PathLocation(filePath, Location.all), sourceData),
+                        doc.get.rootElement,
+                        filePath)
                   }
               }
             }

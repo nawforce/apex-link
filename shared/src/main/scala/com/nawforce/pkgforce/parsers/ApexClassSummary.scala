@@ -102,10 +102,15 @@ case class ApexClassNode(location: PathLocation,
 
   override def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
     super.collectIssues(issues)
-    checkNeedsGlobalOrWebService().foreach(issue => issues.append(issue))
+    localIssues.foreach(issue => issues.append(issue))
   }
 
-  private def checkNeedsGlobalOrWebService(): Seq[Issue] = {
+  def localIssues: Seq[Issue] = {
+    checkNeedsGlobalOrWebService() ++
+      checkMisnamedConstructors()
+  }
+
+    private def checkNeedsGlobalOrWebService(): Seq[Issue] = {
     if (!modifiers.contains(GLOBAL_MODIFIER)) {
       children
         .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
@@ -120,5 +125,19 @@ case class ApexClassNode(location: PathLocation,
     } else {
       Seq.empty
     }
+  }
+
+  private def checkMisnamedConstructors(): Seq[Issue] = {
+    children
+      .filter(child => child.nature == ApexConstructorType && child.id != id)
+      .map(misnamed => {
+        new Issue(
+          location.path,
+          Diagnostic(
+            ERROR_CATEGORY,
+            misnamed.idLocation,
+            s"Constructors should have same name as the class, maybe method return type is missing?")
+        )
+      })
   }
 }

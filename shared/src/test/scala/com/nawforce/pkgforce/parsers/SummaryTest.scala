@@ -310,4 +310,19 @@ class SummaryTest extends AnyFunSuite {
       issues.head.diagnostic.message == "Enclosing class must be declared global to use global or webservice modifiers")
   }
 
+  test("Wrong constructor name") {
+    val path = PathFactory("Dummy.cls")
+    val cp =
+      CodeParser(path, SourceData("public class Dummy {public Foo() {} }"))
+    val result = cp.parseClass()
+    assert(result.issues.isEmpty)
+    val root = ApexNode(cp, result.value).get
+    val issues = root.collectIssues()
+
+    assert(issues.length == 1)
+    assert(issues.head.diagnostic.location.displayPosition == "line 1 at 27-30")
+    assert(
+      issues.head.diagnostic.message == "Constructors should have same name as the class, maybe method return type is missing?")
+  }
 }
+

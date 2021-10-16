@@ -31,7 +31,7 @@ package com.nawforce.pkgforce.stream
 import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.LocationAnd
+import com.nawforce.pkgforce.path.{LocationAnd, PathLocation}
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
 final case class ComponentEvent(sourceInfo: SourceInfo,
@@ -60,7 +60,7 @@ object ComponentGenerator {
           val attributes = extractAttributes(parser, logger, result.value)
           (if (logger.issues.isEmpty)
              Iterator(
-               ComponentEvent(SourceInfo(SourceLocation(location.path, location.location), source),
+               ComponentEvent(SourceInfo(PathLocation(location.path, location.location), source),
                               attributes,
                               VFEvent.extractControllers(parser.source,
                                                          result.value,

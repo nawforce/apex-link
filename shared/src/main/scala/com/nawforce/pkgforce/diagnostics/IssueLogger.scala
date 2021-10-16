@@ -47,8 +47,6 @@ sealed trait IssueLogger {
     andIssues.value
   }
 
-  // TODO: Use PathLocation
-
   def logError(path: PathLike, location: Location, message: String): Unit = {
     log(Issue(path, Diagnostic(ERROR_CATEGORY, location, message)))
   }
