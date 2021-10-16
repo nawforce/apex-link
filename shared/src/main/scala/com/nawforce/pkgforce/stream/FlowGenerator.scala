@@ -28,8 +28,8 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.path.Location
 
 final case class FlowEvent(sourceInfo: SourceInfo) extends PackageEvent
 

@@ -27,6 +27,7 @@
  */
 package com.nawforce.pkgforce.diagnostics
 
+import com.nawforce.pkgforce.path.Location
 import upickle.default.{macroRW, ReadWriter => RW}
 
 @upickle.implicits.key("DiagnosticCategory")

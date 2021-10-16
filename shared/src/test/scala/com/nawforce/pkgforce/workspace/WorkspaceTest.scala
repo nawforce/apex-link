@@ -30,7 +30,7 @@ package com.nawforce.pkgforce.workspace
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents.{SourceInfo, SourceLocation}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, LocationAnd, PathFactory, PathLike, PathLocation}
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.funsuite.AnyFunSuite
@@ -72,7 +72,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-              IssuesEvent(ArraySeq(Issue("/pkg/CustomLabels.labels",
+              IssuesEvent(ArraySeq(Issue(PathFactory("/pkg/CustomLabels.labels"),
                                          Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
         }
     }
@@ -92,10 +92,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
 
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(3, 0, 3, 0)),
+        case List(LabelEvent(PathLocation(PathFactory("/pkg/CustomLabels.labels"), Location(3, 0, 3, 0)),
                              Name("TestLabel1"),
                              false),
-                  LabelEvent(PathLocation("/pkg/CustomLabels.labels", Location(4, 0, 4, 0)),
+                  LabelEvent(PathLocation(PathFactory("/pkg/CustomLabels.labels"), Location(4, 0, 4, 0)),
                              Name("TestLabel2"),
                              true),
                   LabelFileEvent(SourceInfo(SourceLocation(labelsPath, Location.all), _)))
@@ -304,7 +304,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(
             IssuesEvent(
               ArraySeq(
-                Issue("/pkg/MyComponent.component",
+                Issue(PathFactory("/pkg/MyComponent.component"),
                       Diagnostic(SYNTAX_CATEGORY,
                                  Location(2, 0, 2, 0),
                                  "no viable alternative at input '<apex:component'"))))) =>
@@ -324,7 +324,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(
             IssuesEvent(
               ArraySeq(
-                Issue("/pkg/MyComponent.component",
+                Issue(PathFactory("/pkg/MyComponent.component"),
                       Diagnostic(ERROR_CATEGORY,
                                  Location(1, 0, 2, 5),
                                  "Root element must be 'apex:component'"))))) =>
@@ -357,7 +357,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            IssuesEvent(ArraySeq(Issue("/pkg/MyObject.object",
+            IssuesEvent(ArraySeq(Issue(PathFactory("/pkg/MyObject.object"),
                                        Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
       }
     }
@@ -417,7 +417,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(
             SObjectEvent(sourceInfo, path, false, None, None),
             IssuesEvent(ArraySeq(
-              Issue("/pkg/MyObject.object", Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
+              Issue(PathFactory("/pkg/MyObject.object"), Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }
@@ -458,7 +458,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         case List(
             SObjectEvent(sourceInfo, path, false, None, None),
             IssuesEvent(ArraySeq(
-              Issue("/pkg/MyObject.object", Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
+              Issue(PathFactory("/pkg/MyObject.object"), Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
             if sourceInfo.get.location == location && path == reportingPath =>
       }
     }

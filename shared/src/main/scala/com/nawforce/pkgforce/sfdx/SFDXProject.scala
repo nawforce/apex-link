@@ -30,7 +30,7 @@ package com.nawforce.pkgforce.sfdx
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents.MetadataDocument
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
 import ujson.Value
 
@@ -122,7 +122,7 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
     if (packageDirectories.isEmpty) {
       config.lineAndOffsetOf(config.root("packageDirectories")).foreach(lineAndOffset => {
         logger.log(
-          Issue(projectFile.toString,
+          Issue(projectFile,
             Diagnostic(ERROR_CATEGORY,
               Location(lineAndOffset._1, lineAndOffset._2),
               s"packageDirectories must have at least one entry")))
@@ -149,7 +149,7 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
 
     if (layers.map(_.namespace).toSet.size != layers.size) {
       logger.log(
-        Issue(projectFile.toString,
+        Issue(projectFile,
           Diagnostic(ERROR_CATEGORY,
             dependencies.head.location,
             s"plugin dependencies must use unique namespaces")))
@@ -168,7 +168,7 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       path =>
         logger.log(
           Issue(
-            projectFile.toString,
+            projectFile,
             Diagnostic(
               ERROR_CATEGORY,
               Location.empty,
@@ -182,7 +182,7 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       case (false, false) =>
         logger.log(
           Issue(
-            projectFile.toString,
+            projectFile,
             Diagnostic(ERROR_CATEGORY,
               dependent.location,
               s"plugin dependencies must include either a namespace, a path or both")))

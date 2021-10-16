@@ -28,15 +28,17 @@
 package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.pkgforce.diagnostics
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.parsers.ApexNode
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.{Location, PathFactory}
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.compat.immutable.ArraySeq
+
 class FieldModifierTest extends AnyFunSuite {
 
-  def legalFieldAccess(use: Array[Modifier], expected: Array[Modifier]): Boolean = {
+  def legalFieldAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
@@ -46,154 +48,153 @@ class FieldModifierTest extends AnyFunSuite {
     } else {
       val root = ApexNode(cp, result.value).get
       val field = root.children.head
-      field.modifiers.issues.isEmpty &&
-      (field.modifiers.modifiers sameElements expected)
+      field.parseIssues.isEmpty && field.modifiers == expected
     }
   }
 
-  def legalFieldAccess(use: Array[Modifier]): Boolean = {
+  def legalFieldAccess(use: ArraySeq[Modifier]): Boolean = {
     legalFieldAccess(use, use)
   }
 
-  def illegalFieldAccess(use: Array[Modifier]): Array[Issue] = {
+  def illegalFieldAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
-      Array()
+      ArraySeq()
     } else {
       val root = ApexNode(cp, result.value).get
       val field = root.children.head
-      field.modifiers.issues
+      field.parseIssues
     }
   }
 
   test("Default field access private") {
-    assert(legalFieldAccess(Array(), Array(PRIVATE_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(), ArraySeq(PRIVATE_MODIFIER)))
   }
 
   test("Private field") {
-    assert(legalFieldAccess(Array(PRIVATE_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(PRIVATE_MODIFIER)))
   }
 
   test("Protected field") {
-    assert(legalFieldAccess(Array(PROTECTED_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(PROTECTED_MODIFIER)))
   }
 
   test("Public field") {
-    assert(legalFieldAccess(Array(PUBLIC_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(PUBLIC_MODIFIER)))
   }
 
   test("Global field") {
-    assert(legalFieldAccess(Array(GLOBAL_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(GLOBAL_MODIFIER)))
   }
 
   test("Webservice field") {
     assert(
-      legalFieldAccess(Array(WEBSERVICE_MODIFIER), Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
+      legalFieldAccess(ArraySeq(WEBSERVICE_MODIFIER), ArraySeq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
   }
 
   test("Webservice non-global field") {
-    assert(!legalFieldAccess(Array(PUBLIC_MODIFIER, WEBSERVICE_MODIFIER)))
+    assert(!legalFieldAccess(ArraySeq(PUBLIC_MODIFIER, WEBSERVICE_MODIFIER)))
   }
 
   test("Transient field") {
-    assert(legalFieldAccess(Array(TRANSIENT_MODIFIER), Array(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(TRANSIENT_MODIFIER), ArraySeq(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Transient public field") {
     assert(
-      legalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER),
-                       Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
+      legalFieldAccess(ArraySeq(PUBLIC_MODIFIER, TRANSIENT_MODIFIER),
+        ArraySeq(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Static field") {
-    assert(legalFieldAccess(Array(STATIC_MODIFIER), Array(PRIVATE_MODIFIER, STATIC_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(STATIC_MODIFIER), ArraySeq(PRIVATE_MODIFIER, STATIC_MODIFIER)))
   }
 
   test("Static public field") {
     assert(
-      legalFieldAccess(Array(PUBLIC_MODIFIER, STATIC_MODIFIER),
-                       Array(PUBLIC_MODIFIER, STATIC_MODIFIER)))
+      legalFieldAccess(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER),
+        ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)))
   }
 
   test("Final field") {
-    assert(legalFieldAccess(Array(FINAL_MODIFIER), Array(PRIVATE_MODIFIER, FINAL_MODIFIER)))
+    assert(legalFieldAccess(ArraySeq(FINAL_MODIFIER), ArraySeq(PRIVATE_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Final public field") {
     assert(
-      legalFieldAccess(Array(PUBLIC_MODIFIER, FINAL_MODIFIER),
-                       Array(PUBLIC_MODIFIER, FINAL_MODIFIER)))
+      legalFieldAccess(ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER),
+        ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Mixed field") {
     assert(
-      legalFieldAccess(Array(PUBLIC_MODIFIER, STATIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
+      legalFieldAccess(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("AuraEnabled field") {
     assert(
-      legalFieldAccess(Array(AURA_ENABLED_ANNOTATION),
-                       Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
+      legalFieldAccess(ArraySeq(AURA_ENABLED_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
   }
 
   test("Deprecated field") {
     assert(
-      legalFieldAccess(Array(DEPRECATED_ANNOTATION),
-                       Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
+      legalFieldAccess(ArraySeq(DEPRECATED_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
   }
 
   test("InvocableVariable field") {
     assert(
-      legalFieldAccess(Array(INVOCABLE_VARIABLE_ANNOTATION),
-                       Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
+      legalFieldAccess(ArraySeq(INVOCABLE_VARIABLE_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
   }
 
   test("TestVisible field") {
     assert(
-      legalFieldAccess(Array(TEST_VISIBLE_ANNOTATION),
-                       Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
+      legalFieldAccess(ArraySeq(TEST_VISIBLE_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
   test("SuppressWarnings field") {
     assert(
-      legalFieldAccess(Array(SUPPRESS_WARNINGS_ANNOTATION),
-                       Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+      legalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
   }
 
   test("Bad modifier field") {
-    val issues = illegalFieldAccess(Array(OVERRIDE_MODIFIER)).toSeq
+    val issues = illegalFieldAccess(ArraySeq(OVERRIDE_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location(1, 20, 1, 28),
-                         "Modifier 'override' is not supported on fields"))))
+        Issue(PathFactory("Dummy.cls"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(1, 20, 1, 28),
+            "Modifier 'override' is not supported on fields"))))
   }
 
   test("Bad annotation field") {
-    val issues = illegalFieldAccess(Array(TEST_SETUP_ANNOTATION)).toSeq
+    val issues = illegalFieldAccess(ArraySeq(TEST_SETUP_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              diagnostics.Diagnostic(ERROR_CATEGORY,
-                                     Location(1, 20, 1, 30),
-                                     "Annotation '@TestSetup' is not supported on fields"))))
+        Issue(PathFactory("Dummy.cls"),
+          diagnostics.Diagnostic(ERROR_CATEGORY,
+            Location(1, 20, 1, 30),
+            "Annotation '@TestSetup' is not supported on fields"))))
   }
 
   test("Duplicate modifier field") {
-    val issues = illegalFieldAccess(Array(PROTECTED_MODIFIER, PROTECTED_MODIFIER)).toSeq
+    val issues = illegalFieldAccess(ArraySeq(PROTECTED_MODIFIER, PROTECTED_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              diagnostics.Diagnostic(ERROR_CATEGORY,
-                                     Location(1, 47, 1, 50),
-                                     "Modifier 'protected' is used more than once"))))
+        Issue(PathFactory("Dummy.cls"),
+          diagnostics.Diagnostic(ERROR_CATEGORY,
+            Location(1, 47, 1, 50),
+            "Modifier 'protected' is used more than once"))))
   }
 
-  def innerLegalFieldAccess(use: Array[Modifier], expected: Array[Modifier]): Boolean = {
+  def innerLegalFieldAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(
@@ -206,16 +207,15 @@ class FieldModifierTest extends AnyFunSuite {
       val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
-      field.modifiers.issues.isEmpty &&
-      (field.modifiers.modifiers sameElements expected)
+      field.parseIssues.isEmpty && field.modifiers == expected
     }
   }
 
-  def innerLegalFieldAccess(use: Array[Modifier]): Boolean = {
+  def innerLegalFieldAccess(use: ArraySeq[Modifier]): Boolean = {
     innerLegalFieldAccess(use, use)
   }
 
-  def innerIllegalFieldAccess(use: Array[Modifier]): Array[Issue] = {
+  def innerIllegalFieldAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(
@@ -223,139 +223,139 @@ class FieldModifierTest extends AnyFunSuite {
       SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
-      Array()
+      ArraySeq()
     } else {
       val root = ApexNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
-      field.modifiers.issues
+      field.parseIssues
     }
   }
 
   test("Inner Default field access private") {
-    assert(innerLegalFieldAccess(Array(), Array(PRIVATE_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(), ArraySeq(PRIVATE_MODIFIER)))
   }
 
   test("Inner Private field") {
-    assert(innerLegalFieldAccess(Array(PRIVATE_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(PRIVATE_MODIFIER)))
   }
 
   test("Inner Protected field") {
-    assert(innerLegalFieldAccess(Array(PROTECTED_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(PROTECTED_MODIFIER)))
   }
 
   test("Inner Public field") {
-    assert(innerLegalFieldAccess(Array(PUBLIC_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(PUBLIC_MODIFIER)))
   }
 
   test("Inner Global field") {
-    assert(innerLegalFieldAccess(Array(GLOBAL_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(GLOBAL_MODIFIER)))
   }
 
   test("Inner Webservice field") {
     assert(
-      innerLegalFieldAccess(Array(WEBSERVICE_MODIFIER),
-                            Array(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
+      innerLegalFieldAccess(ArraySeq(WEBSERVICE_MODIFIER),
+        ArraySeq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)))
   }
 
   test("Inner Webservice non-global field") {
-    assert(!innerLegalFieldAccess(Array(PUBLIC_MODIFIER, WEBSERVICE_MODIFIER)))
+    assert(!innerLegalFieldAccess(ArraySeq(PUBLIC_MODIFIER, WEBSERVICE_MODIFIER)))
   }
 
   test("Inner Transient field") {
     assert(
-      innerLegalFieldAccess(Array(TRANSIENT_MODIFIER), Array(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
+      innerLegalFieldAccess(ArraySeq(TRANSIENT_MODIFIER), ArraySeq(PRIVATE_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Inner Transient public field") {
     assert(
-      innerLegalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER),
-                            Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
+      innerLegalFieldAccess(ArraySeq(PUBLIC_MODIFIER, TRANSIENT_MODIFIER),
+        ArraySeq(PUBLIC_MODIFIER, TRANSIENT_MODIFIER)))
   }
 
   test("Inner Static field") {
-    val issues = innerIllegalFieldAccess(Array(STATIC_MODIFIER)).toSeq
+    val issues = innerIllegalFieldAccess(ArraySeq(STATIC_MODIFIER))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
-                                 diagnostics.Diagnostic(
-                                   ERROR_CATEGORY,
-                                   Location(1, 38, 1, 44),
-                                   "Modifier 'static' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+        diagnostics.Diagnostic(
+          ERROR_CATEGORY,
+          Location(1, 38, 1, 44),
+          "Modifier 'static' is not supported on inner class fields"))))
 
   }
 
   test("Inner Final field") {
-    assert(innerLegalFieldAccess(Array(FINAL_MODIFIER), Array(PRIVATE_MODIFIER, FINAL_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(FINAL_MODIFIER), ArraySeq(PRIVATE_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Inner Final public field") {
     assert(
-      innerLegalFieldAccess(Array(PUBLIC_MODIFIER, FINAL_MODIFIER),
-                            Array(PUBLIC_MODIFIER, FINAL_MODIFIER)))
+      innerLegalFieldAccess(ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER),
+        ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Inner Mixed field") {
-    assert(innerLegalFieldAccess(Array(PUBLIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
+    assert(innerLegalFieldAccess(ArraySeq(PUBLIC_MODIFIER, TRANSIENT_MODIFIER, FINAL_MODIFIER)))
   }
 
   test("Inner AuraEnabled field") {
     assert(
-      innerLegalFieldAccess(Array(AURA_ENABLED_ANNOTATION),
-                            Array(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(AURA_ENABLED_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, AURA_ENABLED_ANNOTATION)))
   }
 
   test("Inner Deprecated field") {
     assert(
-      innerLegalFieldAccess(Array(DEPRECATED_ANNOTATION),
-                            Array(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(DEPRECATED_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, DEPRECATED_ANNOTATION)))
   }
 
   test("Inner InvocableVariable field") {
     assert(
-      innerLegalFieldAccess(Array(INVOCABLE_VARIABLE_ANNOTATION),
-                            Array(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(INVOCABLE_VARIABLE_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, INVOCABLE_VARIABLE_ANNOTATION)))
   }
 
   test("Inner TestVisible field") {
     assert(
-      innerLegalFieldAccess(Array(TEST_VISIBLE_ANNOTATION),
-                            Array(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(TEST_VISIBLE_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
   test("Inner SuppressWarnings field") {
     assert(
-      innerLegalFieldAccess(Array(SUPPRESS_WARNINGS_ANNOTATION),
-                            Array(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
   }
 
   test("Inner Bad modifier field") {
-    val issues = innerIllegalFieldAccess(Array(OVERRIDE_MODIFIER)).toSeq
+    val issues = innerIllegalFieldAccess(ArraySeq(OVERRIDE_MODIFIER))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
-                                 diagnostics.Diagnostic(
-                                   ERROR_CATEGORY,
-                                   Location(1, 38, 1, 46),
-                                   "Modifier 'override' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+        diagnostics.Diagnostic(
+          ERROR_CATEGORY,
+          Location(1, 38, 1, 46),
+          "Modifier 'override' is not supported on inner class fields"))))
   }
 
   test("Inner Bad annotation field") {
-    val issues = innerIllegalFieldAccess(Array(TEST_SETUP_ANNOTATION)).toSeq
+    val issues = innerIllegalFieldAccess(ArraySeq(TEST_SETUP_ANNOTATION))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls").toString,
-                                 diagnostics.Diagnostic(
-                                   ERROR_CATEGORY,
-                                   Location(1, 38, 1, 48),
-                                   "Annotation '@TestSetup' is not supported on inner class fields"))))
+      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+        diagnostics.Diagnostic(
+          ERROR_CATEGORY,
+          Location(1, 38, 1, 48),
+          "Annotation '@TestSetup' is not supported on inner class fields"))))
   }
 
   test("Inner Duplicate modifier field") {
-    val issues = innerIllegalFieldAccess(Array(PROTECTED_MODIFIER, PROTECTED_MODIFIER)).toSeq
+    val issues = innerIllegalFieldAccess(ArraySeq(PROTECTED_MODIFIER, PROTECTED_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              diagnostics.Diagnostic(ERROR_CATEGORY,
-                                     Location(1, 65, 1, 68),
-                                     "Modifier 'protected' is used more than once"))))
+        Issue(PathFactory("Dummy.cls"),
+          diagnostics.Diagnostic(ERROR_CATEGORY,
+            Location(1, 65, 1, 68),
+            "Modifier 'protected' is used more than once"))))
   }
 
 }

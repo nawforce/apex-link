@@ -27,11 +27,12 @@
  */
 package com.nawforce.runtime.xml
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, IssuesAnd, Location}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, IssuesAnd}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
 import scala.scalajs.js.{Dynamic, Object}
@@ -81,7 +82,7 @@ object XMLDocument {
     val parser = new DOMParser(getOptions(path))
     val doc = parser.parseFromString(sourceData.asString, "text/xml")
     if (errors.nonEmpty) {
-      IssuesAnd(Array(errors.last), None)
+      IssuesAnd(ArraySeq(errors.last), None)
     } else {
       IssuesAnd(Some(new XMLDocument(path, doc)))
     }
@@ -133,6 +134,6 @@ object XMLDocument {
       else
         msg
 
-    Issue(path.toString, Diagnostic(category, Location(Math.max(1, line), column), trimmedMsg))
+    Issue(path, Diagnostic(category, Location(Math.max(1, line), column), trimmedMsg))
   }
 }

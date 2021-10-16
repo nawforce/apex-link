@@ -42,7 +42,7 @@ object IssuesEvent {
     new IssuesEvent(issues.to(ArraySeq))
   }
 
-  def iterator(issues: Array[Issue]): Iterator[IssuesEvent] = {
+  def iterator(issues: ArraySeq[Issue]): Iterator[IssuesEvent] = {
     if (issues.nonEmpty)
       Iterator(new IssuesEvent(issues.to(ArraySeq)))
     else

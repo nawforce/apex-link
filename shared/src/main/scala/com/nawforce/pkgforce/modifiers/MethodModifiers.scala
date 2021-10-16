@@ -33,6 +33,8 @@ import com.nawforce.apexparser.ApexParser.ModifierContext
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
+import scala.collection.compat.immutable.ArraySeq
+
 sealed abstract class MethodOwnerNature(final val name: String) {
   override def toString: String = name
 }
@@ -73,7 +75,7 @@ object MethodModifiers {
   private val MethodModifiersAndAnnotations: Set[Modifier] = MethodAnnotations ++ MethodModifiers
 
   def classMethodModifiers(parser: CodeParser,
-                           modifierContexts: Seq[ModifierContext],
+                           modifierContexts: ArraySeq[ModifierContext],
                            context: ParserRuleContext,
                            ownerNature: MethodOwnerNature,
                            isOuter: Boolean): ModifierResults = {
@@ -105,11 +107,11 @@ object MethodModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
   def interfaceMethodModifiers(parser: CodeParser,
-                               modifierContexts: Seq[ModifierContext],
+                               modifierContexts: ArraySeq[ModifierContext],
                                context: ParserRuleContext,
                                isOuter: Boolean): ModifierResults = {
     val logger = new CodeParserLogger(parser)
@@ -119,6 +121,6 @@ object MethodModifiers {
       logger,
       context)
 
-    ModifierResults((mods ++ Seq(VIRTUAL_MODIFIER)).toArray, logger.issues).intern
+    ModifierResults((mods ++ ArraySeq(VIRTUAL_MODIFIER)), logger.issues).intern
   }
 }

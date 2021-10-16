@@ -28,8 +28,7 @@
 package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.CaseInsensitiveInputStream
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
@@ -41,7 +40,7 @@ trait Locatable {
   var endOffset: Int
 
   def location: PathLocation = {
-    PathLocation(locationPath.toString, Location(startLine, startOffset, endLine, endOffset))
+    PathLocation(locationPath, Location(startLine, startOffset, endLine, endOffset))
   }
 }
 
@@ -75,8 +74,8 @@ case class Source(path: PathLike,
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getLocation(context: ParserRuleContext): (PathLike, Location) = {
-    (path,
+  def getLocation(context: ParserRuleContext): PathLocation = {
+    PathLocation(path,
      adjustLocation(
        Location(context.start.line,
                 context.start.charPositionInLine,

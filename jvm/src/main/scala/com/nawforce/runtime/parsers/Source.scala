@@ -28,48 +28,10 @@
 package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.CaseInsensitiveInputStream
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation, Positionable}
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CharStream
-
-/** Trait for things we can locate in some file at some position. */
-trait Locatable {
-  def location: PathLocation
-}
-
-
-/** Variation on locatable for when we don't know, may return null! */
-trait UnsafeLocatable extends Locatable {
-  def location: PathLocation
-}
-
-/** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. */
-class Positionable extends Locatable {
-  private var locationPath: PathLike = _
-  private var startLine: Int = _
-  private var startOffset: Int = _
-  private var endLine: Int = _
-  private var endOffset: Int = _
-
-  def setLocation(path: PathLike,
-                  startLine: Int,
-                  startOffset: Int,
-                  endLine: Int,
-                  endOffset: Int): Unit = {
-    this.locationPath = path
-    this.startLine = startLine
-    this.startOffset = startOffset
-    this.endLine = endLine
-    this.endOffset = endOffset
-  }
-
-  def location: PathLocation = {
-    assert(locationPath != null)
-    PathLocation(locationPath.toString, Location(startLine, startOffset, endLine, endOffset))
-  }
-}
 
 /** Encapsulation of a chunk of code, position tells you where it came from in path */
 case class Source(path: PathLike,
@@ -101,13 +63,13 @@ case class Source(path: PathLike,
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getLocation(context: ParserRuleContext): (PathLike, Location) = {
-    (path,
-     adjustLocation(
-       Location(context.start.getLine,
-                context.start.getCharPositionInLine,
-                context.stop.getLine,
-                context.stop.getCharPositionInLine + context.stop.getText.length)))
+  def getLocation(context: ParserRuleContext): PathLocation = {
+    PathLocation(path,
+      adjustLocation(
+        Location(context.start.getLine,
+          context.start.getCharPositionInLine,
+          context.stop.getLine,
+          context.stop.getCharPositionInLine + context.stop.getText.length)))
   }
 
   private def adjustLocation(location: Location): Location = {

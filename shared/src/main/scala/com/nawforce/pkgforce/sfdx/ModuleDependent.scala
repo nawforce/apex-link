@@ -27,7 +27,7 @@
  */
 package com.nawforce.pkgforce.sfdx
 
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.path.Location
 import ujson.Value
 
 case class ModuleDependent(config: ValueWithPositions, value: Value.Value) {

@@ -28,9 +28,10 @@
 
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger, LocationAnd, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
+import com.nawforce.pkgforce.path.LocationAnd
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
 final case class ComponentEvent(sourceInfo: SourceInfo,
@@ -54,12 +55,12 @@ object ComponentGenerator {
         if (result.issues.nonEmpty) {
           IssuesEvent.iterator(result.issues)
         } else {
-          val location = parser.getPathAndLocation(result.value)
+          val location = parser.getPathLocation(result.value)
           val logger = new CatchingLogger
           val attributes = extractAttributes(parser, logger, result.value)
           (if (logger.issues.isEmpty)
              Iterator(
-               ComponentEvent(SourceInfo(SourceLocation(location._1, location._2), source),
+               ComponentEvent(SourceInfo(SourceLocation(location.path, location.location), source),
                               attributes,
                               VFEvent.extractControllers(parser.source,
                                                          result.value,
@@ -77,8 +78,8 @@ object ComponentGenerator {
                                 component: VFParser.VfUnitContext): Array[Name] = {
     val root: VFParser.ElementContext = component.element()
     if (!PageParser.getText(root.Name(0)).equalsIgnoreCase("apex:component")) {
-      val location = parser.getPathAndLocation(component)
-      logger.logError(location._1, location._2, "Root element must be 'apex:component'")
+      val location = parser.getPathLocation(component)
+      logger.logError(location.path, location.location, "Root element must be 'apex:component'")
       return Array()
     }
 
@@ -96,9 +97,9 @@ object ComponentGenerator {
                 .toScala(attribute.attribute())
                 .find(a => PageParser.getText(a.attributeName()).equalsIgnoreCase("name"))
               if (name.isEmpty) {
-                val location = parser.getPathAndLocation(component)
-                logger.logError(location._1,
-                                location._2,
+                val location = parser.getPathLocation(component)
+                logger.logError(location.path,
+                                location.location,
                                 "apex:attribute is missing 'name' attribute")
                 None
               } else {

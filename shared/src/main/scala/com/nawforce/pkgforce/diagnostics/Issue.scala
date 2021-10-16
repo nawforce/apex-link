@@ -28,16 +28,20 @@
 
 package com.nawforce.pkgforce.diagnostics
 
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathFactory, PathLike}
 import upickle.default.{macroRW, ReadWriter => RW}
+import upickle.legacy.readwriter
 
-sealed case class Issue(path: String, diagnostic: Diagnostic) {
+import scala.collection.compat.immutable.ArraySeq
+
+sealed case class Issue(path: PathLike, diagnostic: Diagnostic) {
   def asString: String = s"$path ${diagnostic.asString}"
 }
 
 object Issue {
-  val emptyArray: Array[Issue] = Array.empty
+  val emptyArray: ArraySeq[Issue] = ArraySeq.empty
 
+  implicit val pathLikeRW: RW[PathLike] = upickle.default.readwriter[String].bimap[PathLike](_.toString, PathFactory(_))
   implicit val rw: RW[Issue] = macroRW
 
   implicit val ordering: Ordering[Issue] = Ordering
@@ -46,12 +50,12 @@ object Issue {
     .orElseBy(_.diagnostic.location.startPosition)
 
   def apply(path: PathLike, category: DiagnosticCategory, location: Location, message: String): Issue = {
-    new Issue(path.toString, Diagnostic(category, location, message))
+    new Issue(path, Diagnostic(category, location, message))
   }
 }
 
-sealed case class IssuesAnd[T](issues: Array[Issue], value: T)
+sealed case class IssuesAnd[T](issues: ArraySeq[Issue], value: T)
 
 object IssuesAnd {
-  def apply[T](value: T) = new IssuesAnd[T](Array(), value)
+  def apply[T](value: T) = new IssuesAnd[T](ArraySeq(), value)
 }

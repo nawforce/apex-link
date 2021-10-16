@@ -27,9 +27,9 @@
  */
 package com.nawforce.pkgforce.stream
 
-import com.nawforce.pkgforce.diagnostics.LocationAnd
 import com.nawforce.pkgforce.documents.SourceInfo
 import com.nawforce.pkgforce.names.Name
+import com.nawforce.pkgforce.path.LocationAnd
 import com.nawforce.runtime.parsers.VFParser.AttributeContext
 import com.nawforce.runtime.parsers.{PageParser, Source, VFParser}
 
@@ -54,9 +54,9 @@ object VFEvent {
       .flatMap(attr => {
         val location = source.getLocation(attr)
         PageParser.getText(attr.attributeName()) match {
-          case "controller" => Array((location._2, extractAttributeValue(attr)))
+          case "controller" => Array((location.location, extractAttributeValue(attr)))
           case "extensions" if isPage =>
-            extractAttributeValue(attr).split(',').map(_.trim).map(name => (location._2, name))
+            extractAttributeValue(attr).split(',').map(_.trim).map(name => (location.location, name))
           case _ => None
         }
       })
@@ -82,7 +82,7 @@ object VFEvent {
           .foreach(attrValue => {
             val attrText = PageParser.getText(attrValue)
             if (attrText.startsWith("{!") && attrText.endsWith("}"))
-              exprs.addOne(LocationAnd(source.getLocation(attrValue)._2, attrText.substring(2, attrText.length - 1)))
+              exprs.addOne(LocationAnd(source.getLocation(attrValue).location, attrText.substring(2, attrText.length - 1)))
           })
       })
 
@@ -95,7 +95,7 @@ object VFEvent {
             val text = PageParser.getText(charData)
             expressionMatcher.reset(text)
             while (expressionMatcher.find()) exprs.addOne(
-              LocationAnd(source.getLocation(charData)._2,
+              LocationAnd(source.getLocation(charData).location,
               text.substring(expressionMatcher.start() + 2, expressionMatcher.end() - 1)))
           }))
 

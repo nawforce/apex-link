@@ -27,6 +27,7 @@
  */
 package com.nawforce.pkgforce.diagnostics
 
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.json.JSON
 
 import scala.collection.mutable
@@ -35,11 +36,11 @@ import scala.collection.mutable
   * which would be the other obvious way to collate them.
   */
 class IssueLog {
-  private val log = mutable.HashMap[String, List[Issue]]() withDefaultValue List()
-  private val possibleMissing = mutable.HashSet[String]()
+  private val log = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
+  private val possibleMissing = mutable.HashSet[PathLike]()
 
   /** Access all issues. */
-  def getIssues: Map[String, List[Issue]] = log.toMap
+  def getIssues: Map[PathLike, List[Issue]] = log.toMap
 
   /** Clear the log. */
   def clear(): Unit = {
@@ -66,14 +67,14 @@ class IssueLog {
   }
 
   /** Extract & remove issues for a specific path. */
-  def pop(path: String): List[Issue] = {
+  def pop(path: PathLike): List[Issue] = {
     val issues = log.getOrElse(path, Nil)
     log.remove(path)
     issues
   }
 
   /** Replace issues for a specific path. */
-  def push(path: String, issues: List[Issue]): Unit = {
+  def push(path: PathLike, issues: List[Issue]): Unit = {
     if (issues.nonEmpty)
       log.put(path, issues)
   }
@@ -83,12 +84,12 @@ class IssueLog {
     issueLog.log.foreach(kv => kv._2.foreach(add))
 
   /** Get issues for a specific file in Diagnostic form. */
-  def getDiagnostics(path: String): List[Diagnostic] =
+  def getDiagnostics(path: PathLike): List[Diagnostic] =
     log.getOrElse(path, Nil).map(_.diagnostic)
 
   /** Get paths that have a MISSING_CATEGORY issue. */
-  def getMissing: Seq[String] = {
-    val missing = new mutable.ArrayBuffer[String]()
+  def getMissing: Seq[PathLike] = {
+    val missing = new mutable.ArrayBuffer[PathLike]()
     possibleMissing.foreach(possible => {
       val issues = log.getOrElse(possible, Nil).filter(_.diagnostic.category == MISSING_CATEGORY)
       if (issues.nonEmpty) {
@@ -102,7 +103,7 @@ class IssueLog {
 
   private trait MessageWriter {
     def startOutput(): Unit
-    def startDocument(path: String): Unit
+    def startDocument(path: PathLike): Unit
     def writeMessage(category: DiagnosticCategory, location: Location, message: String): Unit
     def writeSummary(notShown: Int, total: Int): Unit
     def endDocument(): Unit
@@ -113,7 +114,7 @@ class IssueLog {
     private val buffer = new StringBuilder()
 
     override def startOutput(): Unit = buffer.clear()
-    override def startDocument(path: String): Unit = if (showPath) buffer ++= path + '\n'
+    override def startDocument(path: PathLike): Unit = if (showPath) buffer ++= path.toString + '\n'
     override def writeMessage(category: DiagnosticCategory,
                               location: Location,
                               message: String): Unit =
@@ -134,9 +135,9 @@ class IssueLog {
       buffer ++= s"""{ "files": [\n"""
       firstDocument = true
     }
-    override def startDocument(path: String): Unit = {
+    override def startDocument(path: PathLike): Unit = {
       buffer ++= (if (firstDocument) "" else ",\n")
-      buffer ++= s"""{ "path": "${encode(path)}", "messages": [\n"""
+      buffer ++= s"""{ "path": "${encode(path.toString)}", "messages": [\n"""
       firstDocument = false
       firstMessage = true
     }
@@ -161,7 +162,7 @@ class IssueLog {
   }
 
   private def writeMessages(writer: MessageWriter,
-                            path: String,
+                            path: PathLike,
                             warnings: Boolean,
                             unused: Boolean,
                             maxErrors: Int): Unit = {
@@ -188,7 +189,7 @@ class IssueLog {
     }
   }
 
-  def getMessages(path: String, unused: Boolean = false): String = {
+  def getMessages(path: PathLike, unused: Boolean = false): String = {
     val writer: MessageWriter = new TextMessageWriter(false)
     writeMessages(writer, path, warnings = true, unused, maxErrors = 10)
     writer.output

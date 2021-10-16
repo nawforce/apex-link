@@ -27,8 +27,8 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.pkgforce.diagnostics.{IssuesAnd, Location}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.IssuesAnd
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
@@ -43,7 +43,7 @@ class PageParser(val source: Source) {
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getPathAndLocation(context: ParserRuleContext): (PathLike, Location) = {
+  def getPathLocation(context: ParserRuleContext): PathLocation = {
     source.getLocation(context)
   }
 
@@ -53,7 +53,7 @@ class PageParser(val source: Source) {
   }
 
   def parse[T](parse: VFParser => T): IssuesAnd[T] = {
-    val listener = new CollectingErrorListener(source.path.toString)
+    val listener = new CollectingErrorListener(source.path)
 
     val lexer = new VFLexer(CharStreams.fromString(is))
     lexer.removeErrorListeners()
@@ -66,7 +66,7 @@ class PageParser(val source: Source) {
     parser.addErrorListener(listener)
 
     val result = parse(parser)
-    IssuesAnd(listener.issues.toArray, result)
+    IssuesAnd(listener.issues, result)
   }
 }
 

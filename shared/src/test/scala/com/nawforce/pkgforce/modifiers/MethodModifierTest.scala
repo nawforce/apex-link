@@ -27,15 +27,17 @@
  */
 package com.nawforce.pkgforce.modifiers
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.parsers.ApexNode
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.{Location, PathFactory}
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.compat.immutable.ArraySeq
+
 class MethodModifierTest extends AnyFunSuite {
 
-  def legalInterfaceMethodAccess(use: Array[Modifier], expected: Array[Modifier]): Boolean = {
+  def legalInterfaceMethodAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
@@ -45,60 +47,60 @@ class MethodModifierTest extends AnyFunSuite {
     } else {
       val root = ApexNode(cp, result.value).get
       val field = root.children.head
-      field.modifiers.issues.isEmpty &&
-      (field.modifiers.modifiers sameElements expected)
+      field.parseIssues.isEmpty &&
+        (field.modifiers == expected)
     }
   }
 
-  def legalInterfaceMethodAccess(use: Array[Modifier]): Boolean = {
+  def legalInterfaceMethodAccess(use: ArraySeq[Modifier]): Boolean = {
     legalInterfaceMethodAccess(use, use)
   }
 
-  def illegalInterfaceMethodAccess(use: Array[Modifier]): Array[Issue] = {
+  def illegalInterfaceMethodAccess(use: Array[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
     val path = PathFactory("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
-      Array()
+      ArraySeq()
     } else {
       val root = ApexNode(cp, result.value).get
       val field = root.children.head
-      field.modifiers.issues
+      field.parseIssues
     }
   }
 
   test("Interface method no modifiers is virtual") {
-    assert(legalInterfaceMethodAccess(Array(), Array(VIRTUAL_MODIFIER)))
+    assert(legalInterfaceMethodAccess(ArraySeq(), ArraySeq(VIRTUAL_MODIFIER)))
   }
 
   test("Interface method public modifier") {
-    val issues = illegalInterfaceMethodAccess(Array(PUBLIC_MODIFIER)).toSeq
+    val issues = illegalInterfaceMethodAccess(Array(PUBLIC_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location(1, 24, 1, 30),
-                         "Modifier 'public' is not supported on interface methods"))))
+        Issue(PathFactory("Dummy.cls"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(1, 24, 1, 30),
+            "Modifier 'public' is not supported on interface methods"))))
   }
 
   test("Interface method virtual modifier") {
-    val issues = illegalInterfaceMethodAccess(Array(VIRTUAL_MODIFIER)).toSeq
+    val issues = illegalInterfaceMethodAccess(Array(VIRTUAL_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location(1, 24, 1, 31),
-                         "Modifier 'virtual' is not supported on interface methods"))))
+        Issue(PathFactory("Dummy.cls"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(1, 24, 1, 31),
+            "Modifier 'virtual' is not supported on interface methods"))))
   }
 
   test("Interface method isTest annotation") {
-    val issues = illegalInterfaceMethodAccess(Array(ISTEST_ANNOTATION)).toSeq
+    val issues = illegalInterfaceMethodAccess(Array(ISTEST_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls").toString,
-              Diagnostic(ERROR_CATEGORY,
-                         Location(1, 24, 1, 31),
-                         "Annotation '@IsTest' is not supported on interface methods"))))
+        Issue(PathFactory("Dummy.cls"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(1, 24, 1, 31),
+            "Annotation '@IsTest' is not supported on interface methods"))))
   }
 }

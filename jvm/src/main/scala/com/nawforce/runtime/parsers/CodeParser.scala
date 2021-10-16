@@ -28,12 +28,15 @@
 package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
-import com.nawforce.pkgforce.diagnostics.{IssuesAnd, Location}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.IssuesAnd
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
 import java.io.ByteArrayInputStream
+import scala.collection.compat.immutable.ArraySeq
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 /** Apex class parser helper */
@@ -72,7 +75,7 @@ class CodeParser(val source: Source) {
   }
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
-  def getPathAndLocation(context: ParserRuleContext): (PathLike, Location) = {
+  def getPathLocation(context: ParserRuleContext): PathLocation = {
     source.getLocation(context)
   }
 
@@ -88,7 +91,7 @@ class CodeParser(val source: Source) {
     val tokenStream = new CommonTokenStream(new ApexLexer(cis))
     tokenStream.fill()
 
-    val listener = new CollectingErrorListener(source.path.toString)
+    val listener = new CollectingErrorListener(source.path)
     val parser = new ApexParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)
@@ -135,8 +138,8 @@ object CodeParser {
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: java.util.List[T]): Seq[T] = {
-    collection.asScala.toSeq
+  def toScala[T](collection: java.util.List[T]): mutable.Buffer[T] = {
+    collection.asScala
   }
 
   // Helper for JS Portability

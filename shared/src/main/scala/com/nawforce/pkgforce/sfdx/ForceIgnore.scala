@@ -28,10 +28,11 @@
 package com.nawforce.pkgforce.sfdx
 
 import java.util.regex.{Matcher, Pattern}
-
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.platform.Path
+
+import scala.collection.compat.immutable.ArraySeq
 
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val rootPathPrefix = {
@@ -74,8 +75,8 @@ object ForceIgnore {
     if (path.isFile) {
       path.read() match {
         case Left(err) =>
-          IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
-        case Right(data) => IssuesAnd(Array(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
+          IssuesAnd(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+        case Right(data) => IssuesAnd(ArraySeq(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
       }
     } else {
       IssuesAnd(None)

@@ -30,7 +30,7 @@ package com.nawforce.pkgforce.documents
 import com.nawforce.pkgforce.diagnostics
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.sfdx.ForceIgnore
 
 import scala.collection.mutable
@@ -117,7 +117,7 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
         (if (document.nature == ApexNature) get(ExtendedApexNature, typeName) else Set())
       if (existing.nonEmpty) {
         logger.log(
-          Issue(document.path.toString,
+          Issue(document.path,
                 diagnostics.Diagnostic(
                   ERROR_CATEGORY,
                   Location.empty,
@@ -160,7 +160,7 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
     // Otherwise we should ignore it, sad but true
     logger.log(
       Issue(
-        document.path.toString,
+        document.path,
         Diagnostic(ERROR_CATEGORY,
                    Location.empty,
                    s"Duplicate type '$typeName' found in '${document.path}', ignoring this file")))

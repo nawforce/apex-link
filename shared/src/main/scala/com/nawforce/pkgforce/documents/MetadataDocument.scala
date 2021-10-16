@@ -29,8 +29,10 @@ package com.nawforce.pkgforce.documents
 
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{TypeName, _}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.SourceData
+
+import scala.collection.compat.immutable.ArraySeq
 
 /** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
   * may contribute to the same type. */
@@ -63,7 +65,7 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   def source: IssuesAnd[Option[SourceData]] = {
     path.readSourceData() match {
       case Left(err) =>
-        IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
+        IssuesAnd(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
       case Right(data) => IssuesAnd(Some(data))
     }
   }

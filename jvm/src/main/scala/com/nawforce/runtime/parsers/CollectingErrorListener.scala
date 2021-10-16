@@ -27,12 +27,14 @@
  */
 package com.nawforce.runtime.parsers
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, Location, SYNTAX_CATEGORY}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, SYNTAX_CATEGORY}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable
 
-class CollectingErrorListener(path: String) extends BaseErrorListener {
+class CollectingErrorListener(path: PathLike) extends BaseErrorListener {
   var _issues: mutable.ArrayBuffer[Issue] = _
 
   override def syntaxError(recognizer: Recognizer[_, _],
@@ -48,9 +50,9 @@ class CollectingErrorListener(path: String) extends BaseErrorListener {
       new Issue(path, Diagnostic(SYNTAX_CATEGORY, Location(line, charPositionInLine), msg)))
   }
 
-  def issues: Array[Issue] = {
+  def issues: ArraySeq[Issue] = {
     if (_issues != null)
-      _issues.toArray
+      ArraySeq.unsafeWrapArray(_issues.toArray)
     else
       Issue.emptyArray
   }

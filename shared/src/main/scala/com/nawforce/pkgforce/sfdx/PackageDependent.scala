@@ -27,9 +27,8 @@
  */
 package com.nawforce.pkgforce.sfdx
 
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import ujson.Value
 
 case class PackageDependent(projectPath: PathLike, config: ValueWithPositions, value: Value.Value) {

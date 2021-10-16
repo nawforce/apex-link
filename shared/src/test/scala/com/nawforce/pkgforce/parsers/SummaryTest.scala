@@ -27,12 +27,13 @@
  */
 package com.nawforce.pkgforce.parsers
 
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.{Location, PathFactory, PathLocation}
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
+
+import scala.collection.immutable.ArraySeq
 
 class SummaryTest extends AnyFunSuite {
 
@@ -43,11 +44,12 @@ class SummaryTest extends AnyFunSuite {
     assert(result.issues.isEmpty)
     val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexClassType)
-    assert(root.range == Location(1, 0, 1, 21))
-    assert(root.id == IdAndRange(Name("Dummy"), Location(1, 13, 1, 18)))
+    assert(root.location == PathLocation(path, Location(1, 0, 1, 21)))
+    assert(root.id == Name("Dummy"))
+    assert(root.idLocation == Location(1, 13, 1, 18))
     assert(root.children.isEmpty)
-    assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(root.modifiers.issues.isEmpty)
+    assert(root.modifiers == ArraySeq(PUBLIC_MODIFIER))
+    assert(root.parseIssues.isEmpty)
     assert(root.signature == "public class Dummy")
     assert(root.description == "public")
   }
@@ -59,11 +61,12 @@ class SummaryTest extends AnyFunSuite {
     assert(result.issues.isEmpty)
     val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexInterfaceType)
-    assert(root.range == Location(1, 0, 1, 25))
-    assert(root.id == IdAndRange(Name("Dummy"), Location(1, 17, 1, 22)))
+    assert(root.location == PathLocation(path, Location(1, 0, 1, 25)))
+    assert(root.id == Name("Dummy"))
+    assert(root.idLocation == Location(1, 17, 1, 22))
     assert(root.children.isEmpty)
-    assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(root.modifiers.issues.isEmpty)
+    assert(root.modifiers == ArraySeq(PUBLIC_MODIFIER))
+    assert(root.parseIssues.isEmpty)
     assert(root.signature == "public interface Dummy")
     assert(root.description == "public")
   }
@@ -75,11 +78,12 @@ class SummaryTest extends AnyFunSuite {
     assert(result.issues.isEmpty)
     val root = ApexNode(cp, result.value).get
     assert(root.nature == ApexEnumType)
-    assert(root.range == Location(1, 0, 1, 20))
-    assert(root.id == IdAndRange(Name("Dummy"), Location(1, 12, 1, 17)))
+    assert(root.location == PathLocation(path, Location(1, 0, 1, 20)))
+    assert(root.id == Name("Dummy"))
+    assert(root.idLocation == Location(1, 12, 1, 17))
     assert(root.children.isEmpty)
-    assert(root.modifiers.modifiers sameElements Array(PUBLIC_MODIFIER))
-    assert(root.modifiers.issues.isEmpty)
+    assert(root.modifiers == ArraySeq(PUBLIC_MODIFIER))
+    assert(root.parseIssues.isEmpty)
     assert(root.signature == "public enum Dummy")
     assert(root.description == "public")
   }
@@ -97,11 +101,12 @@ class SummaryTest extends AnyFunSuite {
 
     val ctor = root.children.head
     assert(ctor.nature == ApexConstructorType)
-    assert(ctor.range == Location(1, 21, 1, 68))
-    assert(ctor.id == IdAndRange(Name("Dummy"), Location(1, 29, 1, 34)))
+    assert(ctor.location == PathLocation(path, Location(1, 21, 1, 68)))
+    assert(ctor.id == Name("Dummy"))
+    assert(ctor.idLocation == Location(1, 29, 1, 34))
     assert(ctor.children.isEmpty)
-    assert(ctor.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER))
-    assert(ctor.modifiers.issues.isEmpty)
+    assert(ctor.modifiers == ArraySeq(PRIVATE_MODIFIER))
+    assert(ctor.parseIssues.isEmpty)
     assert(ctor.signature == "private Dummy(final String bar, Integer foo)")
     assert(ctor.description == "(final String bar, Integer foo) private")
   }
@@ -110,7 +115,7 @@ class SummaryTest extends AnyFunSuite {
     val path = PathFactory("Dummy.cls")
     val cp =
       CodeParser(path,
-                 SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
+        SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
     val root = ApexNode(cp, result.value).get
@@ -119,11 +124,12 @@ class SummaryTest extends AnyFunSuite {
 
     val method = root.children.head
     assert(method.nature == ApexMethodType)
-    assert(method.range == Location(1, 21, 1, 65))
-    assert(method.id == IdAndRange(Name("Foo"), Location(1, 41, 1, 44)))
+    assert(method.location == PathLocation(path, Location(1, 21, 1, 65)))
+    assert(method.id == Name("Foo"))
+    assert(method.idLocation == Location(1, 41, 1, 44))
     assert(method.children.isEmpty)
-    assert(method.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
-    assert(method.modifiers.issues.isEmpty)
+    assert(method.modifiers == ArraySeq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(method.parseIssues.isEmpty)
     assert(method.signature == "private static void Foo(final String bar)")
     assert(method.description == "void (final String bar) private static")
   }
@@ -139,11 +145,12 @@ class SummaryTest extends AnyFunSuite {
 
     val field = root.children.head
     assert(field.nature == ApexFieldType)
-    assert(field.range == Location(1, 21, 1, 48))
-    assert(field.id == IdAndRange(Name("Foo"), Location(1, 44, 1, 47)))
+    assert(field.location == PathLocation(path, Location(1, 21, 1, 48)))
+    assert(field.id == Name("Foo"))
+    assert(field.idLocation == Location(1, 44, 1, 47))
     assert(field.children.isEmpty)
-    assert(field.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
-    assert(field.modifiers.issues.isEmpty)
+    assert(field.modifiers == ArraySeq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(field.parseIssues.isEmpty)
     assert(field.signature == "private static Integer Foo")
     assert(field.description == "Integer private static")
   }
@@ -158,13 +165,14 @@ class SummaryTest extends AnyFunSuite {
     assert(root.children.size == 2)
 
     val fooField = root.children.head
-    assert(fooField.range == Location(1, 44, 1, 47))
-
-    fooField.id == IdAndRange(Name("Foo"), Location(1, 44, 1, 47))
+    assert(fooField.location == PathLocation(path, Location(1, 44, 1, 47)))
+    assert(fooField.id == Name("Foo"))
+    assert(fooField.idLocation == Location(1, 44, 1, 47))
 
     val barField = root.children(1)
-    assert(barField.range == Location(1, 49, 1, 52))
-    assert(barField.id == IdAndRange(Name("bar"), Location(1, 49, 1, 52)))
+    assert(barField.location == PathLocation(path, Location(1, 49, 1, 52)))
+    assert(barField.id == Name("bar"))
+    assert(barField.idLocation == Location(1, 49, 1, 52))
   }
 
   test("Class with property summary") {
@@ -179,11 +187,13 @@ class SummaryTest extends AnyFunSuite {
 
     val field = root.children.head
     assert(field.nature == ApexPropertyType)
-    assert(field.range == Location(1, 21, 1, 58))
-    assert(field.id == IdAndRange(Name("Foo"), Location(1, 44, 1, 47)))
+    assert(field.location == PathLocation(path, Location(1, 21, 1, 58)))
+    assert(field.idLocation == Location(1, 44, 1, 47))
+    assert(field.id == Name("Foo"))
+
     assert(field.children.isEmpty)
-    assert(field.modifiers.modifiers sameElements Array(PRIVATE_MODIFIER, STATIC_MODIFIER))
-    assert(field.modifiers.issues.isEmpty)
+    assert(field.modifiers == ArraySeq(PRIVATE_MODIFIER, STATIC_MODIFIER))
+    assert(field.parseIssues.isEmpty)
     assert(field.signature == "private static Integer Foo")
     assert(field.description == "Integer private static")
   }
@@ -199,11 +209,12 @@ class SummaryTest extends AnyFunSuite {
 
     val method = root.children.head
     assert(method.nature == ApexMethodType)
-    assert(method.range == Location(1, 25, 1, 52))
-    assert(method.id == IdAndRange(Name("Foo"), Location(1, 30, 1, 33)))
+    assert(method.location == PathLocation(path, Location(1, 25, 1, 52)))
+    assert(method.id == Name("Foo"))
+    assert(method.idLocation == Location(1, 30, 1, 33))
     assert(method.children.isEmpty)
-    assert(method.modifiers.modifiers sameElements Array(VIRTUAL_MODIFIER))
-    assert(method.modifiers.issues.isEmpty)
+    assert(method.modifiers == ArraySeq(VIRTUAL_MODIFIER))
+    assert(method.parseIssues.isEmpty)
     assert(method.signature == "virtual void Foo(final String bar)")
     assert(method.description == "void (final String bar) virtual")
   }
@@ -219,12 +230,13 @@ class SummaryTest extends AnyFunSuite {
 
     val constant = root.children.head
     assert(constant.nature == ApexEnumConstantType)
-    assert(constant.range == Location(1, 20, 1, 23))
-    assert(constant.id == IdAndRange(Name("BaR"), Location(1, 20, 1, 23)))
+    assert(constant.location == PathLocation(path, Location(1, 20, 1, 23)))
+    assert(constant.id == Name("BaR"))
+    assert(constant.idLocation == Location(1, 20, 1, 23))
 
     assert(constant.children.isEmpty)
-    assert(constant.modifiers.modifiers.isEmpty)
-    assert(constant.modifiers.issues.isEmpty)
+    assert(constant.modifiers.isEmpty)
+    assert(constant.parseIssues.isEmpty)
     assert(constant.signature == "BaR")
     assert(constant.description == "BaR")
   }

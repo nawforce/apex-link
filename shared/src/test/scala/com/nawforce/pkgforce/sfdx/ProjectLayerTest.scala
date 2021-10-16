@@ -30,12 +30,14 @@ package com.nawforce.pkgforce.sfdx
 import com.nawforce.pkgforce.diagnostics
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
+import scala.collection.immutable.ArraySeq
 
 class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
 
@@ -53,8 +55,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         assert(project.nonEmpty)
         assert(project.get.layers(logger).isEmpty)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
                   diagnostics.Diagnostic(ERROR_CATEGORY,
                     Location(1, 24),
                     "packageDirectories must have at least one entry"))))
@@ -94,8 +96,8 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
         }
 
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
                   Diagnostic(ERROR_CATEGORY,
                              Location(1, 25),
                              "Package 'name' should have a versionNumber"))))
@@ -213,7 +215,7 @@ class ProjectLayerTest extends AnyFunSuite with BeforeAndAfter with Matchers {
       }
 
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
                                     diagnostics.Diagnostic(
                                       WARNING_CATEGORY,
                                       Location(6, 8),

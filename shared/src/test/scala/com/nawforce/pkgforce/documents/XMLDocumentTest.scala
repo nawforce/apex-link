@@ -27,8 +27,8 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd, Location}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.xml.{XMLException, XMLFactory, XMLName}
 import com.nawforce.runtime.FileSystemHelper
 import com.nawforce.runtime.xml.XMLDocument
@@ -58,7 +58,7 @@ class XMLDocumentTest extends AnyFunSuite {
       val file = root.join("test.xml")
       parse(file) match {
         case Left(Issue(f, Diagnostic(ERROR_CATEGORY, Location(2, _, 2, _), _)))
-            if f == file.toString =>
+            if f == file =>
           ()
         case Left(err) => assert(false, err)
         case Right(_)  => assert(false)
@@ -71,7 +71,7 @@ class XMLDocumentTest extends AnyFunSuite {
       val file = root.join("test.xml")
       parse(file) match {
         case Left(Issue(f, Diagnostic(ERROR_CATEGORY, Location(1, 0, 1, 0), _)))
-            if f == file.toString =>
+            if f == file =>
           ()
         case Left(err) => assert(false, err)
         case Right(_)  => assert(false)

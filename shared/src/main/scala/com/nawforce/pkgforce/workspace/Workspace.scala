@@ -27,16 +27,11 @@
  */
 package com.nawforce.pkgforce.workspace
 
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger, IssuesAnd, Location}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, IssueLogger, IssuesAnd}
 import com.nawforce.pkgforce.documents.{DocumentIndex, MetadataDocument}
 import com.nawforce.pkgforce.names.TypeName
-import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.pkgforce.sfdx.{
-  MDAPIWorkspaceConfig,
-  SFDXProject,
-  SFDXWorkspaceConfig,
-  WorkspaceConfig
-}
+import com.nawforce.pkgforce.path.{Location, PathLike}
+import com.nawforce.pkgforce.sfdx.{MDAPIWorkspaceConfig, SFDXProject, SFDXWorkspaceConfig, WorkspaceConfig}
 import com.nawforce.pkgforce.stream.{IssuesEvent, PackageEvent, PackageStream}
 
 /** Metadata workspace, maintains information on available metadata within a project/package.

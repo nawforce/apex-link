@@ -28,12 +28,14 @@
 package com.nawforce.pkgforce.documents
 
 import com.nawforce.pkgforce.diagnostics
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
+
+import scala.collection.immutable.ArraySeq
 
 class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
 
@@ -143,7 +145,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
       assert(index.get(ApexNature).isEmpty)
       assert(index.get(ExtendedApexNature).size == 1)
       assert(
-        logger.issues sameElements Array(Issue(root.join("pkg").join("foo").join("Foo.cls").toString,
+        logger.issues == ArraySeq(Issue(root.join("pkg").join("foo").join("Foo.cls"),
           diagnostics.Diagnostic(
             ERROR_CATEGORY,
             Location.empty,

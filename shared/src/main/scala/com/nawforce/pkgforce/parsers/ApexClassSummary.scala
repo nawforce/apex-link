@@ -28,17 +28,19 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.apexparser.ApexParser._
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, ModifierResults, WEBSERVICE_MODIFIER}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
+import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, WEBSERVICE_MODIFIER}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{IdLocatable, Location, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 sealed trait ApexNodeNature
+
 case object ApexClassType extends ApexNodeNature
+
 case object ApexInterfaceType extends ApexNodeNature
 case object ApexEnumType extends ApexNodeNature
 case object ApexConstructorType extends ApexNodeNature
@@ -47,28 +49,14 @@ case object ApexFieldType extends ApexNodeNature
 case object ApexPropertyType extends ApexNodeNature
 case object ApexEnumConstantType extends ApexNodeNature
 
-case class IdAndRange(name: Name, range: Location)
-
-object IdAndRange {
-  def apply(codeParser: CodeParser, idContext: IdContext): IdAndRange = {
-    new IdAndRange(Name(CodeParser.getText(idContext)), codeParser.getPathAndLocation(idContext)._2)
-  }
-
-  def apply(codeParser: CodeParser, qnameContext: QualifiedNameContext): IdAndRange = {
-    new IdAndRange(Name(CodeParser.getText(qnameContext)),
-                   codeParser.getPathAndLocation(qnameContext)._2)
-  }
-}
-
-trait ApexNode {
-  val path: PathLike
-  val range: Location
+trait ApexNode extends IdLocatable {
   val nature: ApexNodeNature
-  val id: IdAndRange
+  val id: Name
   val children: ArraySeq[ApexNode]
-  val modifiers: ModifierResults
+  val modifiers: ArraySeq[Modifier]
   val signature: String
   val description: String
+  val parseIssues: ArraySeq[Issue]
 
   def collectIssues(): ArraySeq[Issue] = {
     val issues = new ArrayBuffer[Issue]()
@@ -76,11 +64,10 @@ trait ApexNode {
     ArraySeq.unsafeWrapArray(issues.toArray)
   }
 
-  def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
-    issues.addAll(modifiers.issues)
+  protected def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
+    issues.addAll(parseIssues)
     children.foreach(_.collectIssues(issues))
   }
-
 }
 
 object ApexNode {
@@ -90,41 +77,48 @@ object ApexNode {
   }
 }
 
-case class ApexGenericNode(path: PathLike,
-                           range: Location,
+case class ApexGenericNode(location: PathLocation,
                            nature: ApexNodeNature,
-                           id: IdAndRange,
+                           id: Name,
+                           idLocation: Location,
                            children: ArraySeq[ApexNode],
-                           modifiers: ModifierResults,
+                           modifiers: ArraySeq[Modifier],
                            signature: String,
-                           description: String)
-    extends ApexNode {}
+                           description: String,
+                           parseIssues: ArraySeq[Issue])
+  extends ApexNode {}
 
-case class ApexClassNode(path: PathLike,
-                         range: Location,
-                         id: IdAndRange,
+case class ApexClassNode(location: PathLocation,
+                         id: Name,
+                         idLocation: Location,
                          children: ArraySeq[ApexNode],
-                         modifiers: ModifierResults,
+                         modifiers: ArraySeq[Modifier],
                          signature: String,
-                         description: String)
-    extends ApexNode {
+                         description: String,
+                         parseIssues: ArraySeq[Issue])
+  extends ApexNode {
 
   override val nature: ApexNodeNature = ApexClassType
 
   override def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
     super.collectIssues(issues)
+    checkNeedsGlobalOrWebService().foreach(issue => issues.append(issue))
+  }
 
-    if (!modifiers.modifiers.contains(GLOBAL_MODIFIER)) {
+  private def checkNeedsGlobalOrWebService(): Seq[Issue] = {
+    if (!modifiers.contains(GLOBAL_MODIFIER)) {
       children
-        .filter(_.modifiers.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
-        .foreach(
+        .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
+        .map(
           child =>
-            issues.addOne(new Issue(
-              path.toString,
+            new Issue(
+              location.path,
               Diagnostic(
                 ERROR_CATEGORY,
-                child.id.range,
-                "Enclosing class must be declared global to use global or webservice modifiers"))))
+                child.idLocation,
+                "Enclosing class must be declared global to use global or webservice modifiers")))
+    } else {
+      Seq.empty
     }
   }
 }

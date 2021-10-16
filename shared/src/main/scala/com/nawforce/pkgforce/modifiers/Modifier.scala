@@ -32,6 +32,8 @@ import com.nawforce.apexparser.ApexParser.{IdContext, ModifierContext, PropertyB
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
+import scala.collection.compat.immutable.ArraySeq
+
 sealed abstract class Modifier(final val name: String,
                                val order: Integer = 0,
                                val methodOrder: Integer = 0) {
@@ -186,11 +188,11 @@ object ApexModifiers {
         TEST_VISIBLE_ANNOTATION)
 
   /* Convert parser contexts to Modifiers */
-  def asModifiers(modifierContexts: Seq[ModifierContext],
+  def asModifiers(modifierContexts: ArraySeq[ModifierContext],
                   allow: Set[Modifier],
                   pluralName: String,
                   logger: CodeParserLogger,
-                  idContext: ParserRuleContext): Seq[Modifier] = {
+                  idContext: ParserRuleContext): ArraySeq[Modifier] = {
 
     val modifiers = toModifiers(modifierContexts, allow, pluralName, logger)
     if (modifiers.size == modifierContexts.size) {
@@ -202,10 +204,10 @@ object ApexModifiers {
     modifiers.distinct
   }
 
-  private def toModifiers(modifierContexts: Seq[ModifierContext],
+  private def toModifiers(modifierContexts: ArraySeq[ModifierContext],
                           allow: Set[Modifier],
                           pluralName: String,
-                          logger: CodeParserLogger): Seq[Modifier] = {
+                          logger: CodeParserLogger): ArraySeq[Modifier] = {
     modifierContexts.flatMap(modifierContext => {
       val annotation = CodeParser.toScala(modifierContext.annotation())
       var modifier =
@@ -225,10 +227,10 @@ object ApexModifiers {
     })
   }
 
-  def deduplicateVisibility(modifiers: Seq[Modifier],
+  def deduplicateVisibility(modifiers: ArraySeq[Modifier],
                             pluralName: String,
                             logger: CodeParserLogger,
-                            idContext: ParserRuleContext): Seq[Modifier] = {
+                            idContext: ParserRuleContext): ArraySeq[Modifier] = {
     if (modifiers.intersect(visibilityModifiers).size > 1) {
       if (logger.isEmpty)
         logger.logWarning(
@@ -240,10 +242,10 @@ object ApexModifiers {
     }
   }
 
-  private def deduplicateSharing(modifiers: Seq[Modifier],
+  private def deduplicateSharing(modifiers: ArraySeq[Modifier],
                                  pluralName: String,
                                  logger: CodeParserLogger,
-                                 idContext: ParserRuleContext): Seq[Modifier] = {
+                                 idContext: ParserRuleContext): ArraySeq[Modifier] = {
     if (modifiers.intersect(sharingModifiers).size > 1) {
       if (logger.isEmpty)
         logger.logWarning(
@@ -255,10 +257,10 @@ object ApexModifiers {
     }
   }
 
-  private def deduplicate(modifiers: Seq[Modifier],
+  private def deduplicate(modifiers: ArraySeq[Modifier],
                           pluralName: String,
                           logger: CodeParserLogger,
-                          idContext: ParserRuleContext): Seq[Modifier] = {
+                          idContext: ParserRuleContext): ArraySeq[Modifier] = {
     deduplicateVisibility(deduplicateSharing(modifiers, pluralName, logger, idContext),
                           pluralName,
                           logger,
@@ -266,7 +268,7 @@ object ApexModifiers {
   }
 
   def classModifiers(parser: CodeParser,
-                     modifierContexts: Seq[ModifierContext],
+                     modifierContexts: ArraySeq[ModifierContext],
                      outer: Boolean,
                      idContext: IdContext): ModifierResults = {
 
@@ -299,11 +301,11 @@ object ApexModifiers {
         mods
       }
 
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
   def interfaceModifiers(parser: CodeParser,
-                         modifierContexts: Seq[ModifierContext],
+                         modifierContexts: ArraySeq[ModifierContext],
                          outer: Boolean,
                          idContext: IdContext): ModifierResults = {
 
@@ -333,11 +335,11 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
   def enumModifiers(parser: CodeParser,
-                    modifierContexts: Seq[ModifierContext],
+                    modifierContexts: ArraySeq[ModifierContext],
                     outer: Boolean,
                     idContext: IdContext): ModifierResults = {
 
@@ -363,11 +365,11 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
   def propertyBlockModifiers(parser: CodeParser,
-                             modifierContexts: Seq[ModifierContext],
+                             modifierContexts: ArraySeq[ModifierContext],
                              idContext: PropertyBlockContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
@@ -379,11 +381,11 @@ object ApexModifiers {
                                      "property set/get",
                                      logger,
                                      idContext)
-    ModifierResults(mods.toArray, logger.issues).intern
+    ModifierResults(mods, logger.issues).intern
   }
 
   def constructorModifiers(parser: CodeParser,
-                           modifierContexts: Seq[ModifierContext],
+                           modifierContexts: ArraySeq[ModifierContext],
                            context: ParserRuleContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
@@ -403,11 +405,11 @@ object ApexModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
   def parameterModifiers(parser: CodeParser,
-                         modifierContexts: Seq[ModifierContext],
+                         modifierContexts: ArraySeq[ModifierContext],
                          context: ParserRuleContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
@@ -420,11 +422,11 @@ object ApexModifiers {
                                      logger,
                                      context)
 
-    ModifierResults(mods.toArray, logger.issues).intern
+    ModifierResults(mods, logger.issues).intern
   }
 
   def catchModifiers(parser: CodeParser,
-                     modifierContexts: Seq[ModifierContext],
+                     modifierContexts: ArraySeq[ModifierContext],
                      context: ParserRuleContext): ModifierResults = {
 
     val logger = new CodeParserLogger(parser)
@@ -437,11 +439,11 @@ object ApexModifiers {
                                      logger,
                                      context)
 
-    ModifierResults(mods.toArray, logger.issues).intern
+    ModifierResults(mods, logger.issues).intern
   }
 
   def localVariableModifiers(parser: CodeParser,
-                             modifierContexts: Seq[ModifierContext],
+                             modifierContexts: ArraySeq[ModifierContext],
                              context: ParserRuleContext,
                              isTrigger: Boolean): ModifierResults = {
 
@@ -457,6 +459,6 @@ object ApexModifiers {
       logger,
       context)
 
-    ModifierResults(mods.toArray, logger.issues).intern
+    ModifierResults(mods, logger.issues).intern
   }
 }

@@ -31,6 +31,7 @@ package com.nawforce.pkgforce.stream
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
+import com.nawforce.pkgforce.path.{Location, PathLocation}
 import com.nawforce.pkgforce.xml.XMLException
 import com.nawforce.runtime.xml.XMLDocument
 
@@ -61,7 +62,7 @@ object LabelGenerator {
                     val fullName: String = c.getSingleChildAsString("fullName")
                     val protect: Boolean = c.getOptionalSingleChildAsBoolean("protected").getOrElse(true)
                     Some(
-                      LabelEvent(PathLocation(document.path.toString, Location(c.line)),
+                      LabelEvent(PathLocation(document.path, Location(c.line)),
                         Name(fullName),
                         protect))
                   } catch {

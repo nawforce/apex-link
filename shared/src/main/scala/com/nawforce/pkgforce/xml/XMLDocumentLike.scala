@@ -27,8 +27,7 @@
  */
 package com.nawforce.pkgforce.xml
 
-import com.nawforce.pkgforce.diagnostics.Location
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 
 final case class XMLException(where: Location, msg: String) extends Exception
 

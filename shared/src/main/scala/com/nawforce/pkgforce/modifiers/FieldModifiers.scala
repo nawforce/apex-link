@@ -2,12 +2,10 @@ package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.apexparser.ApexParser.{IdContext, ModifierContext}
 import com.nawforce.pkgforce.diagnostics.CodeParserLogger
-import com.nawforce.pkgforce.modifiers.ApexModifiers.{
-  asModifiers,
-  deduplicateVisibility,
-  visibilityModifiers
-}
+import com.nawforce.pkgforce.modifiers.ApexModifiers.{asModifiers, deduplicateVisibility, visibilityModifiers}
 import com.nawforce.runtime.parsers.CodeParser
+
+import scala.collection.compat.immutable.ArraySeq
 
 object FieldModifiers {
   private val FieldModifiers: Set[Modifier] =
@@ -29,7 +27,7 @@ object FieldModifiers {
     : Set[Modifier] = FieldModifiersAndAnnotations - STATIC_MODIFIER
 
   def fieldModifiers(parser: CodeParser,
-                     modifierContexts: Seq[ModifierContext],
+                     modifierContexts: ArraySeq[ModifierContext],
                      outer: Boolean,
                      idContext: IdContext): ModifierResults = {
 
@@ -58,7 +56,7 @@ object FieldModifiers {
         mods
       }
     }
-    ModifierResults(results.toArray, logger.issues).intern
+    ModifierResults(results, logger.issues).intern
   }
 
 }

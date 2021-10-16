@@ -28,10 +28,11 @@
 
 package com.nawforce.pkgforce.diagnostics
 
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -39,19 +40,21 @@ import scala.collection.mutable.ArrayBuffer
 sealed trait IssueLogger {
   def log(issue: Issue): Unit
 
-  def logAll(issues: Array[Issue]): Unit = issues.foreach(log)
+  def logAll(issues: ArraySeq[Issue]): Unit = issues.foreach(log)
 
   def logAndGet[T](andIssues: IssuesAnd[T]): T = {
     logAll(andIssues.issues)
     andIssues.value
   }
 
+  // TODO: Use PathLocation
+
   def logError(path: PathLike, location: Location, message: String): Unit = {
-    log(Issue(path.toString, Diagnostic(ERROR_CATEGORY, location, message)))
+    log(Issue(path, Diagnostic(ERROR_CATEGORY, location, message)))
   }
 
   def logWarning(path: PathLike, location: Location, message: String): Unit = {
-    log(Issue(path.toString, Diagnostic(WARNING_CATEGORY, location, message)))
+    log(Issue(path, Diagnostic(WARNING_CATEGORY, location, message)))
   }
 }
 
@@ -72,26 +75,27 @@ class CatchingLogger extends IssueLogger {
     _issues.addOne(issue)
   }
 
-  def issues: Array[Issue] = {
+  def issues: ArraySeq[Issue] = {
     if (_issues != null)
-      _issues.toArray
-    else
+      ArraySeq.unsafeWrapArray(_issues.toArray)
+    else {
       Issue.emptyArray
+    }
   }
 }
 
 sealed trait ParserIssueLogger extends IssueLogger {
   // Get location for an AST context
-  def location(context: ParserRuleContext): (PathLike, Location)
+  def location(context: ParserRuleContext): PathLocation
 
   def logError(context: ParserRuleContext, message: String): Unit = {
     val l = location(context)
-    log(Issue(l._1.toString, Diagnostic(ERROR_CATEGORY, l._2, message)))
+    log(Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location, message)))
   }
 
   def logWarning(context: ParserRuleContext, message: String): Unit = {
     val l = location(context)
-    log(Issue(l._1.toString, Diagnostic(WARNING_CATEGORY, l._2, message)))
+    log(Issue(l.path, Diagnostic(WARNING_CATEGORY, l.location, message)))
   }
 }
 
@@ -107,14 +111,14 @@ class CodeParserLogger(parser: CodeParser) extends ParserIssueLogger {
     issueLog.append(issue)
   }
 
-  override def location(context: ParserRuleContext): (PathLike, Location) = {
-    parser.getPathAndLocation(context)
+  override def location(context: ParserRuleContext): PathLocation = {
+    parser.getPathLocation(context)
   }
 
-  def issues: Array[Issue] = {
+  def issues: ArraySeq[Issue] = {
     if (isEmpty)
       Issue.emptyArray
     else
-      issueLog.toArray
+      ArraySeq.unsafeWrapArray(issueLog.toArray)
   }
 }

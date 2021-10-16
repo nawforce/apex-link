@@ -27,14 +27,16 @@
  */
 package com.nawforce.pkgforce.xml
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd, Location}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, IssuesAnd}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.xml.XMLDocument
+
+import scala.collection.immutable.ArraySeq
 
 object XMLFactory {
   def parse(path: PathLike): IssuesAnd[Option[XMLDocument]] = {
     path.readSourceData() match {
-      case Left(err)   => IssuesAnd(Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))), None)
+      case Left(err)   => IssuesAnd(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location(0), err))), None)
       case Right(data) => XMLDocument(path, data)
     }
   }

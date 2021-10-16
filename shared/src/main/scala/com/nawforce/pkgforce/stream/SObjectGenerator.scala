@@ -31,10 +31,11 @@ package com.nawforce.pkgforce.stream
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLException, XMLFactory}
 import com.nawforce.runtime.xml.XMLDocument
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable
 
 sealed abstract class SharingModel(val value: String)
@@ -176,7 +177,7 @@ object SObjectGenerator {
       case Some("Hierarchy") => IssuesAnd(Some(HierarchyCustomSetting))
       case Some(x) =>
         IssuesAnd(
-          Array(
+          ArraySeq(
             Issue(doc.path,
                   ERROR_CATEGORY,
                   Location(doc.rootElement.line),
@@ -202,7 +203,7 @@ object SObjectGenerator {
       if (matched.nonEmpty) {
         IssuesAnd(matched)
       } else {
-        IssuesAnd(Array(
+        IssuesAnd(ArraySeq(
                     Issue(doc.path,
                           ERROR_CATEGORY,
                           Location(doc.rootElement.line),
@@ -242,8 +243,8 @@ object SObjectGenerator {
       val rawType = elem.getSingleChildAsString("type").trim
       if (!fieldTypes.contains(rawType)) {
         return IssuesEvent.iterator(
-          Array(
-            Issue(path.toString,
+          ArraySeq(
+            Issue(path,
                   Diagnostic(ERROR_CATEGORY,
                              Location(elem.line),
                              s"Unrecognised type '$rawType' on custom field '$name'"))))
@@ -297,7 +298,7 @@ object SObjectGenerator {
               filePath.readSourceData() match {
                 case Left(err) =>
                   IssuesEvent.iterator(
-                    Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, Location(0), err))))
+                    ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location(0), err))))
                 case Right(sourceData) =>
                   XMLFactory.parse(filePath) match {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
@@ -320,7 +321,7 @@ object SObjectGenerator {
     } catch {
       case e: XMLException =>
         IssuesEvent.iterator(
-          Array(Issue(path.toString, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
+          ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
     }
   }
 

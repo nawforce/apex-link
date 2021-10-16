@@ -26,7 +26,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.nawforce.pkgforce.diagnostics
+package com.nawforce.pkgforce.path
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
@@ -83,7 +83,7 @@ sealed case class LocationAnd[T](location: Location, value: T)
 
 /** Location within a specific file. */
 @upickle.implicits.key("PathLocation")
-final case class PathLocation(path: String, location: Location) {
+final case class PathLocation(path: PathLike, location: Location) {
   override def toString: String = {
     s"$path: ${location.displayPosition}"
   }
@@ -91,4 +91,47 @@ final case class PathLocation(path: String, location: Location) {
 
 object PathLocation {
   implicit val rw: RW[Location] = macroRW
+}
+
+/** Trait for things we can locate in some file at some position. */
+trait Locatable {
+  def location: PathLocation
+}
+
+
+/** Variation on locatable for when we don't know, may return null! */
+trait UnsafeLocatable extends Locatable {
+  def location: PathLocation
+}
+
+/** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. */
+class Positionable extends Locatable {
+  private var locationPath: PathLike = _
+  private var startLine: Int = _
+  private var startOffset: Int = _
+  private var endLine: Int = _
+  private var endOffset: Int = _
+
+  def setLocation(path: PathLike,
+                  startLine: Int,
+                  startOffset: Int,
+                  endLine: Int,
+                  endOffset: Int): Unit = {
+    this.locationPath = path
+    this.startLine = startLine
+    this.startOffset = startOffset
+    this.endLine = endLine
+    this.endOffset = endOffset
+  }
+
+  def location: PathLocation = {
+    assert(locationPath != null)
+    PathLocation(locationPath, Location(startLine, startOffset, endLine, endOffset))
+  }
+}
+
+/** Extension of Locatable for things that can also provide an additional location for some form of identifier. */
+trait IdLocatable extends Locatable {
+  def idLocation: Location
+  def idPathLocation: PathLocation = PathLocation(location.path, idLocation)
 }

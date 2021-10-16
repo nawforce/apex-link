@@ -27,8 +27,7 @@
  */
 package com.nawforce.pkgforce.sfdx
 
-import com.nawforce.pkgforce.diagnostics.Location
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import ujson.Value
 
 case class PackageDirectory(path: PathLike,

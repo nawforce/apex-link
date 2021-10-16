@@ -30,10 +30,12 @@ package com.nawforce.pkgforce.sfdx
 import com.nawforce.pkgforce.diagnostics
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
+
+import scala.collection.immutable.ArraySeq
 
 class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
@@ -48,8 +50,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(
-          Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(
+          Issue(root.join("sfdx-project.json"),
                 Diagnostic(ERROR_CATEGORY,
                            Location.empty,
                            "Missing sfdx-project.json file at /sfdx-project.json"))))
@@ -61,7 +63,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
                                                diagnostics.Diagnostic(
                                                  ERROR_CATEGORY,
                                                  Location.empty,
@@ -74,7 +76,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
                                                diagnostics.Diagnostic(
                                                  ERROR_CATEGORY,
                                                  Location.empty,
@@ -87,7 +89,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
           diagnostics.Diagnostic(
             ERROR_CATEGORY,
             Location(1, 0),
@@ -101,7 +103,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location(1, 24),
@@ -166,7 +168,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
           diagnostics.Diagnostic(
             ERROR_CATEGORY,
             Location(5, 19),
@@ -233,7 +235,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
           diagnostics.Diagnostic(
             ERROR_CATEGORY,
             Location(5, 20),
@@ -247,8 +249,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
               diagnostics.Diagnostic(ERROR_CATEGORY,
                 Location(1, 25),
                 "'path' is required"))))
@@ -275,7 +277,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location(1, 34),
@@ -294,8 +296,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         // Path are checked during layer construction
         project.get.layers(logger)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("pkg").join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("pkg").join("sfdx-project.json"),
                   diagnostics.Diagnostic(
                     ERROR_CATEGORY,
                     Location.empty,
@@ -320,8 +322,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
               diagnostics.Diagnostic(ERROR_CATEGORY,
                 Location(1, 14),
                 "'namespace' should be a string"))))
@@ -346,7 +348,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location(1, 14),
@@ -361,7 +363,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
                                                  diagnostics.Diagnostic(
                                                    ERROR_CATEGORY,
                                                    Location(1, 14),
@@ -397,8 +399,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
                   diagnostics.Diagnostic(ERROR_CATEGORY,
                                          Location(1,12),
                                          "'plugins' should be an object"))))
@@ -451,7 +453,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         // Namespace & path are checked during layer construction
         project.get.layers(logger)
         assert(
-          logger.issues sameElements Array(Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
                                                  diagnostics.Diagnostic(
                                                    ERROR_CATEGORY,
                                                    Location(1, 30),
@@ -494,8 +496,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         // Duplicate namespace is checked during layer construction
         project.get.layers(logger)
         assert(
-          logger.issues sameElements Array(
-            Issue(root.join("sfdx-project.json").toString,
+          logger.issues == ArraySeq(
+            Issue(root.join("sfdx-project.json"),
                   diagnostics.Diagnostic(ERROR_CATEGORY,
                                          Location(1, 50),
                                          "plugin dependencies must use unique namespaces"))))
@@ -537,8 +539,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(
-          Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(
+          Issue(root.join("sfdx-project.json"),
                 diagnostics.Diagnostic(ERROR_CATEGORY,
                                        Location(4, 11),
                                        "plugins 'xcls' should be an object"))))
@@ -557,8 +559,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(
-          Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(
+          Issue(root.join("sfdx-project.json"),
                 diagnostics.Diagnostic(ERROR_CATEGORY,
                                        Location(4, 11),
                                        "'path' is required"))))
@@ -622,8 +624,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues sameElements Array(
-          Issue(root.join("sfdx-project.json").toString,
+        logger.issues == ArraySeq(
+          Issue(root.join("sfdx-project.json"),
             diagnostics.Diagnostic(ERROR_CATEGORY,
               Location(2, 21),
               "'sourceApiVersion' should be a string"))))
