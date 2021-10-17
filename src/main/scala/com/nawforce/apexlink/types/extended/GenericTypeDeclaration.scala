@@ -19,10 +19,11 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
+
+import scala.collection.immutable.ArraySeq
 
 class GenericTypeDeclaration(module: Module, override val typeName: TypeName, val baseType: ClassDeclaration) extends TypeDeclaration {
 
@@ -35,7 +36,7 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, va
   override def dependencies(): Iterable[Dependent] = Iterable(baseType)
 
   override val outerTypeName: Option[TypeName] = None
-  override val modifiers: Array[Modifier] = baseType.modifiers
+  override val modifiers: ArraySeq[Modifier] = baseType.modifiers
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
   override val nature: Nature = baseType.nature
@@ -101,7 +102,7 @@ class GenericField(field: FieldDeclaration, owningTypeDeclaration: GenericTypeDe
   override def location: PathLocation = null
 
   override val name: Name = field.name
-  override val modifiers: Array[Modifier] = field.modifiers
+  override val modifiers: ArraySeq[Modifier] = field.modifiers
   override val readAccess: Modifier = field.readAccess
   override val writeAccess: Modifier = field.writeAccess
   override val idTarget: Option[TypeName] = None
@@ -113,7 +114,7 @@ class GenericConstructor(constructor: ConstructorDeclaration, owningTypeDeclarat
   extends ConstructorDeclaration {
 
   //override lazy val name: Name = constructor.name
-  override lazy val modifiers: Array[Modifier] = constructor.modifiers
+  override lazy val modifiers: ArraySeq[Modifier] = constructor.modifiers
 
   override lazy val parameters: Array[ParameterDeclaration] =
     constructor.parameters.map(p => new GenericParameter(p, owningTypeDeclaration))
@@ -123,7 +124,7 @@ class GenericMethod(method: MethodDeclaration, owningTypeDeclaration: GenericTyp
   extends MethodDeclaration {
 
   override lazy val name: Name = method.name
-  override lazy val modifiers: Array[Modifier] = method.modifiers
+  override lazy val modifiers: ArraySeq[Modifier] = method.modifiers
 
   override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(method.typeName)
 

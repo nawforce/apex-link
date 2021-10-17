@@ -18,19 +18,19 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, PathLocation, UNUSED_CATEGORY}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Locatable, PathLike, PathLocation}
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
-import com.nawforce.runtime.parsers.Locatable
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 abstract class LabelField extends FieldDeclaration {
-  override lazy val modifiers: Array[Modifier] = LabelField.modifiers
+  override lazy val modifiers: ArraySeq[Modifier] = LabelField.modifiers
   override lazy val typeName: TypeName = TypeNames.String
   override lazy val readAccess: Modifier = GLOBAL_MODIFIER
   override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
@@ -38,7 +38,7 @@ abstract class LabelField extends FieldDeclaration {
 }
 
 object LabelField {
-  val modifiers: Array[Modifier] = Array(STATIC_MODIFIER, GLOBAL_MODIFIER)
+  val modifiers: ArraySeq[Modifier] = ArraySeq(STATIC_MODIFIER, GLOBAL_MODIFIER)
 }
 
 /** A individual Label being represented as a static field. */

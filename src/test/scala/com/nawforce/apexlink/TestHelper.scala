@@ -19,7 +19,7 @@ import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexFullDeclarati
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 
 trait TestHelper {
 
@@ -147,7 +147,7 @@ trait TestHelper {
 
   def hasIssues: Boolean = defaultOrg.issues.hasErrorsOrWarnings
 
-  def dummyIssues: String = defaultOrg.issues.getMessages("/Dummy.cls")
+  def dummyIssues: String = defaultOrg.issues.getMessages(PathFactory("/Dummy.cls"))
 
   def customObject(label: String,
                    fields: Seq[(String, Option[String], Option[String])],

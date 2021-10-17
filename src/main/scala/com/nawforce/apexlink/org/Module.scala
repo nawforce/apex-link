@@ -292,7 +292,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         index.remove(doc)
 
       // Clear errors as might fail to create type, SObjects are handled later due to multiple files
-      pkg.org.issues.pop(doc.path.toString)
+      pkg.org.issues.pop(doc.path)
 
       // Create type & forward holders to limit need for invalidation chaining
       val newTypes = createTypes(doc, sourceOpt)
@@ -414,10 +414,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def clearSObjectErrors(path: PathLike): Unit = {
     if (!path.isDirectory) {
-      pkg.org.issues.pop(path.toString)
+      pkg.org.issues.pop(path)
     } else {
       val (files, directories) = path.splitDirectoryEntries()
-      files.foreach(file => pkg.org.issues.pop(file.toString))
+      files.foreach(file => pkg.org.issues.pop(file))
       directories.foreach(clearSObjectErrors)
     }
   }

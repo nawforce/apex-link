@@ -22,12 +22,13 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.{TriggerCaseContext, TriggerUnitContext}
-import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 sealed abstract class TriggerCase(val name: String)
@@ -53,13 +54,13 @@ final case class TriggerDeclaration(source: Source,
 
   override val idLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
-  override def paths: Array[PathLike] = Array(PathFactory(location.path))
+  override def paths: Array[PathLike] = Array(location.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = TRIGGER_NATURE
-  override val modifiers: Array[Modifier] = ModifierOps.emptyModifiers
+  override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None

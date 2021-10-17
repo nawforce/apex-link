@@ -23,6 +23,7 @@ import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.path.{Location, PathLocation}
 
 import scala.collection.mutable
 

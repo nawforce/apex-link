@@ -31,7 +31,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) ==
           "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
     }
   }
@@ -44,7 +44,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) ==
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) ==
           "Unused: line 1 at 52-55: Unused Method 'void foo()'\n")
     }
   }
@@ -56,7 +56,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -67,7 +67,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -78,7 +78,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
           "Unused: line 1 at 27-28: Unused Field or Property 'a'\n")
     }
   }
@@ -91,7 +91,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
           "Unused: line 1 at 47-48: Unused Field or Property 'a'\n")
     }
   }
@@ -103,7 +103,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -114,7 +114,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -124,7 +124,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
           "Unused: line 1 at 13-18: Type 'Dummy' is unused\n")
     }
   }
@@ -137,7 +137,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val module = org.unmanaged.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
-        module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+        module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
           "Unused: line 1 at 33-38: Type 'Dummy.Inner' is unused\n")
     }
   }
@@ -148,7 +148,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
       val org = createHappyOrg(root)
       val module = org.unmanaged.orderedModules.headOption.get
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls")).isEmpty)
     }
   }
 
@@ -180,7 +180,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         val module = pkg.orderedModules.headOption.get
         assertIsFullDeclaration(pkg, "Dummy")
         assert(!org.issues.hasErrorsOrWarnings)
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
         org.flush()
 
         val org2 = createOrg(root)
@@ -189,7 +189,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         assertIsSummaryDeclaration(pkg2, "Dummy")
         OrgImpl.current.withValue(org2) {
           pkg2.propagateAllDependencies()
-          assert(module2.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+          assert(module2.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
         }
       }
     }
@@ -207,7 +207,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         assertIsFullDeclaration(pkg, "Dummy")
         assert(!org.issues.hasErrorsOrWarnings)
         assert(
-          module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+          module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
             "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
         org.flush()
 
@@ -218,7 +218,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         OrgImpl.current.withValue(org2) {
           pkg2.propagateAllDependencies()
           assert(
-            module2.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true) == "" +
+            module2.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
               "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")
         }
       }
@@ -238,7 +238,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       OrgImpl.current.withValue(org) {
-        assert(module.reportUnused().getMessages(root.join("Foo.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Foo.cls"), unused = true).isEmpty)
       }
     }
   }
@@ -258,7 +258,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val pkg = org.packagesByNamespace(Some(Name("pkg")))
       val module = pkg.orderedModules.headOption.get
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -266,7 +266,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Dummy.cls").toString, unused = true) ==
+        org.issues.getMessages(root.join("Dummy.cls"), unused = true) ==
           "Unused: line 1 at 29-30: Unused local variable 'a'\n")
     }
   }
@@ -274,7 +274,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
   test("Unused local var assignment") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a; a=null;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+      assert(org.issues.getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
     }
   }
 
@@ -289,8 +289,8 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       OrgImpl.current.withValue(org) {
-        assert(module.reportUnused().getMessages(root.join("Controller.cls").toString, unused = true).isEmpty)
-        assert(module.reportUnused().getMessages(root.join("Extension.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Controller.cls"), unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Extension.cls"), unused = true).isEmpty)
       }
     }
   }
@@ -305,7 +305,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       OrgImpl.current.withValue(org) {
-        assert(module.reportUnused().getMessages(root.join("Controller.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Controller.cls"), unused = true).isEmpty)
       }
     }
   }
@@ -320,10 +320,9 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(!org.issues.hasErrorsOrWarnings)
 
       OrgImpl.current.withValue(org) {
-        assert(module.reportUnused().getMessages(root.join("Dummy.cls").toString, unused = true).isEmpty)
+        assert(module.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
       }
     }
   }
-
 
 }

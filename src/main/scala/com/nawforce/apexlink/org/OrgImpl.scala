@@ -23,7 +23,7 @@ import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.{PathFactory, PathLocation}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -148,7 +148,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Collect file specific issues */
   def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
-    val path = PathFactory(fileName).toString
+    val path = PathFactory(fileName)
     OrgImpl.current.withValue(this) {
       val fileIssues = new IssueLog()
       fileIssues.push(path, issues.getIssues.getOrElse(path, Nil))
@@ -157,7 +157,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
           pkg
-            .getTypeOfPathInternal(PathFactory(path))
+            .getTypeOfPathInternal(path)
             .flatMap(typeId => typeId.module.findModuleType(typeId.typeName))
             .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
         })
@@ -263,7 +263,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   private def nodeFileSize(identifier: TypeIdentifier): Int = {
     Option(getIdentifierLocation(identifier))
-      .map(location => PathFactory(location.path).size.toInt)
+      .map(location => location.path.size.toInt)
       .getOrElse(0)
   }
 

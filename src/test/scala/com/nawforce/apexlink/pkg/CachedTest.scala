@@ -547,7 +547,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       assert(
         pkg1.orderedModules.head
           .reportUnused()
-          .getMessages(root.join("MyConcrete.cls").toString)
+          .getMessages(root.join("MyConcrete.cls"))
           .isEmpty)
       org1.flush()
 

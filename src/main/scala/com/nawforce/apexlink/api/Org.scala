@@ -16,9 +16,9 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.rpc.{BombScore, CompletionItemLink, DependencyGraph, LocationLink}
-import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps}
 import com.nawforce.pkgforce.names.TypeIdentifier
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike, PathLocation}
 import com.nawforce.pkgforce.workspace.Workspace
 
 /** A virtual Org used to present the analysis functionality in a familiar way.

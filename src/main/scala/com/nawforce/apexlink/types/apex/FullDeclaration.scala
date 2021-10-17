@@ -23,15 +23,16 @@ import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
-import com.nawforce.apexparser.ApexParser.{ModifierContext, TypeDeclarationContext}
-import com.nawforce.pkgforce.diagnostics.{Location, LoggerOps}
+import com.nawforce.apexparser.ApexParser.TypeDeclarationContext
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
@@ -136,7 +137,7 @@ abstract class FullDeclaration(val source: Source,
 
   protected def verify(context: TypeVerifyContext): Unit = {
     // Check for name/path mismatch on outer types
-    val pathBasename = PathFactory(location.path).basename
+    val pathBasename = location.path.basename
     if (outerTypeName.isEmpty && !pathBasename.matches(s"(?i)${id.name}.x?cls")) {
       context.logError(id.location, s"Type name '${id.name}' does not match file name '$pathBasename'")
     }
@@ -290,7 +291,7 @@ object FullDeclaration {
 
   def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): FullDeclaration = {
 
-    val modifiers: Seq[ModifierContext] = CodeParser.toScala(typeDecl.modifier())
+    val modifiers = ArraySeq.unsafeWrapArray(CodeParser.toScala(typeDecl.modifier()).toArray)
     val thisType = TypeName(name).withNamespace(module.namespace)
 
     val cst = CodeParser

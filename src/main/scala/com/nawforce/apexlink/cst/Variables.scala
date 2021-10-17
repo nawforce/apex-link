@@ -20,6 +20,8 @@ import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
+
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression])
     extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
@@ -105,7 +107,7 @@ object LocalVariableDeclaration {
     val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
       ApexModifiers.localVariableModifiers(parser,
-                                           CodeParser.toScala(from.modifier()),
+                                           ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray),
                                            from,
                                            isTrigger),
       typeName,

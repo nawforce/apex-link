@@ -22,6 +22,7 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
@@ -32,7 +33,7 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
 
   override lazy val isComplete: Boolean = false
 
-  override val modifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
+  override val modifiers: ArraySeq[Modifier] = ArraySeq(GLOBAL_MODIFIER)
 
   override val superClass: Option[TypeName] = {
     Some(TypeNames.SObject)

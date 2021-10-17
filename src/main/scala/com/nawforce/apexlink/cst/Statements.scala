@@ -23,6 +23,7 @@ import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import java.lang.ref.WeakReference
+import scala.collection.immutable.ArraySeq
 
 trait Statement {
   def verify(context: BlockVerifyContext): Unit
@@ -83,7 +84,7 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
   private def createStatements(context: BlockContext,
                                parser: CodeParser,
                                isTrigger: Boolean): WeakReference[Seq[Statement]] = {
-    val statementContexts: Seq[StatementContext] = CodeParser.toScala(context.statement())
+    val statementContexts = ArraySeq.unsafeWrapArray(CodeParser.toScala(context.statement()).toArray)
     val statements = Some(Statement.construct(parser, statementContexts, isTrigger))
     new WeakReference(statements.get)
   }
@@ -99,7 +100,7 @@ object Block {
   }
 
   def construct(parser: CodeParser, blockContext: BlockContext, isTrigger: Boolean): Block = {
-    EagerBlock(Statement.construct(parser, CodeParser.toScala(blockContext.statement()), isTrigger))
+    EagerBlock(Statement.construct(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(blockContext.statement()).toArray), isTrigger))
   }
 
   def constructOption(parser: CodeParser, blockContext: Option[BlockContext]): Option[Block] = {
@@ -142,7 +143,7 @@ final case class IfStatement(expression: Expression, statements: Seq[Statement])
 
 object IfStatement {
   def construct(parser: CodeParser, ifStatement: IfStatementContext): IfStatement = {
-    val statements: Seq[StatementContext] = CodeParser.toScala(ifStatement.statement())
+    val statements = CodeParser.toScala(ifStatement.statement())
     IfStatement(Expression.construct(ifStatement.parExpression().expression()),
                 Statement.construct(parser, statements.toList, isTrigger = false))
   }
@@ -323,7 +324,7 @@ final case class TryStatement(block: Block, catches: Seq[CatchClause], finallyBl
 
 object TryStatement {
   def construct(parser: CodeParser, from: TryStatementContext): TryStatement = {
-    val catches: Seq[CatchClauseContext] = CodeParser.toScala(from.catchClause())
+    val catches = ArraySeq.unsafeWrapArray(CodeParser.toScala(from.catchClause()).toArray)
     val finallyBlock =
       CodeParser
         .toScala(from.finallyBlock())
@@ -358,10 +359,10 @@ object CatchClause {
   }
 
   def construct(parser: CodeParser, from: CatchClauseContext): CatchClause = {
-    CatchClause(ApexModifiers.catchModifiers(parser, CodeParser.toScala(from.modifier()), from),
-                QualifiedName.construct(from.qualifiedName()),
-                CodeParser.getText(from.id()),
-                Block.construct(parser, from.block(), isTrigger = false)).withContext(from)
+    CatchClause(ApexModifiers.catchModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray), from),
+      QualifiedName.construct(from.qualifiedName()),
+      CodeParser.getText(from.id()),
+      Block.construct(parser, from.block(), isTrigger = false)).withContext(from)
   }
 }
 

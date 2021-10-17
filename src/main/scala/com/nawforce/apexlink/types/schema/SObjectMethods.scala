@@ -19,8 +19,8 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.Location
 
 trait SObjectMethods {
   this: TypeDeclaration =>

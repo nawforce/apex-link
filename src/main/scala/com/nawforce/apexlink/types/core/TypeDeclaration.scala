@@ -27,9 +27,9 @@ import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTy
 import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration, LocatableCustomFieldDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.UnsafeLocatable
+import com.nawforce.pkgforce.path.{PathLike, UnsafeLocatable}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 sealed abstract class Nature(val value: String)
@@ -59,7 +59,7 @@ object BlockDeclaration {
 
 trait FieldDeclaration extends DependencyHolder with UnsafeLocatable {
   val name: Name
-  val modifiers: Array[Modifier]
+  val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
   val idTarget: Option[TypeName]
   val readAccess: Modifier
@@ -121,7 +121,7 @@ trait ParameterDeclaration {
 }
 
 trait ConstructorDeclaration extends DependencyHolder {
-  val modifiers: Array[Modifier]
+  val modifiers: ArraySeq[Modifier]
   val parameters: Array[ParameterDeclaration]
 
   override def toString: String =
@@ -134,7 +134,7 @@ object ConstructorDeclaration {
 
 trait MethodDeclaration extends DependencyHolder {
   val name: Name
-  val modifiers: Array[Modifier]
+  val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
   val parameters: Array[ParameterDeclaration]
   def hasBlock: Boolean
@@ -246,7 +246,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val typeName: TypeName
   val outerTypeName: Option[TypeName]
   val nature: Nature
-  val modifiers: Array[Modifier]
+  val modifiers: ArraySeq[Modifier]
 
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer

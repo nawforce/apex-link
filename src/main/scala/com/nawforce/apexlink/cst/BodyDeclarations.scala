@@ -21,17 +21,21 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser._
-import com.nawforce.pkgforce.diagnostics.{Issue, Location}
+import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder {
 
-  val modifiers: Array[Modifier] = modifierResults.modifiers
-  def modifierIssues: Array[Issue] = modifierResults.issues
+  val modifiers: ArraySeq[Modifier] = modifierResults.modifiers
+
+  def modifierIssues: ArraySeq[Issue] = modifierResults.issues
+
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
   protected var depends: Option[SkinnySet[Dependent]] = None
@@ -67,7 +71,7 @@ object ClassBodyDeclaration {
                 isOuter: Boolean,
                 typeName: TypeName,
                 extendedApex: Boolean,
-                modifiers: Seq[ModifierContext],
+                modifiers: ArraySeq[ModifierContext],
                 memberDeclarationContext: MemberDeclarationContext): Seq[ClassBodyDeclaration] = {
 
     val outerTypeId = TypeId(module, typeName)
@@ -389,10 +393,10 @@ object FormalParameter {
                 outerTypeName: TypeName,
                 from: FormalParameterContext): FormalParameter = {
     FormalParameter(module,
-                    outerTypeName,
-                    ApexModifiers.parameterModifiers(parser, CodeParser.toScala(from.modifier()), from),
-                    RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
-                    Id.construct(from.id()))
+      outerTypeName,
+      ApexModifiers.parameterModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray), from),
+      RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
+      Id.construct(from.id()))
   }
 }
 

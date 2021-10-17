@@ -13,7 +13,7 @@
  */
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.path.Location
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
 /** A link for a given position, can be used for definition or reference links. origin is the calculated extent of

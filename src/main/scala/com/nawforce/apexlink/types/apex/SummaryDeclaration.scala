@@ -26,9 +26,10 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import upickle.default._
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /* Helper for bulk handling of DependentSummary, normally this logic would be encapsulated by DependentSummary but
@@ -210,10 +211,10 @@ class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId,
 
   override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
 
-  override val location: PathLocation = PathLocation(path.toString, methodSummary.location)
+  override val location: PathLocation = PathLocation(path, methodSummary.location)
   override val idLocation: Location = methodSummary.idLocation
   override val name: Name = Names(methodSummary.name)
-  override val modifiers: Array[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
   override val parameters: Array[ParameterDeclaration] =
     methodSummary.parameters.map(new SummaryParameter(_))
@@ -226,7 +227,7 @@ class SummaryBlock(val module: Module, path: PathLike, blockSummary: BlockSummar
 
   override val dependents: Array[DependentSummary] = blockSummary.dependents.map(_.intern)
 
-  override def location: PathLocation = PathLocation(path.toString, blockSummary.location)
+  override def location: PathLocation = PathLocation(path, blockSummary.location)
   override val isStatic: Boolean = blockSummary.isStatic
 }
 
@@ -236,10 +237,10 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
 
   override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
 
-  override val location: PathLocation = PathLocation(path.toString, fieldSummary.location)
+  override val location: PathLocation = PathLocation(path, fieldSummary.location)
   override val idLocation: Location = fieldSummary.idLocation
   override val name: Name = Names(fieldSummary.name)
-  override val modifiers: Array[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = fieldSummary.typeName.intern
   override val readAccess: Modifier = ModifierOps(fieldSummary.readAccess).get
   override val writeAccess: Modifier = ModifierOps(fieldSummary.writeAccess).get
@@ -251,9 +252,9 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
 
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
 
-  override val location: PathLocation = PathLocation(path.toString, constructorSummary.location)
+  override val location: PathLocation = PathLocation(path, constructorSummary.location)
   override val idLocation: Location = constructorSummary.idLocation
-  override val modifiers: Array[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
   override val parameters: Array[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_))
 }
@@ -268,8 +269,9 @@ class SummaryDeclaration(path: PathLike,
   override val dependents: Array[DependentSummary] = typeSummary.dependents.map(_.intern)
 
   override def paths: Array[PathLike] = Array(path)
+
   override val sourceHash: Int = typeSummary.sourceHash
-  override val location: PathLocation = PathLocation(path.toString, typeSummary.location)
+  override val location: PathLocation = PathLocation(path, typeSummary.location)
   override val idLocation: Location = typeSummary.idLocation
 
   override val moduleDeclaration: Option[Module] = Some(module)
@@ -277,7 +279,7 @@ class SummaryDeclaration(path: PathLike,
   override val name: Name = Names(typeSummary.name)
   override val typeName: TypeName = typeSummary.typeName
   override val nature: Nature = Nature(typeSummary.nature)
-  override val modifiers: Array[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
 
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: Array[TypeName] = typeSummary.interfaces

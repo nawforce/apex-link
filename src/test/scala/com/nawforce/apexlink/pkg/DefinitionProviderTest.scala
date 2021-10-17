@@ -15,8 +15,7 @@ package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.rpc.LocationLink
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.diagnostics.Location
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class DefinitionProviderTest extends AnyFunSuite with TestHelper {

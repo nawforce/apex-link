@@ -16,7 +16,9 @@ package com.nawforce.apexlink.rpc
 
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.path.{Location, PathFactory, PathLike, PathLocation}
 import io.github.shogowada.scala.jsonrpc.api
+import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler
 import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, ReadWriter => RW}
 
 import scala.concurrent.Future
@@ -49,6 +51,7 @@ object GetIssuesResult {
   implicit val rwDiagnostic: RW[Diagnostic] = macroRW
   implicit val rwDiagnosticCategory: RW[DiagnosticCategory] = macroRW
   implicit val rwLocation: RW[Location] = macroRW
+  implicit val rwPathLike: RW[PathLike] = JSONRPCPickler.readwriter[String].bimap[PathLike](_.toString, PathFactory(_))
 }
 
 case class GetTypeIdentifiersResult(identifiers: Array[TypeIdentifier])
@@ -66,6 +69,7 @@ object IdentifierLocationResult {
   implicit val rw: RW[IdentifierLocationResult] = macroRW
   implicit val rwPathLocation: RW[PathLocation] = macroRW
   implicit val rwLocation: RW[Location] = macroRW
+  implicit val rwPathLike: RW[PathLike] = JSONRPCPickler.readwriter[String].bimap[PathLike](_.toString, PathFactory(_))
 }
 
 case class IdentifierRequest(identifier: TypeIdentifier)

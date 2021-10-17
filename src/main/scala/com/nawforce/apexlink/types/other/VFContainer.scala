@@ -19,8 +19,8 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.{DependencyHolder, Dependent}
-import com.nawforce.pkgforce.diagnostics.PathLocation
-import com.nawforce.pkgforce.names.{DotName, TypeName}
+import com.nawforce.pkgforce.names.DotName
+import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.stream.VFEvent
 
 class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
@@ -47,7 +47,7 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
         case Left(_) =>
           if (!module.isGhostedType(controllerType)) {
             OrgImpl.log(
-              IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.location.path.toString, controller.location),
+              IssueOps.noTypeDeclaration(PathLocation(event.sourceInfo.location.path, controller.location),
                 controllerType))
           }
           None

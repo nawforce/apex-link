@@ -25,16 +25,11 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.Locatable
+import com.nawforce.pkgforce.path.{IdLocatable, Locatable, PathLocation}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
-
-/** Extension of Locatable for things that can also provide an additional location for some form of identifier. */
-trait IdLocatable extends Locatable {
-  def idLocation: Location
-  def idPathLocation: PathLocation = PathLocation(location.path, idLocation)
-}
 
 /** Apex block core features, be they full or summary style */
 trait ApexBlockLike extends BlockDeclaration with Locatable {
@@ -256,7 +251,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
       tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component)
   }
 
-  def unused(): Array[Issue] = {
+  def unused(): ArraySeq[Issue] = {
     // Block at class level
     if (modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || isController)
       return Issue.emptyArray
@@ -287,9 +282,9 @@ trait ApexClassDeclaration extends ApexDeclaration {
     }
 
     if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
-      Array(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
+      ArraySeq(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
     } else {
-      unused
+      ArraySeq.unsafeWrapArray(unused)
     }
   }
 

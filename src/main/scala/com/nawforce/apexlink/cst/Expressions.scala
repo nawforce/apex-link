@@ -24,9 +24,9 @@ import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexparser.ApexParser._
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
-import com.nawforce.runtime.parsers.{CodeParser, Locatable}
+import com.nawforce.pkgforce.path.{Locatable, PathLocation}
+import com.nawforce.runtime.parsers.CodeParser
 
 final case class ExprContext(isStatic: Option[Boolean],
                              declaration: Option[TypeDeclaration],
@@ -689,7 +689,7 @@ final case class TypeArguments(typeList: List[TypeName]) extends CST
 
 object TypeArguments {
   def construct(from: TypeArgumentsContext): TypeArguments = {
-    val types: Seq[TypeRefContext] = CodeParser.toScala(from.typeList().typeRef())
+    val types = CodeParser.toScala(from.typeList().typeRef())
     TypeArguments(TypeReference.construct(types.toList)).withContext(from)
   }
 }

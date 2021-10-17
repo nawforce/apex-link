@@ -44,7 +44,7 @@ final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
 object CreatedName {
   def construct(from: CreatedNameContext): CreatedName = {
-    val pairs: Seq[IdCreatedNamePairContext] = CodeParser.toScala(from.idCreatedNamePair())
+    val pairs = CodeParser.toScala(from.idCreatedNamePair())
     CreatedName(IdCreatedNamePair.construct(pairs.toList)).withContext(from)
   }
 }
@@ -283,7 +283,7 @@ final case class MapCreatorRest(pairs: List[MapCreatorRestPair]) extends Creator
 
 object MapCreatorRest {
   def construct(from: MapCreatorRestContext): MapCreatorRest = {
-    val pairs: Seq[MapCreatorRestPairContext] = CodeParser.toScala(from.mapCreatorRestPair())
+    val pairs = CodeParser.toScala(from.mapCreatorRestPair())
     MapCreatorRest(MapCreatorRestPair.construct(pairs.toList)).withContext(from)
   }
 }

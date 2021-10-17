@@ -27,6 +27,7 @@ import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
+import com.nawforce.pkgforce.path.{Location, PathLocation}
 
 import scala.collection.mutable
 

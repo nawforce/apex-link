@@ -14,7 +14,7 @@
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class TriggerTest extends AnyFunSuite with TestHelper {
@@ -32,7 +32,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.trigger") ==
+          org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
             "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
     }
   }
@@ -53,7 +53,7 @@ class TriggerTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.trigger") ==
+          org.issues.getMessages(PathFactory("/Dummy.trigger")) ==
             "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
     }
   }

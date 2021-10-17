@@ -16,9 +16,12 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.names.TypeIdentifiers.TypeIdentifierUtils
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Location}
+import com.nawforce.pkgforce.diagnostics.Diagnostic
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.path.Location
 import upickle.default.{macroRW, ReadWriter => RW}
+
+import scala.collection.immutable.ArraySeq
 
 /**
   * Summary types are used both by the disk cache and to provide a quick & cheap way to examine what is available
@@ -34,7 +37,7 @@ case class TypeSummary(sourceHash: Int,
                        name: String,
                        typeName: TypeName,
                        nature: String,
-                       modifiers: Array[String],
+                       modifiers: ArraySeq[String],
                        superClass: Option[TypeName],
                        interfaces: Array[TypeName],
                        blocks: Array[BlockSummary],
@@ -98,7 +101,7 @@ case class BlockSummary(location: Location, isStatic: Boolean, dependents: Array
 case class FieldSummary(location: Location,
                         idLocation: Location,
                         name: String,
-                        modifiers: Array[String],
+                        modifiers: ArraySeq[String],
                         typeName: TypeName,
                         readAccess: String,
                         writeAccess: String,
@@ -127,7 +130,7 @@ case class FieldSummary(location: Location,
 /** Summary of a type constructor*/
 case class ConstructorSummary(location: Location,
                               idLocation: Location,
-                              modifiers: Array[String],
+                              modifiers: ArraySeq[String],
                               parameters: Array[ParameterSummary],
                               dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
@@ -152,7 +155,7 @@ case class ConstructorSummary(location: Location,
 case class MethodSummary(location: Location,
                          idLocation: Location,
                          name: String,
-                         modifiers: Array[String],
+                         modifiers: ArraySeq[String],
                          var typeName: TypeName,
                          parameters: Array[ParameterSummary],
                          hasBlock: Boolean,

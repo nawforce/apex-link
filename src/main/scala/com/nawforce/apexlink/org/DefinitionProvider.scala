@@ -15,10 +15,9 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.LocationLink
-import com.nawforce.apexlink.types.apex.{FullDeclaration, IdLocatable}
+import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.pkgforce.documents.{ApexClassDocument, MetadataDocument}
-import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{Locatable, UnsafeLocatable}
+import com.nawforce.pkgforce.path.{IdLocatable, Locatable, PathLike, UnsafeLocatable}
 
 trait DefinitionProvider {
   this: PackageImpl =>
@@ -41,7 +40,7 @@ trait DefinitionProvider {
 
       sourceTD.findDeclarationFromSourceReference(searchTerm, sourceLocation)
         .map(ad => {
-          LocationLink(sourceLocation, ad.location.path, ad.location.location, ad.idLocation)
+          LocationLink(sourceLocation, ad.location.path.toString, ad.location.location, ad.idLocation)
         })
     }).toArray
   }
@@ -84,11 +83,11 @@ trait DefinitionProvider {
         // to both inheritance and some objects supporting multiple Locatable traits
         resultMap(loc)._2.locatable match {
           case Some(l: IdLocatable) =>
-            Some(LocationLink(loc, l.location.path, l.location.location, l.idLocation))
+            Some(LocationLink(loc, l.location.path.toString, l.location.location, l.idLocation))
           case Some(l: UnsafeLocatable) =>
-            Option(l.location).map(l => LocationLink(loc, l.path, l.location, l.location))
+            Option(l.location).map(l => LocationLink(loc, l.path.toString, l.location, l.location))
           case Some(l: Locatable) =>
-            Some(LocationLink(loc, l.location.path, l.location.location, l.location.location))
+            Some(LocationLink(loc, l.location.path.toString, l.location.location, l.location.location))
           case _ =>
             None
         }

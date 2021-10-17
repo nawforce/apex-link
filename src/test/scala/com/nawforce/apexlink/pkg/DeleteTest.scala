@@ -17,7 +17,7 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.other.LabelDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class DeleteTest extends AnyFunSuite with TestHelper {
@@ -54,7 +54,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
           assert(org.flush())
 
           assert(
-            org.issues.getMessages("/pkg/Foo.cls")
+            org.issues.getMessages(PathFactory("/pkg/Foo.cls"))
               == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
       }
     }
@@ -93,7 +93,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         pkg.refresh(path)
         assert(org.flush())
         assert(
-          org.issues.getMessages("/pkg/Foo.trigger")
+          org.issues.getMessages(PathFactory("/pkg/Foo.trigger"))
             == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
       }
     }

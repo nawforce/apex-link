@@ -18,8 +18,8 @@ import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.{CodeParser, Locatable, Positionable, Source}
+import com.nawforce.pkgforce.path.{PathLike, Positionable}
+import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.util.DynamicVariable
 
@@ -78,7 +78,7 @@ object QualifiedName {
   }
 
   def construct(qualifiedName: QualifiedNameContext): QualifiedName = {
-    val ids: Seq[IdContext] = CodeParser.toScala(qualifiedName.id())
+    val ids = CodeParser.toScala(qualifiedName.id())
     QualifiedName(ids.toList.map(id => Names(CodeParser.getText(id)))).withContext(qualifiedName)
   }
 }
@@ -141,7 +141,7 @@ final case class ElementValueArrayInitializer(elementValues: List[ElementValue])
 
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext): ElementValueArrayInitializer = {
-    val elements: Seq[ElementValueContext] = CodeParser.toScala(from.elementValue())
+    val elements = CodeParser.toScala(from.elementValue())
     ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x)))
       .withContext(from)
   }
@@ -163,7 +163,7 @@ object ElementValuePair {
 object ElementValuePairs {
   def construct(from: ElementValuePairsContext): List[ElementValuePair] = {
     if (from != null) {
-      val pairs: Seq[ElementValuePairContext] = CodeParser.toScala(from.elementValuePair())
+      val pairs = CodeParser.toScala(from.elementValuePair())
       pairs.toList.map(x => ElementValuePair.construct(x))
     } else {
       List()

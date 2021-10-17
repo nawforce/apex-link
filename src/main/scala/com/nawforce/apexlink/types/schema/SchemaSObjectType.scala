@@ -22,7 +22,6 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
@@ -209,10 +208,10 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
 
   lazy val methodMap: Map[(Name, Int), MethodDeclaration] =
     Seq(
-      CustomMethodDeclaration(Location.empty,
-                              Name("getMap"),
-                              TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField),
-                              Array()))
+      CustomMethodDeclaration(com.nawforce.pkgforce.path.Location.empty,
+        Name("getMap"),
+        TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField),
+        Array()))
       .map(m => ((m.name, m.parameters.length), m))
       .toMap
 }

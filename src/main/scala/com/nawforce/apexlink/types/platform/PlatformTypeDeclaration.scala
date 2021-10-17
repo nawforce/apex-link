@@ -22,10 +22,9 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.schema.SObjectFieldFinder
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.runforce.Internal.Object$
 
 import java.nio.file.{FileSystemNotFoundException, FileSystems, Files, Paths}
@@ -83,7 +82,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   protected def getInterfaces: Array[TypeName] =
     cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
 
-  override lazy val modifiers: Array[Modifier] =
+  override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
   override lazy val constructors: Array[ConstructorDeclaration] = {
@@ -154,7 +153,7 @@ class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration
   override lazy val name: Name = Name(decodeName(field.getName))
   override lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
-  override lazy val modifiers: Array[Modifier] =
+  override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
   override lazy val readAccess: Modifier = PUBLIC_MODIFIER
   override lazy val writeAccess: Modifier = PUBLIC_MODIFIER
@@ -185,7 +184,7 @@ class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declarin
 
 class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
     extends ConstructorDeclaration {
-  lazy val modifiers: Array[Modifier] =
+  lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.ctorModifiers(ctor.getModifiers)
   lazy val parameters: Array[ParameterDeclaration] =
     ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
@@ -201,7 +200,7 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
-  lazy val modifiers: Array[Modifier] =
+  lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: Array[ParameterDeclaration] = getParameters
   override val hasBlock: Boolean = false

@@ -28,6 +28,7 @@ import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import upickle.default._
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 trait PackageAPI extends Package {
@@ -98,7 +99,7 @@ trait PackageAPI extends Package {
               if (typeId.typeName.outer.contains(TypeNames.Page)) {
                 module.pages.fields
                   .find(_.name == typeId.typeName.name)
-                  .collect { case page: Page if page.location != null => Array(page.location.path) }
+                  .collect { case page: Page if page.location != null => Array(page.location.path.toString) }
               } else {
                 None
               }
@@ -186,7 +187,7 @@ trait PackageAPI extends Package {
       case Some(decl: ApexDeclaration) =>
         val typeCache = new TypeCache()
         val dependencies = mutable.Set[TypeId]()
-        decl.collectDependencies(dependencies, true, typeCache)
+        decl.collectDependencies(dependencies, apexOnly = true, typeCache)
         dependencies.map(_.asTypeIdentifier).toArray.contains(dependencyTypeId)
       case _ => false
     }
@@ -226,17 +227,17 @@ trait PackageAPI extends Package {
       labels.module.refreshInternal(labels)
     }
 
+    @tailrec
     def propagateLabelRefresh(toDo: Seq[TypeId], acc:Seq[(TypeId, Set[TypeId])]): Seq[(TypeId, Set[TypeId])] = {
       toDo match {
         case Seq() => acc
-        case head +: remaining => {
+        case head +: remaining =>
           head.module.moduleType(head.typeName) match {
             case Some(labels: LabelDeclaration) =>
               val updates = refreshLabels(labels)
               propagateLabelRefresh(remaining ++ updates.flatMap(t => t._2).toIndexedSeq, acc ++ updates)
             case _ => propagateLabelRefresh(remaining, acc)
           }
-        }
       }
     }
 
@@ -304,14 +305,14 @@ trait PackageAPI extends Package {
           None
         case Some(summary: SummaryDeclaration) =>
           // Replace direct use summary types, no need to revalidate these
-          refreshInternal(PathFactory(summary.location.path))
+          refreshInternal(summary.location.path)
           None
         case x => x
     })
 
     // Everything else needs re-validation
     tds.foreach(td => {
-      td.paths.foreach(path => org.issues.pop(path.toString))
+      td.paths.foreach(path => org.issues.pop(path))
       td.preReValidate()
     })
     tds.foreach(_.validate())
@@ -319,7 +320,7 @@ trait PackageAPI extends Package {
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {
     org.issues.getMissing
-      .flatMap(path => findTypeIdOfPath(PathFactory(path)))
+      .flatMap(path => findTypeIdOfPath(path))
   }
 
   private def findTypeIdOfPath(path: PathLike): Option[TypeId] = {

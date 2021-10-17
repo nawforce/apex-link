@@ -18,7 +18,7 @@ import com.nawforce.apexlink.types.schema.SObjectNature
 import com.nawforce.apexparser.ApexParser
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
 
 object IssueOps {

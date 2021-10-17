@@ -14,8 +14,9 @@
 
 package com.nawforce.apexlink.finding
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, MISSING_CATEGORY, PathLocation}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, MISSING_CATEGORY}
 import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.path.PathLocation
 
 /** Collection of error types returned from type requests */
 sealed abstract class TypeError(val typeName: TypeName) {

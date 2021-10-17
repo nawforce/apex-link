@@ -17,17 +17,19 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.types.apex.ApexFieldLike
 import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.CodeParser
+
+import scala.collection.immutable.ArraySeq
 
 final case class ApexPropertyDeclaration(outerTypeId: TypeId,
                                          _modifiers: ModifierResults,
                                          typeName: TypeName,
                                          id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
-    extends ClassBodyDeclaration(_modifiers)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexFieldLike {
 
   override val name: Name = id.name
@@ -90,12 +92,12 @@ object ApexPropertyDeclaration {
                 propertyDeclaration: PropertyDeclarationContext): ApexPropertyDeclaration = {
     val typeName = TypeReference.construct(propertyDeclaration.typeRef())
     ApexPropertyDeclaration(outerTypeId,
-                            modifiers,
-                            typeName,
-                            Id.construct(propertyDeclaration.id()),
-                            CodeParser
-                              .toScala(propertyDeclaration.propertyBlock())
-                              .map(pb => PropertyBlock.construct(parser, pb, typeName)),
+      modifiers,
+      typeName,
+      Id.construct(propertyDeclaration.id()),
+      ArraySeq.unsafeWrapArray(CodeParser
+        .toScala(propertyDeclaration.propertyBlock()).toArray)
+        .map(pb => PropertyBlock.construct(parser, pb, typeName)),
     ).withContext(propertyDeclaration)
   }
 }
@@ -127,7 +129,7 @@ object PropertyBlock {
   def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
     val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
       parser,
-      CodeParser.toScala(propertyBlockContext.modifier()),
+      ArraySeq.unsafeWrapArray(CodeParser.toScala(propertyBlockContext.modifier()).toArray),
       propertyBlockContext)
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())

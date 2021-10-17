@@ -14,9 +14,9 @@
 
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, Location}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.PathFactory
+import com.nawforce.pkgforce.path.{Location, PathFactory}
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
 
@@ -43,7 +43,7 @@ class OrgAPITest extends AsyncFunSuite {
       assert(result.error.isEmpty)
       assert(
         issues.issues sameElements Array(
-          Issue("/silly", Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly"))))
+          Issue(PathFactory("/silly"), Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly"))))
     }
   }
 
@@ -122,8 +122,8 @@ class OrgAPITest extends AsyncFunSuite {
       orgAPI.getIssues(includeWarnings = true, includeZombies = true) map { issuesResult =>
         orgAPI.reset()
         assert(issuesResult.issues.length == 4)
-        assert(issuesResult.issues.count(_.path.contains("SingleError")) == 1)
-        assert(issuesResult.issues.count(_.path.contains("DoubleError")) == 2)
+        assert(issuesResult.issues.count(_.path.toString.contains("SingleError")) == 1)
+        assert(issuesResult.issues.count(_.path.toString.contains("DoubleError")) == 2)
       }
     }
 

@@ -19,6 +19,8 @@ import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
+import scala.collection.immutable.ArraySeq
+
 class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeName: TypeName)
     extends TypeDeclaration {
 
@@ -26,7 +28,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Array[Modifier] = ModifierOps.emptyModifiers
+  override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
   override lazy val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None

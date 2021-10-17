@@ -14,7 +14,7 @@
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class StandardObjectTest extends AnyFunSuite with TestHelper {
@@ -24,7 +24,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages(root.join("Foo").join("Foo.object").toString) ==
+          org.issues.getMessages(root.join("Foo").join("Foo.object")) ==
             "Error: line 1: No SObject declaration found for 'Schema.Foo'\n")
     }
   }
@@ -34,7 +34,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages(root.join("String").join("String.object").toString) ==
+          org.issues.getMessages(root.join("String").join("String.object")) ==
             "Error: line 1: No SObject declaration found for 'Schema.String'\n")
     }
   }
@@ -69,7 +69,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages("/Dummy.cls") ==
+        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
           "Missing: line 1 at 33-41: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
@@ -109,7 +109,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages("/pkg2/Dummy.cls") ==
+        org.issues.getMessages(PathFactory("/pkg2/Dummy.cls")) ==
           "Missing: line 1 at 33-41: Unknown field 'Bar__c' on SObject 'Schema.Account'\n")
       assert(
         packagedClass("pkg2", "Dummy").get.blocks.head.dependencies().toSet == Set(
@@ -224,7 +224,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages("/Dummy.cls") ==
+        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
           "Missing: line 1 at 39-53: Unknown field 'Baz__c' on SObject 'Schema.Account'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
@@ -293,7 +293,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.cls") ==
+          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
             "Missing: line 1 at 48-63: Unknown field or type 'Foo' on 'Schema.SObjectType'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
@@ -325,7 +325,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.cls") ==
+          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
             "Missing: line 1 at 48-78: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.Fields'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
@@ -337,7 +337,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.cls") ==
+          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
             "Missing: line 1 at 48-81: Unknown field or type 'Foo' on 'Schema.SObjectType.Account.FieldSets'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Account").get))
     }
@@ -400,7 +400,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(
           org.issues
-            .getMessages(root.join("Account.object").toString)
+            .getMessages(root.join("Account.object"))
             .startsWith("Error: line 10: Expecting element 'fields' to have a single 'type' child element\n"))
     }
   }

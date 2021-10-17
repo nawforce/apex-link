@@ -20,12 +20,10 @@ import com.nawforce.apexlink.org.{Module, PackageImpl}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.{PathFactory, PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
-import com.nawforce.runtime.parsers.UnsafeLocatable
 
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
@@ -36,7 +34,7 @@ final case class Component(module: Module,
                            componentName: Name,
                            attributes: Option[Array[Name]],
                            vfContainer: Option[VFContainer])
-    extends InnerBasicTypeDeclaration(Option(location).map(l => PathFactory(l.path)).toArray,
+    extends InnerBasicTypeDeclaration(Option(location).map(_.path).toArray,
                                       module,
                                       TypeName(componentName, Nil, Some(TypeName(Names.Component))))
     with UnsafeLocatable {
@@ -69,8 +67,8 @@ final case class Component(module: Module,
 
 object Component {
   def apply(module: Module, event: ComponentEvent): Component = {
-    val location = event.sourceInfo.location.pathLocation
-    val document = MetadataDocument(PathFactory(location.path))
+    val location = event.sourceInfo.location
+    val document = MetadataDocument(location.path)
     new Component(module, location, document.get.name, Some(event.attributes), Some(new VFContainer(module, event)))
   }
 

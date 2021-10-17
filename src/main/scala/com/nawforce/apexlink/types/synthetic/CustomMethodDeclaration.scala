@@ -17,9 +17,11 @@ package com.nawforce.apexlink.types.synthetic
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.types.apex.ApexVisibleMethodLike
 import com.nawforce.apexlink.types.core.ParameterDeclaration
-import com.nawforce.pkgforce.diagnostics.Location
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.Location
+
+import scala.collection.immutable.ArraySeq
 
 /** Custom methods are used to inject synthetic methods into types so they fulfil some contract. They extend from
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
@@ -32,7 +34,7 @@ final case class CustomMethodDeclaration(nameLocation: Location,
                                          asStatic: Boolean = false)
     extends ApexVisibleMethodLike {
 
-  override val modifiers: Array[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
+  override val modifiers: ArraySeq[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
   override val hasBlock: Boolean = false
   override lazy val isStatic: Boolean = asStatic
 
@@ -49,10 +51,10 @@ final case class CustomMethodDeclaration(nameLocation: Location,
 }
 
 object CustomMethodDeclaration {
-  val standardModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER)
-  val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  val standardModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
+  val staticModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
 
-  def getModifiers(isStatic: Boolean): Array[Modifier] = {
+  def getModifiers(isStatic: Boolean): ArraySeq[Modifier] = {
     if (isStatic) staticModifiers else standardModifiers
   }
 }

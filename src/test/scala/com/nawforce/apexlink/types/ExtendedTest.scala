@@ -15,7 +15,7 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class ExtendedTest extends AnyFunSuite with TestHelper {
@@ -24,7 +24,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy<T> { }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Dummy.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Dummy.cls")) ==
         "Error: line 1 at 19-20: Class type arguments can only by used by 'Extended' Apex classes\n")
     }
   }
@@ -33,7 +33,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Foo.xcls" -> "public class Dummy<T> { }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.xcls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.xcls")) ==
         "Error: line 1 at 13-18: Type name 'Dummy' does not match file name 'Foo.xcls'\n")
     }
   }
@@ -63,7 +63,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.xcls" -> "public class Dummy<T, S, t> { }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Dummy.xcls") ==
+      assert(org.issues.getMessages(PathFactory("/Dummy.xcls")) ==
         "Error: line 1 at 25-26: Duplicate type argument for 'T'\n")
     }
   }
@@ -123,9 +123,9 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy { public class Inner<X> {} }",
         "Foo.cls" -> "public class Foo { {Dummy_Inner_Bar a;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Dummy.xcls") ==
+      assert(org.issues.getMessages(PathFactory("/Dummy.xcls")) ==
         "Error: line 1 at 40-41: Class type arguments can only by used by outer classes\n")
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 36-37: No type declaration found for 'Dummy_Inner_Bar'\n")
     }
   }
@@ -135,7 +135,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> { }",
         "Foo.cls" -> "public class Foo { {Dummy_Bar a;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 30-31: No type declaration found for 'Dummy_Bar'\n")
     }
   }
@@ -161,7 +161,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> { }",
         "Foo.cls" -> "public class Foo { {Dummy_String_String a;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 40-41: No type declaration found for 'Dummy_String_String'\n")
     }
   }
@@ -171,7 +171,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X, Y> { }",
         "Foo.cls" -> "public class Foo { {Dummy_String a;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 33-34: No type declaration found for 'Dummy_String'\n")
     }
   }
@@ -193,7 +193,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
         "xcls/Dummy.xcls" -> "public class Dummy<X, Y> { }",
         "pkg/Foo.cls" -> "public class Foo { {Dummy_nsFoo a;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/pkg/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/pkg/Foo.cls")) ==
         "Missing: line 1 at 32-33: No type declaration found for 'Dummy_nsFoo'\n")
     }
   }
@@ -203,7 +203,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {X field; }",
         "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.field;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Error: line 1 at 47-58: Incompatible types in assignment, from 'System.String' to 'System.Integer'\n")
     }
   }
@@ -213,7 +213,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {static X field; }",
         "Foo.cls" -> "public class Foo { { Integer b; b = Dummy_String.field;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 36-54: No type declaration found for 'X'\n")
     }
   }
@@ -223,7 +223,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {X property {set; get;} }",
         "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.property;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Error: line 1 at 47-61: Incompatible types in assignment, from 'System.String' to 'System.Integer'\n")
     }
   }
@@ -233,7 +233,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {static X property {set; get;} }",
         "Foo.cls" -> "public class Foo { { Integer b; b = Dummy_String.property;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Missing: line 1 at 36-57: No type declaration found for 'X'\n")
     }
   }
@@ -243,7 +243,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
         "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.myMethod('');} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Error: line 1 at 47-65: Incompatible types in assignment, from 'System.String' to 'System.Integer'\n")
     }
   }
@@ -253,7 +253,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
       Map("Dummy.xcls" -> "public class Dummy<X> {public static X myMethod() {}}",
         "Foo.cls" -> "public class Foo { {Integer b; b = Dummy_String.myMethod();} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages("/Foo.cls") ==
+      assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
         "Error: line 1 at 31-58: Incompatible types in assignment, from 'Dummy.X' to 'System.Integer'\n")
     }
   }
@@ -290,7 +290,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
         Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
           "Foo.cls" -> "public class Foo { {Dummy_String a; Integer b; b = a.otherMethod('');} }")) { root: PathLike =>
         val org = createOrg(root)
-        assert(org.issues.getMessages("/Foo.cls") ==
+        assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
           "Error: line 1 at 51-68: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
 
         val pkg = org.unmanaged
@@ -307,7 +307,7 @@ class ExtendedTest extends AnyFunSuite with TestHelper {
         Map("Dummy.xcls" -> "public class Dummy<X> {public X myMethod(X arg) {}}",
           "Foo.cls" -> "public class Foo { {Dummy_String a; String b; b = a.otherMethod('');} }")) { root: PathLike =>
         val org = createOrg(root)
-        assert(org.issues.getMessages("/Foo.cls") ==
+        assert(org.issues.getMessages(PathFactory("/Foo.cls")) ==
           "Error: line 1 at 50-67: No matching method found for 'otherMethod' on 'Dummy<System.String>' taking arguments 'System.String'\n")
 
         val pkg = org.unmanaged

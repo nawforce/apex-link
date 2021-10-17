@@ -16,16 +16,18 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.finding.RelativeTypeContext
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration, IdLocatable}
+import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{IdLocatable, PathLike}
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
+
+import scala.collection.immutable.ArraySeq
 
 class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Boolean) extends CST
 
@@ -60,9 +62,9 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
       .map(typeArg => TypeArgumentProxy(Array(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
   }
 
-  override def unused(): Array[Issue] = {
+  override def unused(): ArraySeq[Issue] = {
     if (extendedApex && typeArguments.nonEmpty)
-      Array()
+      ArraySeq()
     else
       super.unused()
   }
@@ -112,7 +114,7 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 }
 
 object ClassDeclaration {
-  val staticModifier: Array[Modifier] = Array(STATIC_MODIFIER)
+  val staticModifier: ArraySeq[Modifier] = ArraySeq(STATIC_MODIFIER)
 
   def constructInner(parser: CodeParser, module: Module, outerType: TypeName, extendedApex: Boolean, modifiers: ModifierResults,
                      classDeclaration: ClassDeclarationContext): ClassDeclaration = {
@@ -131,23 +133,23 @@ object ClassDeclaration {
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
         .getOrElse(TypeName.emptyTypeName)
-    val typeArguments =
+    val typeArguments : Seq[Id] =
       CodeParser.toScala(classDeclaration.typeParameters())
-        .map(args => CodeParser.toScala(args.id()).map(Id.construct))
-        .getOrElse(Seq())
+        .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
+        .getOrElse(Seq.empty)
 
     val classBody = classDeclaration.classBody()
-    val classBodyDeclarations: Seq[ClassBodyDeclarationContext] = CodeParser.toScala(classBody.classBodyDeclaration())
+    val classBodyDeclarations = CodeParser.toScala(classBody.classBodyDeclaration())
     val typeContext = new RelativeTypeContext
 
     val bodyDeclarations: Array[ClassBodyDeclaration] =
       classBodyDeclarations.flatMap(cbd =>
         CodeParser.toScala(cbd.block())
           .map(x => Seq(ApexInitializerBlock.construct(parser,
-            ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), Array()), x)))
+            ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), ArraySeq()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
-              outerTypeName.isEmpty, thisType, extendedApex, CodeParser.toScala(cbd.modifier()), x))
+              outerTypeName.isEmpty, thisType, extendedApex, ArraySeq.unsafeWrapArray(CodeParser.toScala(cbd.modifier()).toArray), x))
           )
       ).flatten.toArray
 
@@ -158,8 +160,8 @@ object ClassDeclaration {
     td
   }
 
-  private def getModifiers(isStatic: Option[TerminalNode]): Array[Modifier]= {
-    isStatic.map(_ => staticModifier).getOrElse(ModifierOps.emptyModifiers)
+  private def getModifiers(isStatic: Option[TerminalNode]): ArraySeq[Modifier] = {
+    isStatic.map(_ => staticModifier).getOrElse(ArraySeq.empty)
   }
 
 }
@@ -198,7 +200,7 @@ object InterfaceDeclaration {
     val methods: Array[ClassBodyDeclaration]
         = CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
             ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
-              MethodModifiers.interfaceMethodModifiers(parser, CodeParser.toScala(m.modifier()), m.id(), outerTypeName.isEmpty), m)
+              MethodModifiers.interfaceMethodModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(m.modifier()).toArray), m.id(), outerTypeName.isEmpty), m)
     ).toArray
 
     val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
@@ -247,7 +249,7 @@ object EnumDeclaration {
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
     val fields: Array[ClassBodyDeclaration] = constants.map(constant => {
-      ApexFieldDeclaration(TypeId(module, thisType), ModifierResults(Array(PUBLIC_MODIFIER, STATIC_MODIFIER), Array()), thisType,
+      ApexFieldDeclaration(TypeId(module, thisType), ModifierResults(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER), ArraySeq()), thisType,
         VariableDeclarator(
           thisType,
           Id.construct(constant),

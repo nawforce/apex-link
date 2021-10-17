@@ -16,13 +16,14 @@ package com.nawforce.apexlink.types.synthetic
 
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.FieldDeclaration
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.runtime.parsers.Locatable
+import com.nawforce.pkgforce.path.{Locatable, PathLocation}
+
+import scala.collection.immutable.ArraySeq
 
 abstract class CustomField(asStatic: Boolean) extends FieldDeclaration {
-  override val modifiers: Array[Modifier] = CustomField.getModifiers(asStatic)
+  override val modifiers: ArraySeq[Modifier] = CustomField.getModifiers(asStatic)
   override val readAccess: Modifier = PUBLIC_MODIFIER
   override val writeAccess: Modifier = PUBLIC_MODIFIER
   override def isStatic: Boolean = asStatic
@@ -30,10 +31,10 @@ abstract class CustomField(asStatic: Boolean) extends FieldDeclaration {
 }
 
 object CustomField {
-  val standardModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER)
-  val staticModifiers: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  val standardModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
+  val staticModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
 
-  def getModifiers(isStatic: Boolean): Array[Modifier] = {
+  def getModifiers(isStatic: Boolean): ArraySeq[Modifier] = {
     if (isStatic) standardModifiers else standardModifiers
   }
 

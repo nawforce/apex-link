@@ -26,6 +26,7 @@ import com.nawforce.apexlink.types.schema.{SObjectNature, _}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, LocatableCustomFieldDeclaration}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
+import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.stream._
 
 import scala.collection.mutable.ArrayBuffer
@@ -108,7 +109,7 @@ class SObjectDeployer(module: Module) {
   private def createCustomField(field: CustomFieldEvent): Array[FieldDeclaration] = {
     val fieldType = SObjectDeployer.platformTypeOfFieldType(field).typeName
     val name = EncodedName(field.name).defaultNamespace(module.namespace).fullName
-    val location = field.sourceInfo.location.pathLocation
+    val location = field.sourceInfo.location
     val fieldDeclaration =
       LocatableCustomFieldDeclaration(location, name, fieldType, field.referenceTo.map(to => schemaTypeNameOf(to._1)))
 
@@ -137,7 +138,7 @@ class SObjectDeployer(module: Module) {
                                          targetFieldName: Name,
                                          originatingFieldName: Name,
                                          originatingTypeName: TypeName,
-                                         location: SourceLocation): Unit = {
+                                         location: PathLocation): Unit = {
 
     val created = createdSObjects.get(targetTypeName)
     if (module.isGhostedType(targetTypeName)) {
@@ -148,8 +149,8 @@ class SObjectDeployer(module: Module) {
 
     val td = created.orElse(TypeResolver(targetTypeName, module).toOption)
     if ((td.isEmpty || !td.exists(_.isSObject)) && !module.isGhostedType(targetTypeName)) {
-      OrgImpl.logError(location.pathLocation,
-                       s"Lookup object $targetTypeName does not exist for field '$originatingFieldName'")
+      OrgImpl.logError(location,
+        s"Lookup object $targetTypeName does not exist for field '$originatingFieldName'")
     }
 
     td.map(td => {
@@ -198,10 +199,10 @@ class SObjectDeployer(module: Module) {
         case (false, false) =>
           createReplacementSObject(sources, typeName, nature, fields, fieldSets, sharingReasons)
         case (false, true) =>
-          OrgImpl.log(IssueOps.extendingUnknownSObject(sources.head.location.pathLocation, event.reportingPath))
+          OrgImpl.log(IssueOps.extendingUnknownSObject(sources.head.location, event.reportingPath))
           Array.empty
         case (true, false) =>
-          OrgImpl.log(IssueOps.redefiningSObject(sources.head.location.pathLocation, event.reportingPath))
+          OrgImpl.log(IssueOps.redefiningSObject(sources.head.location, event.reportingPath))
           createReplacementSObject(sources, typeName, nature, fields, fieldSets, sharingReasons)
       }
     }
@@ -298,7 +299,7 @@ class SObjectDeployer(module: Module) {
       val sobjectType = resolveBaseType(typeName)
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
             superClass.typeName == TypeNames.SObject)) {
-        OrgImpl.logError(sources.head.location.pathLocation, s"No SObject declaration found for '$typeName'")
+        OrgImpl.logError(sources.head.location, s"No SObject declaration found for '$typeName'")
         return Array()
       }
       Array(extendExistingSObject(sobjectType, sources, typeName, nature, fields, fieldSets, sharingReasons))
@@ -335,10 +336,10 @@ class SObjectDeployer(module: Module) {
       val baseNS = base.flatMap(_.moduleDeclaration).flatMap(_.namespace)
       if (baseNS != module.namespace) {
         OrgImpl.log(
-          IssueOps.extendingOverNamespace(sources.head.location.pathLocation,
-                                          nature,
-                                          baseNS.getOrElse(Names.Empty),
-                                          module.namespace.getOrElse(Names.Empty)))
+          IssueOps.extendingOverNamespace(sources.head.location,
+            nature,
+            baseNS.getOrElse(Names.Empty),
+            module.namespace.getOrElse(Names.Empty)))
       }
     }
 

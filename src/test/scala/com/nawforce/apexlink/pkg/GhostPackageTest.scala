@@ -14,7 +14,7 @@
 package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class GhostPackageTest extends AnyFunSuite with TestHelper {
@@ -48,7 +48,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
       assert(org.issues
-        .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
+        .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
     }
   }
 
@@ -81,7 +81,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
       assert(org.issues
-        .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
+        .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
     }
   }
 
@@ -116,7 +116,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
         assert(org.issues
-          .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n")
+          .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n")
     }
   }
 
@@ -151,7 +151,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
         assert(org.issues
-          .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
+          .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
     }
   }
 
@@ -186,7 +186,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
         assert(org.issues
-          .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
+          .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
     }
   }
 
@@ -222,7 +222,7 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(packagedCustomType("pkg", "Dummy").get.dependencies().isEmpty)
         assert(org.issues
-          .getMessages("/pkg/Dummy.cls") == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
+          .getMessages(PathFactory("/pkg/Dummy.cls")) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
     }
   }
 

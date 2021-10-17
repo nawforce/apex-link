@@ -116,7 +116,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectType a = Location.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Dummy.cls").toString) ==
+        org.issues.getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Location'\n")
     }
   }
@@ -127,7 +127,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectType a = Approval.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Dummy.cls").toString) ==
+        org.issues.getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Approval'\n")
     }
   }
@@ -138,7 +138,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectType a = Address.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Dummy.cls").toString) ==
+        org.issues.getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 38-57: Unknown field or type 'SObjectType' on 'System.Address'\n")
     }
   }

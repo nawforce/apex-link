@@ -118,7 +118,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
         getPackageModule(path).flatMap(module => {
-          val existingIssues = org.issues.pop(path.toString)
+          val existingIssues = org.issues.pop(path)
           try {
             val asBytes = source.getBytes(StandardCharsets.UTF_8)
             FullDeclaration
@@ -130,7 +130,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
           } catch {
             case _: Exception => None
           } finally {
-            org.issues.push(path.toString, existingIssues)
+            org.issues.push(path, existingIssues)
           }
         })
       case _ => None

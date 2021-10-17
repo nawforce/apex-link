@@ -13,7 +13,7 @@
  */
 package com.nawforce.apexlink.org
 
-import com.nawforce.pkgforce.diagnostics.Location
+import com.nawforce.pkgforce.path.Location
 
 import java.io.{BufferedReader, StringReader}
 import scala.collection.mutable

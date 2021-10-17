@@ -15,7 +15,7 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
 class PageTest extends AnyFunSuite with TestHelper {
@@ -44,7 +44,7 @@ class PageTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages("/Dummy.cls") ==
+          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
             "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
   }
@@ -84,7 +84,7 @@ class PageTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.page" -> "<apex:page controller='Dummy'/>")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Test.page").toString) ==
+        org.issues.getMessages(root.join("Test.page")) ==
           "Missing: line 1 at 11-29: No type declaration found for 'Dummy'\n")
     }
   }
@@ -95,7 +95,7 @@ class PageTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Test.page").toString) ==
+        org.issues.getMessages(root.join("Test.page")) ==
           "Missing: line 1 at 30-52: No type declaration found for 'Extension'\n")
     }
   }

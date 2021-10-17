@@ -22,14 +22,13 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
-import com.nawforce.pkgforce.diagnostics.{Location, PathLocation}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{HierarchyCustomSetting, ListCustomSetting, SObjectEvent}
-import com.nawforce.runtime.parsers.UnsafeLocatable
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
@@ -84,7 +83,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     with SObjectMethods
     with UnsafeLocatable {
 
-  override def location: PathLocation = sources.headOption.map(_.location.pathLocation).orNull
+  override def location: PathLocation = sources.headOption.map(_.location).orNull
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
@@ -95,7 +94,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val name: Name = typeName.name
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
-  override val modifiers: Array[Modifier] = SObjectDeclaration.globalModifiers
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
   override val interfaces: Array[TypeName] = TypeName.emptyTypeName
   override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
   override val constructors: Array[ConstructorDeclaration] =
@@ -188,7 +187,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 }
 
 object SObjectDeclaration {
-  val globalModifiers: Array[Modifier] = Array(GLOBAL_MODIFIER)
+  val globalModifiers: ArraySeq[Modifier] = ArraySeq(GLOBAL_MODIFIER)
 
   lazy val sObjectMethodMap: Map[(Name, Int), MethodDeclaration] =
     PlatformTypes.sObjectType.methods.map(m => ((m.name, m.parameters.length), m)).toMap

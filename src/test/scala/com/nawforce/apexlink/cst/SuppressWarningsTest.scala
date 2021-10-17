@@ -83,7 +83,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }
@@ -99,7 +99,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }
@@ -115,7 +115,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }
@@ -131,7 +131,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }
@@ -147,7 +147,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }
@@ -160,7 +160,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
         assert(
           org.unmanaged.orderedModules.head
             .reportUnused()
-            .getMessages(root.join("Dummy.cls").toString, unused = true)
+            .getMessages(root.join("Dummy.cls"), unused = true)
             .isEmpty)
       })
     }

@@ -15,24 +15,22 @@
 package com.nawforce.apexlink.types.platform
 
 import java.lang.reflect.{Modifier => JavaModifier}
-
 import com.nawforce.apexlink.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.modifiers._
 
-object PlatformModifiers {
-  private val modPublic: Array[Modifier] = Array(PUBLIC_MODIFIER)
-  private val modPublicAbs: Array[Modifier] = Array(PUBLIC_MODIFIER, ABSTRACT_MODIFIER)
-  private val modPublicVirtual: Array[Modifier] = Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
-  private val modPublicStatic: Array[Modifier] = Array(PUBLIC_MODIFIER, STATIC_MODIFIER)
-  private val modPublicStaticAbs: Array[Modifier] =
-    Array(PUBLIC_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER)
-  private val modPublicVirtualStatic: Array[Modifier] =
-    Array(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
-  private val modPublicFinal: Array[Modifier] = Array(PUBLIC_MODIFIER, FINAL_MODIFIER)
-  private val modPublicFinalStatic: Array[Modifier] =
-    Array(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
+import scala.collection.immutable.ArraySeq
 
-  def typeModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
+object PlatformModifiers {
+  private val modPublic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
+  private val modPublicAbs: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, ABSTRACT_MODIFIER)
+  private val modPublicVirtual: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
+  private val modPublicStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  private val modPublicStaticAbs: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER)
+  private val modPublicVirtualStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicFinal: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER)
+  private val modPublicFinalStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
+
+  def typeModifiers(javaBits: Int, nature: Nature): ArraySeq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature != ENUM_NATURE) assert(!JavaModifier.isFinal(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
@@ -48,7 +46,7 @@ object PlatformModifiers {
 
   private def getTypeModifier(isClass: Boolean,
                               isStatic: Boolean,
-                              isAbstract: Boolean): Array[Modifier] = {
+                              isAbstract: Boolean): ArraySeq[Modifier] = {
     (isClass, isStatic, isAbstract) match {
       case (true, false, false) => modPublicVirtual
       case (true, true, false)  => modPublicVirtualStatic
@@ -60,7 +58,7 @@ object PlatformModifiers {
     }
   }
 
-  def fieldOrMethodModifiers(javaBits: Int): Array[Modifier] = {
+  def fieldOrMethodModifiers(javaBits: Int): ArraySeq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isTransient(javaBits))
@@ -72,7 +70,7 @@ object PlatformModifiers {
     getFieldOrMethodModifier(JavaModifier.isFinal(javaBits), JavaModifier.isStatic(javaBits))
   }
 
-  private def getFieldOrMethodModifier(isFinal: Boolean, isStatic: Boolean): Array[Modifier] = {
+  private def getFieldOrMethodModifier(isFinal: Boolean, isStatic: Boolean): ArraySeq[Modifier] = {
     (isFinal, isStatic) match {
       case (false, false) => modPublic
       case (false, true)  => modPublicStatic
@@ -81,7 +79,7 @@ object PlatformModifiers {
     }
   }
 
-  def methodModifiers(javaBits: Int, nature: Nature): Array[Modifier] = {
+  def methodModifiers(javaBits: Int, nature: Nature): ArraySeq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     if (nature == INTERFACE_NATURE)
       assert(JavaModifier.isAbstract(javaBits))
@@ -96,7 +94,7 @@ object PlatformModifiers {
     getMethodModifier(JavaModifier.isStatic(javaBits))
   }
 
-  private def getMethodModifier(isStatic: Boolean): Array[Modifier] = {
+  private def getMethodModifier(isStatic: Boolean): ArraySeq[Modifier] = {
     if (isStatic) {
       modPublicStatic
     } else {
@@ -104,7 +102,7 @@ object PlatformModifiers {
     }
   }
 
-  def ctorModifiers(javaBits: Int): Array[Modifier] = {
+  def ctorModifiers(javaBits: Int): ArraySeq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
     assert(!JavaModifier.isAbstract(javaBits))
     assert(!JavaModifier.isFinal(javaBits))

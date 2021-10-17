@@ -18,9 +18,11 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
-import com.nawforce.pkgforce.diagnostics.PathLocation
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.path.PathLocation
+
+import scala.collection.immutable.ArraySeq
 
 /* Wrapper for the few generic types we support, this specialises the methods of the type so that
  * List<T> presents as say a List<Foo>.
@@ -75,7 +77,7 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
 
   override def location: PathLocation = null
   override val name: Name = platformField.name
-  override val modifiers: Array[Modifier] = platformField.modifiers
+  override val modifiers: ArraySeq[Modifier] = platformField.modifiers
   override val readAccess: Modifier = platformField.readAccess
   override val writeAccess: Modifier = platformField.writeAccess
   override val idTarget: Option[TypeName] = None
@@ -90,7 +92,7 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
     extends MethodDeclaration {
 
   override lazy val name: Name = platformMethod.name
-  override lazy val modifiers: Array[Modifier] = platformMethod.modifiers
+  override lazy val modifiers: ArraySeq[Modifier] = platformMethod.modifiers
 
   override lazy val typeName: TypeName = {
     val paramType = _typeDeclaration.replaceParams(platformMethod.getGenericTypeName)
