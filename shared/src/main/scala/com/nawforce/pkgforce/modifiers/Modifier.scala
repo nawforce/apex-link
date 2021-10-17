@@ -81,7 +81,7 @@ case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
 case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 
 object ModifierOps {
-  val emptyModifiers: Array[Modifier] = Array()
+  val emptyModifiers: ArraySeq[Modifier] = ArraySeq()
 
   private val bitModifiers =
     Set(WEBSERVICE_MODIFIER,

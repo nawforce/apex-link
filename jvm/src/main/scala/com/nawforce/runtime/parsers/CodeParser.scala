@@ -34,9 +34,6 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
 import java.io.ByteArrayInputStream
-import scala.collection.compat.immutable.ArraySeq
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 /** Apex class parser helper */
@@ -138,8 +135,8 @@ object CodeParser {
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: java.util.List[T]): mutable.Buffer[T] = {
-    collection.asScala
+  def toScala[T](collection: java.util.List[T]): Seq[T] = {
+    collection.asScala.toSeq
   }
 
   // Helper for JS Portability
