@@ -36,7 +36,7 @@ import com.nawforce.runtime.parsers.{CodeParser, TreeVisitor}
 import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable
 
-class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
+class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexLightNode] {
   private val ownerNatureStack = mutable.Stack[MethodOwnerNature]()
 
   def typeWrap[T](ownerNature: MethodOwnerNature)(op: => T): T = {
@@ -49,14 +49,15 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def classDeclaration(ctx: ClassDeclarationContext,
-                                visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val isOuter = ownerNatureStack.isEmpty
     val modifierContext = getModifierContext(parentContext(ctx))
     val classModifiers = ApexModifiers.classModifiers(parser, modifierContext.modifiers, isOuter, ctx.id())
 
     typeWrap(classModifiers.methodOwnerNature) {
       ArraySeq(
-        ApexClassNode(parser.getPathLocation(parentContext(ctx)),
+        ApexLightNode(parser.getPathLocation(parentContext(ctx)),
+          CLASS_NATURE,
           Name(CodeParser.getText(ctx.id())),
           parser.getPathLocation(ctx.id()).location,
           visitChildren(ctx),
@@ -69,15 +70,15 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def interfaceDeclaration(ctx: InterfaceDeclarationContext,
-                                    visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                    visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val isOuter = ownerNatureStack.isEmpty
 
     typeWrap(INTERFACE_METHOD_NATURE) {
       val modifierContext = getModifierContext(parentContext(ctx))
       val modifiers = ApexModifiers.interfaceModifiers(parser, modifierContext.modifiers, isOuter, ctx.id())
       ArraySeq(
-        ApexGenericNode(parser.getPathLocation(parentContext(ctx)),
-          ApexInterfaceType,
+        ApexLightNode(parser.getPathLocation(parentContext(ctx)),
+          INTERFACE_NATURE,
           Name(CodeParser.getText(ctx.id())),
           parser.getPathLocation(ctx.id()).location,
           visitChildren(ctx),
@@ -89,15 +90,15 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def enumDeclaration(ctx: EnumDeclarationContext,
-                               visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                               visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val isOuter = ownerNatureStack.isEmpty
 
     typeWrap(ENUM_METHOD_NATURE) {
       val modifierContext = getModifierContext(parentContext(ctx))
       val modifiers = ApexModifiers.enumModifiers(parser, modifierContext.modifiers, isOuter, ctx.id())
       ArraySeq(
-        ApexGenericNode(parser.getPathLocation(parentContext(ctx)),
-          ApexEnumType,
+        ApexLightNode(parser.getPathLocation(parentContext(ctx)),
+          ENUM_NATURE,
           Name(CodeParser.getText(ctx.id())),
           parser.getPathLocation(ctx.id()).location,
           visitChildren(ctx),
@@ -109,14 +110,14 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def constructorDeclaration(ctx: ConstructorDeclarationContext,
-                                      visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                      visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val modifiers =
       ApexModifiers.constructorModifiers(parser, modifierContext.modifiers, ctx.qualifiedName())
     val params = formatFormalParameters(ctx.formalParameters())
     ArraySeq(
-      ApexGenericNode(parser.getPathLocation(parentContext(parentContext(ctx))),
-        ApexConstructorType,
+      ApexLightNode(parser.getPathLocation(parentContext(parentContext(ctx))),
+        CONSTRUCTOR_NATURE,
         Name(CodeParser.getText(ctx.qualifiedName())),
         parser.getPathLocation(ctx.qualifiedName()).location,
         ArraySeq(),
@@ -130,7 +131,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def methodDeclaration(ctx: MethodDeclarationContext,
-                                 visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                 visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val modifiers = MethodModifiers.classMethodModifiers(parser,
                                                          modifierContext.modifiers,
@@ -140,8 +141,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val returnType = CodeParser.toScala(ctx.typeRef()).map(CodeParser.getText).getOrElse("void")
     val params = formatFormalParameters(ctx.formalParameters())
     ArraySeq(
-      ApexGenericNode(parser.getPathLocation(parentContext(parentContext(ctx))),
-        ApexMethodType,
+      ApexLightNode(parser.getPathLocation(parentContext(parentContext(ctx))),
+        METHOD_NATURE,
         Name(CodeParser.getText(ctx.id())),
         parser.getPathLocation(ctx.id()).location,
         ArraySeq(),
@@ -155,7 +156,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def interfaceMethodDeclaration(ctx: InterfaceMethodDeclarationContext,
-                                          visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                          visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val modifiers =
       MethodModifiers.interfaceMethodModifiers(parser,
                                                ArraySeq.from(CodeParser.toScala(ctx.modifier())),
@@ -165,8 +166,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     val returnType = CodeParser.toScala(ctx.typeRef()).map(CodeParser.getText).getOrElse("void")
     val params = formatFormalParameters(ctx.formalParameters())
     ArraySeq(
-      ApexGenericNode(parser.getPathLocation(ctx),
-        ApexMethodType,
+      ApexLightNode(parser.getPathLocation(ctx),
+        METHOD_NATURE,
         Name(CodeParser.getText(ctx.id())),
         parser.getPathLocation(ctx.id()).location,
         ArraySeq(),
@@ -195,7 +196,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def fieldDeclaration(ctx: FieldDeclarationContext,
-                                visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val fieldType = CodeParser.getText(ctx.typeRef())
     val variableDeclarators = CodeParser.toScala(ctx.variableDeclarators().variableDeclarator())
@@ -206,8 +207,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     if (variableDeclarators.size == 1) {
       val vd = variableDeclarators.head
       ArraySeq(
-        ApexGenericNode(parser.getPathLocation(modifierContext.enclosing),
-          ApexFieldType,
+        ApexLightNode(parser.getPathLocation(modifierContext.enclosing),
+          FIELD_NATURE,
           Name(CodeParser.getText(vd.id())),
           parser.getPathLocation(vd.id()).location,
           ArraySeq(),
@@ -220,8 +221,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
           modifiers.issues))
     } else {
       ArraySeq.from(variableDeclarators.map(vd => {
-        ApexGenericNode(parser.getPathLocation(vd),
-          ApexFieldType,
+        ApexLightNode(parser.getPathLocation(vd),
+          FIELD_NATURE,
           Name(CodeParser.getText(vd.id())),
           parser.getPathLocation(vd.id()).location,
           ArraySeq(),
@@ -237,7 +238,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def propertyDeclaration(ctx: PropertyDeclarationContext,
-                                   visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                                   visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     val modifierContext = classBodyModifierContext(parentContext(parentContext(ctx)))
     val modifiers =
       FieldModifiers.fieldModifiers(parser,
@@ -246,8 +247,8 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
                                     ctx.id())
     val fieldType = CodeParser.getText(ctx.typeRef())
     ArraySeq(
-      ApexGenericNode(parser.getPathLocation(modifierContext.enclosing),
-        ApexPropertyType,
+      ApexLightNode(parser.getPathLocation(modifierContext.enclosing),
+        PROPERTY_NATURE,
         Name(CodeParser.getText(ctx.id())),
         parser.getPathLocation(ctx.id()).location,
         ArraySeq(),
@@ -261,14 +262,14 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def enumConstants(ctx: EnumConstantsContext,
-                             visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+                             visitChildren: VisitChildren): ArraySeq[ApexLightNode] = {
     ArraySeq.from(
       CodeParser
         .toScala(ctx.id())
         .map(id => {
           val constantName = CodeParser.getText(id)
-          ApexGenericNode(parser.getPathLocation(id),
-            ApexEnumConstantType,
+          ApexLightNode(parser.getPathLocation(id),
+            ENUM_CONSTANT_NATURE,
             Name(CodeParser.getText(id)),
             parser.getPathLocation(id).location,
             ArraySeq.empty,

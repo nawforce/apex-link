@@ -37,25 +37,34 @@ import com.nawforce.runtime.parsers.CodeParser
 import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
-sealed trait ApexNodeNature
+sealed abstract class Nature(val value: String)
+case object CLASS_NATURE extends Nature("class")
+case object INTERFACE_NATURE extends Nature("interface")
+case object ENUM_NATURE extends Nature("enum")
+case object TRIGGER_NATURE extends Nature(value = "trigger")
+case object CONSTRUCTOR_NATURE extends Nature(value = "constructor")
+case object METHOD_NATURE extends Nature(value = "method")
+case object FIELD_NATURE extends Nature(value = "field")
+case object PROPERTY_NATURE extends Nature(value = "property")
+case object ENUM_CONSTANT_NATURE extends Nature(value = "enum constant")
+case object INIT_NATURE extends Nature(value = "<init>")
 
-case object ApexClassType extends ApexNodeNature
-
-case object ApexInterfaceType extends ApexNodeNature
-case object ApexEnumType extends ApexNodeNature
-case object ApexConstructorType extends ApexNodeNature
-case object ApexMethodType extends ApexNodeNature
-case object ApexFieldType extends ApexNodeNature
-case object ApexPropertyType extends ApexNodeNature
-case object ApexEnumConstantType extends ApexNodeNature
+object Nature {
+  def forType(value: String): Nature = {
+    value match {
+      case CLASS_NATURE.value     => CLASS_NATURE
+      case INTERFACE_NATURE.value => INTERFACE_NATURE
+      case ENUM_NATURE.value      => ENUM_NATURE
+      case TRIGGER_NATURE.value   => TRIGGER_NATURE
+    }
+  }
+}
 
 trait ApexNode extends IdLocatable {
-  val nature: ApexNodeNature
-  val id: Name
+  val nature: Nature
+  val name: Name
   val children: ArraySeq[ApexNode]
   val modifiers: ArraySeq[Modifier]
-  val signature: String
-  val description: String
   val parseIssues: ArraySeq[Issue]
 
   def collectIssues(): ArraySeq[Issue] = {
@@ -66,51 +75,20 @@ trait ApexNode extends IdLocatable {
 
   protected def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
     issues.addAll(parseIssues)
-    children.foreach(_.collectIssues(issues))
-  }
-}
-
-object ApexNode {
-  def apply(parser: CodeParser, ctx: CompilationUnitContext): Option[ApexNode] = {
-    val visitor = new ApexClassVisitor(parser)
-    visitor.visit(ctx).headOption
-  }
-}
-
-case class ApexGenericNode(location: PathLocation,
-                           nature: ApexNodeNature,
-                           id: Name,
-                           idLocation: Location,
-                           children: ArraySeq[ApexNode],
-                           modifiers: ArraySeq[Modifier],
-                           signature: String,
-                           description: String,
-                           parseIssues: ArraySeq[Issue])
-  extends ApexNode {}
-
-case class ApexClassNode(location: PathLocation,
-                         id: Name,
-                         idLocation: Location,
-                         children: ArraySeq[ApexNode],
-                         modifiers: ArraySeq[Modifier],
-                         signature: String,
-                         description: String,
-                         parseIssues: ArraySeq[Issue])
-  extends ApexNode {
-
-  override val nature: ApexNodeNature = ApexClassType
-
-  override def collectIssues(issues: ArrayBuffer[Issue]): Unit = {
-    super.collectIssues(issues)
     localIssues.foreach(issue => issues.append(issue))
+    children.foreach(_.collectIssues(issues))
   }
 
   def localIssues: Seq[Issue] = {
-    checkNeedsGlobalOrWebService() ++
-      checkMisnamedConstructors()
+    if (nature == CLASS_NATURE) {
+      checkNeedsGlobalOrWebService() ++
+        checkMisnamedConstructors()
+    } else {
+      Seq.empty
+    }
   }
 
-    private def checkNeedsGlobalOrWebService(): Seq[Issue] = {
+  private def checkNeedsGlobalOrWebService(): Seq[Issue] = {
     if (!modifiers.contains(GLOBAL_MODIFIER)) {
       children
         .filter(_.modifiers.intersect(Seq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER)).nonEmpty)
@@ -129,7 +107,7 @@ case class ApexClassNode(location: PathLocation,
 
   private def checkMisnamedConstructors(): Seq[Issue] = {
     children
-      .filter(child => child.nature == ApexConstructorType && child.id != id)
+      .filter(child => child.nature == CONSTRUCTOR_NATURE && child.name != name)
       .map(misnamed => {
         new Issue(
           location.path,
@@ -141,3 +119,27 @@ case class ApexClassNode(location: PathLocation,
       })
   }
 }
+
+trait ApexDescriptiveNode extends ApexNode {
+  val signature: String
+  val description: String
+}
+
+case class ApexLightNode(location: PathLocation,
+                         nature: Nature,
+                         name: Name,
+                         idLocation: Location,
+                         children: ArraySeq[ApexLightNode],
+                         modifiers: ArraySeq[Modifier],
+                         signature: String,
+                         description: String,
+                         parseIssues: ArraySeq[Issue])
+  extends ApexDescriptiveNode {}
+
+object ApexLightNode {
+  def apply(parser: CodeParser, ctx: CompilationUnitContext): Option[ApexLightNode] = {
+    val visitor = new ApexClassVisitor(parser)
+    visitor.visit(ctx).headOption
+  }
+}
+

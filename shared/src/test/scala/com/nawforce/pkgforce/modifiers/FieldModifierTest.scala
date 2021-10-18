@@ -29,7 +29,7 @@ package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.pkgforce.diagnostics
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
-import com.nawforce.pkgforce.parsers.ApexNode
+import com.nawforce.pkgforce.parsers.ApexLightNode
 import com.nawforce.pkgforce.path.{Location, PathFactory}
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import org.scalatest.funsuite.AnyFunSuite
@@ -46,7 +46,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root = ApexLightNode(cp, result.value).get
       val field = root.children.head
       field.parseIssues.isEmpty && field.modifiers == expected
     }
@@ -64,7 +64,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       ArraySeq()
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root = ApexLightNode(cp, result.value).get
       val field = root.children.head
       field.parseIssues
     }
@@ -204,7 +204,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root = ApexLightNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
       field.parseIssues.isEmpty && field.modifiers == expected
@@ -225,7 +225,7 @@ class FieldModifierTest extends AnyFunSuite {
     if (result.issues.nonEmpty) {
       ArraySeq()
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root = ApexLightNode(cp, result.value).get
       val inner = root.children.head
       val field = inner.children.head
       field.parseIssues
