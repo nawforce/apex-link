@@ -19,6 +19,7 @@ import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
 import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
@@ -138,7 +139,7 @@ trait CompletionProvider {
           case CLASS_NATURE => Some(CompletionItemLink(nested.name.value, "Class"))
           case INTERFACE_NATURE => Some(CompletionItemLink(nested.name.value, "Interface"))
           case ENUM_NATURE => Some(CompletionItemLink(nested.name.value, "Enum"))
-          case TRIGGER_NATURE => None
+          case _ => None
         })
     }
 

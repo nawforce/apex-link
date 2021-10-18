@@ -15,15 +15,10 @@
 package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.types.core.{
-  CLASS_NATURE,
-  ENUM_NATURE,
-  INTERFACE_NATURE,
-  TRIGGER_NATURE
-}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{DotName, Name, TypeName}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
 import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {
@@ -106,7 +101,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.superClass.isEmpty)
         assert(typeDeclaration.interfaces.isEmpty)
       case CLASS_NATURE   => ()
-      case TRIGGER_NATURE => assert(false)
+      case _ => assert(false)
     }
 
     // PlatformModifiers, always public for outer platform classes
@@ -129,7 +124,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
           nested =>
             validateTypeDeclaration(className.append(nested.name),
                                     nested.asInstanceOf[PlatformTypeDeclaration]))
-      case TRIGGER_NATURE => assert(false)
+      case _ => assert(false)
     }
 
     // Fields
@@ -145,7 +140,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         typeDeclaration.fields.foreach(f => {
           assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)
         })
-      case TRIGGER_NATURE => assert(false)
+      case _ => assert(false)
     }
 
     // Constructors (make sure we can decompose them via toString)

@@ -25,6 +25,7 @@ import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomPar
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, Nature}
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{HierarchyCustomSetting, ListCustomSetting, SObjectEvent}
 

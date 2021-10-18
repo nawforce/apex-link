@@ -24,17 +24,21 @@ import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers._
 import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder {
+abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CST with DependencyHolder with ApexNode {
 
   val modifiers: ArraySeq[Modifier] = modifierResults.modifiers
 
   def modifierIssues: ArraySeq[Issue] = modifierResults.issues
+
+  // For ApexNode, not used yet used in CST
+  override val parseIssues: ArraySeq[Issue] = ArraySeq.empty
 
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
@@ -166,6 +170,11 @@ final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block)
     with ApexBlockLike {
 
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+  override val nature: Nature = INIT_NATURE
+  override val children: ArraySeq[ApexNode] = ArraySeq.empty
+  override val name: Name = Name.empty
+
+  override def idLocation: Location = location.location
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     context.withOuterBlockVerifyContext(isStatic) { blockContext =>
@@ -192,10 +201,14 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     with ApexMethodLike {
 
   override def idLocation: Location = id.location.location
+
   override val name: Name = id.name
+
   override def hasBlock: Boolean = block.nonEmpty
 
   override lazy val typeName: TypeName = returnTypeName.typeName
+  override val nature: Nature = METHOD_NATURE
+  override val children: ArraySeq[ApexNode] = ArraySeq.empty
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
@@ -282,18 +295,22 @@ final case class ApexFieldDeclaration(outerTypeId: TypeId,
     with ApexFieldLike {
 
   def id: Id = variableDeclarator.id
+
   override def idLocation: Location = id.location.location
+
   override val name: Name = id.name
   private val visibility: Option[Modifier] =
     _modifiers.modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m))
   override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
   override val writeAccess: Modifier = readAccess
+  override val children: ArraySeq[ApexNode] = ArraySeq.empty
+  override val nature: Nature = FIELD_NATURE
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val staticContext = if (isStatic) Some(true) else None
 
     variableDeclarator.verify(ExprContext(staticContext, context.thisType),
-                              new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
+      new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER)))
     setDepends(context.dependencies)
 
     context.propagateDependencies()
@@ -322,6 +339,10 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
     with ApexConstructorLike {
 
   override def idLocation: Location = qualifiedName.location.location
+
+  override val name: Name = Name(qualifiedName.names.mkString("."))
+  override val children: ArraySeq[ApexNode] = ArraySeq.empty
+  override val nature: Nature = CONSTRUCTOR_NATURE
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }

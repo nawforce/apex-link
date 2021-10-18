@@ -25,6 +25,7 @@ import com.nawforce.apexparser.ApexParser.{TriggerCaseContext, TriggerUnitContex
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.parsers.{Nature, TRIGGER_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 

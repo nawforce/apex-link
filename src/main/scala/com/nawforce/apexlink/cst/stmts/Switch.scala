@@ -17,9 +17,10 @@ package com.nawforce.apexlink.cst.stmts
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.types.core.{ENUM_NATURE, TypeDeclaration}
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexparser.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
 import com.nawforce.pkgforce.names.{EncodedName, TypeName}
+import com.nawforce.pkgforce.parsers.ENUM_NATURE
 import com.nawforce.runtime.parsers.CodeParser
 
 sealed abstract class WhenLiteral extends CST

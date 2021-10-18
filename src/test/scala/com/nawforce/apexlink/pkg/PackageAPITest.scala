@@ -551,13 +551,13 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
   test("Constructor argument dependency (from nested)") {
     fooHoldsBarCached(
       Map("classes/Foo.cls" -> "public class Foo {}",
-          "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(Foo a){} }}"))
+          "classes/Bar.cls" -> "public class Bar {public class Baz { Baz(Foo a){} }}"))
   }
 
   test("Constructor body dependency (from nested)") {
     fooHoldsBarCached(
       Map("classes/Foo.cls" -> "public class Foo {}",
-          "classes/Bar.cls" -> "public class Bar {public class Baz { Bar(){Object a = new Foo();} }}"))
+          "classes/Bar.cls" -> "public class Bar {public class Baz { Baz(){Object a = new Foo();} }}"))
   }
 
   test("Unmanaged to Managed Dependency") {

@@ -27,27 +27,11 @@ import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTy
 import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration, LocatableCustomFieldDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.parsers.{INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.path.{PathLike, UnsafeLocatable}
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
-
-sealed abstract class Nature(val value: String)
-case object CLASS_NATURE extends Nature("class")
-case object INTERFACE_NATURE extends Nature("interface")
-case object ENUM_NATURE extends Nature("enum")
-case object TRIGGER_NATURE extends Nature(value = "trigger")
-
-object Nature {
-  def apply(value: String): Nature = {
-    value match {
-      case CLASS_NATURE.value     => CLASS_NATURE
-      case INTERFACE_NATURE.value => INTERFACE_NATURE
-      case ENUM_NATURE.value      => ENUM_NATURE
-      case TRIGGER_NATURE.value   => TRIGGER_NATURE
-    }
-  }
-}
 
 trait BlockDeclaration extends DependencyHolder {
   val isStatic: Boolean

@@ -24,6 +24,7 @@ import com.nawforce.apexlink.types.schema.SObjectFieldFinder
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.pkgforce.modifiers.{Modifier, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.runforce.Internal.Object$
 

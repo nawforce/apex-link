@@ -19,6 +19,7 @@ import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.{ApexNode, Nature, PROPERTY_NATURE}
 import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -33,12 +34,15 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
     with ApexFieldLike {
 
   override val name: Name = id.name
+  override val children: ArraySeq[ApexNode] = ArraySeq.empty
+  override val nature: Nature = PROPERTY_NATURE
+
   override def idLocation: Location = id.location.location
 
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {
       case x: SetterPropertyBlock => Some(x)
-      case _                      => None
+      case _ => None
     }.headOption
 
   val getter: Option[GetterPropertyBlock] =

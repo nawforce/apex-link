@@ -18,20 +18,22 @@ import com.nawforce.apexlink.TestHelper
 import com.nawforce.pkgforce.modifiers._
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.immutable.ArraySeq
+
 class ClassModifierTest extends AnyFunSuite with TestHelper {
 
   test("Global outer") {
-    assert(typeDeclaration("global class Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+    assert(typeDeclaration("global class Dummy {}").modifiers == ArraySeq(GLOBAL_MODIFIER))
     assert(dummyIssues.isEmpty)
   }
 
   test("Public outer") {
-    assert(typeDeclaration("public class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(typeDeclaration("public class Dummy {}").modifiers == ArraySeq(PUBLIC_MODIFIER))
     assert(dummyIssues.isEmpty)
   }
 
   test("Public outer (mixed case)") {
-    assert(typeDeclaration("puBlIc class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(typeDeclaration("puBlIc class Dummy {}").modifiers == ArraySeq(PUBLIC_MODIFIER))
     assert(dummyIssues.isEmpty)
   }
 
@@ -48,14 +50,14 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
   }
 
   test("No modifier class") {
-    assert(typeDeclaration("class Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
+    assert(typeDeclaration("class Dummy {}").modifiers == ArraySeq(PUBLIC_MODIFIER))
     assert(
       dummyIssues == "Error: line 1 at 6-11: Outer classes must be declared either 'global' or 'public'\n")
   }
 
   test("Illegal modifier class") {
     assert(
-      typeDeclaration("global static class Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+      typeDeclaration("global static class Dummy {}").modifiers == ArraySeq(GLOBAL_MODIFIER))
     assert(dummyIssues == "Error: line 1 at 7-13: Modifier 'static' is not supported on classes\n")
   }
 
@@ -134,14 +136,14 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
 
   test("Global inner") {
     assert(
-      typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers sameElements Array(
+      typeDeclarationInner("global class Dummy {global class Inner{}}").modifiers == ArraySeq(
         GLOBAL_MODIFIER))
     assert(dummyIssues.isEmpty)
   }
 
   test("Global inner of public outer") {
     assert(
-      typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers sameElements Array(
+      typeDeclarationInner("public class Dummy {global class Inner{}}").modifiers == ArraySeq(
         GLOBAL_MODIFIER))
     assert(
       dummyIssues ==
@@ -150,7 +152,7 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
 
   test("Public inner") {
     assert(
-      typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers sameElements Array(
+      typeDeclarationInner("public class Dummy {public class Inner{}}").modifiers == ArraySeq(
         PUBLIC_MODIFIER))
     assert(dummyIssues.isEmpty)
   }
@@ -164,7 +166,7 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
 
   test("Private inner") {
     assert(
-      typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers sameElements Array(
+      typeDeclarationInner("public class Dummy {private class Inner{}}").modifiers == ArraySeq(
         PRIVATE_MODIFIER))
     assert(dummyIssues.isEmpty)
   }

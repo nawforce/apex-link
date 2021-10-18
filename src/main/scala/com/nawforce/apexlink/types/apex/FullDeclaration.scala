@@ -28,6 +28,7 @@ import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.{ApexNode, CLASS_NATURE, INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import upickle.default.writeBinary
@@ -45,42 +46,48 @@ abstract class FullDeclaration(val source: Source,
                                _modifiers: ModifierResults,
                                val superClass: Option[TypeName],
                                val interfaces: Array[TypeName],
-                               val bodyDeclarations: Array[ClassBodyDeclaration])
+                               val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
     extends ClassBodyDeclaration(_modifiers)
     with ApexClassDeclaration
     with ApexFullDeclaration {
 
   lazy val sourceHash: Int = source.hash
+
   override def paths: Array[PathLike] = Array(source.path)
+
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
   override val idLocation: Location = id.location.location
   override val nature: Nature
   var flushedToCache = false
 
+  // For ApexNode compatibility
+  override val children: ArraySeq[ApexNode] = bodyDeclarations
+
   override def nestedTypes: Array[TypeDeclaration] =
     _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
+
   private lazy val _nestedTypes: Array[FullDeclaration] = {
     bodyDeclarations.flatMap {
       case x: FullDeclaration => Some(x)
-      case _                  => None
-    }
+      case _ => None
+    }.toArray
   }
 
   override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
   private lazy val _blocks: Array[ApexInitializerBlock] = {
     bodyDeclarations.flatMap {
       case x: ApexInitializerBlock => Some(x)
-      case _                       => None
-    }
+      case _ => None
+    }.toArray
   }
 
   lazy val localFields: Array[ApexFieldLike] = {
     bodyDeclarations.flatMap {
-      case x: ApexFieldDeclaration    => Some(x)
+      case x: ApexFieldDeclaration => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
-      case _                          => None
-    }
+      case _ => None
+    }.toArray
   }
 
   override lazy val constructors: Array[ConstructorDeclaration] =
@@ -88,8 +95,8 @@ abstract class FullDeclaration(val source: Source,
   private lazy val _constructors: Array[ApexConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexConstructorDeclaration => Some(x)
-      case _                             => None
-    }
+      case _ => None
+    }.toArray
   }
 
   override lazy val localMethods: Array[MethodDeclaration] =
@@ -97,8 +104,8 @@ abstract class FullDeclaration(val source: Source,
   lazy val _localMethods: Array[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
       case m: ApexVisibleMethodLike => Some(m)
-      case _                        => None
-    })
+      case _ => None
+    }).toArray
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {

@@ -14,10 +14,10 @@
 
 package com.nawforce.apexlink.types.platform
 
-import java.lang.reflect.{Modifier => JavaModifier}
-import com.nawforce.apexlink.types.core.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, Nature}
 
+import java.lang.reflect.{Modifier => JavaModifier}
 import scala.collection.immutable.ArraySeq
 
 object PlatformModifiers {

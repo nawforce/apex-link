@@ -19,8 +19,8 @@ import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.apex.FullDeclaration
-import com.nawforce.apexlink.types.core.Nature
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.PathLocation
 
 import scala.collection.mutable

@@ -26,6 +26,7 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import upickle.default._
 
@@ -278,7 +279,7 @@ class SummaryDeclaration(path: PathLike,
 
   override val name: Name = Names(typeSummary.name)
   override val typeName: TypeName = typeSummary.typeName
-  override val nature: Nature = Nature(typeSummary.nature)
+  override val nature: Nature = Nature.forType(typeSummary.nature)
   override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
 
   override val superClass: Option[TypeName] = typeSummary.superClass

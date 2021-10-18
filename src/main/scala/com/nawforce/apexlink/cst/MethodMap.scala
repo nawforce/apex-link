@@ -17,12 +17,13 @@ import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
-import com.nawforce.apexlink.types.core.{CLASS_NATURE, INTERFACE_NATURE, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
 
 import scala.collection.mutable

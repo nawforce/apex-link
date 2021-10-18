@@ -17,6 +17,7 @@ package com.nawforce.apexlink.types.core
 import com.nawforce.apexlink.org.Module
 import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, Nature}
 import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.immutable.ArraySeq
