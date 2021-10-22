@@ -57,8 +57,10 @@ class RPCServer {
   def handleMessage(message: String, stream: PrintStream): Unit = {
     server.receive(message).onComplete {
       case Success(Some(response: String)) =>
-        stream.print(response)
-        stream.print('\u0000')
+        synchronized {
+          stream.print(response)
+          stream.print('\u0000')
+        }
       case Success(None) =>
         throw new RPCTerminatedException(s"No response: $message")
       case Failure(ex: Throwable) =>

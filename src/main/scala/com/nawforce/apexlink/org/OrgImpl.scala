@@ -231,11 +231,11 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       })
   }
 
-  def getDependencyGraph(identifier: TypeIdentifier, depth: Integer, apexOnly: Boolean): DependencyGraph = {
+  def getDependencyGraph(identifiers: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean): DependencyGraph = {
     OrgImpl.current.withValue(this) {
       val depWalker = new DownWalker(this, apexOnly)
       val nodeData = depWalker
-        .walk(identifier, depth)
+        .walk(identifiers, depth)
         .map(n => {
           DependencyNode(n.id, nodeFileSize(n.id), n.nature, n.transitiveCount, n.extending, n.implementing, n.using)
         })
@@ -291,7 +291,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         .getOrElse(Array.empty)
     }
   }
-
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
     propagateAllDependencies()

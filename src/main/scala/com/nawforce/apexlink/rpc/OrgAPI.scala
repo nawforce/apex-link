@@ -81,6 +81,15 @@ object IdentifierRequest {
   implicit val rwName: RW[Name] = macroRW
 }
 
+case class IdentifiersRequest(identifiers: Array[TypeIdentifier])
+
+object IdentifiersRequest {
+  implicit val rw: RW[IdentifiersRequest] = macroRW
+  implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
+  implicit val rwTypeName: RW[TypeName] = macroRW
+  implicit val rwName: RW[Name] = macroRW
+}
+
 case class IdentifierForPathResult(identifier: Option[TypeIdentifier])
 
 object IdentifierForPathResult {
@@ -149,7 +158,7 @@ trait OrgAPI {
   def typeIdentifiers(apexOnly: Boolean): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
-  def dependencyGraph(identifier: IdentifierRequest, depth: Int, apexOnly: Boolean): Future[DependencyGraph]
+  def dependencyGraph(identifiers: IdentifiersRequest, depth: Int, apexOnly: Boolean): Future[DependencyGraph]
 
   @api.JSONRPCMethod(name = "identifierLocation")
   def identifierLocation(identifier: IdentifierRequest): Future[IdentifierLocationResult]

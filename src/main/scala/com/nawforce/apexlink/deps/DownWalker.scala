@@ -38,20 +38,21 @@ class DownWalker(org: Org, apexOnly: Boolean) {
 
   private val transitiveCollector = new TransitiveCollector(org, apexOnly)
 
-  /* Collect information on dependencies of the passed type. The walk depth can be limited but the result will always
-   * include the root node information as the first element of the returned Array.
+  /* Collect information on dependencies of the passed identifiers. The walk depth can be limited but the result will
+   * always include the root node(s) information as the first 'n' elements of the returned Array.
    */
-  def walk(id: TypeIdentifier, depth: Int): Array[NodeData] = {
+  def walk(identifiers: Array[TypeIdentifier], depth: Int): Array[NodeData] = {
     val collectedNodes = new ArrayBuffer[NodeData]()
     val collectedIds = new mutable.HashSet[TypeIdentifier]()
-    createNode(id)
-      .map(root => {
-        collectedNodes += root
-        collectedIds += root.id
-        walkNode(collectedNodes.head, collectedNodes, collectedIds, depth)
-        collectedNodes.toArray
-      })
-      .getOrElse(Array())
+
+    val roots = identifiers.flatMap(createNode)
+    collectedNodes.addAll(roots)
+    collectedIds.addAll(identifiers)
+
+    roots.foreach(root => {
+      walkNode(root, collectedNodes, collectedIds, depth)
+    })
+    collectedNodes.toArray
   }
 
   private def walkNode(node: NodeData,

@@ -136,7 +136,7 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
-        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
+        IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
         depth = 0, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {
@@ -152,7 +152,7 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
-        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Hello")))),
+        IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
         depth = 1, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {
@@ -184,7 +184,7 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
-        IdentifierRequest(TypeIdentifier(None, TypeName(Name("Dummy")))),
+        IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Dummy"))))),
         depth = 0, apexOnly = true)
       _ <- orgAPI.reset()
     } yield {

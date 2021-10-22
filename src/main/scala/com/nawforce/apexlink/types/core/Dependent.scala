@@ -105,6 +105,8 @@ trait DependencyHolder extends Dependent {
             Some(TypeDependentSummary(o.typeId.asTypeIdentifier, o.sourceHash))
           else
             None
+
+        case _ => None
       }
       .toSet
       .toArray
