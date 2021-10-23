@@ -42,7 +42,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.location == PathLocation(path, Location(1, 0, 1, 21)))
     assert(root.name == Name("Dummy"))
@@ -59,7 +59,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public interface Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == INTERFACE_NATURE)
     assert(root.location == PathLocation(path, Location(1, 0, 1, 25)))
     assert(root.name == Name("Dummy"))
@@ -76,7 +76,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public enum Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ENUM_NATURE)
     assert(root.location == PathLocation(path, Location(1, 0, 1, 20)))
     assert(root.name == Name("Dummy"))
@@ -90,12 +90,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Class with constructor summary") {
     val path = PathFactory("Dummy.cls")
-    val cp = CodeParser(
-      path,
-      SourceData("public class Dummy { private Dummy(final String bar, Integer foo) {} }"))
+    val cp = CodeParser(path, SourceData("public class Dummy { private Dummy(final String bar, Integer foo) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -113,12 +111,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Class with method summary") {
     val path = PathFactory("Dummy.cls")
-    val cp =
-      CodeParser(path,
-        SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
+    val cp = CodeParser(path, SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -139,7 +135,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -160,7 +156,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo, bar; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 2)
 
@@ -177,11 +173,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Class with property summary") {
     val path = PathFactory("Dummy.cls")
-    val cp =
-      CodeParser(path, SourceData("public class Dummy { private Static Integer Foo{get; set;} }"))
+    val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo{get; set;} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -203,7 +198,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public interface Dummy { void Foo(final String bar); }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == INTERFACE_NATURE)
     assert(root.children.size == 1)
 
@@ -224,7 +219,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public enum Dummy { BaR }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == ENUM_NATURE)
     assert(root.children.size == 1)
 
@@ -246,7 +241,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private class Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -259,7 +254,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private interface Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -272,7 +267,7 @@ class SummaryTest extends AnyFunSuite {
     val cp = CodeParser(path, SourceData("public class Dummy { private enum Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     assert(root.nature == CLASS_NATURE)
     assert(root.children.size == 1)
 
@@ -282,11 +277,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Global field in public class") {
     val path = PathFactory("Dummy.cls")
-    val cp =
-      CodeParser(path, SourceData("public class Dummy {global String a;}"))
+    val cp = CodeParser(path, SourceData("public class Dummy {global String a;}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     val issues = root.collectIssues()
 
     assert(issues.length == 1)
@@ -297,11 +291,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Global inner interface in public class") {
     val path = PathFactory("Dummy.cls")
-    val cp =
-      CodeParser(path, SourceData("public class Dummy {global interface Inside {}}"))
+    val cp = CodeParser(path, SourceData("public class Dummy {global interface Inside {}}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     val issues = root.collectIssues()
 
     assert(issues.length == 1)
@@ -312,11 +305,10 @@ class SummaryTest extends AnyFunSuite {
 
   test("Wrong constructor name") {
     val path = PathFactory("Dummy.cls")
-    val cp =
-      CodeParser(path, SourceData("public class Dummy {public Foo() {} }"))
+    val cp = CodeParser(path, SourceData("public class Dummy {public Foo() {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
-    val root = ApexLightNode(cp, result.value).get
+    val root = ApexNode(cp, result.value).get
     val issues = root.collectIssues()
 
     assert(issues.length == 1)
@@ -324,5 +316,34 @@ class SummaryTest extends AnyFunSuite {
     assert(
       issues.head.diagnostic.message == "Constructors should have same name as the class, maybe method return type is missing?")
   }
+
+  test("Duplicate constructor") {
+    val path = PathFactory("Dummy.cls")
+    val cp = CodeParser(path, SourceData("public class Dummy {public Dummy(String a) {} public Dummy(String a) {}}"))
+    val result = cp.parseClass()
+    assert(result.issues.isEmpty)
+    val root = ApexNode(cp, result.value).get
+    val issues = root.collectIssues()
+
+    assert(issues.length == 1)
+    assert(issues.head.diagnostic.location.displayPosition == "line 1 at 53-58")
+    assert(
+      issues.head.diagnostic.message == "Constructor is a duplicate of an earlier constructor at line 1 at 27-32")
+  }
+
+  test("Duplicate method") {
+    val path = PathFactory("Dummy.cls")
+    val cp = CodeParser(path, SourceData("public class Dummy {public void Foo(String a) {} public void Foo(String a) {}}"))
+    val result = cp.parseClass()
+    assert(result.issues.isEmpty)
+    val root = ApexNode(cp, result.value).get
+    val issues = root.collectIssues()
+
+    assert(issues.length == 1)
+    assert(issues.head.diagnostic.location.displayPosition == "line 1 at 61-64")
+    assert(
+      issues.head.diagnostic.message == "Method is a duplicate of an earlier method at line 1 at 32-35")
+  }
+
 }
 

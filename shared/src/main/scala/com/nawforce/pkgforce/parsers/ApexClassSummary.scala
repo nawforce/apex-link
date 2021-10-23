@@ -28,6 +28,7 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, WEBSERVICE_MODIFIER}
 import com.nawforce.pkgforce.names.Name
@@ -66,6 +67,8 @@ trait ApexNode extends IdLocatable {
   val children: ArraySeq[ApexNode]
   val modifiers: ArraySeq[Modifier]
   val parseIssues: ArraySeq[Issue]
+  val signature: String
+  val description: String
 
   def collectIssues(): ArraySeq[Issue] = {
     val issues = new ArrayBuffer[Issue]()
@@ -82,7 +85,9 @@ trait ApexNode extends IdLocatable {
   def localIssues: Seq[Issue] = {
     if (nature == CLASS_NATURE) {
       checkNeedsGlobalOrWebService() ++
-        checkMisnamedConstructors()
+        checkMisnamedConstructors() ++
+        checkDuplicateConstructors() ++
+        checkDuplicateMethods()
     } else {
       Seq.empty
     }
@@ -118,28 +123,104 @@ trait ApexNode extends IdLocatable {
         )
       })
   }
+
+  // This is a weak test as types have not been normalised
+  private def checkDuplicateConstructors(): Seq[Issue] = {
+    children
+      .collect { case n: ApexConstructorNode => n }
+      .duplicates(_.compareString)
+      .flatMap(duplicates => {
+        duplicates._2.map(dup => {
+          new Issue(
+            location.path,
+            Diagnostic(
+              ERROR_CATEGORY,
+              dup.idLocation,
+              s"Constructor is a duplicate of an earlier constructor at ${duplicates._1.idLocation.displayPosition}")
+          )
+        })
+      }).toSeq
+  }
+
+  private def checkDuplicateMethods(): Seq[Issue] = {
+    children
+      .collect { case n: ApexMethodNode => n }
+      .duplicates(_.compareString)
+      .flatMap(duplicates => {
+        duplicates._2.map(dup => {
+          new Issue(
+            location.path,
+            Diagnostic(
+              ERROR_CATEGORY,
+              dup.idLocation,
+              s"Method is a duplicate of an earlier method at ${duplicates._1.idLocation.displayPosition}")
+          )
+        })
+      }).toSeq
+  }
 }
 
-trait ApexDescriptiveNode extends ApexNode {
-  val signature: String
-  val description: String
-}
-
-case class ApexLightNode(location: PathLocation,
-                         nature: Nature,
-                         name: Name,
-                         idLocation: Location,
-                         children: ArraySeq[ApexLightNode],
-                         modifiers: ArraySeq[Modifier],
-                         signature: String,
-                         description: String,
-                         parseIssues: ArraySeq[Issue])
-  extends ApexDescriptiveNode {}
-
-object ApexLightNode {
-  def apply(parser: CodeParser, ctx: CompilationUnitContext): Option[ApexLightNode] = {
+object ApexNode {
+  def apply(parser: CodeParser, ctx: CompilationUnitContext): Option[ApexNode] = {
     val visitor = new ApexClassVisitor(parser)
     visitor.visit(ctx).headOption
   }
+
+  def appendSpace(str: String): String = {
+    if (str.nonEmpty)
+      str + " "
+    else
+      str
+  }
 }
+
+class ApexLightNode(val location: PathLocation,
+                    val nature: Nature,
+                    val name: Name,
+                    val idLocation: Location,
+                    val children: ArraySeq[ApexNode],
+                    val modifiers: ArraySeq[Modifier],
+                    override val signature: String,
+                    override val description: String,
+                    val parseIssues: ArraySeq[Issue])
+  extends ApexNode {}
+
+case class ApexFormalParameter(modifiers: ArraySeq[Modifier], typeName: String, name: String, parseIssues: ArraySeq[Issue]) {
+  def toStringNoName: String = s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))}$typeName"
+
+  override def toString: String = s"$toStringNoName $name"
+}
+
+case class ApexConstructorNode(location: PathLocation,
+                               name: Name,
+                               idLocation: Location,
+                               children: ArraySeq[ApexLightNode],
+                               modifiers: ArraySeq[Modifier],
+                               parseIssues: ArraySeq[Issue],
+                               params: ArraySeq[ApexFormalParameter])
+  extends ApexNode {
+
+  override val nature: Nature = CONSTRUCTOR_NATURE
+  override lazy val signature: String = s"${ApexNode.appendSpace(modifiers.mkString(" "))}$name(${params.mkString(", ")})"
+  override lazy val description: String = s"(${params.mkString(", ")}) ${modifiers.mkString(" ")}"
+  lazy val compareString: String = s"$name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
+}
+
+case class ApexMethodNode(location: PathLocation,
+                          name: Name,
+                          idLocation: Location,
+                          children: ArraySeq[ApexLightNode],
+                          modifiers: ArraySeq[Modifier],
+                          parseIssues: ArraySeq[Issue],
+                          returnType: String,
+                          params: ArraySeq[ApexFormalParameter])
+  extends ApexNode {
+
+  override val nature: Nature = METHOD_NATURE
+  override lazy val signature: String = s"${ApexNode.appendSpace(modifiers.mkString(" "))}$returnType $name(${params.mkString(", ")})"
+  override lazy val description: String = s"$returnType (${params.mkString(", ")}) ${modifiers.mkString(" ")}"
+  lazy val compareString: String = s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))} " +
+    s"$returnType $name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
+}
+
 
