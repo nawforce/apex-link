@@ -38,7 +38,9 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults) extends CS
   def modifierIssues: ArraySeq[Issue] = modifierResults.issues
 
   // For ApexNode, not used yet used in CST
-  override val parseIssues: ArraySeq[Issue] = ArraySeq.empty
+  override val parseIssues: ArraySeq[Issue] = null
+  override lazy val signature: String = null
+  override val description: String = null
 
   lazy val isGlobal: Boolean = modifiers.contains(GLOBAL_MODIFIER) || modifiers.contains(WEBSERVICE_MODIFIER)
 
@@ -209,6 +211,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
   override lazy val typeName: TypeName = returnTypeName.typeName
   override val nature: Nature = METHOD_NATURE
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
+  override lazy val signature: String = super[ApexMethodLike].signature
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
