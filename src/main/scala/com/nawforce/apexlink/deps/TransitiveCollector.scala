@@ -50,6 +50,7 @@ class TransitiveCollector(org: Org, apexOnly: Boolean) {
         })
       current += 1
     }
+    deps.remove(0)
     deps.toArray
   }
 }

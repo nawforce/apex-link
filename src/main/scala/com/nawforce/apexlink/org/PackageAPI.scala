@@ -155,7 +155,7 @@ trait PackageAPI extends Package {
     }
   }
 
-  private def getDependentType(typeName: TypeName): Option[DependentType] = {
+  def getDependentType(typeName: TypeName): Option[DependentType] = {
     orderedModules.view
       .flatMap(_.moduleType(typeName))
       .headOption match {

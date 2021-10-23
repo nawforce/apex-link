@@ -16,8 +16,9 @@ package com.nawforce.apexlink.deps
 
 import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.types.apex.ApexDeclaration
-import com.nawforce.pkgforce.names.{Name, Names, TypeIdentifier}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration}
+import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -78,16 +79,19 @@ class DownWalker(org: Org, apexOnly: Boolean) {
       .filter(td => !apexOnly || td.isInstanceOf[ApexDeclaration])
       .map(td => {
         val pkg = td.moduleDeclaration.map(_.pkg)
+        val typeId = pkg.map(pkg => TypeIdentifier(pkg.namespace, td.typeName))
 
         val inherits =
-          pkg
-            .flatMap(pkg => {
-              Option(pkg.getDependencies(id, outerInheritanceOnly = true, apexOnly))
+          td.dependencies()
+            .flatMap({
+              case dt: ApexClassDeclaration => Some(dt.nature, dt.outerTypeId.asTypeIdentifier)
+              case _                        => None
             })
-            .getOrElse(Array[TypeIdentifier]())
+            .filterNot(d => typeId.contains(d._2))
             .toSet
-        val extending = inherits.filter(id => nature(id) == "class")
-        val implementing = inherits.filter(id => nature(id) == "interface")
+        val extending = inherits.filter(id => id._1 == CLASS_NATURE).map(_._2)
+        val implementing = inherits.filter(id => id._1 == INTERFACE_NATURE).map(_._2)
+        val output = extending ++ implementing
 
         val all =
           pkg
@@ -95,14 +99,9 @@ class DownWalker(org: Org, apexOnly: Boolean) {
               Option(pkg.getDependencies(id, outerInheritanceOnly = false, apexOnly))
             })
             .getOrElse(Array[TypeIdentifier]())
-        val uses = all.filterNot(inherits.contains)
+        val uses = all.filterNot(output.contains).filterNot(id => typeId.contains(id))
 
-        NodeData(id, nature(id), transitiveCollector.count(id), extending.toArray, implementing.toArray, uses)
+        NodeData(id, td.nature.value, transitiveCollector.count(id), extending.toArray, implementing.toArray, uses)
       })
-  }
-
-  private def nature(id: TypeIdentifier): String = {
-    val pkg = packagesByNamespace.get(id.namespace.getOrElse(Names.Empty))
-    pkg.flatMap(pkg => Option(pkg.getSummaryOfType(id)).map(_.nature)).getOrElse("")
   }
 }
