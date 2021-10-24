@@ -27,16 +27,15 @@
  */
 package com.nawforce.runtime.platform
 
-import java.io.File
-import java.nio.charset.StandardCharsets
-import java.nio.file.{DirectoryStream, Files}
-
 import com.nawforce.pkgforce.path._
 import com.nawforce.runtime.parsers.SourceData
 
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.{DirectoryStream, Files}
 import scala.collection.mutable
 
-final case class Path(native: java.nio.file.Path) extends PathLike {
+final class Path(val native: java.nio.file.Path) extends PathLike {
 
   override def basename: String = {
     val filename = native.getFileName
@@ -49,10 +48,8 @@ final case class Path(native: java.nio.file.Path) extends PathLike {
   override def isFile: Boolean = Files.isRegularFile(native)
   override def size: Long = if (isFile) Files.size(native) else 0
 
-  override def toString: String = native.toString
-
   override def join(arg: String): Path = {
-    Path(native.resolve(arg).normalize())
+    new Path(native.resolve(arg).normalize())
   }
 
   override def createFile(name: String, data: String): Either[String, Path] = {
@@ -102,11 +99,11 @@ final case class Path(native: java.nio.file.Path) extends PathLike {
   }
 
   override def createDirectory(name: String): Either[String, PathLike] = {
-    val dir = join(name)
+    val dir: Path = join(name)
     if (!Files.exists(dir.native)) {
       try {
         Files.createDirectory(dir.native)
-        Right(Path(dir.native))
+        Right(new Path(dir.native))
       } catch {
         case ex: java.io.IOException => Left(ex.toString)
       }
@@ -142,7 +139,7 @@ final case class Path(native: java.nio.file.Path) extends PathLike {
     try {
       paths = Files.newDirectoryStream(native)
       paths.forEach(path => {
-        val pathLike = Path(path)
+        val pathLike = new Path(path)
         if (pathLike.isFile)
           files.append(pathLike)
         else if (pathLike.isDirectory)
@@ -175,11 +172,22 @@ final case class Path(native: java.nio.file.Path) extends PathLike {
   def canEqual(that: Any): Boolean = that.isInstanceOf[Path]
 
   override def hashCode(): Int = toString.hashCode
+
+  override def toString: String = native.toString
 }
 
 object Path {
   val separator: String = File.separator
 
-  def apply(path: String): Path =
-    Path(java.nio.file.Paths.get(Option(path).getOrElse("")).toAbsolutePath.normalize())
+  def apply(path: String): Path = {
+    new Path(java.nio.file.Paths.get(path).toAbsolutePath.normalize())
+  }
+
+  def unapply(path: Path): Option[String] = {
+    Some(path.toString)
+  }
+
+  def safeApply(path: String): Path = {
+    apply(Option(path).getOrElse(""))
+  }
 }

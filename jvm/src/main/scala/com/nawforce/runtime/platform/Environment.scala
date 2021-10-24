@@ -28,32 +28,34 @@
 
 package com.nawforce.runtime.platform
 
+import com.nawforce.pkgforce.path.PathLike
+
 object Environment {
+  private val CACHE_DIR: String = ".apexlink_cache"
+  private var cacheDirOverride: Option[PathLike] = None
+
   def gc(): Unit = {
     System.gc()
   }
 
-  def homedir: Option[Path] = {
-    variable("user.home").map(Path(_))
+  def homedir: Option[PathLike] = {
+    Option(System.getProperty("user.home")).map(Path(_))
   }
 
-  def variable(name: String): Option[String] = {
+  def cacheDir: Option[PathLike] = {
     try {
-      Option(System.getProperty(name))
+      cacheDirOverride.orElse(
+        Option(System.getenv("APEXLINK_CACHE_DIR"))
+          .filter(_.nonEmpty)
+          .map(Path(_)))
+        .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
     } catch {
-      case _: SecurityException => None
+      case _: Throwable => None
     }
   }
 
-  def setVariable(name: String, value: String): Boolean = {
-    try {
-      if (value == null)
-        System.clearProperty(name)
-      else
-        System.setProperty(name, value)
-      true
-    } catch {
-      case _: SecurityException => false
-    }
+  // Only for test usage
+  def setCacheDir(value: Option[PathLike]): Unit = {
+    cacheDirOverride = value
   }
 }

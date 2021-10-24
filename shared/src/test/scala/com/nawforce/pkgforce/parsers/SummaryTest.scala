@@ -29,8 +29,9 @@ package com.nawforce.pkgforce.parsers
 
 import com.nawforce.pkgforce.modifiers.{PRIVATE_MODIFIER, PUBLIC_MODIFIER, STATIC_MODIFIER, VIRTUAL_MODIFIER}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.{Location, PathFactory, PathLocation}
+import com.nawforce.pkgforce.path.{Location, PathLocation}
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.immutable.ArraySeq
@@ -38,7 +39,7 @@ import scala.collection.immutable.ArraySeq
 class SummaryTest extends AnyFunSuite {
 
   test("Class summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -55,7 +56,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Interface summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public interface Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -72,7 +73,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Enum summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public enum Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -89,7 +90,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Class with constructor summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private Dummy(final String bar, Integer foo) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -110,7 +111,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Class with method summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private Static void Foo(final String bar) {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -131,7 +132,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Class with field summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -152,7 +153,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Class with two fields declarators summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo, bar; }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -172,7 +173,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Class with property summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private Static Integer Foo{get; set;} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -194,7 +195,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Interface with method summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public interface Dummy { void Foo(final String bar); }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -215,7 +216,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Enum with constant summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public enum Dummy { BaR }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -237,7 +238,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Nested class summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private class Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -250,7 +251,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Nested interface summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private interface Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -263,7 +264,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Nested enum summary") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy { private enum Inner { } }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -276,7 +277,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Global field in public class") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {global String a;}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -290,7 +291,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Global inner interface in public class") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {global interface Inside {}}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -304,7 +305,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Wrong constructor name") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {public Foo() {} }"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -318,7 +319,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Duplicate constructor") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {public Dummy(String a) {} public Dummy(String a) {}}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
@@ -332,7 +333,7 @@ class SummaryTest extends AnyFunSuite {
   }
 
   test("Duplicate method") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {public void Foo(String a) {} public void Foo(String a) {}}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)

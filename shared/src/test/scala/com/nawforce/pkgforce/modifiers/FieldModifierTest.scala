@@ -30,8 +30,9 @@ package com.nawforce.pkgforce.modifiers
 import com.nawforce.pkgforce.diagnostics
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.parsers.ApexNode
-import com.nawforce.pkgforce.path.{Location, PathFactory}
+import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.compat.immutable.ArraySeq
@@ -40,7 +41,7 @@ class FieldModifierTest extends AnyFunSuite {
 
   def legalFieldAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
@@ -58,7 +59,7 @@ class FieldModifierTest extends AnyFunSuite {
 
   def illegalFieldAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers String foo;}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
@@ -168,7 +169,7 @@ class FieldModifierTest extends AnyFunSuite {
     val issues = illegalFieldAccess(ArraySeq(OVERRIDE_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           Diagnostic(ERROR_CATEGORY,
             Location(1, 20, 1, 28),
             "Modifier 'override' is not supported on fields"))))
@@ -178,7 +179,7 @@ class FieldModifierTest extends AnyFunSuite {
     val issues = illegalFieldAccess(ArraySeq(TEST_SETUP_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 20, 1, 30),
             "Annotation '@TestSetup' is not supported on fields"))))
@@ -188,7 +189,7 @@ class FieldModifierTest extends AnyFunSuite {
     val issues = illegalFieldAccess(ArraySeq(PROTECTED_MODIFIER, PROTECTED_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 47, 1, 50),
             "Modifier 'protected' is used more than once"))))
@@ -196,7 +197,7 @@ class FieldModifierTest extends AnyFunSuite {
 
   def innerLegalFieldAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(
       path,
       SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
@@ -217,7 +218,7 @@ class FieldModifierTest extends AnyFunSuite {
 
   def innerIllegalFieldAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(
       path,
       SourceData(s"public class Dummy {public class Bar {$modifiers String foo;} }"))
@@ -276,7 +277,7 @@ class FieldModifierTest extends AnyFunSuite {
   test("Inner Static field") {
     val issues = innerIllegalFieldAccess(ArraySeq(STATIC_MODIFIER))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+      issues == Seq[Issue](Issue(Path("Dummy.cls"),
         diagnostics.Diagnostic(
           ERROR_CATEGORY,
           Location(1, 38, 1, 44),
@@ -331,7 +332,7 @@ class FieldModifierTest extends AnyFunSuite {
   test("Inner Bad modifier field") {
     val issues = innerIllegalFieldAccess(ArraySeq(OVERRIDE_MODIFIER))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+      issues == Seq[Issue](Issue(Path("Dummy.cls"),
         diagnostics.Diagnostic(
           ERROR_CATEGORY,
           Location(1, 38, 1, 46),
@@ -341,7 +342,7 @@ class FieldModifierTest extends AnyFunSuite {
   test("Inner Bad annotation field") {
     val issues = innerIllegalFieldAccess(ArraySeq(TEST_SETUP_ANNOTATION))
     assert(
-      issues == Seq[Issue](Issue(PathFactory("Dummy.cls"),
+      issues == Seq[Issue](Issue(Path("Dummy.cls"),
         diagnostics.Diagnostic(
           ERROR_CATEGORY,
           Location(1, 38, 1, 48),
@@ -352,7 +353,7 @@ class FieldModifierTest extends AnyFunSuite {
     val issues = innerIllegalFieldAccess(ArraySeq(PROTECTED_MODIFIER, PROTECTED_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           diagnostics.Diagnostic(ERROR_CATEGORY,
             Location(1, 65, 1, 68),
             "Modifier 'protected' is used more than once"))))

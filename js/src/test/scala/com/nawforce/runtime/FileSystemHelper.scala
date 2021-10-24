@@ -30,7 +30,7 @@ package com.nawforce.runtime
 import com.nawforce.pkgforce.documents.ParsedCache
 import com.nawforce.pkgforce.path.{PathFactory, PathLike}
 import com.nawforce.runtime.imports.{FSMonkey, Memfs}
-import com.nawforce.runtime.platform.Environment
+import com.nawforce.runtime.platform.{Environment, Path}
 import io.scalajs.nodejs.os.OS
 
 import scala.scalajs.js
@@ -48,17 +48,17 @@ object FileSystemHelper {
     // Make a cache directory so don't need home access
     if (setupCache) {
       Memfs.vol.mkdirSync("/tmpcache")
-      Environment.setVariable("APEXLINK_CACHE_DIR", "/tmpcache")
+      Environment.setCacheDir(Some(Path("/tmpcache")))
     }
 
     val unpatch = FSMonkey.patchFs(Memfs.vol)
     try {
-      verify(PathFactory("/"))
+      verify(Path("/"))
     } finally {
       unpatch()
       Memfs.vol.reset()
       if (setupCache) {
-        Environment.setVariable("APEXLINK_CACHE_DIR", null)
+        Environment.setCacheDir(None)
       }
     }
   }
@@ -73,7 +73,7 @@ object FileSystemHelper {
   // Temp directory based model
   def runTempDir[T](files: Map[String, String], setupCache: Boolean = false)(
     verify: PathLike => T): T = {
-    val tempDir = PathFactory(OS.tmpdir()).join("apexlinktest")
+    val tempDir = Path(OS.tmpdir()).join("apexlinktest")
     files.foreach(kv => {
       val path = tempDir.join(kv._1)
       makeDir(path.parent)

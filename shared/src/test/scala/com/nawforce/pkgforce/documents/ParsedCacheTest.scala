@@ -48,23 +48,16 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
     assert(Environment.homedir.nonEmpty)
   }
 
-  test("variable can be set") {
-    assert(Environment.setVariable("TEST", "value"))
-    assert(Environment.variable("TEST").contains("value"))
-  }
-
   test("default uses homedir") {
     val cache = ParsedCache.create(1)
     assert(cache.isRight)
-    assert(
-      cache.getOrElse(throw new NoSuchElementException()).path == Environment.homedir.get
-        .join(ParsedCache.CACHE_DIR))
+    assert(cache.getOrElse(throw new NoSuchElementException()).path.parent == Environment.homedir.get)
   }
 
   test("custom path used") {
     try {
       val testPath = Environment.homedir.get.join(".apexlink_cache_test")
-      assert(Environment.setVariable("APEXLINK_CACHE_DIR", testPath.toString))
+      Environment.setCacheDir(Some(testPath))
       ParsedCache.clear()
 
       val cache = ParsedCache.create(1)
@@ -72,7 +65,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
       assert(cache.getOrElse(throw new NoSuchElementException()).path == testPath)
       assert(testPath.delete().isEmpty)
     } finally {
-      Environment.setVariable("APEXLINK_CACHE_DIR", null)
+      Environment.setCacheDir(None)
     }
   }
 

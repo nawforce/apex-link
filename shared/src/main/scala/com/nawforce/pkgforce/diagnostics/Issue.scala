@@ -28,9 +28,9 @@
 
 package com.nawforce.pkgforce.diagnostics
 
-import com.nawforce.pkgforce.path.{Location, PathFactory, PathLike}
+import com.nawforce.pkgforce.path.{Location, PathLike}
+import com.nawforce.runtime.platform.Path
 import upickle.default.{macroRW, ReadWriter => RW}
-import upickle.legacy.readwriter
 
 import scala.collection.compat.immutable.ArraySeq
 
@@ -41,7 +41,7 @@ sealed case class Issue(path: PathLike, diagnostic: Diagnostic) {
 object Issue {
   val emptyArray: ArraySeq[Issue] = ArraySeq.empty
 
-  implicit val pathLikeRW: RW[PathLike] = upickle.default.readwriter[String].bimap[PathLike](_.toString, PathFactory(_))
+  implicit val pathLikeRW: RW[PathLike] = upickle.default.readwriter[String].bimap[PathLike](_.toString, Path(_))
   implicit val rw: RW[Issue] = macroRW
 
   implicit val ordering: Ordering[Issue] = Ordering

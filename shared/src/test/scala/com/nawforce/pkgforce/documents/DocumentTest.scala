@@ -28,17 +28,18 @@
 package com.nawforce.pkgforce.documents
 
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class DocumentTest extends AnyFunSuite {
 
-  private val root: PathLike = PathFactory("pkg")
+  private val root: PathLike = Path("pkg")
 
   test("cls file") {
     MetadataDocument(root.join("Foo.cls")) match {
       case Some(ApexClassDocument(path, Name("Foo"))) if path == root.join("Foo.cls") => ()
-      case x                                                                          => assert(false, x)
+      case x => assert(false, x)
     }
   }
 

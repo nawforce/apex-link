@@ -28,7 +28,7 @@ object FileSystemHelper {
     if (setupCache)
       ParsedCache.clear()
 
-    verify(Path(rootDir))
+    verify(new Path(rootDir))
   }
 
   // Temp directory based model
@@ -46,7 +46,7 @@ object FileSystemHelper {
       ParsedCache.clear()
 
     try {
-      verify(Path(tempDir))
+      verify(new Path(tempDir))
     } finally {
       files.foreach(kv => {
         val path = tempDir.resolve(kv._1)

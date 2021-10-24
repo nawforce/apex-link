@@ -29,8 +29,9 @@ package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.parsers.ApexNode
-import com.nawforce.pkgforce.path.{Location, PathFactory}
+import com.nawforce.pkgforce.path.Location
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.compat.immutable.ArraySeq
@@ -39,7 +40,7 @@ class MethodModifierTest extends AnyFunSuite {
 
   def legalInterfaceMethodAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
@@ -58,7 +59,7 @@ class MethodModifierTest extends AnyFunSuite {
 
   def illegalInterfaceMethodAccess(use: Array[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
     val result = cp.parseClass()
     if (result.issues.nonEmpty) {
@@ -78,7 +79,7 @@ class MethodModifierTest extends AnyFunSuite {
     val issues = illegalInterfaceMethodAccess(Array(PUBLIC_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           Diagnostic(ERROR_CATEGORY,
             Location(1, 24, 1, 30),
             "Modifier 'public' is not supported on interface methods"))))
@@ -88,7 +89,7 @@ class MethodModifierTest extends AnyFunSuite {
     val issues = illegalInterfaceMethodAccess(Array(VIRTUAL_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           Diagnostic(ERROR_CATEGORY,
             Location(1, 24, 1, 31),
             "Modifier 'virtual' is not supported on interface methods"))))
@@ -98,7 +99,7 @@ class MethodModifierTest extends AnyFunSuite {
     val issues = illegalInterfaceMethodAccess(Array(ISTEST_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(PathFactory("Dummy.cls"),
+        Issue(Path("Dummy.cls"),
           Diagnostic(ERROR_CATEGORY,
             Location(1, 24, 1, 31),
             "Annotation '@IsTest' is not supported on interface methods"))))

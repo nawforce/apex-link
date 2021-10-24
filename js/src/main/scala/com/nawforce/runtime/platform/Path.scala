@@ -37,7 +37,7 @@ import scala.collection.mutable
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
-final case class Path private (path: String) extends PathLike {
+final class Path private (path: String) extends PathLike {
 
   private val pathObject = io.scalajs.nodejs.path.Path.parse(path)
   private def stat = {
@@ -179,6 +179,21 @@ final case class Path private (path: String) extends PathLike {
     }
   }
 
+  /** As we are using an in-memory FS for testing we need to compare string-wise */
+  override def equals(that: Any): Boolean = {
+    that match {
+      case other: Path =>
+        other.canEqual(this) && other.toString == toString
+      case _ => false
+    }
+  }
+
+  def canEqual(that: Any): Boolean = that.isInstanceOf[Path]
+
+  override def hashCode(): Int = {
+    toString.hashCode
+  }
+
   override lazy val toString: String = {
     val value = io.scalajs.nodejs.path.Path.format(pathObject)
     if (Path.separator == "\\") {
@@ -193,7 +208,14 @@ object Path {
   val separator: String = io.scalajs.nodejs.path.Path.sep
 
   def apply(path: String): Path = {
-    val safePath = Option(path).getOrElse(Process.cwd())
-    new Path(io.scalajs.nodejs.path.Path.resolve(safePath))
+    new Path(io.scalajs.nodejs.path.Path.resolve(path))
+  }
+
+  def unapply(path: Path): Option[String] = {
+    Some(path.toString)
+  }
+
+  def safeApply(path:String): Path = {
+    apply(Option(path).getOrElse(Process.cwd()))
   }
 }

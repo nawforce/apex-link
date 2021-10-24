@@ -28,12 +28,16 @@
 
 package com.nawforce.runtime.platform
 
+import com.nawforce.pkgforce.path.PathLike
 import io.scalajs.nodejs.process.Process
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 object Environment {
+  private val CACHE_DIR: String = ".apexlink_cache"
+  private var cacheDirOverride: Option[PathLike] = None
+
   def gc(): Unit = {
     // Not implemented
   }
@@ -42,17 +46,21 @@ object Environment {
     Option(OSExtra.homedir()).filter(_.nonEmpty).map(Path(_))
   }
 
-  def variable(name: String): Option[String] = {
-    Process.env(name).toOption
+  def cacheDir: Option[PathLike] = {
+    try {
+      cacheDirOverride.orElse(
+        Process.env("APEXLINK_CACHE_DIR").toOption
+          .filter(_.nonEmpty)
+          .map(Path(_)))
+        .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
+    } catch {
+      case _: Throwable => None
+    }
   }
 
-  def setVariable(name: String, value: String): Boolean = {
-    try {
-      Process.env.update(name, value)
-      true
-    } catch {
-      case _: SecurityException => false
-    }
+  // Only for test usage
+  def setCacheDir(value: Option[PathLike]): Unit = {
+    cacheDirOverride = value
   }
 }
 

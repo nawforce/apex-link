@@ -168,17 +168,11 @@ final class ParsedCache(val path: PathLike, version: Int) {
 }
 
 object ParsedCache {
-  val CACHE_DIR: String = ".apexlink_cache"
   val TEST_FILE: String = "test_file"
   val EXPIRE_WINDOW: Long = 7 * 24 * 60 * 60 * 1000
 
   def create(version: Int): Either[String, ParsedCache] = {
-    val cacheDirOpt =
-      Environment
-        .variable("APEXLINK_CACHE_DIR")
-        .map(d => PathFactory(d))
-        .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
-
+    val cacheDirOpt = Environment.cacheDir
     if (cacheDirOpt.isEmpty) {
       return Left(
         s"Cache directory could not be determined from APEXLINK_CACHE_DIR or home directory")

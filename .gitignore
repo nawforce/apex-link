@@ -1,5 +1,7 @@
 .idea/
 .bsp/*
+.metals/
+.vscode
 **/target/
 **/node_modules/
 js/npm/package-lock.json

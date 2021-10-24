@@ -29,9 +29,9 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.apexparser.ApexParser
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.{CodeParser, Source}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -175,7 +175,7 @@ object SOSLParser {
 
   def parse(sosl: String): Either[Seq[ParserIssue], ApexParser.SoslLiteralContext] = {
 
-    val parser = new CodeParser(Source(PathFactory("test.sosl"), SourceBlob(sosl)))
+    val parser = new CodeParser(Source(Path("test.sosl"), SourceBlob(sosl)))
     val result = parser.parseSOSL()
     if (result.issues.nonEmpty) {
       Left(

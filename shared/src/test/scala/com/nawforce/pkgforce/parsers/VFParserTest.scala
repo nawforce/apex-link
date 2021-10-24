@@ -29,9 +29,9 @@
 package com.nawforce.pkgforce.parsers
 
 import com.nawforce.pkgforce.parsers.VFParserTest.ParserIssue
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.SourceBlob
 import com.nawforce.runtime.parsers.{PageParser, Source, VFParser}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -315,11 +315,12 @@ object VFParserTest {
 
   def parse(pageContents: String): Either[Seq[ParserIssue], VFParser.VfUnitContext] = {
 
-    val parser = new PageParser(Source(PathFactory("test.page"), SourceBlob(pageContents)))
+    val parser = new PageParser(Source(Path("test.page"), SourceBlob(pageContents)))
     val result = parser.parsePage()
     if (result.issues.nonEmpty) {
       Left(
-        result.issues.toIndexedSeq.map(
+        result.issues.
+          map(
           issue =>
             ParserIssue(issue.diagnostic.location.startLine,
                         issue.diagnostic.location.startPosition,

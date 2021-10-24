@@ -27,21 +27,21 @@
  */
 package com.nawforce.pkgforce.parsers
 
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class CodeParserTest extends AnyFunSuite {
 
   test("Class well formed") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
   }
 
   test("Class with error") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp = CodeParser(path, SourceData("public class Dummy {"))
     val result = cp.parseClass()
     assert(result.issues.length == 1)
@@ -50,7 +50,7 @@ class CodeParserTest extends AnyFunSuite {
   }
 
   test("Class multiple errors") {
-    val path = PathFactory("Dummy.cls")
+    val path = Path("Dummy.cls")
     val cp =
       CodeParser(path, SourceData("public class Dummy {void func1(){f()} void func2(){f()} }"))
     val result = cp.parseClass()
@@ -62,7 +62,7 @@ class CodeParserTest extends AnyFunSuite {
   }
 
   test("Class with keyword name") {
-    val path = PathFactory("Network.cls")
+    val path = Path("Network.cls")
     val cp = CodeParser(path, SourceData("public class Network {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
