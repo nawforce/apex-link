@@ -86,8 +86,8 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
-  override lazy val constructors: Array[ConstructorDeclaration] = {
-    cls.getConstructors.map(c => new PlatformConstructor(c, this))
+  override lazy val constructors: ArraySeq[PlatformConstructor] = {
+    ArraySeq.unsafeWrapArray(cls.getConstructors).map(c => new PlatformConstructor(c, this))
   }
 
   override lazy val nestedTypes: Array[TypeDeclaration] =

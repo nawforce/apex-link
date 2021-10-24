@@ -42,7 +42,7 @@ case class TypeSummary(sourceHash: Int,
                        interfaces: Array[TypeName],
                        blocks: Array[BlockSummary],
                        fields: Array[FieldSummary],
-                       constructors: Array[ConstructorSummary],
+                       constructors: ArraySeq[ConstructorSummary],
                        methods: Array[MethodSummary],
                        nestedTypes: Array[TypeSummary],
                        dependents: Array[DependentSummary]) {
@@ -67,12 +67,12 @@ case class TypeSummary(sourceHash: Int,
     this.name == other.name &&
     this.typeName == other.typeName &&
     this.nature == other.nature &&
-    this.modifiers.sameElements(other.modifiers) &&
+    this.modifiers == other.modifiers &&
     this.superClass == other.superClass &&
     this.interfaces.sameElements(other.interfaces) &&
     this.blocks.sameElements(other.blocks) &&
     this.fields.sameElements(other.fields) &&
-    this.constructors.sameElements(other.constructors) &&
+    this.constructors == other.constructors &&
     this.methods.sameElements(other.methods) &&
     this.nestedTypes.sameElements(other.nestedTypes) &&
     this.dependents.sameElements(other.dependents)
@@ -119,7 +119,7 @@ case class FieldSummary(location: Location,
     this.location == other.location &&
     this.idLocation == other.idLocation &&
     this.name == other.name &&
-    this.modifiers.sameElements(other.modifiers) &&
+    this.modifiers == other.modifiers &&
     this.typeName == other.typeName &&
     this.readAccess == other.readAccess &&
     this.writeAccess == other.writeAccess &&
@@ -145,7 +145,7 @@ case class ConstructorSummary(location: Location,
   private def doesEqual(other: ConstructorSummary): Boolean = {
     this.location == other.location &&
     this.idLocation == other.idLocation &&
-    this.modifiers.sameElements(other.modifiers) &&
+    this.modifiers == other.modifiers &&
     this.parameters.sameElements(other.parameters) &&
     this.dependents.sameElements(other.dependents)
   }
@@ -176,7 +176,7 @@ case class MethodSummary(location: Location,
     this.location == other.location &&
     this.idLocation == other.idLocation &&
     this.name == other.name &&
-    this.modifiers.sameElements(other.modifiers) &&
+    this.modifiers == other.modifiers &&
     this.typeName == other.typeName &&
     this.parameters.sameElements(other.parameters) &&
     this.hasBlock == other.hasBlock &&

@@ -113,7 +113,7 @@ trait ConstructorDeclaration extends DependencyHolder {
 }
 
 object ConstructorDeclaration {
-  val emptyConstructorDeclarations: Array[ConstructorDeclaration] = Array()
+  val emptyConstructorDeclarations: ArraySeq[ConstructorDeclaration] = ArraySeq()
 }
 
 trait MethodDeclaration extends DependencyHolder {
@@ -247,7 +247,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
   val blocks: Array[BlockDeclaration]
   val fields: Array[FieldDeclaration]
-  val constructors: Array[ConstructorDeclaration]
+  val constructors: ArraySeq[ConstructorDeclaration]
   def methods: Array[MethodDeclaration]
 
   def isComplete: Boolean

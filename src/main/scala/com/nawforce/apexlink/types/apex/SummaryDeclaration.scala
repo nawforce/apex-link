@@ -293,10 +293,7 @@ class SummaryDeclaration(path: PathLike,
   private val _localFields: Array[SummaryField] =
     typeSummary.fields.map(new SummaryField(module, path, typeId, _))
   override val localFields: Array[ApexFieldLike] = _localFields.asInstanceOf[Array[ApexFieldLike]]
-  private val _constructors: Array[SummaryConstructor] =
-    typeSummary.constructors.map(new SummaryConstructor(module, path, _))
-  override val constructors: Array[ConstructorDeclaration] =
-    _constructors.asInstanceOf[Array[ConstructorDeclaration]]
+  override val constructors: ArraySeq[SummaryConstructor] = typeSummary.constructors.map(new SummaryConstructor(module, path, _))
   private val _localMethods: Array[SummaryMethod] = {
     typeSummary.methods.map(new SummaryMethod(module, path, typeId, _))
   }
@@ -315,7 +312,7 @@ class SummaryDeclaration(path: PathLike,
                 interfaces,
                 _blocks.map(_.summary),
                 _localFields.map(_.summary).sortBy(_.name),
-                _constructors.map(_.summary).sortBy(_.parameters.length),
+                constructors.map(_.summary).sortBy(_.parameters.length),
                 _localMethods.map(_.summary).sortBy(_.name),
                 nestedTypes
                   .collect { case x: SummaryDeclaration => x }
@@ -348,7 +345,7 @@ class SummaryDeclaration(path: PathLike,
     areTypeDependenciesValid(typeCache) &&
       _blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
       _localFields.forall(f => f.areTypeDependenciesValid(typeCache)) &&
-      _constructors.forall(c => c.areTypeDependenciesValid(typeCache)) &&
+      constructors.forall(c => c.areTypeDependenciesValid(typeCache)) &&
       _localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
       nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies(typeCache))
 
@@ -391,7 +388,7 @@ class SummaryDeclaration(path: PathLike,
     collect(populateDependencies(typeCache))
     _blocks.foreach(x => collect(x.populateDependencies(typeCache)))
     _localFields.foreach(x => collect(x.populateDependencies(typeCache)))
-    _constructors.foreach(x => collect(x.populateDependencies(typeCache)))
+    constructors.foreach(x => collect(x.populateDependencies(typeCache)))
     _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
     nestedTypes
       .collect { case x: SummaryDeclaration => x }

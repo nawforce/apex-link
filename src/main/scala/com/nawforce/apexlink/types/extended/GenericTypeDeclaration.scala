@@ -72,7 +72,7 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, va
         new GenericField(f, this))
   }
 
-  override lazy val constructors: Array[ConstructorDeclaration] = {
+  override lazy val constructors: ArraySeq[ConstructorDeclaration] = {
     baseType.constructors.map(c => new GenericConstructor(c, this))
   }
 

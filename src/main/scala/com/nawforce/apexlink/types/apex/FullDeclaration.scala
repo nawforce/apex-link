@@ -90,13 +90,11 @@ abstract class FullDeclaration(val source: Source,
     }.toArray
   }
 
-  override lazy val constructors: Array[ConstructorDeclaration] =
-    _constructors.asInstanceOf[Array[ConstructorDeclaration]]
-  private lazy val _constructors: Array[ApexConstructorDeclaration] = {
+  override lazy val constructors: ArraySeq[ApexConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexConstructorDeclaration => Some(x)
       case _ => None
-    }.toArray
+    }
   }
 
   override lazy val localMethods: Array[MethodDeclaration] =
@@ -273,7 +271,7 @@ abstract class FullDeclaration(val source: Source,
       interfaces,
       _blocks.map(_.summary),
       localFields.map(_.summary).sortBy(_.name),
-      _constructors.map(_.summary).sortBy(_.parameters.length),
+      constructors.map(_.summary).sortBy(_.parameters.length),
       _localMethods.map(_.summary).sortBy(_.name),
       _nestedTypes.map(_.summary).sortBy(_.name),
       dependencySummary())

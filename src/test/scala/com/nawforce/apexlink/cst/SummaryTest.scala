@@ -46,7 +46,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -66,7 +66,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -86,7 +86,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -106,7 +106,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(interfaceTypeName),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -127,7 +127,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(
             MethodSummary(idLocation,
               idLocation,
@@ -187,7 +187,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -207,7 +207,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(TypeName(Name("A")), TypeName(Name("B"))),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -227,7 +227,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(TypeName(Name("A")), TypeName(Name("B"))),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))
@@ -264,10 +264,10 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               "private",
               Array()),
           ),
+          ArraySeq(),
           Array(),
-                    Array(),
-                    Array(),
-                    Array()))
+          Array(),
+          Array()))
   }
 
   test("Class with properties") {
@@ -302,10 +302,10 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               "private",
               Array()),
           ),
+          ArraySeq(),
           Array(),
-                    Array(),
-                    Array(),
-                    Array()))
+          Array(),
+          Array()))
   }
 
   test("Class with constructors") {
@@ -322,7 +322,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(
+          ArraySeq(
             ConstructorSummary(Location(1, 46, 1, 56),
               Location(1, 46, 1, 51),
               ArraySeq("private"),
@@ -352,7 +352,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(
             MethodSummary(Location(1, 51, 1, 64),
               Location(1, 56, 1, 59),
@@ -387,7 +387,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
       Array(interfaceTypeName),
       Array(),
       Array(),
-      Array(),
+      ArraySeq(),
       Array(
         MethodSummary(Location(1, 46, 1, 57),
           Location(1, 51, 1, 54),
@@ -451,17 +451,17 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               "public",
               Array(TypeDependentSummary(dummyTypeId, -1270140630))),
           ),
-                    Array(),
-                    Array(
-                      MethodSummary(idLocation,
-                        idLocation,
-                        "equals",
-                        ArraySeq("public"),
-                        TypeNames.Boolean,
-                        Array(ParameterSummary("other", TypeNames.InternalObject)),
-                        hasBlock = true,
-                        Array()),
-                      MethodSummary(idLocation,
+          ArraySeq(),
+          Array(
+            MethodSummary(idLocation,
+              idLocation,
+              "equals",
+              ArraySeq("public"),
+              TypeNames.Boolean,
+              Array(ParameterSummary("other", TypeNames.InternalObject)),
+              hasBlock = true,
+              Array()),
+            MethodSummary(idLocation,
                         idLocation,
                         "hashCode",
                         ArraySeq("public"),
@@ -512,7 +512,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           Array(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array(),
           Array(),
           Array()))

@@ -38,8 +38,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
-  override val constructors: Array[ConstructorDeclaration] =
-    ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def validate(): Unit = {}

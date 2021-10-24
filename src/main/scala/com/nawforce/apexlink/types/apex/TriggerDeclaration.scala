@@ -70,8 +70,7 @@ final case class TriggerDeclaration(source: Source,
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
-  override val constructors: Array[ConstructorDeclaration] =
-    ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
@@ -145,7 +144,7 @@ final case class TriggerDeclaration(source: Source,
                 interfaces,
                 Array(),
                 Array(),
-                Array(),
+                ArraySeq(),
                 Array(),
                 Array(),
                 dependencySummary())

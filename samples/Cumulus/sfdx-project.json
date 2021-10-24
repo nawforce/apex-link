@@ -1,7 +1,7 @@
 {
   "packageDirectories": [
     {
-      "path": "Cumulus/src",
+      "path": "Cumulus/force-app",
       "default": true
     }
   ],
