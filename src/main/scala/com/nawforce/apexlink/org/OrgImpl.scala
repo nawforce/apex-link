@@ -23,9 +23,10 @@ import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
-import com.nawforce.pkgforce.path.{PathFactory, PathLocation}
+import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.runtime.platform.Path
 
 import java.io.File
 import java.util
@@ -148,7 +149,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Collect file specific issues */
   def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
-    val path = PathFactory(fileName)
+    val path = Path(fileName)
     OrgImpl.current.withValue(this) {
       val fileIssues = new IssueLog()
       fileIssues.push(path, issues.getIssues.getOrElse(path, Nil))
@@ -275,7 +276,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
-        .map(_.getDefinition(PathFactory(path), line, offset, Option(content)))
+        .map(_.getDefinition(Path(path), line, offset, Option(content)))
         .getOrElse(Array.empty)
     }
   }
@@ -287,7 +288,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     OrgImpl.current.withValue(this) {
       packages
         .find(_.isPackagePath(path))
-        .map(_.getCompletionItems(PathFactory(path), line, offset, content))
+        .map(_.getCompletionItems(Path(path), line, offset, content))
         .getOrElse(Array.empty)
     }
   }

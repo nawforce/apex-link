@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.CustomFieldDeclaration
 import com.nawforce.pkgforce.documents.{MetadataDocument, SourceInfo}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike, PathLocation, UnsafeLocatable}
+import com.nawforce.pkgforce.path.{PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
 
 import scala.collection.mutable

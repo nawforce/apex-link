@@ -15,7 +15,8 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class PageTest extends AnyFunSuite with TestHelper {
@@ -44,7 +45,7 @@ class PageTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+          org.issues.getMessages(Path("/Dummy.cls")) ==
             "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
     }
   }

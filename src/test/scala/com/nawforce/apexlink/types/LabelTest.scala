@@ -15,7 +15,8 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class LabelTest extends AnyFunSuite with TestHelper {
@@ -142,7 +143,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        org.issues.getMessages(Path("/Dummy.cls")) ==
           "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
@@ -165,7 +166,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        org.issues.getMessages(Path("/Dummy.cls")) ==
           "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
     }
   }
@@ -247,7 +248,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
       assert(
-        org.issues.getMessages(PathFactory("/pkg2/Dummy.cls")) ==
+        org.issues.getMessages(Path("/pkg2/Dummy.cls")) ==
           "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
 
       val labels1TypeId = pkg1

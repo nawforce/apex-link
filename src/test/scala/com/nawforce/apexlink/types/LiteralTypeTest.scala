@@ -17,15 +17,15 @@ import com.nawforce.apexlink.cst.{CST, Literal}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.{DependencyHolder, TypeDeclaration}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTypeTest extends AnyFunSuite {
   def typeLiteral(data: String): DependencyHolder = {
-    val source = Source(PathFactory("Dummy.cls"), SourceData(""), 0, 0, None)
+    val source = Source(Path("Dummy.cls"), SourceData(""), 0, 0, None)
     CST.sourceContext.withValue(Some(source)) {
-      val result = CodeParser(PathFactory(""), SourceData(data)).parseLiteral()
+      val result = CodeParser(Path(""), SourceData(data)).parseLiteral()
       assert(result.issues.isEmpty)
       Literal.construct(result.value).getType
     }

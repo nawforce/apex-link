@@ -14,15 +14,15 @@
 
 package com.nawforce.apexlink.parsers
 
-import com.nawforce.pkgforce.path.PathFactory
 import com.nawforce.apexparser.ApexParser.LiteralContext
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTokenTest extends AnyFunSuite {
 
   private def literal(literal: String): LiteralContext = {
-    val result = CodeParser(PathFactory(""), SourceData(literal)).parseLiteral()
+    val result = CodeParser(Path(""), SourceData(literal)).parseLiteral()
     assert(result.issues.isEmpty)
     result.value
   }

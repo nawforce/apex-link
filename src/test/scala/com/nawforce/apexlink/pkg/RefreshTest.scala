@@ -16,8 +16,9 @@ package com.nawforce.apexlink.pkg
 import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.names.{Name, Names}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class RefreshTest extends AnyFunSuite with TestHelper {
@@ -88,7 +89,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
         assert(
-          org.issues.getMessages(PathFactory("/pkg/Foo.cls"))
+          org.issues.getMessages(Path("/pkg/Foo.cls"))
             == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
       }
     }
@@ -102,7 +103,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           val org = createOrg(root)
           val pkg = org.unmanaged
           assert(
-            org.issues.getMessages(PathFactory("/pkg/Foo.cls"))
+            org.issues.getMessages(Path("/pkg/Foo.cls"))
               == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
           refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
@@ -187,7 +188,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(org.flush())
         assert(
           org.issues
-            .getMessages(PathFactory("/Dummy.cls"))
+            .getMessages(Path("/Dummy.cls"))
             .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
       }
     }
@@ -242,7 +243,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
         assert(
-          org.issues.getMessages(PathFactory("/pkg/Foo.trigger"))
+          org.issues.getMessages(Path("/pkg/Foo.trigger"))
             == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
       }
     }
@@ -256,7 +257,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(
-          org.issues.getMessages(PathFactory("/pkg/Foo.trigger"))
+          org.issues.getMessages(Path("/pkg/Foo.trigger"))
             == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")

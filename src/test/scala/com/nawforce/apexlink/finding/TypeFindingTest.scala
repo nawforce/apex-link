@@ -16,7 +16,8 @@ package com.nawforce.apexlink.finding
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class TypeFindingTest extends AnyFunSuite with TestHelper {
@@ -136,7 +137,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues
-        .getMessages(PathFactory("/pkg2/Use.cls")) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
+        .getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
     }
   }
 
@@ -171,7 +172,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues
-        .getMessages(PathFactory("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
+        .getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
     }
   }
 }

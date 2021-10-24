@@ -17,7 +17,8 @@ package com.nawforce.apexlink.types
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class ComponentTest extends AnyFunSuite with TestHelper {
@@ -26,7 +27,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(PathFactory("/Test.component")) ==
+        org.issues.getMessages(Path("/Test.component")) ==
           "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n")
     }
   }
@@ -35,7 +36,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.component" -> "<foo/>")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(PathFactory("/Test.component")) ==
+        org.issues.getMessages(Path("/Test.component")) ==
           "Error: line 1 at 0-11: Root element must be 'apex:component'\n")
     }
   }
@@ -53,7 +54,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Component.Test;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        org.issues.getMessages(Path("/Dummy.cls")) ==
           "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
     }
   }

@@ -16,7 +16,8 @@ package com.nawforce.apexlink.rpc
 
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{Location, PathFactory}
+import com.nawforce.pkgforce.path.Location
+import com.nawforce.runtime.platform.Path
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
 
@@ -43,12 +44,12 @@ class OrgAPITest extends AsyncFunSuite {
       assert(result.error.isEmpty)
       assert(
         issues.issues sameElements Array(
-          Issue(PathFactory("/silly"), Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly"))))
+          Issue(Path("/silly"), Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly"))))
     }
   }
 
   test("Add package MDAPI directory") {
-    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val workspace = Path("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -73,7 +74,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Add package sfdx directory (absolute)") {
-    val workspace = PathFactory("samples/synthetic/sfdx-test")
+    val workspace = Path("samples/synthetic/sfdx-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -98,7 +99,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Add package sfdx directory with ns (absolute)") {
-    val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
+    val workspace = Path("samples/synthetic/sfdx-ns-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -111,7 +112,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Issues") {
-    val workspace = PathFactory("samples/synthetic/sfdx-ns-test")
+    val workspace = Path("samples/synthetic/sfdx-ns-test")
     val orgAPI = OrgAPI()
 
     val pkg: Future[Assertion] = orgAPI.open(workspace.toString) map { result =>
@@ -131,7 +132,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Dependency Graph (zero depth)") {
-    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val workspace = Path("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -147,7 +148,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Dependency Graph (some depth)") {
-    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val workspace = Path("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -179,7 +180,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Dependency Graph (bad identifier))") {
-    val workspace = PathFactory("samples/synthetic/mdapi-test")
+    val workspace = Path("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -195,7 +196,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (with test class)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -210,7 +211,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (find test class)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -224,7 +225,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (no test class)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -238,7 +239,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (indirect to inner interface)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -252,7 +253,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (indirect to interface)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -266,7 +267,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (indirect to inner implementation)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -280,7 +281,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (service)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -294,7 +295,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get Test Class Names (with superclass)") {
-    val workspace = PathFactory("samples/synthetic/test-classes")
+    val workspace = Path("samples/synthetic/test-classes")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
@@ -308,7 +309,7 @@ class OrgAPITest extends AsyncFunSuite {
   }
 
   test("Get DependencyCounts") {
-    val workspace = PathFactory("samples/synthetic/dependency-counts")
+    val workspace = Path("samples/synthetic/dependency-counts")
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)

@@ -25,7 +25,8 @@ import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import upickle.default._
 
 import scala.annotation.tailrec
@@ -45,7 +46,7 @@ trait PackageAPI extends Package {
   }
 
   override def isPackagePath(path: String): Boolean = {
-    getPackageModule(PathFactory(path)).nonEmpty
+    getPackageModule(Path(path)).nonEmpty
   }
 
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
@@ -59,7 +60,7 @@ trait PackageAPI extends Package {
   }
 
   override def getTypeOfPath(path: String): TypeIdentifier = {
-    getTypeOfPathInternal(PathFactory(path)).map(_.asTypeIdentifier).orNull
+    getTypeOfPathInternal(Path.safeApply(path)).map(_.asTypeIdentifier).orNull
   }
 
   private[nawforce] def getTypeOfPathInternal(path: PathLike): Option[TypeId] = {
@@ -212,7 +213,7 @@ trait PackageAPI extends Package {
   }
 
   override def refresh(path: String): Unit = {
-    refresh(PathFactory(path))
+    refresh(Path(path))
   }
 
   private[nawforce] def refresh(path: PathLike): Unit = {

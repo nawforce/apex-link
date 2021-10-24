@@ -18,7 +18,8 @@ import com.nawforce.apexlink.types.apex.SummaryDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.documents.ParsedCache
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.{Location, PathFactory, PathLike, PathLocation}
+import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.immutable.ArraySeq
@@ -760,7 +761,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(
         org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) ==
-          PathLocation(PathFactory("/classes/Dummy.cls"), Location(1, 13, 1, 18)))
+          PathLocation(Path("/classes/Dummy.cls"), Location(1, 13, 1, 18)))
     }
   }
 
@@ -782,7 +783,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(
         org.getIdentifierLocation(
           TypeIdentifier(Some(Name("test")), TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))) ==
-          PathLocation(PathFactory("/test/Dummy.cls"), Location(1, 13, 1, 18)))
+          PathLocation(Path("/test/Dummy.cls"), Location(1, 13, 1, 18)))
     }
   }
 
@@ -807,7 +808,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
           TypeIdentifier(
             Some(Name("test")),
             TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test")))))))) ==
-          PathLocation(PathFactory("/test/Dummy.cls"), Location(1, 26, 1, 31)))
+          PathLocation(Path("/test/Dummy.cls"), Location(1, 26, 1, 31)))
     }
   }
 
@@ -819,7 +820,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
       assert(
         org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))) ==
-          PathLocation(PathFactory("/triggers/Foo.trigger"), Location(1, 8, 1, 11)))
+          PathLocation(Path("/triggers/Foo.trigger"), Location(1, 8, 1, 11)))
     }
   }
 
@@ -842,7 +843,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         org.getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/Foo")))) == null)
       assert(
         org.getIdentifierLocation(TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/test/Foo")))) ==
-          PathLocation(PathFactory("/test/Foo.trigger"), Location(1, 8, 1, 11)))
+          PathLocation(Path("/test/Foo.trigger"), Location(1, 8, 1, 11)))
     }
   }
 

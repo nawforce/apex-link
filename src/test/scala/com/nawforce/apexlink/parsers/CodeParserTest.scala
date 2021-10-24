@@ -16,8 +16,9 @@ package com.nawforce.apexlink.parsers
 import com.nawforce.apexlink.FileSystemHelper
 import com.nawforce.apexlink.api.{Org, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
+import com.nawforce.runtime.platform.Path
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -32,13 +33,13 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   }
 
   test("Good class") {
-    val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {}"))
+    val parser = CodeParser(Path("Hello.cls"), SourceData("public class Hello {}"))
     val result = parser.parseClass()
     assert(result.issues.isEmpty)
   }
 
   test("Broken class") {
-    val parser = CodeParser(PathFactory("Hello.cls"), SourceData("public class Hello {"))
+    val parser = CodeParser(Path("Hello.cls"), SourceData("public class Hello {"))
     val result = parser.parseClass()
     assert(result.issues.nonEmpty)
   }

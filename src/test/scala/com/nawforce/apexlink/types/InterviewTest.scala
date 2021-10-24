@@ -16,7 +16,8 @@ package com.nawforce.apexlink.types
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
-import com.nawforce.pkgforce.path.{PathFactory, PathLike}
+import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class InterviewTest extends AnyFunSuite with TestHelper {
@@ -52,7 +53,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       // TODO: This should be a missing issue
       assert(
-        org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+        org.issues.getMessages(Path("/Dummy.cls")) ==
           "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
     }
   }
@@ -150,7 +151,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          org.issues.getMessages(PathFactory("/Dummy.cls")) ==
+          org.issues.getMessages(Path("/Dummy.cls")) ==
             "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
     }
   }
