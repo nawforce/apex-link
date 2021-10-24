@@ -20,6 +20,7 @@ import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
@@ -100,6 +101,15 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
             context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
           })
       }
+
+    // This should likely be handled by method mapping, but constructors are not currently methods
+    constructors.duplicates(_.formalParameters.map(_.typeName.toString()).mkString(","))
+      .foreach(duplicates => {
+        duplicates._2.map(dup => {
+          context.logError(dup.idPathLocation,
+            s"Constructor is a duplicate of an earlier constructor at ${duplicates._1.idLocation.displayPosition}")
+        })
+      })
 
     // FUTURE: Eval method map for error handling side-effects
     methods
