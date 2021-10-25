@@ -118,4 +118,18 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
         "SuperClass.cls" -> "public virtual class SuperClass {@TestVisible private virtual void func() {}}"),
       "")
   }
+
+  test("Duplicate static methods") {
+    testMethods(
+      Map(
+        "Dummy.cls" -> "public class Dummy { public static void func() {} private static void fuNc() {}}"),
+      "Error: line 1 at 70-74: Method 'fuNc' is a duplicate of an existing method in this class\n")
+  }
+
+  test("Duplicate static methods (with args)") {
+    testMethods(
+      Map(
+        "Dummy.cls" -> "public class Dummy { public static void func(String a) {} private static void fuNc(System.String b) {}}"),
+      "Error: line 1 at 78-82: Method 'fuNc' is a duplicate of an existing method in this class\n")
+  }
 }

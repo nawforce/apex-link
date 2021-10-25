@@ -126,7 +126,8 @@ trait MethodDeclaration extends DependencyHolder {
   def visibility: Modifier =
     modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
 
-  def signature: String = s"$typeName $name($parameterTypes)"
+  def signature: String = s"$typeName $nameAndParameterTypes"
+  def nameAndParameterTypes: String = s"$name($parameterTypes)"
   def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
 
   def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)

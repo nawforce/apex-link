@@ -215,7 +215,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   private var _methodMap: Option[MethodMap] = None
 
-  def createMethodMap: MethodMap = {
+  private def createMethodMap: MethodMap = {
     val errorLocation = Some(idPathLocation)
     val allMethods = outerStaticMethods ++ localMethods
     val methods = superClassDeclaration match {

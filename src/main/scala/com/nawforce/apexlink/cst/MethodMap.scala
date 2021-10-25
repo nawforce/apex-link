@@ -20,6 +20,7 @@ import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
+import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
@@ -109,7 +110,16 @@ object MethodMap {
     }
 
     // Add statics if they are not being shadowed by an instance method
-    localMethods.filter(_.isStatic).foreach(method => {
+    val statics = localMethods.filter(_.isStatic)
+    val ignorableStatics = mutable.Set[MethodDeclaration]()
+    statics.toIterable.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
+      duplicates._2.foreach(duplicate => {
+        ignorableStatics.add(duplicate)
+        setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
+      })
+    })
+
+    statics.filterNot(ignorableStatics.contains).foreach(method => {
       val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Array())
       val matched = methods.find(m => m.hasSameParameters(method))
