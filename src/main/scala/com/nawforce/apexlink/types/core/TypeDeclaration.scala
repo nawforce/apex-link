@@ -297,7 +297,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array())
+  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array(), Array())
 
   override def findMethod(name: Name,
                           params: Array[TypeName],

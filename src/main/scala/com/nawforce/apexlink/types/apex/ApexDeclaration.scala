@@ -217,18 +217,17 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   private def createMethodMap: MethodMap = {
     val errorLocation = Some(idPathLocation)
-    val allMethods = outerStaticMethods ++ localMethods
     val methods = superClassDeclaration match {
       case Some(at: ApexClassDeclaration) =>
-        MethodMap(this, errorLocation, at.methodMap, allMethods, interfaceDeclarations)
+        MethodMap(this, errorLocation, at.methodMap, localMethods, outerStaticMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
         MethodMap(this,
-                  errorLocation,
-                  MethodMap(td, None, MethodMap.empty(), td.methods, TypeDeclaration.emptyTypeDeclarations),
-                  allMethods,
-                  interfaceDeclarations)
+          errorLocation,
+          MethodMap(td, None, MethodMap.empty(), td.methods, Array(), TypeDeclaration.emptyTypeDeclarations),
+          localMethods, outerStaticMethods,
+          interfaceDeclarations)
       case _ =>
-        MethodMap(this, errorLocation, MethodMap.empty(), allMethods, interfaceDeclarations)
+        MethodMap(this, errorLocation, MethodMap.empty(), localMethods, outerStaticMethods, interfaceDeclarations)
     }
 
     methods.errors.foreach(OrgImpl.log)

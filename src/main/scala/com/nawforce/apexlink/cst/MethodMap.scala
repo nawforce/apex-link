@@ -92,42 +92,39 @@ object MethodMap {
     new MethodMap(0, Map(), Nil)
   }
 
-  def apply(td: TypeDeclaration, location: Option[PathLocation],
-            superClassMap: MethodMap, localMethods: Array[MethodDeclaration], interfaces: Array[TypeDeclaration]): MethodMap = {
+  def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
+            newMethods: Array[MethodDeclaration], outerStaticMethods: Array[MethodDeclaration],
+            interfaces: Array[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Buffer[Issue]()
+    val localMethodsByType = newMethods.groupBy(_.isStatic)
 
     // Add instance methods first with validation checks
     val isTest = td.outermostTypeDeclaration.modifiers.contains(ISTEST_ANNOTATION)
     val isComplete = td.isComplete
-    localMethods.filterNot(_.isStatic)
-      .foreach(method => applyInstanceMethod(workingMap, method, isTest, isComplete, errors))
+    localMethodsByType.get(false).foreach(methods =>
+      methods.foreach(method => applyInstanceMethod(workingMap, method, isTest, isComplete, errors)))
 
     // For interfaces make sure we have all methods
     if (td.nature == INTERFACE_NATURE) {
       mergeInterfaces(workingMap, interfaces)
     }
 
-    // Add statics if they are not being shadowed by an instance method
-    val statics = localMethods.filter(_.isStatic)
-    val ignorableStatics = mutable.Set[MethodDeclaration]()
-    statics.toIterable.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
-      duplicates._2.foreach(duplicate => {
-        ignorableStatics.add(duplicate)
-        setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
-      })
-    })
+    // Add outer statics
+    outerStaticMethods.foreach(method => applyStaticMethod(workingMap, method))
 
-    statics.filterNot(ignorableStatics.contains).foreach(method => {
-      val key = (method.name, method.parameters.length)
-      val methods = workingMap.getOrElse(key, Array())
-      val matched = methods.find(m => m.hasSameParameters(method))
-      if (matched.isEmpty)
-        workingMap.put(key, method +: methods)
-      else if (matched.get.isStatic)
-        workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
-    })
+    // Add local statics, de-duped
+    val ignorableStatics = mutable.Set[MethodDeclaration]()
+    localMethodsByType.get(true)
+      .foreach(methods => methods.toIterable.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
+        duplicates._2.foreach(duplicate => {
+          ignorableStatics.add(duplicate)
+          setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
+        })
+      }))
+    localMethodsByType.get(true).foreach(methods =>
+      methods.filterNot(ignorableStatics.contains).foreach(method => applyStaticMethod(workingMap, method)))
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
@@ -211,7 +208,17 @@ object MethodMap {
           case _ => ()
         }
       }
-    })
+      })
+  }
+
+  private def applyStaticMethod(workingMap: WorkingMap, method: MethodDeclaration): Unit = {
+    val key = (method.name, method.parameters.length)
+    val methods = workingMap.getOrElse(key, Array())
+    val matched = methods.find(m => m.hasSameParameters(method))
+    if (matched.isEmpty)
+      workingMap.put(key, method +: methods)
+    else if (matched.get.isStatic)
+      workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
   }
 
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
