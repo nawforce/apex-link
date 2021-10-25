@@ -188,7 +188,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
         case Some(td: ApexClassDeclaration) =>
-          td.localMethods.filter(_.isStatic) ++ td.staticMethods
+          td.staticMethods
         case _ =>
           MethodDeclaration.emptyMethodDeclarations
       })
