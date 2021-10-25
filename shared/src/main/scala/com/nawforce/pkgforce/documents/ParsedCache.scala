@@ -27,6 +27,7 @@
  */
 package com.nawforce.pkgforce.documents
 
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.path._
 import com.nawforce.runtime.platform.Environment
 import upickle.default.{macroRW, ReadWriter => RW, _}
@@ -121,9 +122,14 @@ final class ParsedCache(val path: PathLike, version: Int) {
       inner.readBytes() match {
         case Left(_) => ()
         case Right(data) =>
-          val ce = readBinary[CacheEntry](data)
-          if (ce.key == cacheKey)
-            return Some(ce.value)
+          try {
+            val ce = readBinary[CacheEntry](data)
+            if (ce.key == cacheKey)
+              return Some(ce.value)
+          } catch {
+            case ex: Throwable =>
+              LoggerOps.debug(s"Caught exception loading from $inner: $ex")
+          }
       }
     }
     None
