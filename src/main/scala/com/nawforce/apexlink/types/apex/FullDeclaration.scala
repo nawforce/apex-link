@@ -181,6 +181,14 @@ abstract class FullDeclaration(val source: Source,
     // Detail check each body declaration
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
+    nestedTypes.filter(t => !t.nestedTypes.isEmpty)
+      .foreach( _.nestedTypes.foreach(i =>
+        i match {
+          case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
+          case _ =>
+        }
+    ))
+
     // Log dependencies logged against this context
     setDepends(context.dependencies)
   }

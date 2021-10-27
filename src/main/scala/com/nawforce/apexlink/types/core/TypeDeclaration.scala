@@ -235,8 +235,8 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer
-    assert(outermostType.forall(_.outer.isEmpty))
-    outermostType.map(_.name)
+    if(outermostType.forall(_.outer.isEmpty)) outermostType.map(_.name)
+    else None
   }
 
   val superClass: Option[TypeName]
