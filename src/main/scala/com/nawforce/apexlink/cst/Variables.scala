@@ -15,10 +15,11 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexparser.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, WARNING_CATEGORY}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.CodeParser
+import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 
 import scala.collection.immutable.ArraySeq
 
@@ -27,9 +28,20 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     id.validate()
 
-    // FUTURE: Make sure expression type(s) matches
+    val lhsType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+
     val exprContext = new ExpressionVerifyContext(context)
-    init.foreach(_.verify(input, exprContext))
+    init.foreach( e => {
+      val rhsCtx = e.verify(input, exprContext)
+      lhsType.foreach(lhsType =>
+        if(!isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, context)) {
+          context.log(new Issue(location.path,
+            new Diagnostic(
+              ERROR_CATEGORY,
+              location.location,
+              s"New Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'")))
+      })
+    })
 
     // Needed for non-for loop vars where addVars is not called
     addVars(context)
