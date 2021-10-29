@@ -150,7 +150,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
   test("Standard field reference via SObjectType fields") {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
-        "public class Dummy { {DescribeFieldResult a = SObjectType.Contract.fields.BillingCity.getDefaultValue();} }",
+        "public class Dummy { {Object a = SObjectType.Contract.fields.BillingCity.getDefaultValue();} }",
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
@@ -302,7 +302,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Field describable") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.Fields.Fax;} }")) {
+      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = SObjectType.Account.Fields.Fax;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -312,7 +312,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
 
   test("Field describable via Object") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Contact.SObjectType.Fields.Fax;} }")) {
+      Map("Dummy.cls" -> "public class Dummy { {SObjectField a = Contact.SObjectType.Fields.Fax;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -360,7 +360,7 @@ class StandardObjectTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Account/Account.object-meta.xml" -> customObject("Account", Seq()),
           "Account/fieldSets/TestFS.fieldSet-meta.xml" -> customFieldSet("TestFS"),
-          "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Account.FieldSets.TestFS;} }",
+          "Dummy.cls" -> "public class Dummy { {FieldSet a = SObjectType.Account.FieldSets.TestFS;} }",
       )) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)

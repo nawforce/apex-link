@@ -536,7 +536,7 @@ class DependencyTest extends AnyFunSuite with TestHelper {
   test("Component creates dependency") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
 
@@ -559,7 +559,7 @@ class DependencyTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Test.component" -> "<apex:component/>",
-        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) { root: PathLike =>
+        "pkg2/Dummy.cls" -> "public class Dummy { {Component.pkg1.Test c = new Component.pkg1.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
 

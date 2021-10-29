@@ -62,7 +62,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Create component") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
@@ -71,7 +71,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Create component (c namespace)") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.c.Test();} }")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.c.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
@@ -87,7 +87,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
         "pkg/Test.component" -> "<apex:component/>",
-        "pkg/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg.Test();} }")) { root: PathLike =>
+        "pkg/Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.pkg.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
@@ -96,7 +96,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Create component (namespaced but without namespace)") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.Test();} }")) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
