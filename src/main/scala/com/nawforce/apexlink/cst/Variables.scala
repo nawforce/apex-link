@@ -31,15 +31,21 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
     val lhsType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
 
     val exprContext = new ExpressionVerifyContext(context)
-    init.foreach( e => {
+    init.foreach(e => {
       val rhsCtx = e.verify(input, exprContext)
-      lhsType.foreach(lhsType =>
-        if(!isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, context)) {
-          context.log(new Issue(location.path,
-            new Diagnostic(
-              ERROR_CATEGORY,
-              location.location,
-              s"New Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'")))
+      lhsType.foreach(lhsType => {
+        if (rhsCtx.isDefined && !isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, context)) {
+          context.log(
+            new Issue(
+              location.path,
+              new Diagnostic(
+                ERROR_CATEGORY,
+                location.location,
+                s"Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'"
+              )
+            )
+          )
+        }
       })
     })
 

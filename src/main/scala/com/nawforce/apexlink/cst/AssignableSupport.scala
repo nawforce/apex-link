@@ -1,13 +1,15 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
+import com.nawforce.apexlink.names.TypeNames.{Database, TypeNameUtils}
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.names.TypeName
+import com.nawforce.pkgforce.names.{Name, TypeName}
 
 object AssignableSupport {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
-    if (fromType.typeName == TypeNames.Null ||
+    if( explicitlyAssignable.contains(toType, fromType.typeName)) {
+      true
+    } else if (fromType.typeName == TypeNames.Null ||
       (fromType.typeName == toType) ||
       (toType == TypeNames.InternalObject) ||
       context.module.isGhostedType(toType)) {
@@ -90,4 +92,13 @@ object AssignableSupport {
     (TypeNames.IdType, TypeNames.String),
     (TypeNames.String, TypeNames.IdType),
     (TypeNames.Datetime, TypeNames.Date))
+
+  private lazy val explicitlyAssignable: Set[(TypeName, TypeName)] = Set(
+    (
+      // System.Iterator<System.SObject>
+      TypeName( Name("Iterator"), Seq(TypeName(Seq(Name("SObject"), Name("System")))), Some(TypeName(Name("System")))),
+      // Database.QueryLocatorIterator
+      TypeName(Seq(Name("QueryLocatorIterator"),Name("Database")))
+    )
+  )
 }
