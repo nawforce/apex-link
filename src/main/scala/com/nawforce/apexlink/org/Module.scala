@@ -340,7 +340,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case doc: ExtendedApexDocument =>
         source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = true, forceConstruct = false)).toSeq
       case doc: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
+        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = true)).toSeq
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, doc.path, s)).toSeq
       case doc: SObjectLike =>

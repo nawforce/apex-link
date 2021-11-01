@@ -37,7 +37,7 @@ final case class WhenIntegerLiteral(negate: Boolean, value: String) extends When
 }
 
 object WhenLiteral {
-  def construct(literal: WhenLiteralContext): WhenLiteral = {
+  def construct(literal: WhenLiteralContext): Option[WhenLiteral] = {
     val whenLiteral = CodeParser
       .toScala(literal.NULL())
       .map(_ => new WhenNullLiteral())
@@ -53,10 +53,7 @@ object WhenLiteral {
         .toScala(literal.id())
         .map(l => WhenIdLiteral(Id.construct(l))))
 
-    if (whenLiteral.isEmpty)
-      throw new CSTException()
-    else
-      whenLiteral.get.withContext(literal)
+    whenLiteral.map(_.withContext(literal))
   }
 }
 
@@ -151,7 +148,7 @@ object WhenValue {
     if (CodeParser.toScala(value.ELSE()).nonEmpty)
       new WhenElseValue()
     else {
-      val literals = CodeParser.toScala(value.whenLiteral()).map(l => WhenLiteral.construct(l))
+      val literals = CodeParser.toScala(value.whenLiteral()).flatMap(l => WhenLiteral.construct(l))
       if (literals.nonEmpty)
         WhenLiteralsValue(literals)
       else

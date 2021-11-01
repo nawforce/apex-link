@@ -23,9 +23,6 @@ import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.util.DynamicVariable
 
-// Internal exception for when things go badly wrong in the CST handling
-class CSTException extends Exception
-
 // Information about current parsing context
 case class CSTParsingContext(path: PathLike, lineAdjust: Int = 0, columnAdjust: Int = 0)
 
@@ -93,7 +90,7 @@ object Annotation {
     val elementValue =
       CodeParser
         .toScala(annotation.elementValue())
-        .map(ElementValue.construct)
+        .flatMap(ElementValue.construct)
     val elementValuePairs =
       CodeParser
         .toScala(annotation.elementValuePairs())
@@ -115,39 +112,34 @@ final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArra
     extends ElementValue
 
 object ElementValue {
-  def construct(aList: List[ElementValueContext]): List[ElementValue] = {
-    aList.map(x => ElementValue.construct(x))
-  }
-
-  def construct(elementValue: ElementValueContext): ElementValue = {
+  def construct(elementValue: ElementValueContext): Option[ElementValue] = {
     val expression = CodeParser.toScala(elementValue.expression())
     val annotation = CodeParser.toScala(elementValue.annotation())
     val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
 
     if (expression.nonEmpty) {
-      ExpressionElementValue(Expression.construct(expression.get)).withContext(elementValue)
+      Some(ExpressionElementValue(Expression.construct(expression.get)).withContext(elementValue))
     } else if (annotation.nonEmpty) {
-      AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue)
+      Some(AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue))
     } else if (arrayInitializer.nonEmpty) {
-      ArrayInitializerElementValue(ElementValueArrayInitializer.construct(arrayInitializer.get))
-        .withContext(elementValue)
+      Some(ArrayInitializerElementValue(ElementValueArrayInitializer.construct(arrayInitializer.get)).withContext(elementValue))
     } else {
-      throw new CSTException()
+      None
     }
   }
 }
 
-final case class ElementValueArrayInitializer(elementValues: List[ElementValue]) extends CST
+final case class ElementValueArrayInitializer(elementValues: Seq[ElementValue]) extends CST
 
 object ElementValueArrayInitializer {
   def construct(from: ElementValueArrayInitializerContext): ElementValueArrayInitializer = {
     val elements = CodeParser.toScala(from.elementValue())
-    ElementValueArrayInitializer(elements.toList.map(x => ElementValue.construct(x)))
+    ElementValueArrayInitializer(elements.flatMap(x => ElementValue.construct(x)))
       .withContext(from)
   }
 }
 
-final case class ElementValuePair(id: String, elementValue: ElementValue) extends CST
+final case class ElementValuePair(id: String, elementValue: Option[ElementValue]) extends CST
 
 object ElementValuePair {
   def construct(aList: Seq[ElementValuePairContext]): Seq[ElementValuePair] = {

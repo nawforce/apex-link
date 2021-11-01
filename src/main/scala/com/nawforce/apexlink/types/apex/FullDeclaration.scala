@@ -182,12 +182,10 @@ abstract class FullDeclaration(val source: Source,
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
     nestedTypes.filter(t => !t.nestedTypes.isEmpty)
-      .foreach( _.nestedTypes.foreach(i =>
-        i match {
-          case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
-          case _ =>
-        }
-    ))
+      .foreach(_.nestedTypes.foreach {
+        case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
+        case _ =>
+      })
 
     // Log dependencies logged against this context
     setDepends(context.dependencies)
@@ -297,17 +295,18 @@ object FullDeclaration {
     val issues = result.issues
     issues.foreach(OrgImpl.log)
     if (issues.isEmpty || forceConstruct)
-      Some(CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value).typeDeclaration)
+      CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value)
+        .map(_.typeDeclaration)
     else
       None
   }
 
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): FullDeclaration = {
+  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
 
     val modifiers = ArraySeq.unsafeWrapArray(CodeParser.toScala(typeDecl.modifier()).toArray)
     val thisType = TypeName(name).withNamespace(module.namespace)
 
-    val cst = CodeParser
+    val cst: Option[FullDeclaration] = CodeParser
       .toScala(typeDecl.classDeclaration())
       .map(
         cd =>
@@ -335,17 +334,13 @@ object FullDeclaration {
           .map(
             ed =>
               EnumDeclaration.construct(parser,
-                                        module,
-                                        thisType,
-                                        None,
-                                        ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
-                                        ed)))
+                module,
+                thisType,
+                None,
+                ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
+                ed)))
 
-    if (cst.isEmpty)
-      throw new CSTException()
-    else {
-      Monitor.push(cst.get)
-      cst.get.withContext(typeDecl)
-    }
+    cst.foreach(Monitor.push(_))
+    cst.map(_.withContext(typeDecl))
   }
 }

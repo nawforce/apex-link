@@ -81,7 +81,7 @@ object ClassBodyDeclaration {
                 memberDeclarationContext: MemberDeclarationContext): Seq[ClassBodyDeclaration] = {
 
     val outerTypeId = TypeId(module, typeName)
-    val declarations: Option[Seq[ClassBodyDeclaration]] =
+    val declarations: Seq[ClassBodyDeclaration] =
       CodeParser
         .toScala(memberDeclarationContext.methodDeclaration())
         .map(
@@ -154,16 +154,14 @@ object ClassBodyDeclaration {
             .map(x =>
               Seq(
                 ClassDeclaration.constructInner(parser,
-                                                module,
-                                                typeName,
-                            extendedApex,
-                                                ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
-                                                x))))
+                  module,
+                  typeName,
+                  extendedApex,
+                  ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
+                  x))))
+        .getOrElse(Seq())
 
-    if (declarations.isEmpty)
-      throw new CSTException()
-    else
-      declarations.get.map(_.withContext(memberDeclarationContext))
+    declarations.map(_.withContext(memberDeclarationContext))
   }
 }
 

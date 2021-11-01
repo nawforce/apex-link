@@ -34,11 +34,10 @@ import scala.collection.immutable.ArraySeq
 class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Boolean) extends CST
 
 object CompilationUnit {
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext)
-  : CompilationUnit = {
+  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext): Option[CompilationUnit] = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      new CompilationUnit(FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration()),
-        extendedApex).withContext(compilationUnit)
+      FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration())
+        .map(fd => new CompilationUnit(fd, extendedApex).withContext(compilationUnit))
     }
   }
 }
