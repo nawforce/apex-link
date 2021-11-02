@@ -427,7 +427,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Share visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Share.RowCause;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__Share.ParentId;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
@@ -439,7 +439,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("History visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__History.Field;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__History.Field;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
@@ -451,7 +451,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Feed visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Feed.BestCommentId;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__Feed.BestCommentId;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
