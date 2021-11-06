@@ -25,6 +25,7 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.{PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
@@ -34,7 +35,7 @@ final case class Component(module: Module,
                            componentName: Name,
                            attributes: Option[Array[Name]],
                            vfContainer: Option[VFContainer])
-    extends InnerBasicTypeDeclaration(Option(location).map(_.path).toArray,
+    extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
                                       module,
                                       TypeName(componentName, Nil, Some(TypeName(Names.Component))))
     with UnsafeLocatable {

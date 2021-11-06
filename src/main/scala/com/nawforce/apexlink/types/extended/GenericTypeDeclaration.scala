@@ -30,7 +30,7 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, va
 
   baseType.addDependencyHolder(this)
 
-  override def paths: Array[PathLike] = baseType.paths
+  override def paths: ArraySeq[PathLike] = baseType.paths
 
   override def isComplete: Boolean = baseType.isComplete
 

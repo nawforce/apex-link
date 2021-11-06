@@ -53,7 +53,7 @@ final case class GhostLabel(name: Name) extends LabelField {
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(override val module: Module,
-                             val sources: Array[SourceInfo],
+                             val sources: ArraySeq[SourceInfo],
                              val labels: Array[Label],
                              val nestedLabels: Array[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
@@ -161,7 +161,7 @@ object LabelDeclaration {
         base.addTypeDependencyHolder(newLabel.typeId)
         newLabel
       })
-      .getOrElse(new LabelDeclaration(module, Array(), Array(), createPackageLabels(module)))
+      .getOrElse(new LabelDeclaration(module, ArraySeq(), Array(), createPackageLabels(module)))
   }
 
   // Create labels declarations for each base package

@@ -22,7 +22,7 @@ import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.immutable.ArraySeq
 
-class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeName: TypeName)
+class BasicTypeDeclaration(val paths: ArraySeq[PathLike], module: Module, val typeName: TypeName)
     extends TypeDeclaration {
 
   override val moduleDeclaration: Option[Module] = Some(module)
@@ -44,7 +44,7 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
   override def validate(): Unit = {}
 }
 
-class InnerBasicTypeDeclaration(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
+class InnerBasicTypeDeclaration(_paths: ArraySeq[PathLike], _module: Module, _typeName: TypeName)
     extends BasicTypeDeclaration(_paths, _module, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }

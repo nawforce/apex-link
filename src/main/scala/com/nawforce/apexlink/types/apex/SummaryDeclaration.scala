@@ -268,7 +268,7 @@ class SummaryDeclaration(path: PathLike,
 
   override val dependents: Array[DependentSummary] = typeSummary.dependents.map(_.intern)
 
-  override def paths: Array[PathLike] = Array(path)
+  override def paths: ArraySeq[PathLike] = ArraySeq(path)
 
   override val sourceHash: Int = typeSummary.sourceHash
   override val location: PathLocation = PathLocation(path, typeSummary.location)

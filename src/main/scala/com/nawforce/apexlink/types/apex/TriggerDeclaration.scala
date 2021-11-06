@@ -55,7 +55,7 @@ final case class TriggerDeclaration(source: Source,
 
   override val idLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
-  override def paths: Array[PathLike] = Array(location.path)
+  override def paths: ArraySeq[PathLike] = ArraySeq(location.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name

@@ -31,7 +31,7 @@ import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(module: Module, location: PathLocation, interviewName: Name)
-  extends InnerBasicTypeDeclaration(Option(location).map(_.path).toArray,
+  extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
     module,
     TypeName(interviewName, Nil, Some(TypeNames.Interview)))
     with UnsafeLocatable {

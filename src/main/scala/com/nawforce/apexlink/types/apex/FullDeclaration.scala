@@ -53,7 +53,7 @@ abstract class FullDeclaration(val source: Source,
 
   lazy val sourceHash: Int = source.hash
 
-  override def paths: Array[PathLike] = Array(source.path)
+  override def paths: ArraySeq[PathLike] = ArraySeq(source.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name

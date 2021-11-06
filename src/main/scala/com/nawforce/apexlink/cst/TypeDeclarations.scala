@@ -42,7 +42,7 @@ object CompilationUnit {
   }
 }
 
-final case class TypeArgumentProxy(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
+final case class TypeArgumentProxy(_paths: ArraySeq[PathLike], _module: Module, _typeName: TypeName)
   extends BasicTypeDeclaration(_paths, _module, _typeName) {
   override lazy val isComplete: Boolean = false
 }
@@ -60,7 +60,7 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
     typeArguments
       .groupBy(_.name)
       .map(_._2.head)
-      .map(typeArg => TypeArgumentProxy(Array(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
+      .map(typeArg => TypeArgumentProxy(ArraySeq(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
   }
 
   override def unused(): ArraySeq[Issue] = {

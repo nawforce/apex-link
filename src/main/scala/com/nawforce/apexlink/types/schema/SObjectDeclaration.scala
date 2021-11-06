@@ -88,7 +88,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
-  override val paths: Array[PathLike] = sources.map(source => source.location.path)
+  override val paths: ArraySeq[PathLike] = ArraySeq.unsafeWrapArray(sources.map(source => source.location.path))
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
   private val depends = mutable.Set[Dependent]()
 

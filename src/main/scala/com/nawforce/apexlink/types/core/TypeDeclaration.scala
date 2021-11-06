@@ -224,7 +224,7 @@ trait AbstractTypeDeclaration {
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
-  def paths: Array[PathLike]
+  def paths: ArraySeq[PathLike]
   val moduleDeclaration: Option[Module]
 
   val name: Name

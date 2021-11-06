@@ -26,7 +26,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
-    extends BasicTypeDeclaration(Array(), module, _typeName)
+    extends BasicTypeDeclaration(ArraySeq(), module, _typeName)
     with SObjectLikeDeclaration
     with SObjectFieldFinder
     with SObjectMethods {
