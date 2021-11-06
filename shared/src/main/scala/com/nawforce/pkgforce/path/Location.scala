@@ -101,7 +101,14 @@ trait Locatable {
 /** Variation on locatable for when we don't know, may return null! */
 trait UnsafeLocatable extends Locatable {
   def location: PathLocation
-  def safeLocation: Option[PathLocation]
+
+  def safeLocation: Option[PathLocation] = {
+    val l = location
+    if (l.path != null)
+      Some(location)
+    else
+      None
+  }
 }
 
 /** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. It's
@@ -128,13 +135,6 @@ class Positionable extends UnsafeLocatable {
 
   def location: PathLocation = {
     PathLocation(locationPath, Location(startLine, startOffset, endLine, endOffset))
-  }
-
-  override def safeLocation: Option[PathLocation] = {
-    if (locationPath != null)
-      Some(location)
-    else
-      None
   }
 }
 
