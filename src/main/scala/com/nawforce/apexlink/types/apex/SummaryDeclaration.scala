@@ -138,7 +138,7 @@ object DependentValidation {
             td.methods.find(
               m =>
                 m.name == name &&
-                  m.parameters.map(_.typeName).sameElements(dependent.parameterTypes))
+                  m.parameters.map(_.typeName) == dependent.parameterTypes)
         }
     })
   }
@@ -217,8 +217,7 @@ class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId,
   override val name: Name = Names(methodSummary.name)
   override val modifiers: ArraySeq[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
-  override val parameters: Array[ParameterDeclaration] =
-    methodSummary.parameters.map(new SummaryParameter(_))
+  override val parameters: ArraySeq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
   override def hasBlock: Boolean = methodSummary.hasBlock
 }
 
@@ -256,7 +255,7 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
   override val location: PathLocation = PathLocation(path, constructorSummary.location)
   override val idLocation: Location = constructorSummary.idLocation
   override val modifiers: ArraySeq[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
-  override val parameters: Array[ParameterDeclaration] =
+  override val parameters: ArraySeq[ParameterDeclaration] =
     constructorSummary.parameters.map(new SummaryParameter(_))
 }
 

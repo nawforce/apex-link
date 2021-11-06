@@ -187,8 +187,9 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaratio
     extends ConstructorDeclaration {
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.ctorModifiers(ctor.getModifiers)
-  lazy val parameters: Array[ParameterDeclaration] =
-    ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
+  lazy val parameters: ArraySeq[ParameterDeclaration] =
+    ArraySeq.unsafeWrapArray(ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass)))
+
   def getDeclaringClass: Class[_] = ctor.getDeclaringClass
 
   override def toString: String =
@@ -203,11 +204,11 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
-  lazy val parameters: Array[ParameterDeclaration] = getParameters
+  lazy val parameters: ArraySeq[ParameterDeclaration] = getParameters
   override val hasBlock: Boolean = false
 
-  def getParameters: Array[ParameterDeclaration] =
-    method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+  def getParameters: ArraySeq[ParameterDeclaration] =
+    ArraySeq.unsafeWrapArray(method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass)))
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
@@ -379,12 +380,12 @@ object PlatformTypeDeclaration {
 
   /* Standard methods to be exposed on enums */
   private def enumMethods(typeName: TypeName): Array[MethodDeclaration] =
-    Array(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, Array()),
-          CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, Array()),
-          CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
-          CustomMethodDeclaration(Location.empty,
-                                  Name("equals"),
-                                  TypeNames.Boolean,
-                                  Array(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-          CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, Array()))
+    Array(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
+      CustomMethodDeclaration(Location.empty,
+        Name("equals"),
+        TypeNames.Boolean,
+        ArraySeq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+      CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters))
 }

@@ -106,7 +106,7 @@ trait ParameterDeclaration {
 
 trait ConstructorDeclaration extends DependencyHolder {
   val modifiers: ArraySeq[Modifier]
-  val parameters: Array[ParameterDeclaration]
+  val parameters: ArraySeq[ParameterDeclaration]
 
   override def toString: String =
     modifiers.map(_.toString).mkString(" ") + " constructor(" + parameters.map(_.toString).mkString(", ") + ")"
@@ -120,7 +120,7 @@ trait MethodDeclaration extends DependencyHolder {
   val name: Name
   val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
-  val parameters: Array[ParameterDeclaration]
+  val parameters: ArraySeq[ParameterDeclaration]
   def hasBlock: Boolean
 
   def visibility: Modifier =
@@ -151,7 +151,7 @@ trait MethodDeclaration extends DependencyHolder {
     hasParameters(other.parameters.map(_.typeName))
   }
 
-  def hasParameters(params: Array[TypeName]): Boolean = {
+  def hasParameters(params: ArraySeq[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       parameters.zip(params).forall(z => z._1.typeName == z._2)
     } else {
@@ -163,7 +163,7 @@ trait MethodDeclaration extends DependencyHolder {
     hasErasedParameters(module, other.parameters.map(_.typeName))
   }
 
-  private def hasErasedParameters(module: Module, params: Array[TypeName]): Boolean = {
+  private def hasErasedParameters(module: Module, params: ArraySeq[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       // Future: This is very messy, we need to know the general rules
       parameters
@@ -188,7 +188,7 @@ trait MethodDeclaration extends DependencyHolder {
     }
   }
 
-  def hasCallErasedParameters(module: Module, params: Array[TypeName]): Boolean = {
+  def hasCallErasedParameters(module: Module, params: ArraySeq[TypeName]): Boolean = {
     if (parameters.length == params.length) {
       parameters
         .zip(params)
@@ -217,7 +217,7 @@ object MethodDeclaration {
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
   def findMethod(name: Name,
-                 params: Array[TypeName],
+                 params: ArraySeq[TypeName],
                  staticContext: Option[Boolean],
                  verifyContext: VerifyContext): Option[MethodDeclaration]
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
@@ -300,7 +300,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array(), Array())
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
@@ -321,7 +321,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   def validateFieldConstructorArguments(input: ExprContext,
-                                        arguments: Array[Expression],
+                                        arguments: ArraySeq[Expression],
                                         context: ExpressionVerifyContext): Unit = {
     assert(isFieldConstructed)
 
@@ -358,7 +358,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     }
 
     if (validArgs.length == arguments.length) {
-      val duplicates = validArgs.groupBy(_.name).collect { case (_, Array(_, y, _*)) => y }
+      val duplicates = validArgs.groupBy(_.name).collect { case (_, ArraySeq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         OrgImpl.logError(duplicates.head.location,
                          s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")

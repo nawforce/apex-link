@@ -22,11 +22,13 @@ import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomPar
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.Location
 
+import scala.collection.immutable.ArraySeq
+
 trait SObjectMethods {
   this: TypeDeclaration =>
 
   def defaultFindMethod(name: Name,
-                        params: Array[TypeName],
+                        params: ArraySeq[TypeName],
                         staticContext: Option[Boolean],
                         verifyContext: VerifyContext): Option[MethodDeclaration] = {
     cloneMethods
@@ -41,17 +43,17 @@ trait SObjectMethods {
       CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
     val preserveAutonumber =
       CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array()),
-        CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array(preserveId)),
-        CustomMethodDeclaration(Location.empty, Name("clone"), typeName, Array(preserveId, isDeepClone)),
-        CustomMethodDeclaration(Location.empty,
-                                Name("clone"),
-                                typeName,
-                                Array(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-        CustomMethodDeclaration(Location.empty,
-                                Name("clone"),
-                                typeName,
-                                Array(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
+    Seq(CustomMethodDeclaration(Location.empty, Name("clone"), typeName, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(Location.empty, Name("clone"), typeName, ArraySeq(preserveId)),
+      CustomMethodDeclaration(Location.empty, Name("clone"), typeName, ArraySeq(preserveId, isDeepClone)),
+      CustomMethodDeclaration(Location.empty,
+        Name("clone"),
+        typeName,
+        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
+      CustomMethodDeclaration(Location.empty,
+        Name("clone"),
+        typeName,
+        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
       .map(m => ((m.name, m.parameters.length, m.isStatic), m))
       .toMap
   }

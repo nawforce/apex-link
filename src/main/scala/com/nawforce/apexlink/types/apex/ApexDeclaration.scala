@@ -248,7 +248,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)

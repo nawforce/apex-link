@@ -194,7 +194,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
                                   _modifiers: ModifierResults,
                                   returnTypeName: RelativeTypeName,
                                   id: Id,
-                                  override val parameters: Array[ParameterDeclaration],
+                                  override val parameters: ArraySeq[ParameterDeclaration],
                                   val block: Option[Block])
     extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
@@ -211,7 +211,7 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
   override lazy val signature: String = super[ApexMethodLike].signature
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
-  def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
+  def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
 
@@ -333,7 +333,7 @@ object ApexFieldDeclaration {
 
 final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
                                             qualifiedName: QualifiedName,
-                                            parameters: Array[ParameterDeclaration],
+                                            parameters: ArraySeq[ParameterDeclaration],
                                             block: Block)
     extends ClassBodyDeclaration(_modifiers)
     with ApexConstructorLike {
@@ -345,7 +345,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
   override val nature: Nature = CONSTRUCTOR_NATURE
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
-  def formalParameters: Array[FormalParameter] = parameters.collect { case p: FormalParameter => p }
+  def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     formalParameters.foreach(_.verify(context))
@@ -446,16 +446,15 @@ object FormalParameterList {
 }
 
 object FormalParameters {
-  val noParams: Array[ParameterDeclaration] = Array()
+  val noParams: ArraySeq[ParameterDeclaration] = ArraySeq()
 
   def construct(parser: CodeParser,
                 typeContext: RelativeTypeContext,
                 module: Module,
                 outerTypeName: TypeName,
-                from: FormalParametersContext): Array[ParameterDeclaration] = {
-    CodeParser
-      .toScala(from.formalParameterList())
-      .map(x => FormalParameterList.construct(parser, typeContext, module, outerTypeName, x))
+                from: FormalParametersContext): ArraySeq[ParameterDeclaration] = {
+    CodeParser.toScala(from.formalParameterList())
+      .map(x => ArraySeq.unsafeWrapArray(FormalParameterList.construct(parser, typeContext, module, outerTypeName, x)))
       .getOrElse(noParams)
   }
 }

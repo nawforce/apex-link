@@ -22,6 +22,8 @@ import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names._
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
+
 final case class CreatedName(idPairs: List[IdCreatedNamePair]) extends CST {
 
   lazy val typeName: TypeName = idPairs.tail.map(_.typeName).foldLeft(idPairs.head.typeName) {
@@ -116,7 +118,7 @@ object NoRest {
   }
 }
 
-final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorRest {
+final case class ClassCreatorRest(arguments: ArraySeq[Expression]) extends CreatorRest {
   override def verify(createdName: CreatedName,
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
@@ -147,7 +149,7 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
 
   def validateFieldConstructorArgumentsGhosted(typeName: TypeName,
                                                input: ExprContext,
-                                               arguments: Array[Expression],
+                                               arguments: ArraySeq[Expression],
                                                context: ExpressionVerifyContext): Unit = {
 
     val validArgs = arguments.flatMap {
@@ -162,7 +164,7 @@ final case class ClassCreatorRest(arguments: Array[Expression]) extends CreatorR
     }
 
     if (validArgs.length == arguments.length) {
-      val duplicates = validArgs.groupBy(_.name).collect { case (_, Array(_, y, _*)) => y }
+      val duplicates = validArgs.groupBy(_.name).collect { case (_, ArraySeq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
         OrgImpl.logError(
           duplicates.head.location,

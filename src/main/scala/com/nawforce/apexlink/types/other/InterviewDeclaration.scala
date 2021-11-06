@@ -25,6 +25,7 @@ import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
@@ -39,7 +40,7 @@ final case class Interview(module: Module, location: PathLocation, interviewName
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
@@ -72,7 +73,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
     (interviews ++ nestedInterviews ++ namespaceDeclaration).toArray
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)

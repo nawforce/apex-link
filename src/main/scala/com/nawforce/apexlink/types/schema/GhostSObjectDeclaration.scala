@@ -58,7 +58,7 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(true)) {

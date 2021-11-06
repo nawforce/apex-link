@@ -500,7 +500,7 @@ object MergeStatement {
   }
 }
 
-final case class RunAsStatement(expressions: Array[Expression], block: Option[Block]) extends Statement {
+final case class RunAsStatement(expressions: ArraySeq[Expression], block: Option[Block]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))
@@ -509,10 +509,10 @@ final case class RunAsStatement(expressions: Array[Expression], block: Option[Bl
 
 object RunAsStatement {
   def construct(parser: CodeParser, statement: RunAsStatementContext): RunAsStatement = {
-    val expressions =
+    val expressions: ArraySeq[Expression] =
       CodeParser
         .toScala(statement.expressionList())
-        .map(el => Expression.construct(CodeParser.toScala(el.expression()).toArray))
+        .map(el => ArraySeq.unsafeWrapArray(Expression.construct(CodeParser.toScala(el.expression()).toArray)))
         .getOrElse(Expression.emptyExpressions)
     val block =
       CodeParser

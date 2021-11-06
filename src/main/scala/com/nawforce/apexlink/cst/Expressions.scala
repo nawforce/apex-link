@@ -28,6 +28,8 @@ import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.{Locatable, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
+
 final case class ExprContext(isStatic: Option[Boolean],
                              declaration: Option[TypeDeclaration],
                              locatable: Option[Locatable] = None) {
@@ -287,7 +289,7 @@ final case class ArrayExpression(expression: Expression, arrayExpression: Expres
 
 abstract class MethodCall extends Expression
 
-final case class MethodCallWithId(target: Id, arguments: Array[Expression]) extends MethodCall {
+final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) extends MethodCall {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     verify(location, input.typeDeclaration, None, input, context)
@@ -341,7 +343,7 @@ final case class MethodCallWithId(target: Id, arguments: Array[Expression]) exte
   }
 }
 
-final case class MethodCallCtor(isSuper: Boolean, arguments: Array[Expression]) extends MethodCall {
+final case class MethodCallCtor(isSuper: Boolean, arguments: ArraySeq[Expression]) extends MethodCall {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     // TODO
     ExprContext.empty
@@ -364,10 +366,10 @@ object MethodCall {
     MethodCallWithId(Id.constructAny(from.anyId()), expressions(from.expressionList())).withContext(from)
   }
 
-  private def expressions(from: ExpressionListContext) = {
+  private def expressions(from: ExpressionListContext): ArraySeq[Expression] = {
     CodeParser
       .toScala(from)
-      .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray)
+      .map(el => ArraySeq.unsafeWrapArray(CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray))
       .getOrElse(Expression.emptyExpressions)
   }
 }
@@ -549,7 +551,7 @@ final case class PrimaryExpression(var primary: Primary) extends Expression {
 }
 
 object Expression {
-  val emptyExpressions: Array[Expression] = Array()
+  val emptyExpressions: ArraySeq[Expression] = ArraySeq()
 
   def construct(from: ExpressionContext): Expression = {
     val cst: Expression = {
@@ -774,10 +776,10 @@ object TypeArguments {
 }
 
 object Arguments {
-  def construct(from: ArgumentsContext): Array[Expression] = {
+  def construct(from: ArgumentsContext): ArraySeq[Expression] = {
     val el = CodeParser.toScala(from.expressionList())
     if (el.nonEmpty) {
-      Expression.construct(CodeParser.toScala(el.get.expression()).toArray)
+      ArraySeq.unsafeWrapArray(Expression.construct(CodeParser.toScala(el.get.expression()).toArray))
     } else {
       Expression.emptyExpressions
     }

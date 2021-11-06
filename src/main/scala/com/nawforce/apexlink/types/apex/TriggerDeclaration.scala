@@ -221,7 +221,7 @@ final case class TriggerContext(module: Module, baseType: TypeDeclaration)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     baseType.findMethod(name, params, staticContext, verifyContext)

@@ -131,7 +131,7 @@ case class FieldSummary(location: Location,
 case class ConstructorSummary(location: Location,
                               idLocation: Location,
                               modifiers: ArraySeq[String],
-                              parameters: Array[ParameterSummary],
+                              parameters: ArraySeq[ParameterSummary],
                               dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
@@ -144,10 +144,10 @@ case class ConstructorSummary(location: Location,
 
   private def doesEqual(other: ConstructorSummary): Boolean = {
     this.location == other.location &&
-    this.idLocation == other.idLocation &&
-    this.modifiers == other.modifiers &&
-    this.parameters.sameElements(other.parameters) &&
-    this.dependents.sameElements(other.dependents)
+      this.idLocation == other.idLocation &&
+      this.modifiers == other.modifiers &&
+      this.parameters == other.parameters &&
+      this.dependents.sameElements(other.dependents)
   }
 }
 
@@ -157,7 +157,7 @@ case class MethodSummary(location: Location,
                          name: String,
                          modifiers: ArraySeq[String],
                          var typeName: TypeName,
-                         parameters: Array[ParameterSummary],
+                         parameters: ArraySeq[ParameterSummary],
                          hasBlock: Boolean,
                          dependents: Array[DependentSummary]) {
 
@@ -206,15 +206,15 @@ case class FieldDependentSummary(var typeId: TypeIdentifier, name: String) exten
 
 /** Dependency information for a method */
 @upickle.implicits.key("Method")
-case class MethodDependentSummary(var typeId: TypeIdentifier, name: String, parameterTypes: Array[TypeName])
-    extends DependentSummary {
+case class MethodDependentSummary(var typeId: TypeIdentifier, name: String, parameterTypes: ArraySeq[TypeName])
+  extends DependentSummary {
 
   typeId = typeId.intern
 
   override def equals(that: Any): Boolean = {
     that match {
       case other: MethodDependentSummary => other.canEqual(this) && doesEqual(other)
-      case _                             => false
+      case _ => false
     }
   }
 

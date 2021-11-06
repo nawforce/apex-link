@@ -143,7 +143,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(true)) {
@@ -160,29 +160,29 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+    Seq(CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
-        CustomMethodDeclaration(Location.empty, Name("getOrgDefaults"), typeName, Array()),
+                                ArraySeq(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
+        CustomMethodDeclaration(Location.empty, Name("getOrgDefaults"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
+                                ArraySeq(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(Location.empty, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
-        CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+    Seq(CustomMethodDeclaration(Location.empty, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), CustomMethodDeclaration.emptyParameters),
+        CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+                                ArraySeq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
         CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+                                ArraySeq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 }
 

@@ -25,6 +25,7 @@ import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMeth
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /** Schema.SObjectType implementation. By its nature this is a container for information about SObjects so it is also
@@ -113,7 +114,7 @@ final case class SchemaSObjectType(module: Module)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
@@ -151,7 +152,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
@@ -195,7 +196,7 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(false)) {
@@ -211,7 +212,7 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
       CustomMethodDeclaration(com.nawforce.pkgforce.path.Location.empty,
         Name("getMap"),
         TypeNames.mapOf(TypeNames.String, TypeNames.SObjectField),
-        Array()))
+        CustomMethodDeclaration.emptyParameters))
       .map(m => ((m.name, m.parameters.length), m))
       .toMap
 }
@@ -263,7 +264,7 @@ final case class SObjectFields(baseType: TypeName, module: Module)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectFieldType.findMethod(name, params, staticContext, verifyContext)
@@ -303,7 +304,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
 
   /** Intercept method lookup to provide Map() function. */
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)

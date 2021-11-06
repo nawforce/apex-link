@@ -117,7 +117,7 @@ class GenericConstructor(constructor: ConstructorDeclaration, owningTypeDeclarat
   //override lazy val name: Name = constructor.name
   override lazy val modifiers: ArraySeq[Modifier] = constructor.modifiers
 
-  override lazy val parameters: Array[ParameterDeclaration] =
+  override lazy val parameters: ArraySeq[ParameterDeclaration] =
     constructor.parameters.map(p => new GenericParameter(p, owningTypeDeclaration))
 }
 
@@ -129,7 +129,7 @@ class GenericMethod(method: MethodDeclaration, owningTypeDeclaration: GenericTyp
 
   override lazy val typeName: TypeName = owningTypeDeclaration.mapTypeName(method.typeName)
 
-  override lazy val parameters: Array[ParameterDeclaration] = {
+  override lazy val parameters: ArraySeq[ParameterDeclaration] = {
     method.parameters
       .map(p => new GenericParameter(p, owningTypeDeclaration))
   }

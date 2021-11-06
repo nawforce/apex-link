@@ -99,7 +99,7 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }
 
-  override lazy val parameters: Array[ParameterDeclaration] =
+  override lazy val parameters: ArraySeq[ParameterDeclaration] =
     platformMethod.getParameters
       .collect { case p: PlatformParameter => p }
       .map(p => new GenericPlatformParameter(p, _typeDeclaration))

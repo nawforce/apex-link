@@ -27,6 +27,7 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
@@ -39,15 +40,15 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
   }
 
   /** Find a method, without concern for the calling context. */
-  def findMethod(name: Name, params: Array[TypeName]): Option[MethodDeclaration] = {
-    methodsByName.getOrElse((name, params.length),Array()).find(method =>
-      method.parameters.map(_.typeName).sameElements(params))
+  def findMethod(name: Name, params: ArraySeq[TypeName]): Option[MethodDeclaration] = {
+    methodsByName.getOrElse((name, params.length), Array()).find(method =>
+      method.parameters.map(_.typeName) == params)
   }
 
   /** Find a method, suitable for use from the given context */
-  def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+  def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Option[MethodDeclaration] = {
-    val matches = methodsByName.getOrElse((name, params.length),Array())
+    val matches = methodsByName.getOrElse((name, params.length), Array())
     val filteredMatches = staticContext match {
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
@@ -128,7 +129,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
-      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, Array())))
+      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, CustomMethodDeclaration.emptyParameters)))
       checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
