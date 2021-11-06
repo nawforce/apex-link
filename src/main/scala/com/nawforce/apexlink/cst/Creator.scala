@@ -18,7 +18,6 @@ import com.nawforce.apexlink.cst.AssignableSupport.couldBeEqual
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.names._
 import com.nawforce.runtime.parsers.CodeParser
@@ -73,10 +72,12 @@ object IdCreatedNamePair {
   }
 }
 
-final case class Creator(createdName: CreatedName, creatorRest: CreatorRest) extends CST {
+final case class Creator(createdName: CreatedName, creatorRest: Option[CreatorRest]) extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
-    creatorRest.verify(createdName, input, context)
+    creatorRest
+      .map(_.verify(createdName, input, context))
+      .getOrElse(ExprContext.empty)
   }
 }
 
@@ -90,7 +91,8 @@ object Creator {
         .orElse(CodeParser.toScala(from.arrayCreatorRest()).map(ArrayCreatorRest.construct))
         .orElse(CodeParser.toScala(from.mapCreatorRest()).map(MapCreatorRest.construct))
         .orElse(CodeParser.toScala(from.setCreatorRest()).map(SetCreatorRest.construct))
-    Creator(CreatedName.construct(from.createdName()), rest.get).withContext(from)
+
+    Creator(CreatedName.construct(from.createdName()), rest).withContext(from)
   }
 }
 
@@ -298,13 +300,17 @@ final case class MapCreatorRestPair(from: Expression, to: Expression) extends CS
 
 object MapCreatorRestPair {
   def construct(aList: List[MapCreatorRestPairContext]): List[MapCreatorRestPair] = {
-    aList.map(x => MapCreatorRestPair.construct(x))
+    aList.flatMap(x => MapCreatorRestPair.construct(x))
   }
 
-  def construct(from: MapCreatorRestPairContext): MapCreatorRestPair = {
+  def construct(from: MapCreatorRestPairContext): Option[MapCreatorRestPair] = {
     val expressions = CodeParser.toScala(from.expression())
-    MapCreatorRestPair(Expression.construct(expressions.head), Expression.construct(expressions(1)))
-      .withContext(from)
+    if (expressions.length == 2) {
+      Some(MapCreatorRestPair(Expression.construct(expressions.head), Expression.construct(expressions(1)))
+        .withContext(from))
+    } else {
+      None
+    }
   }
 }
 

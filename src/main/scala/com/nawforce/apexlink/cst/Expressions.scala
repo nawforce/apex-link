@@ -60,9 +60,16 @@ object ExprContext {
 
 sealed abstract class Expression extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
+
   def verify(context: BlockVerifyContext): ExprContext = {
     val staticContext = if (context.isStatic) Some(true) else None
     verify(ExprContext(staticContext, context.thisType), new ExpressionVerifyContext(context))
+  }
+}
+
+final case class EmptyExpr() extends Expression {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    ExprContext.empty
   }
 }
 
@@ -197,8 +204,8 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   }
 }
 
-final case class DotExpressionWithMethod(expression: Expression, safeNavigation: Boolean, target: MethodCallWithId)
-    extends Expression {
+final case class DotExpressionWithMethod(expression: Expression, safeNavigation: Boolean, target: Option[MethodCallWithId])
+  extends Expression {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
@@ -210,11 +217,13 @@ final case class DotExpressionWithMethod(expression: Expression, safeNavigation:
             context.logError(location, "Safe navigation operator (?.) can not be used on static references")
             ExprContext.empty
           } else {
-            target.verify(location, inter.typeDeclaration, inter.isStatic, input, context)
+            target
+              .map(target => target.verify(location, inter.typeDeclaration, inter.isStatic, input, context))
+              .getOrElse(ExprContext.empty)
           }
         } else {
           // When we can't find method we should still verify args for dependency side-effects
-          target.arguments.map(_.verify(input, context))
+          target.map(target => target.arguments.map(_.verify(input, context)))
           ExprContext.empty
         }
       })
@@ -234,9 +243,7 @@ final case class DotExpressionWithMethod(expression: Expression, safeNavigation:
         context
           .getTypeAndAddDependency(TypeName(primary.id.name, Nil, Some(TypeNames.System)), context.thisType)
           .toOption
-          .map(td => {
-            target.verify(location, td, Some(true), input, context)
-          })
+          .flatMap(td => target.map(target => target.verify(location, td, Some(true), input, context)))
       case _ => None
     }
   }
@@ -545,30 +552,40 @@ object Expression {
   val emptyExpressions: Array[Expression] = Array()
 
   def construct(from: ExpressionContext): Expression = {
-    val cst =
+    val cst: Expression = {
       from match {
         case expr: DotExpressionContext =>
           CodeParser
             .toScala(expr.anyId())
             .map(id => {
               DotExpressionWithId(Expression.construct(expr.expression()),
-                                  CodeParser.toScala(expr.DOT()).isEmpty,
-                                  Id.constructAny(id))
+                CodeParser.toScala(expr.DOT()).isEmpty,
+                Id.constructAny(id))
             })
             .getOrElse({
               DotExpressionWithMethod(Expression.construct(expr.expression()),
-                                      CodeParser.toScala(expr.DOT()).isEmpty,
-                                      MethodCall.construct(CodeParser.toScala(expr.dotMethodCall()).get))
+                CodeParser.toScala(expr.DOT()).isEmpty,
+                CodeParser.toScala(expr.dotMethodCall()).map(method => {
+                  MethodCall.construct(method)
+                }))
             })
+
         case expr: ArrayExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          ArrayExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)))
+          if (expressions.length == 2)
+            ArrayExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)))
+          else
+            EmptyExpr()
+
         case expr: MethodCallExpressionContext =>
           MethodCall.construct(expr.methodCall())
+
         case expr: NewExpressionContext =>
           NewExpression(Creator.construct(expr.creator()))
+
         case expr: CastExpressionContext =>
           CastExpression(TypeReference.construct(expr.typeRef()), Expression.construct(expr.expression()))
+
         case expr: SubExpressionContext =>
           SubExpression(Expression.construct(expr.expression()))
 
@@ -577,6 +594,7 @@ object Expression {
             .toScala(expr.INC())
             .orElse(CodeParser.toScala(expr.DEC()))
           PostfixExpression(Expression.construct(expr.expression()), CodeParser.getText(op.get))
+
         case expr: PreOpExpressionContext =>
           val op = CodeParser
             .toScala(expr.ADD())
@@ -584,34 +602,51 @@ object Expression {
             .orElse(CodeParser.toScala(expr.INC()))
             .orElse(CodeParser.toScala(expr.SUB()))
           PrefixExpression(Expression.construct(expr.expression()), CodeParser.getText(op.get))
+
         case expr: NegExpressionContext =>
           val op = CodeParser
             .toScala(expr.BANG())
             .orElse(CodeParser.toScala(expr.TILDE()))
           NegationExpression(Expression.construct(expr.expression()), CodeParser.getText(op.get) == "~")
+
         case expr: Arth1ExpressionContext =>
           val op = CodeParser
             .toScala(expr.DIV())
             .orElse(CodeParser.toScala(expr.MOD()))
             .orElse(CodeParser.toScala(expr.MUL()))
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           CodeParser.getText(op.get))
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head),
+              Expression.construct(expressions(1)),
+              CodeParser.getText(op.get))
+          } else {
+            EmptyExpr()
+          }
+
         case expr: Arth2ExpressionContext =>
           val op = CodeParser
             .toScala(expr.ADD())
             .orElse(CodeParser.toScala(expr.SUB()))
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           CodeParser.getText(op.get))
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head),
+              Expression.construct(expressions(1)),
+              CodeParser.getText(op.get))
+          } else {
+            EmptyExpr()
+          }
+
         case expr: BitExpressionContext =>
           val gt = ">" * CodeParser.toScala(expr.GT()).size
           val lt = "<" * CodeParser.toScala(expr.LT()).size
           assert(gt.nonEmpty != lt.nonEmpty)
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), gt + lt)
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), gt + lt)
+          } else {
+            EmptyExpr()
+          }
+
         case expr: CmpExpressionContext =>
           val assign = CodeParser.toScala(expr.ASSIGN()).nonEmpty
           val op = CodeParser.getText(CodeParser.toScala(expr.GT()).orElse(CodeParser.toScala(expr.LT())).get)
@@ -619,12 +654,18 @@ object Expression {
             case (true, ">") => ">="
             case (true, "<") => "<="
             case (false, op) => op
-            case _           => assert(false); ""
+            case _ => assert(false); ""
           }
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), opText)
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), opText)
+          } else {
+            EmptyExpr()
+          }
+
         case expr: InstanceOfExpressionContext =>
           InstanceOfExpression(Expression.construct(expr.expression()), TypeReference.construct(expr.typeRef()))
+
         case expr: EqualityExpressionContext =>
           val op = CodeParser
             .toScala(expr.EQUAL())
@@ -633,29 +674,64 @@ object Expression {
             .orElse(CodeParser.toScala(expr.TRIPLEEQUAL()))
             .orElse(CodeParser.toScala(expr.TRIPLENOTEQUAL()))
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           CodeParser.getText(op.get))
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head),
+              Expression.construct(expressions(1)),
+              CodeParser.getText(op.get))
+          } else {
+            EmptyExpr()
+          }
+
         case expr: BitAndExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&")
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&")
+          } else {
+            EmptyExpr()
+          }
+
         case expr: BitNotExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "^")
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "^")
+          } else {
+            EmptyExpr()
+          }
+
         case expr: BitOrExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "|")
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "|")
+          } else {
+            EmptyExpr()
+          }
+
         case expr: LogAndExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&&")
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "&&")
+          } else {
+            EmptyExpr()
+          }
+
         case expr: LogOrExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "||")
+          if (expressions.length == 2) {
+            BinaryExpression(Expression.construct(expressions.head), Expression.construct(expressions(1)), "||")
+          } else {
+            EmptyExpr()
+          }
+
         case expr: CondExpressionContext =>
           val expressions = CodeParser.toScala(expr.expression())
-          QueryExpression(Expression.construct(expressions.head),
-                          Expression.construct(expressions(1)),
-                          Expression.construct(expressions(2)))
+          if (expressions.length == 3) {
+            QueryExpression(Expression.construct(expressions.head),
+              Expression.construct(expressions(1)),
+              Expression.construct(expressions(2)))
+          } else {
+            EmptyExpr()
+          }
+
         case expr: AssignExpressionContext =>
           val op = CodeParser
             .toScala(expr.ADD_ASSIGN())
@@ -672,11 +748,14 @@ object Expression {
             .orElse(CodeParser.toScala(expr.XOR_ASSIGN()))
           val expressions = CodeParser.toScala(expr.expression())
           BinaryExpression(Expression.construct(expressions.head),
-                           Expression.construct(expressions(1)),
-                           CodeParser.getText(op.get))
+            Expression.construct(expressions(1)),
+            CodeParser.getText(op.get))
         case expr: PrimaryExpressionContext =>
           PrimaryExpression(Primary.construct(expr.primary()))
+
+        case _ => EmptyExpr()
       }
+    }
     cst.withContext(from)
   }
 

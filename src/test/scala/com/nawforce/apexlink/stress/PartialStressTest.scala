@@ -54,10 +54,14 @@ object PartialStressTest {
           val trimLength = ThreadLocalRandom.current.nextInt(0, contents.length)
           randoFile.write(contents.substring(0, trimLength))
 
-          org.packages.foreach(_.refresh(randoFile.toString))
-          org.flush()
-
-          randoFile.write(contents)
+          try {
+            org.packages.foreach(_.refresh(randoFile.toString))
+            org.flush()
+          } finally {
+            randoFile.write(contents)
+            org.packages.foreach(_.refresh(randoFile.toString))
+            org.flush()
+          }
         })
     }
   }

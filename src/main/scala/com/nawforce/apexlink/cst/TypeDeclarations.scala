@@ -135,13 +135,14 @@ object ClassDeclaration {
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
         .getOrElse(TypeName.emptyTypeName)
-    val typeArguments : Seq[Id] =
+    val typeArguments: Seq[Id] =
       CodeParser.toScala(classDeclaration.typeParameters())
         .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
         .getOrElse(Seq.empty)
 
-    val classBody = classDeclaration.classBody()
-    val classBodyDeclarations = CodeParser.toScala(classBody.classBodyDeclaration())
+    val classBodyDeclarations = CodeParser.toScala(classDeclaration.classBody())
+      .map(cb => CodeParser.toScala(cb.classBodyDeclaration()))
+      .getOrElse(Seq())
     val typeContext = new RelativeTypeContext
 
     val bodyDeclarations = ArraySeq.unsafeWrapArray(
@@ -199,14 +200,20 @@ object InterfaceDeclaration {
 
     val typeContext = new RelativeTypeContext()
 
-    val methods
-    = ArraySeq.unsafeWrapArray(CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
-      ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
-        MethodModifiers.interfaceMethodModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(m.modifier()).toArray), m.id(), outerTypeName.isEmpty), m)
-    ).toArray)
+    val methods =
+      CodeParser.toScala(interfaceDeclaration.interfaceBody())
+        .map(interfaceBody => CodeParser.toScala(interfaceBody.interfaceMethodDeclaration()))
+        .map(methods => {
+          ArraySeq.unsafeWrapArray(methods.map(method => {
+            ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
+              MethodModifiers.interfaceMethodModifiers(parser,
+                ArraySeq.unsafeWrapArray(CodeParser.toScala(method.modifier()).toArray), method.id(), outerTypeName.isEmpty),
+              method)
+          }).toArray)
+        }).getOrElse(ArraySeq[ApexMethodDeclaration]())
 
-    val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
-      implementsType, methods).withContext(interfaceDeclaration)
+    val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
+      Id.construct(interfaceDeclaration.id()), modifiers, implementsType, methods).withContext(interfaceDeclaration)
     typeContext.freeze(td)
     td
   }

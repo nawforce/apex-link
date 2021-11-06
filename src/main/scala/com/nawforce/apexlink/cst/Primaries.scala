@@ -28,6 +28,12 @@ sealed abstract class Primary extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext
 }
 
+final case class EmptyPrimary() extends Primary {
+  override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+    ExprContext.empty
+  }
+}
+
 final case class ThisPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
 
@@ -221,6 +227,8 @@ object Primary {
           SOQL(ctx.soqlLiteral().query())
         case ctx: SoslPrimaryContext =>
           SOSL(ctx.soslLiteral())
+        case _ =>
+          EmptyPrimary()
       }
     cst.withContext(from)
   }

@@ -35,7 +35,8 @@ case class CSTParsingContext(path: PathLike, lineAdjust: Int = 0, columnAdjust: 
 class CST extends Positionable {
 
   def withContext(context: CodeParser.ParserRuleContext): this.type = {
-    CST.sourceContext.value.get.stampLocation(this, context)
+    if (context != null)
+      CST.sourceContext.value.get.stampLocation(this, context)
     this
   }
 }
@@ -47,11 +48,13 @@ object CST {
 
 final case class Id(name: Name) extends CST {
   def validate(): Unit = {
-    val illegalError = name.isLegalIdentifier
-    if (illegalError.nonEmpty)
-      OrgImpl.log(IssueOps.illegalIdentifier(location, name, illegalError.get))
-    else if (name.isReservedIdentifier)
-      OrgImpl.log(IssueOps.reservedIdentifier(location, name))
+    if (name.nonEmpty) {
+      val illegalError = name.isLegalIdentifier
+      if (illegalError.nonEmpty)
+        OrgImpl.log(IssueOps.illegalIdentifier(location, name, illegalError.get))
+      else if (name.isReservedIdentifier)
+        OrgImpl.log(IssueOps.reservedIdentifier(location, name))
+    }
   }
 }
 
@@ -65,25 +68,27 @@ object Id {
   }
 }
 
-final case class QualifiedName(names: List[Name]) extends CST {
+final case class QualifiedName(names: Seq[Name]) extends CST {
   def asTypeName(): TypeName = TypeName(names.reverse)
 }
 
 object QualifiedName {
-  def construct(aList: List[QualifiedNameContext]): List[QualifiedName] = {
-    aList.map(n => QualifiedName.construct(n))
+  def construct(qualifiedNames: Seq[QualifiedNameContext]): Seq[QualifiedName] = {
+    qualifiedNames.flatMap(n => QualifiedName.construct(n))
   }
 
-  def construct(qualifiedName: QualifiedNameContext): QualifiedName = {
-    val ids = CodeParser.toScala(qualifiedName.id())
-    QualifiedName(ids.toList.map(id => Names(CodeParser.getText(id)))).withContext(qualifiedName)
+  def construct(qualifiedName: QualifiedNameContext): Option[QualifiedName] = {
+    Option(qualifiedName).map(qualifiedName => {
+      val ids = CodeParser.toScala(qualifiedName.id())
+      QualifiedName(ids.map(id => Names(CodeParser.getText(id)))).withContext(qualifiedName)
+    })
   }
 }
 
-final case class Annotation(name: QualifiedName,
+final case class Annotation(name: Option[QualifiedName],
                             elementValuePairs: List[ElementValuePair],
                             elementValue: Option[ElementValue])
-    extends CST
+  extends CST
 
 object Annotation {
   def construct(annotation: AnnotationContext): Annotation = {

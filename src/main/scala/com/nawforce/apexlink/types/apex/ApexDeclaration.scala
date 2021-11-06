@@ -158,10 +158,19 @@ trait ApexClassDeclaration extends ApexDeclaration {
 
   /** Obtain a source hash for this class and all it's ancestors */
   def deepHash: Int = {
-    MurmurHash3.arrayHash(
-      Array(this.sourceHash) ++
-        superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash).toArray ++
-        interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash))
+    deepHash(mutable.Set())
+  }
+
+  private def deepHash(accum: mutable.Set[ApexClassDeclaration]): Int = {
+    if (accum.contains(this)) {
+      0
+    } else {
+      accum.add(this)
+      MurmurHash3.arrayHash(
+        Array(this.sourceHash) ++
+          superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)).toArray ++
+          interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)))
+    }
   }
 
   override lazy val isComplete: Boolean = {

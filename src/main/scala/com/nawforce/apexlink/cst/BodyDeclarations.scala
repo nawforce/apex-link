@@ -113,13 +113,12 @@ object ClassBodyDeclaration {
             .toScala(memberDeclarationContext.constructorDeclaration())
             .map(
               x =>
-                Seq(
-                  ApexConstructorDeclaration.construct(parser,
-                                                       typeContext,
-                                                       module,
-                                                       typeName,
-                                                       ApexModifiers.constructorModifiers(parser, modifiers, x),
-                                                       x))))
+                ApexConstructorDeclaration.construct(parser,
+                  typeContext,
+                  module,
+                  typeName,
+                  ApexModifiers.constructorModifiers(parser, modifiers, x),
+                  x).toSeq))
         .orElse(
           CodeParser
             .toScala(memberDeclarationContext.interfaceDeclaration())
@@ -255,7 +254,7 @@ object ApexMethodDeclaration {
 
     new ApexMethodDeclaration(outerTypeId,
                               modifiers,
-                              RelativeTypeName(typeContext, typeName),
+                              RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
                               Id.construct(from.id()),
                               FormalParameters.construct(parser,
                                                          typeContext,
@@ -367,15 +366,19 @@ object ApexConstructorDeclaration {
                 module: Module,
                 outerTypeName: TypeName,
                 modifiers: ModifierResults,
-                from: ConstructorDeclarationContext): ApexConstructorDeclaration = {
-    ApexConstructorDeclaration(modifiers,
-                               QualifiedName.construct(from.qualifiedName()),
-                               FormalParameters.construct(parser,
-                                                          typeContext,
-                                                          module,
-                                                          outerTypeName,
-                                                          from.formalParameters()),
-                               Block.constructLazy(parser, from.block())).withContext(from)
+                from: ConstructorDeclarationContext): Option[ApexConstructorDeclaration] = {
+
+    QualifiedName.construct(from.qualifiedName())
+      .map(qname => {
+        ApexConstructorDeclaration(modifiers,
+          qname,
+          FormalParameters.construct(parser,
+            typeContext,
+            module,
+            outerTypeName,
+            from.formalParameters()),
+          Block.constructLazy(parser, from.block())).withContext(from)
+      })
   }
 }
 
@@ -417,7 +420,7 @@ object FormalParameter {
     FormalParameter(module,
       outerTypeName,
       ApexModifiers.parameterModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray), from),
-      RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
+      RelativeTypeName(typeContext, TypeReference.construct(from.typeRef)),
       Id.construct(from.id()))
   }
 }

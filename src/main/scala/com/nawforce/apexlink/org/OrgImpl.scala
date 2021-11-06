@@ -437,13 +437,12 @@ object OrgImpl {
 
   /** Log an issue against the in-scope org */
   private[nawforce] def log(issue: Issue): Unit = {
-    OrgImpl.current.value.issues.add(issue)
+    if (issue.path != null)
+      OrgImpl.current.value.issues.add(issue)
   }
 
   /** Log a general error against the in-scope org */
-  // TODO: Remove this in favour of passing issues around
   private[nawforce] def logError(pathLocation: PathLocation, message: String): Unit = {
-    OrgImpl.current.value.issues
-      .add(new Issue(pathLocation.path, Diagnostic(ERROR_CATEGORY, pathLocation.location, message)))
+    log(new Issue(pathLocation.path, Diagnostic(ERROR_CATEGORY, pathLocation.location, message)))
   }
 }

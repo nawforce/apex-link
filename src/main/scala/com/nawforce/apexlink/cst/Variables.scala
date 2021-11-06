@@ -49,7 +49,7 @@ object VariableDeclarator {
   }
 }
 
-final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
+final case class VariableDeclarators(declarators: Seq[VariableDeclarator]) extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(input, context))
   }
@@ -62,11 +62,13 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 object VariableDeclarators {
   def construct(typeName: TypeName,
                 variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
-    val variableDeclarators: Seq[VariableDeclaratorContext] =
-      CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
+    val variableDeclarators: Seq[VariableDeclaratorContext] = {
+      Option(variableDeclaratorsContext).map(variableDeclaratorsContext => {
+        CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
+      }).getOrElse(Seq())
+    }
     VariableDeclarators(
-      variableDeclarators.toList
-        .map(x => VariableDeclarator.construct(typeName, x)))
+      variableDeclarators.map(x => VariableDeclarator.construct(typeName, x)))
       .withContext(variableDeclaratorsContext)
   }
 }
