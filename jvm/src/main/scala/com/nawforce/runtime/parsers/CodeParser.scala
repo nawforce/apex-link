@@ -126,17 +126,17 @@ object CodeParser {
 
   // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {
-    context.getText
+    Option(context).map(_.getText).getOrElse("")
   }
 
   // Helper for JS Portability
   def getText(context: TerminalNode): String = {
-    context.getText
+    Option(context).map(_.getText).getOrElse("")
   }
 
   // Helper for JS Portability
   def toScala[T](collection: java.util.List[T]): Seq[T] = {
-    collection.asScala.toSeq
+    Option(collection).map(_.asScala.toSeq).getOrElse(Seq())
   }
 
   // Helper for JS Portability

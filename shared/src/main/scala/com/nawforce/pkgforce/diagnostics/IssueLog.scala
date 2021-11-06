@@ -61,6 +61,7 @@ class IssueLog {
 
   /** Add an issue. */
   def add(issue: Issue): Unit = {
+    assert(issue.path != null)
     log.put(issue.path, issue :: log(issue.path))
     if (issue.diagnostic.category == MISSING_CATEGORY)
       possibleMissing.add(issue.path)
