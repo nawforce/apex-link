@@ -74,14 +74,14 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override lazy val interfaces: Array[TypeName] = getInterfaces
+  override lazy val interfaces: ArraySeq[TypeName] = getInterfaces
 
-  override lazy val interfaceDeclarations: Array[TypeDeclaration] = {
+  override lazy val interfaceDeclarations: ArraySeq[TypeDeclaration] = {
     getInterfaces.flatMap(id => PlatformTypes.get(id, None).toOption)
   }
 
-  protected def getInterfaces: Array[TypeName] =
-    cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
+  protected def getInterfaces: ArraySeq[TypeName] =
+    ArraySeq.unsafeWrapArray(cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls)))
 
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)

@@ -45,9 +45,9 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override lazy val interfaces: Array[TypeName] = getInterfaces.map(replaceParams)
+  override lazy val interfaces: ArraySeq[TypeName] = getInterfaces.map(replaceParams)
 
-  override lazy val interfaceDeclarations: Array[TypeDeclaration] = {
+  override lazy val interfaceDeclarations: ArraySeq[TypeDeclaration] = {
     getInterfaces.flatMap(id => PlatformTypes.get(replaceParams(id), None).toOption)
   }
 

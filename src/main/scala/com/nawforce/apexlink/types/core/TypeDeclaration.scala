@@ -240,10 +240,10 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   val superClass: Option[TypeName]
-  val interfaces: Array[TypeName]
+  val interfaces: ArraySeq[TypeName]
 
   def superClassDeclaration: Option[TypeDeclaration] = None
-  def interfaceDeclarations: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  def interfaceDeclarations: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
   def nestedTypes: Array[TypeDeclaration]
 
   val blocks: Array[BlockDeclaration]
@@ -297,7 +297,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array(), Array())
+  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array(), ArraySeq())
 
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
@@ -386,5 +386,6 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 }
 
 object TypeDeclaration {
-  val emptyTypeDeclarations: Array[TypeDeclaration] = Array()
+  val emptyTypeDeclarations: ArraySeq[TypeDeclaration] = ArraySeq()
+  val emptyTypeDeclarationsArray: Array[TypeDeclaration] = Array()
 }

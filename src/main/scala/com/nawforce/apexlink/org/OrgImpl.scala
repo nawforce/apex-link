@@ -31,6 +31,7 @@ import com.nawforce.runtime.platform.Path
 import java.io.File
 import java.util
 import java.util.jar.JarFile
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
@@ -349,7 +350,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
 
     def targetsForInterfaces(pkg: Package,
-                             summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+                             summary: TypeSummary): ArraySeq[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
       summary.interfaces.flatMap { interface =>
         Option(pkg.getTypeIdentifier(interface))
           .flatMap { interfaceTypeId =>

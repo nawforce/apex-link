@@ -153,7 +153,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def superClassDeclaration: Option[TypeDeclaration] =
     superClass.flatMap(sc => TypeResolver(sc, this).toOption)
 
-  override def interfaceDeclarations: Array[TypeDeclaration] =
+  override def interfaceDeclarations: ArraySeq[TypeDeclaration] =
     interfaces.flatMap(i => TypeResolver(i, this).toOption)
 
   /** Obtain a source hash for this class and all it's ancestors */

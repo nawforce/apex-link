@@ -114,7 +114,7 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
   }
 
   class NamespaceDeclaration(name: Name,
-                             nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+                             nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
     override def nestedTypes: Array[TypeDeclaration] = nestedComponents
 

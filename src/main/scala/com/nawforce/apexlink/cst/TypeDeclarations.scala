@@ -50,7 +50,7 @@ final case class TypeArgumentProxy(_paths: ArraySeq[PathLike], _module: Module, 
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                   _outerTypeName: Option[TypeName], _id: Id, extendedApex: Boolean,
                                   _modifiers: ModifierResults, typeArguments: Seq[Id], _extendsType: Option[TypeName],
-                                  _implementsTypes: Array[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
+                                  _implementsTypes: ArraySeq[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
     _bodyDeclarations) with ApexNode {
 
@@ -132,9 +132,9 @@ object ClassDeclaration {
         .map(tr => TypeReference.construct(tr))
         .getOrElse(TypeNames.InternalObject)
     val implementsType =
-      CodeParser.toScala(classDeclaration.typeList())
+      ArraySeq.unsafeWrapArray(CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
-        .getOrElse(TypeName.emptyTypeName)
+        .getOrElse(TypeName.emptyTypeName))
     val typeArguments: Seq[Id] =
       CodeParser.toScala(classDeclaration.typeParameters())
         .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
@@ -171,7 +171,7 @@ object ClassDeclaration {
 
 final case class InterfaceDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                       _outerTypeName: Option[TypeName], _id: Id, _modifiers: ModifierResults,
-                                      _implementsTypes: Array[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
+                                      _implementsTypes: ArraySeq[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, _implementsTypes,
     _bodyDeclarations) {
 
@@ -193,10 +193,12 @@ object InterfaceDeclaration {
                 modifiers: ModifierResults, interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
 
-    val implementsType =
-      CodeParser.toScala(interfaceDeclaration.typeList())
-        .map(x => TypeList.construct(x))
-        .getOrElse(Array(TypeNames.InternalInterface))
+    val implementsType = {
+      ArraySeq.unsafeWrapArray(
+        CodeParser.toScala(interfaceDeclaration.typeList())
+          .map(x => TypeList.construct(x))
+          .getOrElse(Array(TypeNames.InternalInterface)))
+    }
 
     val typeContext = new RelativeTypeContext()
 
@@ -222,7 +224,7 @@ object InterfaceDeclaration {
 final case class EnumDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                  _outerTypeName: Option[TypeName], _id: Id,
                                  _modifiers: ModifierResults, _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeName,
+  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, ArraySeq(),
     _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE

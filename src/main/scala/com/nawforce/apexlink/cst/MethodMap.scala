@@ -95,7 +95,7 @@ object MethodMap {
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
             newMethods: Array[MethodDeclaration], outerStaticMethods: Array[MethodDeclaration],
-            interfaces: Array[TypeDeclaration]): MethodMap = {
+            interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Buffer[Issue]()
@@ -140,7 +140,7 @@ object MethodMap {
     }
   }
 
-  private def mergeInterfaces(workingMap: WorkingMap, interfaces: Array[TypeDeclaration]): Unit = {
+  private def mergeInterfaces(workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         mergeInterface(workingMap, i)
@@ -169,7 +169,7 @@ object MethodMap {
   }
 
   private def checkInterfaces(module: Module, location: Option[PathLocation], isAbstract: Boolean,
-                              workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
+                              workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         checkInterface(module, location, isAbstract, workingMap, i, errors)

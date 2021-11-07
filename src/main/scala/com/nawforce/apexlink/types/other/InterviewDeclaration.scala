@@ -89,7 +89,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = module.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+  class NamespaceDeclaration(nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
                                         module,
                                         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {

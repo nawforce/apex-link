@@ -45,7 +45,7 @@ abstract class FullDeclaration(val source: Source,
                                val id: Id,
                                _modifiers: ModifierResults,
                                val superClass: Option[TypeName],
-                               val interfaces: Array[TypeName],
+                               val interfaces: ArraySeq[TypeName],
                                val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
     extends ClassBodyDeclaration(_modifiers)
     with ApexClassDeclaration

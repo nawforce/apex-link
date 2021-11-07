@@ -57,9 +57,9 @@ class GenericTypeDeclaration(module: Module, override val typeName: TypeName, va
   override lazy val superClassDeclaration: Option[TypeDeclaration] =
     superClass.flatMap(typeName => TypeResolver(typeName, module).toOption)
 
-  override lazy val interfaces: Array[TypeName] = baseType.interfaces.map(replaceParams)
+  override lazy val interfaces: ArraySeq[TypeName] = baseType.interfaces.map(replaceParams)
 
-  override lazy val interfaceDeclarations: Array[TypeDeclaration] =
+  override lazy val interfaceDeclarations: ArraySeq[TypeDeclaration] =
     interfaces.flatMap(typeName => TypeResolver(typeName, module).toOption)
 
   override def nestedTypes: Array[TypeDeclaration] = Array()

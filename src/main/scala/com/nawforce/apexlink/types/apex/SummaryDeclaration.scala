@@ -282,7 +282,7 @@ class SummaryDeclaration(path: PathLike,
   override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
 
   override val superClass: Option[TypeName] = typeSummary.superClass
-  override val interfaces: Array[TypeName] = typeSummary.interfaces
+  override val interfaces: ArraySeq[TypeName] = typeSummary.interfaces
   override val nestedTypes: Array[TypeDeclaration] = {
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
   }

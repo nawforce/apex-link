@@ -65,8 +65,8 @@ final case class TriggerDeclaration(source: Source,
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
-  override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+  override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
