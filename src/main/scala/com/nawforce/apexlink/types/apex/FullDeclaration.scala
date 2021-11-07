@@ -76,12 +76,12 @@ abstract class FullDeclaration(val source: Source,
     }
   }
 
-  lazy val localFields: Array[ApexFieldLike] = {
+  lazy val localFields: ArraySeq[ApexFieldLike] = {
     bodyDeclarations.flatMap {
       case x: ApexFieldDeclaration => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
       case _ => None
-    }.toArray
+    }
   }
 
   override lazy val constructors: ArraySeq[ApexConstructorDeclaration] = {
@@ -91,13 +91,11 @@ abstract class FullDeclaration(val source: Source,
     }
   }
 
-  override lazy val localMethods: Array[MethodDeclaration] =
-    _localMethods.asInstanceOf[Array[MethodDeclaration]]
-  lazy val _localMethods: Array[ApexVisibleMethodLike] = {
+  lazy val localMethods: ArraySeq[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
       case m: ApexVisibleMethodLike => Some(m)
       case _ => None
-    }).toArray
+    })
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
@@ -272,7 +270,7 @@ abstract class FullDeclaration(val source: Source,
       blocks.map(_.summary),
       localFields.map(_.summary).sortBy(_.name),
       constructors.map(_.summary).sortBy(_.parameters.length),
-      _localMethods.map(_.summary).sortBy(_.name),
+      localMethods.map(_.summary).sortBy(_.name),
       nestedTypes.map(_.summary).sortBy(_.name),
       dependencySummary())
   }

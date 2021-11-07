@@ -211,7 +211,7 @@ trait MethodDeclaration extends DependencyHolder {
 }
 
 object MethodDeclaration {
-  val emptyMethodDeclarations: Array[MethodDeclaration] = Array()
+  val emptyMethodDeclarations: ArraySeq[MethodDeclaration] = ArraySeq()
 }
 
 trait AbstractTypeDeclaration {
@@ -249,7 +249,8 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   val blocks: ArraySeq[BlockDeclaration]
   val fields: ArraySeq[FieldDeclaration]
   val constructors: ArraySeq[ConstructorDeclaration]
-  def methods: Array[MethodDeclaration]
+
+  def methods: ArraySeq[MethodDeclaration]
 
   def isComplete: Boolean
   lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
@@ -297,7 +298,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, Array(), ArraySeq())
+  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, ArraySeq(), ArraySeq())
 
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],

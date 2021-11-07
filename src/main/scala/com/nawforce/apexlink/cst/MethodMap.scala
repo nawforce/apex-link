@@ -33,10 +33,10 @@ import scala.collection.mutable
 final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
 
   /** Return all available methods */
-  def allMethods: Array[MethodDeclaration] = {
+  def allMethods: ArraySeq[MethodDeclaration] = {
     val buffer = new mutable.ArrayBuffer[MethodDeclaration]()
     methodsByName.values.foreach(methods => buffer.addAll(methods))
-    buffer.toArray
+    ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 
   /** Find a method, without concern for the calling context. */
@@ -94,7 +94,7 @@ object MethodMap {
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
-            newMethods: Array[MethodDeclaration], outerStaticMethods: Array[MethodDeclaration],
+            newMethods: ArraySeq[MethodDeclaration], outerStaticMethods: ArraySeq[MethodDeclaration],
             interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName

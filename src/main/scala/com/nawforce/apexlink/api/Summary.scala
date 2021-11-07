@@ -41,9 +41,9 @@ case class TypeSummary(sourceHash: Int,
                        superClass: Option[TypeName],
                        interfaces: ArraySeq[TypeName],
                        blocks: ArraySeq[BlockSummary],
-                       fields: Array[FieldSummary],
+                       fields: ArraySeq[FieldSummary],
                        constructors: ArraySeq[ConstructorSummary],
-                       methods: Array[MethodSummary],
+                       methods: ArraySeq[MethodSummary],
                        nestedTypes: ArraySeq[TypeSummary],
                        dependents: Array[DependentSummary]) {
 

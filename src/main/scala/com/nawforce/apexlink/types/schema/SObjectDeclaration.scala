@@ -142,7 +142,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     findFieldSObject(name, staticContext)
   }
 
-  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
+  override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],

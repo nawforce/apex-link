@@ -139,8 +139,8 @@ trait ApexTriggerDeclaration extends ApexDeclaration
 
 /** Apex defined classes, interfaces, enum of either full or summary type */
 trait ApexClassDeclaration extends ApexDeclaration {
-  val localFields: Array[ApexFieldLike]
-  val localMethods: Array[MethodDeclaration]
+  val localFields: ArraySeq[ApexFieldLike]
+  val localMethods: ArraySeq[MethodDeclaration]
 
   def isTest: Boolean = modifiers.intersect(ApexClassDeclaration.testModifiers).nonEmpty
 
@@ -193,7 +193,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
       .toArray)
   }
 
-  lazy val staticMethods: Array[MethodDeclaration] = {
+  lazy val staticMethods: ArraySeq[MethodDeclaration] = {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
         case Some(td: ApexClassDeclaration) =>
@@ -203,10 +203,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
       })
   }
 
-  lazy val outerStaticMethods: Array[MethodDeclaration] = {
+  lazy val outerStaticMethods: ArraySeq[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeResolver(ot, this).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
-      case _                              => MethodDeclaration.emptyMethodDeclarations
+      case _ => MethodDeclaration.emptyMethodDeclarations
     }
   }
 
@@ -232,7 +232,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
       case Some(td: TypeDeclaration) =>
         MethodMap(this,
           errorLocation,
-          MethodMap(td, None, MethodMap.empty(), td.methods, Array(), TypeDeclaration.emptyTypeDeclarations),
+          MethodMap(td, None, MethodMap.empty(), td.methods, ArraySeq(), TypeDeclaration.emptyTypeDeclarations),
           localMethods, outerStaticMethods,
           interfaceDeclarations)
       case _ =>
@@ -243,7 +243,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methods
   }
 
-  override def methods: Array[MethodDeclaration] = {
+  override def methods: ArraySeq[MethodDeclaration] = {
     methodMap.allMethods
   }
 

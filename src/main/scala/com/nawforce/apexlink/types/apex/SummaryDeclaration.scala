@@ -283,20 +283,12 @@ class SummaryDeclaration(path: PathLike,
 
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: ArraySeq[TypeName] = typeSummary.interfaces
-  override val nestedTypes: ArraySeq[TypeDeclaration] = {
+  override val nestedTypes: ArraySeq[TypeDeclaration] =
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
-  }
-
   override val blocks: ArraySeq[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
-  private val _localFields: Array[SummaryField] =
-    typeSummary.fields.map(new SummaryField(module, path, typeId, _))
-  override val localFields: Array[ApexFieldLike] = _localFields.asInstanceOf[Array[ApexFieldLike]]
+  override val localFields: ArraySeq[SummaryField] = typeSummary.fields.map(new SummaryField(module, path, typeId, _))
   override val constructors: ArraySeq[SummaryConstructor] = typeSummary.constructors.map(new SummaryConstructor(module, path, _))
-  private val _localMethods: Array[SummaryMethod] = {
-    typeSummary.methods.map(new SummaryMethod(module, path, typeId, _))
-  }
-  override val localMethods: Array[MethodDeclaration] =
-    _localMethods.asInstanceOf[Array[MethodDeclaration]]
+  override val localMethods: ArraySeq[SummaryMethod] = typeSummary.methods.map(new SummaryMethod(module, path, typeId, _))
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
@@ -309,9 +301,9 @@ class SummaryDeclaration(path: PathLike,
       superClass,
       interfaces,
       blocks.map(_.summary),
-      _localFields.map(_.summary).sortBy(_.name),
+      localFields.map(_.summary).sortBy(_.name),
       constructors.map(_.summary).sortBy(_.parameters.length),
-      _localMethods.map(_.summary).sortBy(_.name),
+      localMethods.map(_.summary).sortBy(_.name),
       nestedTypes
         .collect { case x: SummaryDeclaration => x }
         .map(_.summary)
@@ -342,9 +334,9 @@ class SummaryDeclaration(path: PathLike,
   def hasValidDependencies(typeCache: TypeCache): Boolean =
     areTypeDependenciesValid(typeCache) &&
       blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
-      _localFields.forall(f => f.areTypeDependenciesValid(typeCache)) &&
+      localFields.forall(f => f.areTypeDependenciesValid(typeCache)) &&
       constructors.forall(c => c.areTypeDependenciesValid(typeCache)) &&
-      _localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
+      localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
       nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies(typeCache))
 
   override def propagateDependencies(): Unit = propagated
@@ -385,9 +377,9 @@ class SummaryDeclaration(path: PathLike,
     // Collect them all
     collect(populateDependencies(typeCache))
     blocks.foreach(x => collect(x.populateDependencies(typeCache)))
-    _localFields.foreach(x => collect(x.populateDependencies(typeCache)))
+    localFields.foreach(x => collect(x.populateDependencies(typeCache)))
     constructors.foreach(x => collect(x.populateDependencies(typeCache)))
-    _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
+    localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
     nestedTypes
       .collect { case x: SummaryDeclaration => x }
       .foreach(_.collectDependencies(dependsOn, apexOnly, typeCache))

@@ -193,8 +193,8 @@ final case class EnumDeclaration(_source: Source, _module: Module, _typeContext:
     super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 
-  override lazy val _localMethods: Array[ApexVisibleMethodLike] =
-    Array(
+  override lazy val localMethods: ArraySeq[ApexVisibleMethodLike] =
+    ArraySeq(
       CustomMethodDeclaration(id.location.location, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(id.location.location, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(id.location.location, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),

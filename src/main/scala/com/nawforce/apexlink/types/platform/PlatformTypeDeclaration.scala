@@ -123,23 +123,23 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     }
   }
 
-  override lazy val methods: Array[MethodDeclaration] = {
+  override lazy val methods: ArraySeq[MethodDeclaration] = {
     nature match {
       case ENUM_NATURE => PlatformTypeDeclaration.enumMethods(typeName)
-      case _           => getMethods.asInstanceOf[Array[MethodDeclaration]]
+      case _ => getMethods
     }
   }
 
-  protected def getMethods: Array[PlatformMethod] = {
+  protected def getMethods: ArraySeq[PlatformMethod] = {
     val localMethods =
       cls.getMethods.filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
       case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
-               s"Enum $name has locally defined methods which are not supported in platform types")
-        Array[PlatformMethod]()
+          s"Enum $name has locally defined methods which are not supported in platform types")
+        ArraySeq[PlatformMethod]()
       case _ =>
-        localMethods.map(m => new PlatformMethod(m, this))
+        ArraySeq.unsafeWrapArray(localMethods.map(m => new PlatformMethod(m, this)))
     }
   }
 
@@ -378,8 +378,8 @@ object PlatformTypeDeclaration {
   }
 
   /* Standard methods to be exposed on enums */
-  private def enumMethods(typeName: TypeName): Array[MethodDeclaration] =
-    Array(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
+  private def enumMethods(typeName: TypeName): ArraySeq[MethodDeclaration] =
+    ArraySeq(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
       CustomMethodDeclaration(Location.empty,

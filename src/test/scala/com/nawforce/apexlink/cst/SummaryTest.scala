@@ -45,9 +45,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -65,9 +65,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -85,9 +85,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -105,9 +105,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           None,
           ArraySeq(interfaceTypeName),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -126,9 +126,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           None,
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(
+          ArraySeq(),
+          ArraySeq(
             MethodSummary(idLocation,
               idLocation,
               "equals",
@@ -186,9 +186,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(TypeName(Name("Bar"))),
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -206,9 +206,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(TypeName(Name("A")), TypeName(Name("B"))),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -226,9 +226,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           None,
           ArraySeq(TypeName(Name("A")), TypeName(Name("B"))),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -246,7 +246,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(
+          ArraySeq(
             FieldSummary(Location(1, 45, 1, 55),
               Location(1, 53, 1, 54),
               "A",
@@ -265,7 +265,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               Array()),
           ),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -284,7 +284,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(
+          ArraySeq(
             FieldSummary(Location(1, 56, 1, 85),
               Location(1, 64, 1, 65),
               "A",
@@ -303,7 +303,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               Array()),
           ),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -321,7 +321,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
           ArraySeq(
             ConstructorSummary(Location(1, 46, 1, 56),
               Location(1, 46, 1, 51),
@@ -333,7 +333,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               ArraySeq("public"),
               ArraySeq(ParameterSummary("a", TypeNames.String)),
               Array())),
-          Array(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }
@@ -351,9 +351,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Some(objectTypeName),
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(
+          ArraySeq(),
+          ArraySeq(
             MethodSummary(Location(1, 51, 1, 64),
               Location(1, 56, 1, 59),
               "bar",
@@ -386,9 +386,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
       None,
       ArraySeq(interfaceTypeName),
       ArraySeq(),
-      Array(),
       ArraySeq(),
-      Array(
+      ArraySeq(),
+      ArraySeq(
         MethodSummary(Location(1, 46, 1, 57),
           Location(1, 51, 1, 54),
           "bar",
@@ -426,7 +426,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           None,
           ArraySeq(),
           ArraySeq(),
-          Array(FieldSummary(Location(1, 22, 1, 23),
+          ArraySeq(FieldSummary(Location(1, 22, 1, 23),
             Location(1, 22, 1, 23),
             "A",
             ArraySeq("public", "static"),
@@ -452,7 +452,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               Array(TypeDependentSummary(dummyTypeId, -1270140630))),
           ),
           ArraySeq(),
-          Array(
+          ArraySeq(
             MethodSummary(idLocation,
               idLocation,
               "equals",
@@ -511,9 +511,9 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           None,
           ArraySeq(),
           ArraySeq(),
-          Array(),
           ArraySeq(),
-          Array(),
+          ArraySeq(),
+          ArraySeq(),
           ArraySeq(),
           Array()))
   }

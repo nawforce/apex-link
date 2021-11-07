@@ -55,7 +55,7 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
     getFields.map(f => new GenericPlatformField(f, this))
   }
 
-  override lazy val methods: Array[MethodDeclaration] = {
+  override lazy val methods: ArraySeq[MethodDeclaration] = {
     getMethods.map(m => new GenericPlatformMethod(m, this))
   }
 
