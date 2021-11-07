@@ -68,7 +68,7 @@ final case class TriggerDeclaration(source: Source,
   override val interfaces: ArraySeq[TypeName] = ArraySeq()
   override val nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
-  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
@@ -134,20 +134,20 @@ final case class TriggerDeclaration(source: Source,
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                location.location,
-                nameId.location.location,
-                name.toString,
-                typeName,
-                nature.value,
-                modifiers.map(_.toString).sorted,
-                superClass,
-                interfaces,
-                Array(),
-                Array(),
-                ArraySeq(),
-                Array(),
-                ArraySeq(),
-                dependencySummary())
+      location.location,
+      nameId.location.location,
+      name.toString,
+      typeName,
+      nature.value,
+      modifiers.map(_.toString).sorted,
+      superClass,
+      interfaces,
+      ArraySeq(),
+      Array(),
+      ArraySeq(),
+      Array(),
+      ArraySeq(),
+      dependencySummary())
   }
 }
 

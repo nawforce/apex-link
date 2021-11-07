@@ -101,7 +101,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
-  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
   override val superClass: Option[TypeName] = {
     Some(TypeNames.SObject)

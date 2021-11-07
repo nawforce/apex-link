@@ -21,7 +21,6 @@ import com.nawforce.apexlink.finding.{RelativeTypeContext, TypeResolver}
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.TypeDeclarationContext
 import com.nawforce.pkgforce.diagnostics.LoggerOps
@@ -70,12 +69,11 @@ abstract class FullDeclaration(val source: Source,
       case _ => None
     }
 
-  override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
-  private lazy val _blocks: Array[ApexInitializerBlock] = {
+  override lazy val blocks: ArraySeq[ApexInitializerBlock] = {
     bodyDeclarations.flatMap {
       case x: ApexInitializerBlock => Some(x)
       case _ => None
-    }.toArray
+    }
   }
 
   lazy val localFields: Array[ApexFieldLike] = {
@@ -160,9 +158,9 @@ abstract class FullDeclaration(val source: Source,
 
     // Check for duplicate nested types
     val duplicateNestedType =
-      (this +: nestedTypes).toSeq.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
+      (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      OrgImpl.logError(td.asInstanceOf[apex.FullDeclaration].location, s"Duplicate type name '${td.name.toString}'"))
+      OrgImpl.logError(td.location, s"Duplicate type name '${td.name.toString}'"))
 
     // Check interfaces are visible
     interfaces.foreach(interface => {
@@ -177,7 +175,7 @@ abstract class FullDeclaration(val source: Source,
     // Detail check each body declaration
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
-    nestedTypes.filter(t => !t.nestedTypes.isEmpty)
+    nestedTypes.filter(t => t.nestedTypes.nonEmpty)
       .foreach(_.nestedTypes.foreach {
         case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
         case _ =>
@@ -271,7 +269,7 @@ abstract class FullDeclaration(val source: Source,
       modifiers.map(_.toString).sorted,
       superClass,
       interfaces,
-      _blocks.map(_.summary),
+      blocks.map(_.summary),
       localFields.map(_.summary).sortBy(_.name),
       constructors.map(_.summary).sortBy(_.parameters.length),
       _localMethods.map(_.summary).sortBy(_.name),

@@ -93,7 +93,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   override lazy val nestedTypes: ArraySeq[TypeDeclaration] =
     ArraySeq.unsafeWrapArray(cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this))))
 
-  override lazy val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override lazy val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
   override lazy val fields: Array[FieldDeclaration] =
     getFields.asInstanceOf[Array[FieldDeclaration]]

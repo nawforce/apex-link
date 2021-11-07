@@ -287,8 +287,7 @@ class SummaryDeclaration(path: PathLike,
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
   }
 
-  private val _blocks: Array[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
-  override val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
+  override val blocks: ArraySeq[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
   private val _localFields: Array[SummaryField] =
     typeSummary.fields.map(new SummaryField(module, path, typeId, _))
   override val localFields: Array[ApexFieldLike] = _localFields.asInstanceOf[Array[ApexFieldLike]]
@@ -301,23 +300,23 @@ class SummaryDeclaration(path: PathLike,
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                location.location,
-                idLocation,
-                name.toString,
-                typeName,
-                nature.value,
-                modifiers.map(_.toString).sorted,
-                superClass,
-                interfaces,
-                _blocks.map(_.summary),
-                _localFields.map(_.summary).sortBy(_.name),
-                constructors.map(_.summary).sortBy(_.parameters.length),
-                _localMethods.map(_.summary).sortBy(_.name),
-                nestedTypes
-                  .collect { case x: SummaryDeclaration => x }
-                  .map(_.summary)
-                  .sortBy(_.name),
-                dependents)
+      location.location,
+      idLocation,
+      name.toString,
+      typeName,
+      nature.value,
+      modifiers.map(_.toString).sorted,
+      superClass,
+      interfaces,
+      blocks.map(_.summary),
+      _localFields.map(_.summary).sortBy(_.name),
+      constructors.map(_.summary).sortBy(_.parameters.length),
+      _localMethods.map(_.summary).sortBy(_.name),
+      nestedTypes
+        .collect { case x: SummaryDeclaration => x }
+        .map(_.summary)
+        .sortBy(_.name),
+      dependents)
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
@@ -342,7 +341,7 @@ class SummaryDeclaration(path: PathLike,
 
   def hasValidDependencies(typeCache: TypeCache): Boolean =
     areTypeDependenciesValid(typeCache) &&
-      _blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
+      blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
       _localFields.forall(f => f.areTypeDependenciesValid(typeCache)) &&
       constructors.forall(c => c.areTypeDependenciesValid(typeCache)) &&
       _localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
@@ -385,7 +384,7 @@ class SummaryDeclaration(path: PathLike,
 
     // Collect them all
     collect(populateDependencies(typeCache))
-    _blocks.foreach(x => collect(x.populateDependencies(typeCache)))
+    blocks.foreach(x => collect(x.populateDependencies(typeCache)))
     _localFields.foreach(x => collect(x.populateDependencies(typeCache)))
     constructors.foreach(x => collect(x.populateDependencies(typeCache)))
     _localMethods.foreach(x => collect(x.populateDependencies(typeCache)))

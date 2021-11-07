@@ -40,7 +40,7 @@ case class TypeSummary(sourceHash: Int,
                        modifiers: ArraySeq[String],
                        superClass: Option[TypeName],
                        interfaces: ArraySeq[TypeName],
-                       blocks: Array[BlockSummary],
+                       blocks: ArraySeq[BlockSummary],
                        fields: Array[FieldSummary],
                        constructors: ArraySeq[ConstructorSummary],
                        methods: Array[MethodSummary],
@@ -62,20 +62,20 @@ case class TypeSummary(sourceHash: Int,
 
   private def doesEqual(other: TypeSummary): Boolean = {
     this.sourceHash == other.sourceHash &&
-    this.location == other.location &&
-    this.idLocation == other.idLocation &&
-    this.name == other.name &&
-    this.typeName == other.typeName &&
-    this.nature == other.nature &&
-    this.modifiers == other.modifiers &&
-    this.superClass == other.superClass &&
-    this.interfaces.sameElements(other.interfaces) &&
-    this.blocks.sameElements(other.blocks) &&
-    this.fields.sameElements(other.fields) &&
-    this.constructors == other.constructors &&
-    this.methods.sameElements(other.methods) &&
-    this.nestedTypes.sameElements(other.nestedTypes) &&
-    this.dependents.sameElements(other.dependents)
+      this.location == other.location &&
+      this.idLocation == other.idLocation &&
+      this.name == other.name &&
+      this.typeName == other.typeName &&
+      this.nature == other.nature &&
+      this.modifiers == other.modifiers &&
+      this.superClass == other.superClass &&
+      this.interfaces == other.interfaces &&
+      this.blocks == other.blocks &&
+      this.fields.sameElements(other.fields) &&
+      this.constructors == other.constructors &&
+      this.methods.sameElements(other.methods) &&
+      this.nestedTypes == other.nestedTypes &&
+      this.dependents.sameElements(other.dependents)
   }
 }
 
@@ -174,13 +174,13 @@ case class MethodSummary(location: Location,
 
   private def doesEqual(other: MethodSummary): Boolean = {
     this.location == other.location &&
-    this.idLocation == other.idLocation &&
-    this.name == other.name &&
-    this.modifiers == other.modifiers &&
-    this.typeName == other.typeName &&
-    this.parameters.sameElements(other.parameters) &&
-    this.hasBlock == other.hasBlock &&
-    this.dependents.sameElements(other.dependents)
+      this.idLocation == other.idLocation &&
+      this.name == other.name &&
+      this.modifiers == other.modifiers &&
+      this.typeName == other.typeName &&
+      this.parameters == other.parameters &&
+      this.hasBlock == other.hasBlock &&
+      this.dependents.sameElements(other.dependents)
   }
 }
 
@@ -223,7 +223,7 @@ case class MethodDependentSummary(var typeId: TypeIdentifier, name: String, para
   private def doesEqual(other: MethodDependentSummary): Boolean = {
     this.typeId == other.typeId &&
     this.name == other.name &&
-    this.parameterTypes.sameElements(other.parameterTypes)
+      this.parameterTypes == other.parameterTypes
   }
 }
 

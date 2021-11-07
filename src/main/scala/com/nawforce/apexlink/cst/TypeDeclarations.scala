@@ -24,7 +24,6 @@ import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers._
-import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
@@ -39,11 +38,6 @@ object CompilationUnit {
         .map(fd => new CompilationUnit(fd, extendedApex).withContext(compilationUnit))
     }
   }
-}
-
-final case class TypeArgumentProxy(_paths: ArraySeq[PathLike], _module: Module, _typeName: TypeName)
-  extends BasicTypeDeclaration(_paths, _module, _typeName) {
-  override lazy val isComplete: Boolean = false
 }
 
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,

@@ -38,7 +38,7 @@ trait BlockDeclaration extends DependencyHolder {
 }
 
 object BlockDeclaration {
-  val emptyBlockDeclarations: Array[BlockDeclaration] = Array()
+  val emptyBlockDeclarations: ArraySeq[BlockDeclaration] = ArraySeq()
 }
 
 trait FieldDeclaration extends DependencyHolder with UnsafeLocatable {
@@ -246,7 +246,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   def interfaceDeclarations: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
   def nestedTypes: ArraySeq[TypeDeclaration]
 
-  val blocks: Array[BlockDeclaration]
+  val blocks: ArraySeq[BlockDeclaration]
   val fields: Array[FieldDeclaration]
   val constructors: ArraySeq[ConstructorDeclaration]
   def methods: Array[MethodDeclaration]
