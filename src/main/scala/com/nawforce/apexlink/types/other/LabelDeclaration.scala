@@ -54,7 +54,7 @@ final case class GhostLabel(name: Name) extends LabelField {
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(override val module: Module,
                              val sources: ArraySeq[SourceInfo],
-                             val labels: Array[Label],
+                             val labels: ArraySeq[Label],
                              val nestedLabels: ArraySeq[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
     with DependentType {
@@ -65,7 +65,7 @@ final class LabelDeclaration(override val module: Module,
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
   override val nestedTypes: ArraySeq[TypeDeclaration] = nestedLabels
-  override val fields: Array[FieldDeclaration] = labels.asInstanceOf[Array[FieldDeclaration]]
+  override val fields: ArraySeq[FieldDeclaration] = labels
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
@@ -88,13 +88,13 @@ final class LabelDeclaration(override val module: Module,
   }
 
   /** Report on unused labels */
-  def unused(): Array[Issue] = {
+  def unused(): ArraySeq[Issue] = {
     labels
       .filterNot(_.hasHolders)
       .map(
         label =>
           new Issue(label.location.path,
-                    Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
+            Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
   }
 }
 
@@ -160,7 +160,7 @@ object LabelDeclaration {
         base.addTypeDependencyHolder(newLabel.typeId)
         newLabel
       })
-      .getOrElse(new LabelDeclaration(module, ArraySeq(), Array(), createPackageLabels(module)))
+      .getOrElse(new LabelDeclaration(module, ArraySeq(), ArraySeq(), createPackageLabels(module)))
   }
 
   // Create labels declarations for each base package

@@ -72,7 +72,7 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   override lazy val isComplete: Boolean = !module.pkg.hasGhosted
-  override val fields: Array[FieldDeclaration] = pages.toArray
+  override val fields: ArraySeq[FieldDeclaration] = pages
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {

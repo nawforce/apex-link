@@ -44,9 +44,11 @@ final case class Component(module: Module,
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
-  override val fields: Array[FieldDeclaration] = attributes
-    .getOrElse(Array())
-    .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
+  override val fields: ArraySeq[FieldDeclaration] = {
+    ArraySeq.unsafeWrapArray(attributes
+      .getOrElse(Array())
+      .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields)
+  }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (attributes.isEmpty)

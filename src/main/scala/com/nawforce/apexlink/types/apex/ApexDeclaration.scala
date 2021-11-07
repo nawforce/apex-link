@@ -177,8 +177,8 @@ trait ApexClassDeclaration extends ApexDeclaration {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 
-  override lazy val fields: Array[FieldDeclaration] = {
-    localFields
+  override lazy val fields: ArraySeq[FieldDeclaration] = {
+    ArraySeq.unsafeWrapArray(localFields
       .groupBy(f => f.name)
       .collect {
         case (_, single) if single.length == 1 => single.head
@@ -190,7 +190,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
           }
           duplicates.head
       }
-      .toArray
+      .toArray)
   }
 
   lazy val staticMethods: Array[MethodDeclaration] = {

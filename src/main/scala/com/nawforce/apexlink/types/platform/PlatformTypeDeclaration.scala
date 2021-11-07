@@ -95,10 +95,9 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   override lazy val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
-  override lazy val fields: Array[FieldDeclaration] =
-    getFields.asInstanceOf[Array[FieldDeclaration]]
+  override lazy val fields: ArraySeq[FieldDeclaration] = getFields
 
-  protected def getFields: Array[PlatformField] = collectFields(cls).values.toArray
+  protected def getFields: ArraySeq[PlatformField] = ArraySeq.unsafeWrapArray(collectFields(cls).values.toArray)
 
   private def collectFields(
     cls: Class[_],

@@ -74,9 +74,9 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     module: Module,
                                     typeName: TypeName,
                                     sobjectNature: SObjectNature,
-                                    fieldSets: Array[Name],
-                                    sharingReasons: Array[Name],
-                                    baseFields: Array[FieldDeclaration],
+                                    fieldSets: ArraySeq[Name],
+                                    sharingReasons: ArraySeq[Name],
+                                    baseFields: ArraySeq[FieldDeclaration],
                                     _isComplete: Boolean,
                                     isSynthetic: Boolean = false)
     extends SObjectLikeDeclaration
@@ -136,7 +136,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     DependentType.dependentsToTypeIds(module, depends, apexOnly, dependsOn)
   }
 
-  override val fields: Array[FieldDeclaration] = baseFields
+  override val fields: ArraySeq[FieldDeclaration] = baseFields
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     findFieldSObject(name, staticContext)

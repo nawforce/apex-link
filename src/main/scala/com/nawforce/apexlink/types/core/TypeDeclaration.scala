@@ -86,7 +86,7 @@ trait FieldDeclaration extends DependencyHolder with UnsafeLocatable {
 }
 
 object FieldDeclaration {
-  val emptyFieldDeclarations: Array[FieldDeclaration] = Array()
+  val emptyFieldDeclarations: ArraySeq[FieldDeclaration] = ArraySeq()
 }
 
 trait ParameterDeclaration {
@@ -247,7 +247,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   def nestedTypes: ArraySeq[TypeDeclaration]
 
   val blocks: ArraySeq[BlockDeclaration]
-  val fields: Array[FieldDeclaration]
+  val fields: ArraySeq[FieldDeclaration]
   val constructors: ArraySeq[ConstructorDeclaration]
   def methods: Array[MethodDeclaration]
 
@@ -284,7 +284,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
   }
 
   protected lazy val fieldsByName: mutable.Map[Name, FieldDeclaration] = {
-    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)).toIndexedSeq: _*)
+    val fieldsByName = mutable.Map(fields.map(f => (f.name, f)): _*)
     superClassDeclaration.foreach(
       td =>
         td.fieldsByName

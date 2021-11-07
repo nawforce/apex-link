@@ -51,7 +51,7 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
     getInterfaces.flatMap(id => PlatformTypes.get(replaceParams(id), None).toOption)
   }
 
-  override lazy val fields: Array[FieldDeclaration] = {
+  override lazy val fields: ArraySeq[FieldDeclaration] = {
     getFields.map(f => new GenericPlatformField(f, this))
   }
 

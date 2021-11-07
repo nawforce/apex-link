@@ -15,6 +15,7 @@ package com.nawforce.apexlink
 
 import com.nawforce.pkgforce.stream.{IssuesEvent, PackageEvent}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.{BufferedIterator, mutable}
 import scala.reflect.ClassTag
 
@@ -41,20 +42,20 @@ package object org {
 
   /** Read the maximum events that are all of the given type into an Array. IssueEvents are silently consumed
     * and logged against the active org. */
-  def bufferEvents[T: ClassTag](events: BufferedIterator[PackageEvent]): Array[T] = {
+  def bufferEvents[T: ClassTag](events: BufferedIterator[PackageEvent]): ArraySeq[T] = {
     val buffer = mutable.ArrayBuffer[T]()
     var continue = events.hasNext
     while (continue) {
       continue = events.head match {
-        case e: T           => buffer.append(e); true
+        case e: T => buffer.append(e); true
         case e: IssuesEvent => e.issues.foreach(OrgImpl.log); true
-        case _              => false
+        case _ => false
       }
       if (continue) {
         events.next()
         continue = events.hasNext
       }
     }
-    buffer.toArray
+    ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 }

@@ -49,8 +49,8 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
     // TODO: Should you be able to depend on a ghost?
   }
 
-  override val fields: Array[FieldDeclaration] = {
-    SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray
+  override val fields: ArraySeq[FieldDeclaration] = {
+    ArraySeq.unsafeWrapArray(SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray)
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
