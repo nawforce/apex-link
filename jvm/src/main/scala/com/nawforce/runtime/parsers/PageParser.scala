@@ -29,13 +29,16 @@ package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.CaseInsensitiveInputStream
 import com.nawforce.pkgforce.diagnostics.IssuesAnd
-import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTree
 
 import java.io.ByteArrayInputStream
+import java.util
+import scala.collection.compat.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 
 /** VF Page parser helper */
 class PageParser(val source: Source) {
@@ -109,12 +112,20 @@ object PageParser {
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: java.util.List[T]): Seq[T] = {
-    collection.asScala.toSeq
+  def toScala[T: ClassTag](collection: java.util.List[T]): ArraySeq[T] = {
+    collection match {
+      case null => PageParser.emptyArraySeq
+      case _ if collection.isEmpty => PageParser.emptyArraySeq
+      case al: util.ArrayList[T] => ArraySeq.unsafeWrapArray(al.toArray().asInstanceOf[Array[T]])
+      case l => ArraySeq.unsafeWrapArray(l.asScala.toArray)
+    }
   }
 
   // Helper for JS Portability
   def toScala[T](value: T): Option[T] = {
     Option(value)
   }
+
+  private val emptyArraySeq = ArraySeq()
 }
+

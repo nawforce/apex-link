@@ -34,11 +34,12 @@ import com.nawforce.runtime.parsers.VFParser.AttributeContext
 import com.nawforce.runtime.parsers.{PageParser, Source, VFParser}
 
 import java.util.regex.{Matcher, Pattern}
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
-abstract class VFEvent(val controllers: Array[LocationAnd[Name]],
-                       val expressions: Array[LocationAnd[String]])
-    extends PackageEvent {
+abstract class VFEvent(val controllers: ArraySeq[LocationAnd[Name]],
+                       val expressions: ArraySeq[LocationAnd[String]])
+  extends PackageEvent {
   val sourceInfo: SourceInfo
 }
 
@@ -47,9 +48,9 @@ object VFEvent {
 
   def extractControllers(source: Source,
                          component: VFParser.VfUnitContext,
-                         isPage: Boolean): Array[LocationAnd[Name]] = {
+                         isPage: Boolean): ArraySeq[LocationAnd[Name]] = {
     val root = component.element()
-    PageParser
+    ArraySeq.unsafeWrapArray(PageParser
       .toScala(root.attribute())
       .flatMap(attr => {
         val location = source.getLocation(attr)
@@ -61,14 +62,14 @@ object VFEvent {
         }
       })
       .map(locationAndName => LocationAnd(locationAndName._1, Name(locationAndName._2)))
-      .toArray
+      .toArray)
   }
 
-  def extractExpressions(source: Source, component: VFParser.VfUnitContext): Array[LocationAnd[String]] = {
+  def extractExpressions(source: Source, component: VFParser.VfUnitContext): ArraySeq[LocationAnd[String]] = {
     val root: VFParser.ElementContext = component.element()
     val buffer = ArrayBuffer[LocationAnd[String]]()
     collectExpressions(source, root, buffer)
-    buffer.toArray
+    ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 
   private def collectExpressions(source: Source, element: VFParser.ElementContext,

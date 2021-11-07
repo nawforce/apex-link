@@ -29,7 +29,6 @@ package com.nawforce.pkgforce.stream
 
 import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names.Name
 
 import scala.collection.compat.immutable.ArraySeq
 
@@ -50,18 +49,23 @@ object IssuesEvent {
   }
 }
 
-class PackageStream(val events: Array[PackageEvent]) {
-  def issues: Array[IssuesEvent] = events.collect { case e: IssuesEvent            => e }
-  def labelsFiles: Array[LabelFileEvent] = events.collect { case e: LabelFileEvent => e }
-  def labels: Array[LabelEvent] = events.collect { case e: LabelEvent              => e }
-  def pages: Array[PageEvent] = events.collect { case e: PageEvent                 => e }
-  def flows: Array[FlowEvent] = events.collect { case e: FlowEvent                 => e }
-  def components: Array[ComponentEvent] = events.collect { case e: ComponentEvent  => e }
+class PackageStream(val events: ArraySeq[PackageEvent]) {
+  def issues: ArraySeq[IssuesEvent] = events.collect { case e: IssuesEvent => e }
+
+  def labelsFiles: ArraySeq[LabelFileEvent] = events.collect { case e: LabelFileEvent => e }
+
+  def labels: ArraySeq[LabelEvent] = events.collect { case e: LabelEvent => e }
+
+  def pages: ArraySeq[PageEvent] = events.collect { case e: PageEvent => e }
+
+  def flows: ArraySeq[FlowEvent] = events.collect { case e: FlowEvent => e }
+
+  def components: ArraySeq[ComponentEvent] = events.collect { case e: ComponentEvent => e }
 }
 
 object PackageStream {
   def apply(index: DocumentIndex): PackageStream = {
-    new PackageStream(eventStream(index).toArray)
+    new PackageStream(ArraySeq.unsafeWrapArray(eventStream(index).toArray))
   }
 
   def eventStream(index: DocumentIndex): Iterator[PackageEvent] = {

@@ -29,6 +29,8 @@ package com.nawforce.pkgforce.path
 
 import com.nawforce.runtime.parsers.SourceData
 
+import scala.collection.compat.immutable.ArraySeq
+
 /* File system path abstraction, to make life simple relative paths are NOT supported */
 abstract class PathLike {
 
@@ -97,5 +99,5 @@ abstract class PathLike {
 }
 
 object PathLike {
-  val emptyPaths: Array[PathLike] = Array()
+  val emptyPaths: ArraySeq[PathLike] = ArraySeq()
 }

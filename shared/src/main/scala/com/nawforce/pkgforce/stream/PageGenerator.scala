@@ -34,10 +34,12 @@ import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.{LocationAnd, PathLocation}
 import com.nawforce.runtime.parsers.PageParser
 
+import scala.collection.compat.immutable.ArraySeq
+
 final case class PageEvent(sourceInfo: SourceInfo,
-                           _controllers: Array[LocationAnd[Name]],
-                           _expressions: Array[LocationAnd[String]])
-    extends VFEvent(_controllers, _expressions)
+                           _controllers: ArraySeq[LocationAnd[Name]],
+                           _expressions: ArraySeq[LocationAnd[String]])
+  extends VFEvent(_controllers, _expressions)
 
 /** Convert page documents into PackageEvents */
 object PageGenerator {

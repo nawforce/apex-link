@@ -32,6 +32,8 @@ import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.{CharStreams, CommonTokenStream, ParseTree}
 
+import scala.collection.compat.immutable.ArraySeq
+import scala.reflect.ClassTag
 import scala.scalajs.js
 
 class PageParser(val source: Source) {
@@ -109,12 +111,17 @@ object PageParser {
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: js.Array[T]): Seq[T] = {
-    collection.toSeq
+  def toScala[T: ClassTag](collection: js.Array[T]): ArraySeq[T] = {
+    collection match {
+      case _ if collection.isEmpty => PageParser.emptyArraySeq
+      case _ => ArraySeq.unsafeWrapArray(collection.toArray)
+    }
   }
 
   // Helper for JS Portability
   def toScala[T](value: js.UndefOr[T]): Option[T] = {
     value.toOption
   }
+
+  private val emptyArraySeq = ArraySeq()
 }

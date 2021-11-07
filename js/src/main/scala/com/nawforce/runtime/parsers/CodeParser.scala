@@ -29,10 +29,12 @@ package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.{ApexLexer, ApexParser, CaseInsensitiveInputStream}
 import com.nawforce.pkgforce.diagnostics.IssuesAnd
-import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import com.nawforce.runtime.parsers.antlr.CommonTokenStream
 
+import scala.collection.compat.immutable.ArraySeq
+import scala.reflect.ClassTag
 import scala.scalajs.js
 
 class CodeParser(val source: Source) {
@@ -128,12 +130,17 @@ object CodeParser {
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: js.Array[T]): Seq[T] = {
-    collection.toSeq
+  def toScala[T: ClassTag](collection: js.Array[T]): ArraySeq[T] = {
+    collection match {
+      case _ if collection.isEmpty => CodeParser.emptyArraySeq
+      case _ => ArraySeq.unsafeWrapArray(collection.toArray)
+    }
   }
 
   // Helper for JS Portability
   def toScala[T](value: js.UndefOr[T]): Option[T] = {
     value.toOption
   }
+
+  private val emptyArraySeq = ArraySeq()
 }
