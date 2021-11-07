@@ -98,7 +98,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
   override val interfaces: ArraySeq[TypeName] = ArraySeq()
 
-  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations

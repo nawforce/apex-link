@@ -48,7 +48,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -68,7 +68,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -88,7 +88,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -108,7 +108,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -169,7 +169,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               ArraySeq(),
               hasBlock = true,
               Array())),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -189,7 +189,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -209,7 +209,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -229,7 +229,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -266,7 +266,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           ),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -304,7 +304,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           ),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -334,7 +334,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               ArraySeq(ParameterSummary("a", TypeNames.String)),
               Array())),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -371,8 +371,8 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               hasBlock = true,
               Array()),
           ),
-          Array(),
-                    Array()))
+          ArraySeq(),
+          Array()))
   }
 
   test("Interfaces with methods") {
@@ -405,7 +405,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           ArraySeq(ParameterSummary("a", TypeNames.String)),
           hasBlock = false,
           Array())),
-      Array(),
+      ArraySeq(),
       Array())
 
     val actual = classSummary("public interface Dummy {String foo(String a); void bar(); }")
@@ -493,7 +493,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
               ArraySeq(),
               hasBlock = true,
               Array())),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 
@@ -514,7 +514,7 @@ class SummaryTest extends AnyFunSuite with TestHelper {
           Array(),
           ArraySeq(),
           Array(),
-          Array(),
+          ArraySeq(),
           Array()))
   }
 }

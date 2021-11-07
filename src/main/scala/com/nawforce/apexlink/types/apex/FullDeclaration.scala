@@ -64,15 +64,11 @@ abstract class FullDeclaration(val source: Source,
   // For ApexNode compatibility
   override val children: ArraySeq[ApexNode] = bodyDeclarations
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
-
-  private lazy val _nestedTypes: Array[FullDeclaration] = {
+  override def nestedTypes: ArraySeq[FullDeclaration] =
     bodyDeclarations.flatMap {
       case x: FullDeclaration => Some(x)
       case _ => None
-    }.toArray
-  }
+    }
 
   override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
   private lazy val _blocks: Array[ApexInitializerBlock] = {
@@ -279,7 +275,7 @@ abstract class FullDeclaration(val source: Source,
       localFields.map(_.summary).sortBy(_.name),
       constructors.map(_.summary).sortBy(_.parameters.length),
       _localMethods.map(_.summary).sortBy(_.name),
-      _nestedTypes.map(_.summary).sortBy(_.name),
+      nestedTypes.map(_.summary).sortBy(_.name),
       dependencySummary())
   }
 }

@@ -34,7 +34,7 @@ class BasicTypeDeclaration(val paths: ArraySeq[PathLike], module: Module, val ty
 
   override val superClass: Option[TypeName] = None
   override val interfaces: ArraySeq[TypeName] = ArraySeq()
-  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations

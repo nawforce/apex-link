@@ -69,8 +69,10 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   // Propagate dependencies to nested
   nestedInterviews.foreach(_.addTypeDependencyHolder(typeId))
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    (interviews ++ nestedInterviews ++ namespaceDeclaration).toArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = {
+    val nested = interviews ++ nestedInterviews ++ namespaceDeclaration
+    ArraySeq.unsafeWrapArray(nested.toArray)
+  }
 
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
@@ -89,11 +91,11 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = module.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray)
+  class NamespaceDeclaration(nestedInterviews: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
                                         module,
                                         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
-    override def nestedTypes: Array[TypeDeclaration] = nestedInterviews
+    override def nestedTypes: ArraySeq[TypeDeclaration] = nestedInterviews
 
     def merge(events: Array[FlowEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(nestedInterviews ++ events.map(fe => Interview(module, fe)))
@@ -137,7 +139,7 @@ final class PackageInterviews(module: Module, interviewDeclaration: InterviewDec
     interviewDeclaration.addTypeDependencyHolder(typeId)
   }
 
-  override val nestedTypes: Array[TypeDeclaration] = interviewDeclaration.nestedTypes
+  override val nestedTypes: ArraySeq[TypeDeclaration] = interviewDeclaration.nestedTypes
 }
 
 /** Flow.Interview.ns implementation for ghosted packages. This simulates the existence of any flow you ask for. */

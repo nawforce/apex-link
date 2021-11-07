@@ -86,8 +86,10 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    (components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)).toArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = {
+    val nested = components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)
+    ArraySeq.unsafeWrapArray(nested.toArray)
+  }
 
   // This is the optional Component.namespace implementation
   private var namespaceDeclaration = module.namespace.map(ns => new NamespaceDeclaration(ns))
@@ -114,9 +116,9 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
   }
 
   class NamespaceDeclaration(name: Name,
-                             nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray)
+                             nestedComponents: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
-    override def nestedTypes: Array[TypeDeclaration] = nestedComponents
+    override def nestedTypes: ArraySeq[TypeDeclaration] = nestedComponents
 
     def merge(events: Array[ComponentEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
@@ -166,7 +168,7 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
     componentDeclaration.addTypeDependencyHolder(typeId)
   }
 
-  override def nestedTypes: Array[TypeDeclaration] = componentDeclaration.nestedTypes
+  override def nestedTypes: ArraySeq[TypeDeclaration] = componentDeclaration.nestedTypes
 }
 
 final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)

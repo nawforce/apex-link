@@ -66,7 +66,7 @@ final case class TriggerDeclaration(source: Source,
 
   override val superClass: Option[TypeName] = None
   override val interfaces: ArraySeq[TypeName] = ArraySeq()
-  override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarationsArray
+  override val nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
@@ -146,7 +146,7 @@ final case class TriggerDeclaration(source: Source,
                 Array(),
                 ArraySeq(),
                 Array(),
-                Array(),
+                ArraySeq(),
                 dependencySummary())
   }
 }

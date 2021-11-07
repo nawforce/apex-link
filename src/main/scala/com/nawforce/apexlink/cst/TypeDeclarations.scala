@@ -21,7 +21,6 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
-import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers._
@@ -48,27 +47,12 @@ final case class TypeArgumentProxy(_paths: ArraySeq[PathLike], _module: Module, 
 }
 
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
-                                  _outerTypeName: Option[TypeName], _id: Id, extendedApex: Boolean,
-                                  _modifiers: ModifierResults, typeArguments: Seq[Id], _extendsType: Option[TypeName],
+                                  _outerTypeName: Option[TypeName], _id: Id, _modifiers: ModifierResults, _extendsType: Option[TypeName],
                                   _implementsTypes: ArraySeq[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
     _bodyDeclarations) with ApexNode {
 
   override val nature: Nature = CLASS_NATURE
-
-  override lazy val nestedTypes: Array[TypeDeclaration] = {
-    typeArguments
-      .groupBy(_.name)
-      .map(_._2.head)
-      .map(typeArg => TypeArgumentProxy(ArraySeq(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
-  }
-
-  override def unused(): ArraySeq[Issue] = {
-    if (extendedApex && typeArguments.nonEmpty)
-      ArraySeq()
-    else
-      super.unused()
-  }
 
   override def verify(context: TypeVerifyContext): Unit = {
     verifyCommon(context)
@@ -82,24 +66,6 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 
   private def verifyCommon(context: VerifyContext): Unit = {
     localIssues.foreach(context.log)
-
-    if (!extendedApex) {
-      if (typeArguments.nonEmpty)
-        context.logError(typeArguments.head.location, "Class type arguments can only by used by 'Extended' Apex classes")
-    } else {
-      if (typeArguments.nonEmpty && outerTypeName.nonEmpty)
-        context.logError(typeArguments.head.location, "Class type arguments can only by used by outer classes")
-    }
-
-    typeArguments
-      .groupBy(_.name)
-      .foreach {
-        case (_, single) if single.length == 1 => ()
-        case (_, duplicates) =>
-          duplicates.tail.foreach(dup => {
-            context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
-          })
-      }
 
     // This should likely be handled by method mapping, but constructors are not currently methods
     constructors.duplicates(_.formalParameters.map(_.typeName.toString()).mkString(","))
@@ -135,10 +101,10 @@ object ClassDeclaration {
       ArraySeq.unsafeWrapArray(CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
         .getOrElse(TypeName.emptyTypeName))
-    val typeArguments: Seq[Id] =
+    val typeArguments =
       CodeParser.toScala(classDeclaration.typeParameters())
         .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
-        .getOrElse(Seq.empty)
+        .getOrElse(ArraySeq.empty)
 
     val classBodyDeclarations = CodeParser.toScala(classDeclaration.classBody())
       .map(cb => CodeParser.toScala(cb.classBodyDeclaration()))
@@ -157,8 +123,8 @@ object ClassDeclaration {
       ).flatten.toArray)
 
     val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
-      Id.construct(classDeclaration.id()), extendedApex, modifiers, typeArguments,
-      Some(extendType), implementsType, bodyDeclarations).withContext(classDeclaration)
+      Id.construct(classDeclaration.id()), modifiers, Some(extendType), implementsType, bodyDeclarations
+    ).withContext(classDeclaration)
     typeContext.freeze(td)
     td
   }

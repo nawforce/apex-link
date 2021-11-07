@@ -244,7 +244,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
 
   def superClassDeclaration: Option[TypeDeclaration] = None
   def interfaceDeclarations: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
-  def nestedTypes: Array[TypeDeclaration]
+  def nestedTypes: ArraySeq[TypeDeclaration]
 
   val blocks: Array[BlockDeclaration]
   val fields: Array[FieldDeclaration]

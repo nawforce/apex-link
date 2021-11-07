@@ -292,7 +292,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
       ArraySeq(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
     } else {
-      ArraySeq.unsafeWrapArray(unused)
+      unused
     }
   }
 

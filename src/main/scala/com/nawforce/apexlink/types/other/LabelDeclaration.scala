@@ -55,7 +55,7 @@ final case class GhostLabel(name: Name) extends LabelField {
 final class LabelDeclaration(override val module: Module,
                              val sources: ArraySeq[SourceInfo],
                              val labels: Array[Label],
-                             val nestedLabels: Array[NestedLabels])
+                             val nestedLabels: ArraySeq[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
     with DependentType {
 
@@ -64,8 +64,7 @@ final class LabelDeclaration(override val module: Module,
   // Propagate dependencies to nested
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
-  override val nestedTypes: Array[TypeDeclaration] =
-    nestedLabels.asInstanceOf[Array[TypeDeclaration]]
+  override val nestedTypes: ArraySeq[TypeDeclaration] = nestedLabels
   override val fields: Array[FieldDeclaration] = labels.asInstanceOf[Array[FieldDeclaration]]
 
   /** Create new labels from merging those in the provided stream */
@@ -165,8 +164,8 @@ object LabelDeclaration {
   }
 
   // Create labels declarations for each base package
-  private def createPackageLabels(module: Module): Array[NestedLabels] = {
-    module.basePackages
+  private def createPackageLabels(module: Module): ArraySeq[NestedLabels] = {
+    ArraySeq.unsafeWrapArray(module.basePackages
       .map(basePkg => {
         if (basePkg.orderedModules.isEmpty) {
           new GhostedLabels(module, basePkg.namespace.get)
@@ -174,6 +173,6 @@ object LabelDeclaration {
           new PackageLabels(module, basePkg.orderedModules.head.labels)
         }
       })
-      .toArray
+      .toArray)
   }
 }

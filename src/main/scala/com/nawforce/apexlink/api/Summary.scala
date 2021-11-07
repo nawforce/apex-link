@@ -44,7 +44,7 @@ case class TypeSummary(sourceHash: Int,
                        fields: Array[FieldSummary],
                        constructors: ArraySeq[ConstructorSummary],
                        methods: Array[MethodSummary],
-                       nestedTypes: Array[TypeSummary],
+                       nestedTypes: ArraySeq[TypeSummary],
                        dependents: Array[DependentSummary]) {
 
   // For backwards compatibility in ApexFlow

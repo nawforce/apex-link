@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.{ClassDeclaration, UnusedLog}
+import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
@@ -34,11 +34,12 @@ import com.nawforce.runtime.parsers.SourceData
 
 import scala.collection.mutable
 
-class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder with GenericTypeFactory {
+class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
 
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
   val namespace: Option[Name] = pkg.namespace
+
   def namespaces: Set[Name] = pkg.namespaces
 
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
@@ -218,15 +219,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return declaration
     }
 
-    // Or extended Apex generic, we only need to support this when from is available
-    from.foreach(from => {
-      declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
-        findPackageType(genericTypeName, Some(from)).flatMap {
-          case cd: ClassDeclaration if cd.extendedApex && cd.outerTypeName.isEmpty => getOrCreateExtendedGeneric(typeName, from, cd)
-          case _ => None
-        }
-      )
-    })
     if (declaration.nonEmpty) {
       upsertMetadata(declaration.get)
       return declaration
