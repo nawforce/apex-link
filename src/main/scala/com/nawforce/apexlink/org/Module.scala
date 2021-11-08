@@ -32,6 +32,7 @@ import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
@@ -323,7 +324,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def createLabelDeclaration(): LabelDeclaration ={
     val events = LabelGenerator.iterator(index)
-    val stream = new PackageStream(events.toArray)
+    val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
     LabelDeclaration(this).merge(stream)
   }
 
@@ -350,15 +351,15 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         Seq(createLabelDeclaration())
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(PageDeclaration(this).merge(stream))
       case _: ComponentDocument =>
         val events = ComponentGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(ComponentDeclaration(this).merge(stream))
       case _: FlowDocument =>
         val events = FlowGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(InterviewDeclaration(this).merge(stream))
     }
   }

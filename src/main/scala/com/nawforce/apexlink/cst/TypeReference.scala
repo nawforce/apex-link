@@ -20,6 +20,8 @@ import com.nawforce.apexparser.ApexParser.{TypeArgumentsContext, TypeListContext
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
+
 object TypeReference {
   def construct(typeRefs: List[TypeRefContext]): List[TypeName] = {
     typeRefs.map(x => TypeReference.construct(x))
@@ -73,8 +75,8 @@ object TypeReference {
 }
 
 object TypeList {
-  def construct(typeList: TypeListContext): Array[TypeName] = {
-    val types = CodeParser.toScala(typeList.typeRef()).toArray
+  def construct(typeList: TypeListContext): ArraySeq[TypeName] = {
+    val types = CodeParser.toScala(typeList.typeRef())
     types.map(t => TypeReference.construct(t))
   }
 }

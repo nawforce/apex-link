@@ -62,7 +62,7 @@ object Page {
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(sources: Array[SourceInfo], override val module: Module, pages: ArraySeq[Page])
+final case class PageDeclaration(sources: ArraySeq[SourceInfo], override val module: Module, pages: ArraySeq[Page])
   extends BasicTypeDeclaration(pages.map(p => p.location.path).distinct, module, TypeNames.Page)
     with DependentType {
 
@@ -79,7 +79,7 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
     merge(stream.pages)
   }
 
-  def merge(pageEvents: Array[PageEvent]): PageDeclaration = {
+  def merge(pageEvents: ArraySeq[PageEvent]): PageDeclaration = {
     val newPages = pages ++ pageEvents.flatMap(pe => Page(module, pe))
     val sourceInfo = pageEvents.map(_.sourceInfo).distinct
     new PageDeclaration(sourceInfo, module, newPages)
@@ -103,7 +103,7 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
 
 object PageDeclaration {
   def apply(module: Module): PageDeclaration = {
-    new PageDeclaration(Array(), module, collectBasePages(module))
+    new PageDeclaration(ArraySeq(), module, collectBasePages(module))
   }
 
   private def collectBasePages(module: Module): ArraySeq[Page] = {

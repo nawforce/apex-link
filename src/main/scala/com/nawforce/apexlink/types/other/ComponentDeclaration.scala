@@ -33,7 +33,7 @@ import scala.util.hashing.MurmurHash3
 final case class Component(module: Module,
                            location: PathLocation,
                            componentName: Name,
-                           attributes: Option[Array[Name]],
+                           attributes: Option[ArraySeq[Name]],
                            vfContainer: Option[VFContainer])
     extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
                                       module,
@@ -45,9 +45,8 @@ final case class Component(module: Module,
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
   override val fields: ArraySeq[FieldDeclaration] = {
-    ArraySeq.unsafeWrapArray(attributes
-      .getOrElse(Array())
-      .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields)
+    attributes.getOrElse(ArraySeq())
+      .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
@@ -79,11 +78,11 @@ object Component {
 }
 
 /** Component namespace handler */
-final case class ComponentDeclaration(sources: Array[SourceInfo],
+final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
                                       module: Module,
                                       components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
-    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
+  extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
     with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
@@ -122,10 +121,10 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
     override def nestedTypes: ArraySeq[TypeDeclaration] = nestedComponents
 
-    def merge(events: Array[ComponentEvent]): NamespaceDeclaration = {
+    def merge(events: ArraySeq[ComponentEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
-                               nestedComponents ++
-                                 events.map(ce => Component(module, ce)))
+        nestedComponents ++
+          events.map(ce => Component(module, ce)))
     }
   }
 
@@ -134,7 +133,7 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
     merge(stream.components)
   }
 
-  def merge(events: Array[ComponentEvent]): ComponentDeclaration = {
+  def merge(events: ArraySeq[ComponentEvent]): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
       events.map(ce => Component(module, ce))
     val sourceInfo = events.map(_.sourceInfo).distinct
@@ -192,7 +191,7 @@ object ComponentDeclaration {
   val standardTypes = Seq(PlatformTypes.apexComponent, PlatformTypes.chatterComponent)
 
   def apply(module: Module): ComponentDeclaration = {
-    new ComponentDeclaration(Array(), module, standardTypes, collectBaseComponents(module))
+    new ComponentDeclaration(ArraySeq(), module, standardTypes, collectBaseComponents(module))
   }
 
   private def collectBaseComponents(module: Module): Seq[NestedComponents] = {

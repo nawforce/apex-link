@@ -92,13 +92,9 @@ object ClassDeclaration {
         .map(tr => TypeReference.construct(tr))
         .getOrElse(TypeNames.InternalObject)
     val implementsType =
-      ArraySeq.unsafeWrapArray(CodeParser.toScala(classDeclaration.typeList())
+      CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
-        .getOrElse(TypeName.emptyTypeName))
-    val typeArguments =
-      CodeParser.toScala(classDeclaration.typeParameters())
-        .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
-        .getOrElse(ArraySeq.empty)
+        .getOrElse(TypeNames.emptyTypeNames)
 
     val classBodyDeclarations = CodeParser.toScala(classDeclaration.classBody())
       .map(cb => CodeParser.toScala(cb.classBodyDeclaration()))
@@ -153,12 +149,10 @@ object InterfaceDeclaration {
                 modifiers: ModifierResults, interfaceDeclaration: InterfaceDeclarationContext)
   : InterfaceDeclaration = {
 
-    val implementsType = {
-      ArraySeq.unsafeWrapArray(
-        CodeParser.toScala(interfaceDeclaration.typeList())
-          .map(x => TypeList.construct(x))
-          .getOrElse(Array(TypeNames.InternalInterface)))
-    }
+    val implementsType =
+      CodeParser.toScala(interfaceDeclaration.typeList())
+        .map(x => TypeList.construct(x))
+        .getOrElse(ArraySeq(TypeNames.InternalInterface))
 
     val typeContext = new RelativeTypeContext()
 

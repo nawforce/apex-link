@@ -72,7 +72,7 @@ final class LabelDeclaration(override val module: Module,
     merge(stream.labelsFiles, stream.labels)
   }
 
-  def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
+  def merge(labelFileEvents: ArraySeq[LabelFileEvent], labelEvents: ArraySeq[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ labelEvents.map(le => Label(outerTypeId, le.location, le.name, le.isProtected))
     val sourceInfo = (sources ++ labelFileEvents.map(_.sourceInfo)).distinct

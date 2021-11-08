@@ -57,7 +57,7 @@ object Interview {
 
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
-final class InterviewDeclaration(sources: Array[SourceInfo],
+final class InterviewDeclaration(sources: ArraySeq[SourceInfo],
                                  override val module: Module,
                                  interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
@@ -97,7 +97,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
                                         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
     override def nestedTypes: ArraySeq[TypeDeclaration] = nestedInterviews
 
-    def merge(events: Array[FlowEvent]): NamespaceDeclaration = {
+    def merge(events: ArraySeq[FlowEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(nestedInterviews ++ events.map(fe => Interview(module, fe)))
     }
   }
@@ -107,7 +107,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
     merge(stream.flows)
   }
 
-  def merge(events: Array[FlowEvent]): InterviewDeclaration = {
+  def merge(events: ArraySeq[FlowEvent]): InterviewDeclaration = {
     val newInterviews = interviews ++ events.map(fe => Interview(module, fe))
     val sourceInfo = events.map(_.sourceInfo).distinct
     val interviewDeclaration =
@@ -160,7 +160,7 @@ final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
 
 object InterviewDeclaration {
   def apply(module: Module): InterviewDeclaration = {
-    new InterviewDeclaration(Array(), module, Seq.empty, collectBaseInterviews(module))
+    new InterviewDeclaration(ArraySeq(), module, Seq.empty, collectBaseInterviews(module))
   }
 
   private def collectBaseInterviews(module: Module): Seq[NestedInterviews] = {

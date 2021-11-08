@@ -77,19 +77,19 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   }
 
   private def consumeComponents(events: BufferedIterator[PackageEvent]): ComponentDeclaration = {
-    val componentDeclaration = ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events).toArray)
+    val componentDeclaration = ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events))
     upsertMetadata(componentDeclaration)
     componentDeclaration
   }
 
   private def consumePages(events: BufferedIterator[PackageEvent]): PageDeclaration = {
-    val pageDeclaration = PageDeclaration(module).merge(bufferEvents[PageEvent](events).toArray)
+    val pageDeclaration = PageDeclaration(module).merge(bufferEvents[PageEvent](events))
     upsertMetadata(pageDeclaration)
     pageDeclaration
   }
 
   private def consumeFlows(events: BufferedIterator[PackageEvent]): Unit = {
-    upsertMetadata(InterviewDeclaration(module).merge(bufferEvents[FlowEvent](events).toArray))
+    upsertMetadata(InterviewDeclaration(module).merge(bufferEvents[FlowEvent](events)))
   }
 
   private def consumeSObjects(events: BufferedIterator[PackageEvent]): Unit = {

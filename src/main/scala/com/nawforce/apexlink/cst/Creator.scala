@@ -50,13 +50,13 @@ object CreatedName {
   }
 }
 
-final case class IdCreatedNamePair(id: Id, types: Array[TypeName]) extends CST {
+final case class IdCreatedNamePair(id: Id, types: ArraySeq[TypeName]) extends CST {
   val typeName: TypeName = {
     val encName = EncodedName(id.name)
     if (encName.ext.nonEmpty)
-      TypeName(encName.fullName, types.toIndexedSeq, Some(TypeNames.Schema)).intern
+      TypeName(encName.fullName, types, Some(TypeNames.Schema)).intern
     else
-      TypeName(encName.fullName, types.toIndexedSeq, None).intern
+      TypeName(encName.fullName, types, None).intern
   }
 }
 
@@ -70,7 +70,7 @@ object IdCreatedNamePair {
                       CodeParser
                         .toScala(from.typeList())
                         .map(tl => TypeList.construct(tl))
-                        .getOrElse(TypeName.emptyTypeName)).withContext(from)
+                        .getOrElse(TypeNames.emptyTypeNames)).withContext(from)
   }
 }
 

@@ -23,6 +23,8 @@ import com.nawforce.pkgforce.names.DotName
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.stream.VFEvent
 
+import scala.collection.immutable.ArraySeq
+
 class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
 
   def validate(): Set[Dependent] = {
@@ -40,7 +42,7 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
       })
   }
 
-  private def getControllers: Array[ApexDeclaration] = {
+  private def getControllers: ArraySeq[ApexDeclaration] = {
     event.controllers.flatMap(controller => {
       val controllerType = DotName(controller.value.value).asTypeName()
       TypeResolver(controllerType, module) match {
