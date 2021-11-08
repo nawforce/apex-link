@@ -138,7 +138,7 @@ object CodeParser {
   }
 
   // Helper for JS Portability
-  def toScala[T: ClassTag](collection: java.util.List[T]): Seq[T] = {
+  def toScala[T: ClassTag](collection: java.util.List[T]): ArraySeq[T] = {
     collection match {
       case null => CodeParser.emptyArraySeq
       case _ if collection.isEmpty => CodeParser.emptyArraySeq
