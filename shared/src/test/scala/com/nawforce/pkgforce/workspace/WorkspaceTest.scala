@@ -130,9 +130,9 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
           PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 43)), _),
           controllers,
           _))
-              if pagePath == root.join("pkg").join("MyPage.page") &&
-                (controllers sameElements Array(
-                  LocationAnd(Location(1, 11, 1, 36), Name("MyController")))) =>
+            if pagePath == root.join("pkg").join("MyPage.page") &&
+              controllers == ArraySeq(
+                LocationAnd(Location(1, 11, 1, 36), Name("MyController"))) =>
         }
     }
   }
@@ -150,11 +150,11 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
           PageEvent(SourceInfo(PathLocation(pagePath, Location(1, 0, 1, 67)), _),
           controllers,
           _))
-              if pagePath == root.join("pkg").join("MyPage.page") &&
-                (controllers sameElements Array(
-                  LocationAnd(Location(1, 11, 1, 36), Name("MyController")),
-                  LocationAnd(Location(1, 37, 1, 60), Name("Ext1")),
-                  LocationAnd(Location(1, 37, 1, 60), Name("Ext2")))) =>
+            if pagePath == root.join("pkg").join("MyPage.page") &&
+              controllers == ArraySeq(
+                LocationAnd(Location(1, 11, 1, 36), Name("MyController")),
+                LocationAnd(Location(1, 37, 1, 60), Name("Ext1")),
+                LocationAnd(Location(1, 37, 1, 60), Name("Ext2"))) =>
         }
     }
   }
@@ -221,7 +221,7 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
         ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 4, 5)), _),
-        Array(Name("test")),
+        ArraySeq(Name("test")),
         _,
         _)) if componentPath == root.join("pkg").join("MyComponent.component") =>
       }
@@ -241,12 +241,12 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
         ComponentEvent(SourceInfo(PathLocation(componentPath, Location(1, 0, 4, 5)), _),
-        Array(Name("test")),
+        ArraySeq(Name("test")),
         controllers,
         _))
-            if componentPath == root.join("pkg").join("MyComponent.component") &&
-              (controllers sameElements Array(
-                LocationAnd(Location(1, 16, 1, 41), Name("MyController")))) =>
+          if componentPath == root.join("pkg").join("MyComponent.component") &&
+            controllers == ArraySeq(
+              LocationAnd(Location(1, 16, 1, 41), Name("MyController"))) =>
       }
     }
   }

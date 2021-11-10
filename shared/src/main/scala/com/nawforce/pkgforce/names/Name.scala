@@ -56,5 +56,4 @@ object Name {
   implicit val rw: RW[Name] = macroRW
 
   val empty: Name = new Name("")
-  val emptyNames: Array[Name] = Array()
 }

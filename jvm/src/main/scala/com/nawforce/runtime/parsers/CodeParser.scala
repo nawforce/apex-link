@@ -34,7 +34,10 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import org.antlr.v4.runtime.CommonTokenStream
 
 import java.io.ByteArrayInputStream
+import java.util
+import scala.collection.compat.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 
 /** Apex class parser helper */
 class CodeParser(val source: Source) {
@@ -126,21 +129,28 @@ object CodeParser {
 
   // Helper for JS Portability
   def getText(context: ParserRuleContext): String = {
-    context.getText
+    Option(context).map(_.getText).getOrElse("")
   }
 
   // Helper for JS Portability
   def getText(context: TerminalNode): String = {
-    context.getText
+    Option(context).map(_.getText).getOrElse("")
   }
 
   // Helper for JS Portability
-  def toScala[T](collection: java.util.List[T]): Seq[T] = {
-    collection.asScala.toSeq
+  def toScala[T: ClassTag](collection: java.util.List[T]): ArraySeq[T] = {
+    collection match {
+      case null => CodeParser.emptyArraySeq
+      case _ if collection.isEmpty => CodeParser.emptyArraySeq
+      case al: util.ArrayList[T] => ArraySeq.unsafeWrapArray(al.toArray().asInstanceOf[Array[T]])
+      case l => ArraySeq.unsafeWrapArray(l.asScala.toArray)
+    }
   }
 
   // Helper for JS Portability
   def toScala[T](value: T): Option[T] = {
     Option(value)
   }
+
+  private val emptyArraySeq = ArraySeq()
 }

@@ -98,14 +98,23 @@ trait Locatable {
   def location: PathLocation
 }
 
-
 /** Variation on locatable for when we don't know, may return null! */
 trait UnsafeLocatable extends Locatable {
   def location: PathLocation
+
+  def safeLocation: Option[PathLocation] = {
+    val l = location
+    if (l.path != null)
+      Some(location)
+    else
+      None
+  }
 }
 
-/** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. */
-class Positionable extends Locatable {
+/** Base for things that might be positioned at some location, data is stored unwrapped to avoid object overhead. It's
+  * an UnsafeLocatable because we can't be sure the mutable location will ever be set
+  */
+class Positionable extends UnsafeLocatable {
   private var locationPath: PathLike = _
   private var startLine: Int = _
   private var startOffset: Int = _
@@ -125,7 +134,6 @@ class Positionable extends Locatable {
   }
 
   def location: PathLocation = {
-    assert(locationPath != null)
     PathLocation(locationPath, Location(startLine, startOffset, endLine, endOffset))
   }
 }

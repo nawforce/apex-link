@@ -34,11 +34,13 @@ import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.{LocationAnd, PathLocation}
 import com.nawforce.runtime.parsers.{PageParser, VFParser}
 
+import scala.collection.compat.immutable.ArraySeq
+
 final case class ComponentEvent(sourceInfo: SourceInfo,
-                                attributes: Array[Name],
-                                _controllers: Array[LocationAnd[Name]],
-                                _expressions: Array[LocationAnd[String]])
-    extends VFEvent(_controllers, _expressions)
+                                attributes: ArraySeq[Name],
+                                _controllers: ArraySeq[LocationAnd[Name]],
+                                _expressions: ArraySeq[LocationAnd[String]])
+  extends VFEvent(_controllers, _expressions)
 
 /** Convert component documents into PackageEvents */
 object ComponentGenerator {
@@ -75,15 +77,15 @@ object ComponentGenerator {
 
   private def extractAttributes(parser: PageParser,
                                 logger: IssueLogger,
-                                component: VFParser.VfUnitContext): Array[Name] = {
+                                component: VFParser.VfUnitContext): ArraySeq[Name] = {
     val root: VFParser.ElementContext = component.element()
     if (!PageParser.getText(root.Name(0)).equalsIgnoreCase("apex:component")) {
       val location = parser.getPathLocation(component)
       logger.logError(location.path, location.location, "Root element must be 'apex:component'")
-      return Array()
+      return ArraySeq()
     }
 
-    PageParser
+    ArraySeq.unsafeWrapArray(PageParser
       .toScala(root.content())
       .map(
         content =>
@@ -99,8 +101,8 @@ object ComponentGenerator {
               if (name.isEmpty) {
                 val location = parser.getPathLocation(component)
                 logger.logError(location.path,
-                                location.location,
-                                "apex:attribute is missing 'name' attribute")
+                  location.location,
+                  "apex:attribute is missing 'name' attribute")
                 None
               } else {
                 Some(Name(
@@ -108,6 +110,6 @@ object ComponentGenerator {
               }
             }))
       .getOrElse(Seq())
-      .toArray
+      .toArray)
   }
 }
