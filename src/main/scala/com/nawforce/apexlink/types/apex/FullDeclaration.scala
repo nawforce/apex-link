@@ -286,11 +286,17 @@ object FullDeclaration {
     val result = parser.parseClass()
     val issues = result.issues
     issues.foreach(OrgImpl.log)
-    if (issues.isEmpty || forceConstruct)
-      CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value)
-        .map(_.typeDeclaration)
-    else
+    if (issues.isEmpty || forceConstruct) {
+      try {
+        CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value).map(_.typeDeclaration)
+      } catch {
+        case ex: Throwable =>
+          LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+          None
+      }
+    } else {
       None
+    }
   }
 
   def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
