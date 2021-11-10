@@ -30,7 +30,7 @@ import scala.collection.immutable.ArraySeq
 final case class CustomMethodDeclaration(nameLocation: Location,
                                          name: Name,
                                          typeName: TypeName,
-                                         parameters: Array[ParameterDeclaration],
+                                         parameters: ArraySeq[ParameterDeclaration],
                                          asStatic: Boolean = false)
     extends ApexVisibleMethodLike {
 
@@ -53,6 +53,7 @@ final case class CustomMethodDeclaration(nameLocation: Location,
 object CustomMethodDeclaration {
   val standardModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
   val staticModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  val emptyParameters: ArraySeq[ParameterDeclaration] = ArraySeq()
 
   def getModifiers(isStatic: Boolean): ArraySeq[Modifier] = {
     if (isStatic) staticModifiers else standardModifiers

@@ -17,6 +17,8 @@ package com.nawforce.apexlink.names
 import com.nawforce.pkgforce.memory.InternCache
 import com.nawforce.pkgforce.names.{DotName, Name, Names, TypeName}
 
+import scala.collection.immutable.ArraySeq
+
 object TypeNames extends InternCache[TypeName] {
 
   lazy val Void: TypeName = TypeName(Name("void")).intern
@@ -209,6 +211,8 @@ object TypeNames extends InternCache[TypeName] {
     TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
     TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
   )
+
+  val emptyTypeNames: ArraySeq[TypeName] = ArraySeq[TypeName]()
 
   implicit class TypeNameUtils(typeName: TypeName) {
 

@@ -25,12 +25,13 @@ import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{FlowEvent, PackageStream}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** A individual custom interview being represented as interview derived type. */
 final case class Interview(module: Module, location: PathLocation, interviewName: Name)
-  extends InnerBasicTypeDeclaration(Option(location).map(_.path).toArray,
+  extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
     module,
     TypeName(interviewName, Nil, Some(TypeNames.Interview)))
     with UnsafeLocatable {
@@ -39,7 +40,7 @@ final case class Interview(module: Module, location: PathLocation, interviewName
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
@@ -56,7 +57,7 @@ object Interview {
 
 /** Flow.Interview implementation. Provides access to interviews in the package as well as interviews that are
   * accessible in base packages via the Flow.Interview.namespace.name format. */
-final class InterviewDeclaration(sources: Array[SourceInfo],
+final class InterviewDeclaration(sources: ArraySeq[SourceInfo],
                                  override val module: Module,
                                  interviews: Seq[TypeDeclaration],
                                  nestedInterviews: Seq[NestedInterviews])
@@ -68,11 +69,13 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   // Propagate dependencies to nested
   nestedInterviews.foreach(_.addTypeDependencyHolder(typeId))
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    (interviews ++ nestedInterviews ++ namespaceDeclaration).toArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = {
+    val nested = interviews ++ nestedInterviews ++ namespaceDeclaration
+    ArraySeq.unsafeWrapArray(nested.toArray)
+  }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
@@ -88,13 +91,13 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
   // This is the optional Flow.Interview.namespace implementation
   private var namespaceDeclaration = module.namespace.map(_ => new NamespaceDeclaration())
 
-  class NamespaceDeclaration(nestedInterviews: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+  class NamespaceDeclaration(nestedInterviews: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
                                         module,
                                         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
-    override def nestedTypes: Array[TypeDeclaration] = nestedInterviews
+    override def nestedTypes: ArraySeq[TypeDeclaration] = nestedInterviews
 
-    def merge(events: Array[FlowEvent]): NamespaceDeclaration = {
+    def merge(events: ArraySeq[FlowEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(nestedInterviews ++ events.map(fe => Interview(module, fe)))
     }
   }
@@ -104,7 +107,7 @@ final class InterviewDeclaration(sources: Array[SourceInfo],
     merge(stream.flows)
   }
 
-  def merge(events: Array[FlowEvent]): InterviewDeclaration = {
+  def merge(events: ArraySeq[FlowEvent]): InterviewDeclaration = {
     val newInterviews = interviews ++ events.map(fe => Interview(module, fe))
     val sourceInfo = events.map(_.sourceInfo).distinct
     val interviewDeclaration =
@@ -136,7 +139,7 @@ final class PackageInterviews(module: Module, interviewDeclaration: InterviewDec
     interviewDeclaration.addTypeDependencyHolder(typeId)
   }
 
-  override val nestedTypes: Array[TypeDeclaration] = interviewDeclaration.nestedTypes
+  override val nestedTypes: ArraySeq[TypeDeclaration] = interviewDeclaration.nestedTypes
 }
 
 /** Flow.Interview.ns implementation for ghosted packages. This simulates the existence of any flow you ask for. */
@@ -157,7 +160,7 @@ final class GhostedInterviews(module: Module, ghostedPackage: PackageImpl)
 
 object InterviewDeclaration {
   def apply(module: Module): InterviewDeclaration = {
-    new InterviewDeclaration(Array(), module, Seq.empty, collectBaseInterviews(module))
+    new InterviewDeclaration(ArraySeq(), module, Seq.empty, collectBaseInterviews(module))
   }
 
   private def collectBaseInterviews(module: Module): Seq[NestedInterviews] = {

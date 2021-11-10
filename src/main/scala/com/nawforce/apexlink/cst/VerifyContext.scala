@@ -21,7 +21,6 @@ import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
-import com.nawforce.apexlink.types.extended.GenericTypeDeclaration
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
@@ -136,8 +135,6 @@ trait HolderVerifyContext {
       case _: Component => _dependencies.add(dependent)
 
       case _: SObjectDeclaration => _dependencies.add(dependent)
-
-      case td: GenericTypeDeclaration => _dependencies.add(td.baseType)
 
       case _ => ()
     }

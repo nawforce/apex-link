@@ -106,7 +106,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     * to reading the source and parsing.  */
   private def consumeExtendedClasses(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[ExtendedApexEvent](events).map(e => ExtendedApexDocument(e.path))
-    parseAndValidateClasses(ArraySeq.unsafeWrapArray(docs), extendedApex = true)
+    parseAndValidateClasses(docs, extendedApex = true)
   }
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
@@ -123,7 +123,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     val missingClasses =
       docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(module.namespace)))
     LoggerOps.debug(s"${missingClasses.length} of ${docs.length} classes not available from cache")
-    parseAndValidateClasses(ArraySeq.unsafeWrapArray(missingClasses), extendedApex = false)
+    parseAndValidateClasses(missingClasses, extendedApex = false)
   }
 
   /** Parse a collection of Apex classes, insert them and validate them. */
@@ -191,7 +191,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   /** Load classes from the code cache as types returning TypeNames of those available. Benchmarking has shown
     * running this in parallel helps performance quite a bit with SSDs. */
-  private def loadClassesFromCache(classes: Array[ApexClassDocument]): Iterator[SummaryApex] = {
+  private def loadClassesFromCache(classes: ArraySeq[ApexClassDocument]): Iterator[SummaryApex] = {
     module.pkg.org.parsedCache
       .map(parsedCache => {
 

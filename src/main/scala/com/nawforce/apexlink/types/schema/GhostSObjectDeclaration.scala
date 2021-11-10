@@ -26,7 +26,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
-    extends BasicTypeDeclaration(Array(), module, _typeName)
+    extends BasicTypeDeclaration(ArraySeq(), module, _typeName)
     with SObjectLikeDeclaration
     with SObjectFieldFinder
     with SObjectMethods {
@@ -49,8 +49,8 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
     // TODO: Should you be able to depend on a ghost?
   }
 
-  override val fields: Array[FieldDeclaration] = {
-    SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray
+  override val fields: ArraySeq[FieldDeclaration] = {
+    ArraySeq.unsafeWrapArray(SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray)
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
@@ -58,7 +58,7 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(true)) {

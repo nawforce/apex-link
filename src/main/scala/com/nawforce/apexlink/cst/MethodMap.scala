@@ -27,27 +27,28 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
 
   /** Return all available methods */
-  def allMethods: Array[MethodDeclaration] = {
+  def allMethods: ArraySeq[MethodDeclaration] = {
     val buffer = new mutable.ArrayBuffer[MethodDeclaration]()
     methodsByName.values.foreach(methods => buffer.addAll(methods))
-    buffer.toArray
+    ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 
   /** Find a method, without concern for the calling context. */
-  def findMethod(name: Name, params: Array[TypeName]): Option[MethodDeclaration] = {
-    methodsByName.getOrElse((name, params.length),Array()).find(method =>
-      method.parameters.map(_.typeName).sameElements(params))
+  def findMethod(name: Name, params: ArraySeq[TypeName]): Option[MethodDeclaration] = {
+    methodsByName.getOrElse((name, params.length), Array()).find(method =>
+      method.parameters.map(_.typeName) == params)
   }
 
   /** Find a method, suitable for use from the given context */
-  def findMethod(name: Name, params: Array[TypeName], staticContext: Option[Boolean],
+  def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Option[MethodDeclaration] = {
-    val matches = methodsByName.getOrElse((name, params.length),Array())
+    val matches = methodsByName.getOrElse((name, params.length), Array())
     val filteredMatches = staticContext match {
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
@@ -93,8 +94,8 @@ object MethodMap {
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
-            newMethods: Array[MethodDeclaration], outerStaticMethods: Array[MethodDeclaration],
-            interfaces: Array[TypeDeclaration]): MethodMap = {
+            newMethods: ArraySeq[MethodDeclaration], outerStaticMethods: ArraySeq[MethodDeclaration],
+            interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
     val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
     val errors = mutable.Buffer[Issue]()
@@ -128,7 +129,7 @@ object MethodMap {
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
-      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, Array())))
+      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, CustomMethodDeclaration.emptyParameters)))
       checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
@@ -139,7 +140,7 @@ object MethodMap {
     }
   }
 
-  private def mergeInterfaces(workingMap: WorkingMap, interfaces: Array[TypeDeclaration]): Unit = {
+  private def mergeInterfaces(workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         mergeInterface(workingMap, i)
@@ -168,7 +169,7 @@ object MethodMap {
   }
 
   private def checkInterfaces(module: Module, location: Option[PathLocation], isAbstract: Boolean,
-                              workingMap: WorkingMap, interfaces: Array[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
+                              workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         checkInterface(module, location, isAbstract, workingMap, i, errors)

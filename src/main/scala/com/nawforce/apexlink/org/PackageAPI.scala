@@ -94,7 +94,7 @@ trait PackageAPI extends Package {
         .flatMap(module => {
           module
             .moduleType(typeId.typeName)
-            .map(td => td.paths.map(_.toString))
+            .map(td => td.paths.map(_.toString).toArray)
             .orElse({
               // Deal with page weirdness
               if (typeId.typeName.outer.contains(TypeNames.Page)) {

@@ -45,17 +45,17 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override lazy val interfaces: Array[TypeName] = getInterfaces.map(replaceParams)
+  override lazy val interfaces: ArraySeq[TypeName] = getInterfaces.map(replaceParams)
 
-  override lazy val interfaceDeclarations: Array[TypeDeclaration] = {
+  override lazy val interfaceDeclarations: ArraySeq[TypeDeclaration] = {
     getInterfaces.flatMap(id => PlatformTypes.get(replaceParams(id), None).toOption)
   }
 
-  override lazy val fields: Array[FieldDeclaration] = {
+  override lazy val fields: ArraySeq[FieldDeclaration] = {
     getFields.map(f => new GenericPlatformField(f, this))
   }
 
-  override lazy val methods: Array[MethodDeclaration] = {
+  override lazy val methods: ArraySeq[MethodDeclaration] = {
     getMethods.map(m => new GenericPlatformMethod(m, this))
   }
 
@@ -99,7 +99,7 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
     _typeDeclaration.getTypeVariable(paramType).getOrElse(paramType)
   }
 
-  override lazy val parameters: Array[ParameterDeclaration] =
+  override lazy val parameters: ArraySeq[ParameterDeclaration] =
     platformMethod.getParameters
       .collect { case p: PlatformParameter => p }
       .map(p => new GenericPlatformParameter(p, _typeDeclaration))

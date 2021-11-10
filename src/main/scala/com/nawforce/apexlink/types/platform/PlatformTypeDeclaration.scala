@@ -41,7 +41,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
-  override def paths: Array[PathLike] = PathLike.emptyPaths
+  override def paths: ArraySeq[PathLike] = PathLike.emptyPaths
   override lazy val moduleDeclaration: Option[Module] = None
 
   override lazy val name: Name = typeName.name
@@ -74,14 +74,14 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     superClass.flatMap(sc => PlatformTypes.get(sc, None).toOption)
   }
 
-  override lazy val interfaces: Array[TypeName] = getInterfaces
+  override lazy val interfaces: ArraySeq[TypeName] = getInterfaces
 
-  override lazy val interfaceDeclarations: Array[TypeDeclaration] = {
+  override lazy val interfaceDeclarations: ArraySeq[TypeDeclaration] = {
     getInterfaces.flatMap(id => PlatformTypes.get(id, None).toOption)
   }
 
-  protected def getInterfaces: Array[TypeName] =
-    cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls))
+  protected def getInterfaces: ArraySeq[TypeName] =
+    ArraySeq.unsafeWrapArray(cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls)))
 
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)
@@ -90,15 +90,14 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     ArraySeq.unsafeWrapArray(cls.getConstructors).map(c => new PlatformConstructor(c, this))
   }
 
-  override lazy val nestedTypes: Array[TypeDeclaration] =
-    cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this)))
+  override lazy val nestedTypes: ArraySeq[TypeDeclaration] =
+    ArraySeq.unsafeWrapArray(cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this))))
 
-  override lazy val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override lazy val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
-  override lazy val fields: Array[FieldDeclaration] =
-    getFields.asInstanceOf[Array[FieldDeclaration]]
+  override lazy val fields: ArraySeq[FieldDeclaration] = getFields
 
-  protected def getFields: Array[PlatformField] = collectFields(cls).values.toArray
+  protected def getFields: ArraySeq[PlatformField] = ArraySeq.unsafeWrapArray(collectFields(cls).values.toArray)
 
   private def collectFields(
     cls: Class[_],
@@ -124,23 +123,23 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     }
   }
 
-  override lazy val methods: Array[MethodDeclaration] = {
+  override lazy val methods: ArraySeq[MethodDeclaration] = {
     nature match {
       case ENUM_NATURE => PlatformTypeDeclaration.enumMethods(typeName)
-      case _           => getMethods.asInstanceOf[Array[MethodDeclaration]]
+      case _ => getMethods
     }
   }
 
-  protected def getMethods: Array[PlatformMethod] = {
+  protected def getMethods: ArraySeq[PlatformMethod] = {
     val localMethods =
       cls.getMethods.filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
     nature match {
       case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
-               s"Enum $name has locally defined methods which are not supported in platform types")
-        Array[PlatformMethod]()
+          s"Enum $name has locally defined methods which are not supported in platform types")
+        ArraySeq[PlatformMethod]()
       case _ =>
-        localMethods.map(m => new PlatformMethod(m, this))
+        ArraySeq.unsafeWrapArray(localMethods.map(m => new PlatformMethod(m, this)))
     }
   }
 
@@ -187,8 +186,9 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaratio
     extends ConstructorDeclaration {
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.ctorModifiers(ctor.getModifiers)
-  lazy val parameters: Array[ParameterDeclaration] =
-    ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
+  lazy val parameters: ArraySeq[ParameterDeclaration] =
+    ArraySeq.unsafeWrapArray(ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass)))
+
   def getDeclaringClass: Class[_] = ctor.getDeclaringClass
 
   override def toString: String =
@@ -203,11 +203,11 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
-  lazy val parameters: Array[ParameterDeclaration] = getParameters
+  lazy val parameters: ArraySeq[ParameterDeclaration] = getParameters
   override val hasBlock: Boolean = false
 
-  def getParameters: Array[ParameterDeclaration] =
-    method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+  def getParameters: ArraySeq[ParameterDeclaration] =
+    ArraySeq.unsafeWrapArray(method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass)))
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
@@ -378,13 +378,13 @@ object PlatformTypeDeclaration {
   }
 
   /* Standard methods to be exposed on enums */
-  private def enumMethods(typeName: TypeName): Array[MethodDeclaration] =
-    Array(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, Array()),
-          CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, Array()),
-          CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
-          CustomMethodDeclaration(Location.empty,
-                                  Name("equals"),
-                                  TypeNames.Boolean,
-                                  Array(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-          CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, Array()))
+  private def enumMethods(typeName: TypeName): ArraySeq[MethodDeclaration] =
+    ArraySeq(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
+      CustomMethodDeclaration(Location.empty,
+        Name("equals"),
+        TypeNames.Boolean,
+        ArraySeq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
+      CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters))
 }
