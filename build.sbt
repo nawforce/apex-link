@@ -2,8 +2,8 @@ import sbt.Keys.libraryDependencies
 import sbt.url
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-ThisBuild / version := "2.2.0"
-ThisBuild / isSnapshot := false
+ThisBuild / version := "2.2.1-SNAPSHOT"
+ThisBuild / isSnapshot := true
 
 ThisBuild / scalaVersion := "2.13.3"
 ThisBuild / parallelExecution := false
@@ -87,7 +87,7 @@ lazy val pkgforce = crossProject(JSPlatform, JVMPlatform).in(file(".")).
     build := buildJVM.value,
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0",
-    libraryDependencies += "com.github.nawforce" % "apex-parser" % "2.10.0",
+    libraryDependencies += "com.github.nawforce" % "apex-parser" % "2.11.0",
     libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8-1",
     libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test
   ).
