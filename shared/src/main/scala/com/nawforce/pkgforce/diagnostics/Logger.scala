@@ -27,15 +27,20 @@
  */
 package com.nawforce.pkgforce.diagnostics
 
+import java.io.{PrintWriter, StringWriter}
+
 /** Minimalistic logging, the best kind of logging system. */
 trait Logger {
   def info(message: String): Unit
+
   def debug(message: String): Unit
 }
 
-/** Default logger, sends all messages to stderr.*/
+/** Default logger, sends all messages to stderr. */
 class DefaultLogger extends Logger {
-  def info(message: String): Unit = { System.err.println("[info] " + message) }
+  def info(message: String): Unit = {
+    System.err.println("[info] " + message)
+  }
   def debug(message: String): Unit = { System.err.println("[debug] " + message) }
 }
 
@@ -68,7 +73,19 @@ object LoggerOps {
       logger.info(message)
   }
 
-  /** Log a debug message against a category */
+  /** Log an exception at info level */
+  def info(message: String, ex: Throwable): Unit = {
+    info(message)
+    info(exceptionMessage(ex))
+  }
+
+  def exceptionMessage(ex: Throwable): String = {
+    val writer = new StringWriter
+    ex.printStackTrace(new PrintWriter(writer))
+    writer.toString
+  }
+
+  /** Log a debug message */
   def debug(message: String): Unit = {
     if (loggingLevel >= DEBUG_LOGGING)
       logger.debug(message)
