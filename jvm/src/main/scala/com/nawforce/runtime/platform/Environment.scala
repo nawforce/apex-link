@@ -32,7 +32,7 @@ import com.nawforce.pkgforce.path.PathLike
 
 object Environment {
   private val CACHE_DIR: String = ".apexlink_cache"
-  private var cacheDirOverride: Option[PathLike] = None
+  private var cacheDirOverride: Option[Option[PathLike]] = None
 
   def gc(): Unit = {
     System.gc()
@@ -43,11 +43,13 @@ object Environment {
   }
 
   def cacheDir: Option[PathLike] = {
+    if (cacheDirOverride.nonEmpty)
+      return cacheDirOverride.get
+
     try {
-      cacheDirOverride.orElse(
-        Option(System.getenv("APEXLINK_CACHE_DIR"))
-          .filter(_.nonEmpty)
-          .map(Path(_)))
+      Option(System.getenv("APEXLINK_CACHE_DIR"))
+        .filter(_.nonEmpty)
+        .map(Path(_))
         .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
     } catch {
       case _: Throwable => None
@@ -55,7 +57,7 @@ object Environment {
   }
 
   // Only for test usage
-  def setCacheDir(value: Option[PathLike]): Unit = {
+  def setCacheDir(value: Option[Option[PathLike]]): Unit = {
     cacheDirOverride = value
   }
 }

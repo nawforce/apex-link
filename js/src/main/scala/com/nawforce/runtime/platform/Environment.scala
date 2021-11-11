@@ -36,7 +36,7 @@ import scala.scalajs.js.annotation.JSImport
 
 object Environment {
   private val CACHE_DIR: String = ".apexlink_cache"
-  private var cacheDirOverride: Option[PathLike] = None
+  private var cacheDirOverride: Option[Option[PathLike]] = None
 
   def gc(): Unit = {
     // Not implemented
@@ -47,11 +47,13 @@ object Environment {
   }
 
   def cacheDir: Option[PathLike] = {
+    if (cacheDirOverride.nonEmpty)
+      return cacheDirOverride.get
+
     try {
-      cacheDirOverride.orElse(
-        Process.env("APEXLINK_CACHE_DIR").toOption
-          .filter(_.nonEmpty)
-          .map(Path(_)))
+      Process.env("APEXLINK_CACHE_DIR").toOption
+        .filter(_.nonEmpty)
+        .map(Path(_))
         .orElse(Environment.homedir.map(_.join(CACHE_DIR)))
     } catch {
       case _: Throwable => None
@@ -59,7 +61,7 @@ object Environment {
   }
 
   // Only for test usage
-  def setCacheDir(value: Option[PathLike]): Unit = {
+  def setCacheDir(value: Option[Option[PathLike]]): Unit = {
     cacheDirOverride = value
   }
 }
