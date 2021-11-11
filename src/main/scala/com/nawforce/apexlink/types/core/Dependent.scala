@@ -19,13 +19,14 @@ import com.nawforce.apexlink.memory.SkinnyWeakSet
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.{PlatformObjectNature, SObjectDeclaration}
+import com.nawforce.pkgforce.memory.IdentityEquality
 
 /* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
  *
  * A dependent has a set of 'holders' of that dependency for reverse lookup although the set may be stale. They use
  * identity equality to help with collections performance.
  */
-trait Dependent {
+trait Dependent extends IdentityEquality {
   // The set of holders on this dependency element, may be stale!
   private var dependencyHolders: SkinnyWeakSet[DependencyHolder] = _
 
@@ -41,17 +42,6 @@ trait Dependent {
     if (dependencyHolders == null) dependencyHolders = new SkinnyWeakSet[DependencyHolder]()
     dependencyHolders.add(dependencyHolder)
   }
-
-  // Identity equality
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: Dependent => other.eq(this)
-      case _                => false
-    }
-  }
-
-  // Identity hash, may not be unique
-  //verride def hashCode(): Int = System.identityHashCode(this)
 }
 
 /* Holder of a dependency, for convenience all holders are assumed to be potential dependents.
