@@ -18,12 +18,7 @@ import com.nawforce.apexlink.finding.{RelativeTypeContext, RelativeTypeName}
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.apex.{
-  ApexBlockLike,
-  ApexConstructorLike,
-  ApexFieldLike,
-  ApexMethodLike
-}
+import com.nawforce.apexlink.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Issue
@@ -86,7 +81,6 @@ object ClassBodyDeclaration {
     methodOwnerNature: MethodOwnerNature,
     isOuter: Boolean,
     typeName: TypeName,
-    extendedApex: Boolean,
     modifiers: ArraySeq[ModifierContext],
     memberDeclarationContext: MemberDeclarationContext
   ): Seq[ClassBodyDeclaration] = {
@@ -201,7 +195,6 @@ object ClassBodyDeclaration {
                     parser,
                     module,
                     typeName,
-                    extendedApex,
                     ApexModifiers.classModifiers(parser, modifiers, outer = false, x.id()),
                     x
                   )

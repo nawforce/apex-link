@@ -125,7 +125,6 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
               .create(module,
                 doc,
                 ByteArraySourceData(asBytes, 0, asBytes.length),
-                extendedApex = false,
                 forceConstruct = true)
           } catch {
             case _: Exception => None

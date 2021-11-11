@@ -51,7 +51,7 @@ trait Dependent {
   }
 
   // Identity hash, may not be unique
-  override def hashCode(): Int = System.identityHashCode(this)
+  //verride def hashCode(): Int = System.identityHashCode(this)
 }
 
 /* Holder of a dependency, for convenience all holders are assumed to be potential dependents.

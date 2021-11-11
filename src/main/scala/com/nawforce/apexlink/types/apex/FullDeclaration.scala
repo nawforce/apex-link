@@ -280,7 +280,6 @@ object FullDeclaration {
   def create(module: Module,
              doc: ClassDocument,
              data: SourceData,
-             extendedApex: Boolean,
              forceConstruct: Boolean): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
     val result = parser.parseClass()
@@ -288,7 +287,7 @@ object FullDeclaration {
     issues.foreach(OrgImpl.log)
     if (issues.isEmpty || forceConstruct) {
       try {
-        CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value).map(_.typeDeclaration)
+        CompilationUnit.construct(parser, module, doc.name, result.value).map(_.typeDeclaration)
       } catch {
         case ex: Throwable =>
           LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
@@ -299,7 +298,7 @@ object FullDeclaration {
     }
   }
 
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
+  def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
 
     val modifiers = ArraySeq.unsafeWrapArray(CodeParser.toScala(typeDecl.modifier()).toArray)
     val thisType = TypeName(name).withNamespace(module.namespace)
@@ -312,7 +311,6 @@ object FullDeclaration {
             module,
             thisType,
             None,
-            extendedApex,
             ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
             cd))
       .orElse(

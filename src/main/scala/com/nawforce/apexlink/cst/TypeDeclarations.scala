@@ -29,13 +29,13 @@ import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.collection.immutable.ArraySeq
 
-class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Boolean) extends CST
+class CompilationUnit(val typeDeclaration: FullDeclaration) extends CST
 
 object CompilationUnit {
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext): Option[CompilationUnit] = {
+  def construct(parser: CodeParser, module: Module, name: Name, compilationUnit: CompilationUnitContext): Option[CompilationUnit] = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration())
-        .map(fd => new CompilationUnit(fd, extendedApex).withContext(compilationUnit))
+      FullDeclaration.construct(parser, module, name, compilationUnit.typeDeclaration())
+        .map(fd => new CompilationUnit(fd).withContext(compilationUnit))
     }
   }
 }
@@ -78,13 +78,13 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 object ClassDeclaration {
   val staticModifier: ArraySeq[Modifier] = ArraySeq(STATIC_MODIFIER)
 
-  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, extendedApex: Boolean, modifiers: ModifierResults,
+  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, modifiers: ModifierResults,
                      classDeclaration: ClassDeclarationContext): ClassDeclaration = {
     val thisType = TypeName(Names(CodeParser.getText(classDeclaration.id())), Nil, Some(outerType))
-    construct(parser, module, thisType, Some(outerType), extendedApex, modifiers, classDeclaration)
+    construct(parser, module, thisType, Some(outerType), modifiers, classDeclaration)
   }
 
-  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName], extendedApex: Boolean,
+  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName],
                 modifiers: ModifierResults, classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val extendType =
@@ -108,7 +108,7 @@ object ClassDeclaration {
             ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), ArraySeq()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
-              outerTypeName.isEmpty, thisType, extendedApex, ArraySeq.unsafeWrapArray(CodeParser.toScala(cbd.modifier()).toArray), x))
+              outerTypeName.isEmpty, thisType, ArraySeq.unsafeWrapArray(CodeParser.toScala(cbd.modifier()).toArray), x))
           )
       ).flatten.toArray)
 
