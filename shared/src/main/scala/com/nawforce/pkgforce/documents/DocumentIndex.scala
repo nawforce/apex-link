@@ -107,7 +107,7 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
 
   override def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     // Reject if document may be ignored
-    if (document.ignorable)
+    if (document.ignorable())
       return
 
     // Duplicate detect for documents that define a complete type
