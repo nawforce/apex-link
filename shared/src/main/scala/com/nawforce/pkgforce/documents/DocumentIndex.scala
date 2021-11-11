@@ -113,8 +113,7 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
     // Duplicate detect for documents that define a complete type
     val typeName = document.typeName(namespace)
     if (!document.nature.partialType) {
-      val existing = get(document.nature, typeName) ++
-        (if (document.nature == ApexNature) get(ExtendedApexNature, typeName) else Set())
+      val existing = get(document.nature, typeName)
       if (existing.nonEmpty) {
         logger.log(
           Issue(document.path,

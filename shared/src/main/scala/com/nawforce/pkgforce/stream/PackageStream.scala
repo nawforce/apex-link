@@ -74,7 +74,6 @@ object PackageStream {
       PageGenerator.iterator(index) ++
       FlowGenerator.iterator(index) ++
       SObjectGenerator.iterator(index) ++
-      ExtendedApexGenerator.iterator(index) ++
       ApexGenerator.iterator(index) ++
       TriggerGenerator.iterator(index)
   }

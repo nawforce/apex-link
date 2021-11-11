@@ -125,34 +125,6 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("xcls file found") {
-    FileSystemHelper.run(Map[String, String]("pkg/Foo.xcls" -> "public class Foo {}")) {
-      root: PathLike =>
-        val index = DocumentIndex(logger, None, root.join("pkg"))
-        assert(logger.issues.isEmpty)
-        assert(index.get(ExtendedApexNature).size == 1)
-        assert(
-          index.get(ExtendedApexNature).toList ==
-            List(ExtendedApexDocument(root.join("pkg").join("Foo.xcls"), Name("Foo"))))
-    }
-  }
-
-  test("cls/xcls duplicate classes don't error") {
-    FileSystemHelper.run(
-      Map[String, String]("pkg/foo/Foo.cls" -> "public class Foo {}",
-        "/pkg/bar/Foo.xcls" -> "public class Foo {}")) { root: PathLike =>
-      val index = DocumentIndex(logger, None, root.join("pkg"))
-      assert(index.get(ApexNature).isEmpty)
-      assert(index.get(ExtendedApexNature).size == 1)
-      assert(
-        logger.issues == ArraySeq(Issue(root.join("pkg").join("foo").join("Foo.cls"),
-          diagnostics.Diagnostic(
-            ERROR_CATEGORY,
-            Location.empty,
-            "File creates duplicate type 'Foo' as '/pkg/bar/Foo.xcls', ignoring"))))
-    }
-  }
-
   test("duplicate labels no error") {
     FileSystemHelper.run(
       Map[String, String](

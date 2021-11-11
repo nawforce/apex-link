@@ -40,7 +40,6 @@ sealed abstract class MetadataNature(val partialType: Boolean = false)
 
 case object LabelNature extends MetadataNature(partialType = true)
 case object ApexNature extends MetadataNature
-case object ExtendedApexNature extends MetadataNature
 case object TriggerNature extends MetadataNature
 case object ComponentNature extends MetadataNature
 case object PageNature extends MetadataNature
@@ -109,21 +108,6 @@ object ApexTriggerDocument {
   def apply(path: PathLike): ApexTriggerDocument = {
     assert(path.basename.toLowerCase.endsWith(".trigger"))
     new ApexTriggerDocument(path, Name(path.basename.replaceFirst("(?i)\\.trigger$", "")))
-  }
-}
-
-final case class ExtendedApexDocument(_path: PathLike, _name: Name)
-    extends ClassDocument(_path, _name) {
-  override val nature: MetadataNature = ExtendedApexNature
-  override def typeName(namespace: Option[Name]): TypeName = {
-    TypeName(name, Seq(), namespace.map(TypeName(_)))
-  }
-}
-
-object ExtendedApexDocument {
-  def apply(path: PathLike): ExtendedApexDocument = {
-    assert(path.basename.toLowerCase.endsWith(".xcls"))
-    new ExtendedApexDocument(path, Name(path.basename.replaceFirst("(?i)\\.xcls$", "")))
   }
 }
 
@@ -233,7 +217,6 @@ object MetadataDocument {
   private val extensions: Seq[String] = Seq(
     "cls",
     "trigger",
-    "xcls",
     "component",
     "object",
     "object-meta.xml",
@@ -259,9 +242,6 @@ object MetadataDocument {
 
       case Array(name, Name("trigger")) =>
         Some(ApexTriggerDocument(path, name))
-
-      case Array(name, Name("xcls")) =>
-        Some(ExtendedApexDocument(path, name))
 
       case Array(name, Name("component")) =>
         Some(ComponentDocument(path, name))
