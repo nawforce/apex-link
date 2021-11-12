@@ -98,19 +98,19 @@ object ClassDeclaration {
 
     val classBodyDeclarations = CodeParser.toScala(classDeclaration.classBody())
       .map(cb => CodeParser.toScala(cb.classBodyDeclaration()))
-      .getOrElse(Seq())
+      .getOrElse(ArraySeq())
     val typeContext = new RelativeTypeContext
 
-    val bodyDeclarations = ArraySeq.unsafeWrapArray(
+    val bodyDeclarations =
       classBodyDeclarations.flatMap(cbd =>
         CodeParser.toScala(cbd.block())
-          .map(x => Seq(ApexInitializerBlock.construct(parser,
+          .map(x => ArraySeq(ApexInitializerBlock.construct(parser,
             ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), ArraySeq()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
-              outerTypeName.isEmpty, thisType, ArraySeq.unsafeWrapArray(CodeParser.toScala(cbd.modifier()).toArray), x))
+              outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
-      ).flatten.toArray)
+      ).flatten
 
     val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
       Id.construct(classDeclaration.id()), modifiers, Some(extendType), implementsType, bodyDeclarations
@@ -160,12 +160,12 @@ object InterfaceDeclaration {
       CodeParser.toScala(interfaceDeclaration.interfaceBody())
         .map(interfaceBody => CodeParser.toScala(interfaceBody.interfaceMethodDeclaration()))
         .map(methods => {
-          ArraySeq.unsafeWrapArray(methods.map(method => {
+          methods.map(method => {
             ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
               MethodModifiers.interfaceMethodModifiers(parser,
-                ArraySeq.unsafeWrapArray(CodeParser.toScala(method.modifier()).toArray), method.id(), outerTypeName.isEmpty),
+                CodeParser.toScala(method.modifier()), method.id(), outerTypeName.isEmpty),
               method)
-          }).toArray)
+          })
         }).getOrElse(ArraySeq[ApexMethodDeclaration]())
 
     val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
@@ -212,8 +212,8 @@ object EnumDeclaration {
     // FUTURE: Add standard enum methods
     val id = Id.construct(enumDeclaration.id())
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
-      .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
-    val fields = ArraySeq.unsafeWrapArray(constants.map(constant => {
+      .map(ec => CodeParser.toScala(ec.id())).getOrElse(ArraySeq())
+    val fields = constants.map(constant => {
       ApexFieldDeclaration(TypeId(module, thisType), ModifierResults(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER), ArraySeq()), thisType,
         VariableDeclarator(
           thisType,
@@ -221,7 +221,7 @@ object EnumDeclaration {
           None
         ).withContext(constant)
       ).withContext(constant)
-    }).toArray)
+    })
 
     EnumDeclaration(parser.source, module, new RelativeTypeContext() ,thisType, outerTypeName, id, typeModifiers, fields).withContext(enumDeclaration)
   }

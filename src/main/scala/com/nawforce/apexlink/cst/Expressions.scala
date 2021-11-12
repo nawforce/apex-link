@@ -369,7 +369,7 @@ object MethodCall {
   private def expressions(from: ExpressionListContext): ArraySeq[Expression] = {
     CodeParser
       .toScala(from)
-      .map(el => ArraySeq.unsafeWrapArray(CodeParser.toScala(el.expression()).map(e => Expression.construct(e)).toArray))
+      .map(el => CodeParser.toScala(el.expression()).map(e => Expression.construct(e)))
       .getOrElse(Expression.emptyExpressions)
   }
 }
@@ -761,7 +761,7 @@ object Expression {
     cst.withContext(from)
   }
 
-  def construct(expression: Array[ExpressionContext]): Array[Expression] = {
+  def construct(expression: ArraySeq[ExpressionContext]): ArraySeq[Expression] = {
     expression.map(x => Expression.construct(x))
   }
 }
@@ -779,7 +779,7 @@ object Arguments {
   def construct(from: ArgumentsContext): ArraySeq[Expression] = {
     val el = CodeParser.toScala(from.expressionList())
     if (el.nonEmpty) {
-      ArraySeq.unsafeWrapArray(Expression.construct(CodeParser.toScala(el.get.expression()).toArray))
+      Expression.construct(CodeParser.toScala(el.get.expression()))
     } else {
       Expression.emptyExpressions
     }

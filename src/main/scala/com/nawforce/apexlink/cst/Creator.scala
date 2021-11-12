@@ -216,7 +216,7 @@ object ArrayCreatorRest {
   }
 }
 
-final case class ArrayInitializer(expressions: Array[Expression]) extends CST {
+final case class ArrayInitializer(expressions: ArraySeq[Expression]) extends CST {
   def verify(input: ExprContext, context: ExpressionVerifyContext): Unit = {
     expressions.foreach(_.verify(input, context))
   }
@@ -224,7 +224,7 @@ final case class ArrayInitializer(expressions: Array[Expression]) extends CST {
 
 object ArrayInitializer {
   def construct(from: ArrayInitializerContext): ArrayInitializer = {
-    val initializers = CodeParser.toScala(from.expression()).toArray
+    val initializers = CodeParser.toScala(from.expression())
     ArrayInitializer(Expression.construct(initializers)).withContext(from)
   }
 }
@@ -317,7 +317,7 @@ object MapCreatorRestPair {
 }
 
 /* This is really Set & List creator, where TYPE{expr, expr, ...} form is allowed, it's different from array */
-final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
+final case class SetCreatorRest(parts: ArraySeq[Expression]) extends CreatorRest {
   override def verify(createdName: CreatedName,
                       input: ExprContext,
                       context: ExpressionVerifyContext): ExprContext = {
@@ -353,7 +353,7 @@ final case class SetCreatorRest(parts: Array[Expression]) extends CreatorRest {
 
 object SetCreatorRest {
   def construct(from: SetCreatorRestContext): SetCreatorRest = {
-    val parts = CodeParser.toScala(from.expression()).toArray
+    val parts = CodeParser.toScala(from.expression())
     SetCreatorRest(Expression.construct(parts)).withContext(from)
   }
 }

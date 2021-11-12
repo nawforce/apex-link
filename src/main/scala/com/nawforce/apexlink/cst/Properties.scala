@@ -99,8 +99,7 @@ object ApexPropertyDeclaration {
       modifiers,
       typeName,
       Id.construct(propertyDeclaration.id()),
-      ArraySeq.unsafeWrapArray(CodeParser
-        .toScala(propertyDeclaration.propertyBlock()).toArray)
+      CodeParser.toScala(propertyDeclaration.propertyBlock())
         .flatMap(pb => PropertyBlock.construct(parser, pb, typeName)),
     ).withContext(propertyDeclaration)
   }
@@ -133,7 +132,7 @@ object PropertyBlock {
   def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): Option[PropertyBlock] = {
     val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
       parser,
-      ArraySeq.unsafeWrapArray(CodeParser.toScala(propertyBlockContext.modifier()).toArray),
+      CodeParser.toScala(propertyBlockContext.modifier()),
       propertyBlockContext)
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())

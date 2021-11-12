@@ -473,12 +473,12 @@ final case class FormalParameter(
 
 object FormalParameter {
   def construct(
-    parser: CodeParser,
-    typeContext: RelativeTypeContext,
-    module: Module,
-    outerTypeName: TypeName,
-    items: Array[FormalParameterContext]
-  ): Array[ParameterDeclaration] = {
+                 parser: CodeParser,
+                 typeContext: RelativeTypeContext,
+                 module: Module,
+                 outerTypeName: TypeName,
+                 items: ArraySeq[FormalParameterContext]
+               ): ArraySeq[ParameterDeclaration] = {
     items.map(x => FormalParameter.construct(parser, typeContext, module, outerTypeName, x))
   }
 
@@ -494,7 +494,7 @@ object FormalParameter {
       outerTypeName,
       ApexModifiers.parameterModifiers(
         parser,
-        ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray),
+        CodeParser.toScala(from.modifier()),
         from
       ),
       RelativeTypeName(typeContext, TypeReference.construct(from.typeRef)),
@@ -504,22 +504,22 @@ object FormalParameter {
 }
 
 object FormalParameterList {
-  val noParams: Array[ParameterDeclaration] = Array()
+  val noParams: ArraySeq[ParameterDeclaration] = ArraySeq()
 
   def construct(
-    parser: CodeParser,
-    typeContext: RelativeTypeContext,
-    module: Module,
-    outerTypeName: TypeName,
-    from: FormalParameterListContext
-  ): Array[ParameterDeclaration] = {
+                 parser: CodeParser,
+                 typeContext: RelativeTypeContext,
+                 module: Module,
+                 outerTypeName: TypeName,
+                 from: FormalParameterListContext
+               ): ArraySeq[ParameterDeclaration] = {
     if (from.formalParameter() != null) {
       FormalParameter.construct(
         parser,
         typeContext,
         module,
         outerTypeName,
-        CodeParser.toScala(from.formalParameter()).toArray
+        CodeParser.toScala(from.formalParameter())
       )
     } else {
       noParams
@@ -537,7 +537,7 @@ object FormalParameters {
                 from: FormalParametersContext): ArraySeq[ParameterDeclaration] = {
     Option(from).map(from => {
       CodeParser.toScala(from.formalParameterList())
-        .map(x => ArraySeq.unsafeWrapArray(FormalParameterList.construct(parser, typeContext, module, outerTypeName, x)))
+        .map(x => FormalParameterList.construct(parser, typeContext, module, outerTypeName, x))
         .getOrElse(noParams)
     }).getOrElse(noParams)
   }

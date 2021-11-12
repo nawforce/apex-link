@@ -84,7 +84,7 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
   private def createStatements(context: BlockContext,
                                parser: CodeParser,
                                isTrigger: Boolean): WeakReference[Seq[Statement]] = {
-    val statementContexts = ArraySeq.unsafeWrapArray(CodeParser.toScala(context.statement()).toArray)
+    val statementContexts = CodeParser.toScala(context.statement())
     val statements = Some(Statement.construct(parser, statementContexts, isTrigger))
     new WeakReference(statements.get)
   }
@@ -100,7 +100,7 @@ object Block {
   }
 
   def construct(parser: CodeParser, blockContext: BlockContext, isTrigger: Boolean): Block = {
-    EagerBlock(Statement.construct(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(blockContext.statement()).toArray), isTrigger))
+    EagerBlock(Statement.construct(parser, CodeParser.toScala(blockContext.statement()), isTrigger))
   }
 
   def constructOption(parser: CodeParser, blockContext: Option[BlockContext]): Option[Block] = {
@@ -253,7 +253,7 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   }
 }
 
-final case class ExpressionListForInit(expressions: Array[Expression]) extends ForInit {
+final case class ExpressionListForInit(expressions: ArraySeq[Expression]) extends ForInit {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -267,15 +267,14 @@ object ForInit {
       .toScala(from.localVariableDeclaration())
       .map(lvd => LocalVariableForInit(LocalVariableDeclaration.construct(parser, lvd, isTrigger = false)))
       .getOrElse({
-        val expressions =
-          CodeParser.toScala(CodeParser.toScala(from.expressionList()).get.expression()).toArray
+        val expressions = CodeParser.toScala(CodeParser.toScala(from.expressionList()).get.expression())
         ExpressionListForInit(Expression.construct(expressions))
       })
       .withContext(from)
   }
 }
 
-final case class ForUpdate(expressions: Array[Expression]) extends CST {
+final case class ForUpdate(expressions: ArraySeq[Expression]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -283,7 +282,7 @@ final case class ForUpdate(expressions: Array[Expression]) extends CST {
 
 object ForUpdate {
   def construct(from: ForUpdateContext): ForUpdate = {
-    val expressions = CodeParser.toScala(from.expressionList().expression()).toArray
+    val expressions = CodeParser.toScala(from.expressionList().expression())
     ForUpdate(Expression.construct(expressions)).withContext(from)
   }
 }
@@ -327,7 +326,7 @@ final case class TryStatement(block: Block, catches: Seq[CatchClause], finallyBl
 
 object TryStatement {
   def construct(parser: CodeParser, from: TryStatementContext): TryStatement = {
-    val catches = ArraySeq.unsafeWrapArray(CodeParser.toScala(from.catchClause()).toArray)
+    val catches = CodeParser.toScala(from.catchClause())
     val finallyBlock =
       CodeParser
         .toScala(from.finallyBlock())
@@ -364,7 +363,7 @@ object CatchClause {
   def construct(parser: CodeParser, from: CatchClauseContext): Option[CatchClause] = {
     QualifiedName.construct(from.qualifiedName())
       .map(qualifiedName => {
-        CatchClause(ApexModifiers.catchModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray), from),
+        CatchClause(ApexModifiers.catchModifiers(parser, CodeParser.toScala(from.modifier()), from),
           qualifiedName,
           CodeParser.getText(from.id()),
           CodeParser.toScala(from.block())
@@ -512,7 +511,7 @@ object RunAsStatement {
     val expressions: ArraySeq[Expression] =
       CodeParser
         .toScala(statement.expressionList())
-        .map(el => ArraySeq.unsafeWrapArray(Expression.construct(CodeParser.toScala(el.expression()).toArray)))
+        .map(el => Expression.construct(CodeParser.toScala(el.expression())))
         .getOrElse(Expression.emptyExpressions)
     val block =
       CodeParser
