@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2021 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.stream
 
@@ -37,43 +23,57 @@ import java.util.regex.{Matcher, Pattern}
 import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
-abstract class VFEvent(val controllers: ArraySeq[LocationAnd[Name]],
-                       val expressions: ArraySeq[LocationAnd[String]])
-  extends PackageEvent {
+abstract class VFEvent(
+  val controllers: ArraySeq[LocationAnd[Name]],
+  val expressions: ArraySeq[LocationAnd[String]]
+) extends PackageEvent {
   val sourceInfo: SourceInfo
 }
 
 object VFEvent {
   lazy val expressionMatcher: Matcher = Pattern.compile("\\{![^}]+}").matcher("")
 
-  def extractControllers(source: Source,
-                         component: VFParser.VfUnitContext,
-                         isPage: Boolean): ArraySeq[LocationAnd[Name]] = {
+  def extractControllers(
+    source: Source,
+    component: VFParser.VfUnitContext,
+    isPage: Boolean
+  ): ArraySeq[LocationAnd[Name]] = {
     val root = component.element()
-    ArraySeq.unsafeWrapArray(PageParser
-      .toScala(root.attribute())
-      .flatMap(attr => {
-        val location = source.getLocation(attr)
-        PageParser.getText(attr.attributeName()) match {
-          case "controller" => Array((location.location, extractAttributeValue(attr)))
-          case "extensions" if isPage =>
-            extractAttributeValue(attr).split(',').map(_.trim).map(name => (location.location, name))
-          case _ => None
-        }
-      })
-      .map(locationAndName => LocationAnd(locationAndName._1, Name(locationAndName._2)))
-      .toArray)
+    ArraySeq.unsafeWrapArray(
+      PageParser
+        .toScala(root.attribute())
+        .flatMap(attr => {
+          val location = source.getLocation(attr)
+          PageParser.getText(attr.attributeName()) match {
+            case "controller" => Array((location.location, extractAttributeValue(attr)))
+            case "extensions" if isPage =>
+              extractAttributeValue(attr)
+                .split(',')
+                .map(_.trim)
+                .map(name => (location.location, name))
+            case _ => None
+          }
+        })
+        .map(locationAndName => LocationAnd(locationAndName._1, Name(locationAndName._2)))
+        .toArray
+    )
   }
 
-  def extractExpressions(source: Source, component: VFParser.VfUnitContext): ArraySeq[LocationAnd[String]] = {
+  def extractExpressions(
+    source: Source,
+    component: VFParser.VfUnitContext
+  ): ArraySeq[LocationAnd[String]] = {
     val root: VFParser.ElementContext = component.element()
-    val buffer = ArrayBuffer[LocationAnd[String]]()
+    val buffer                        = ArrayBuffer[LocationAnd[String]]()
     collectExpressions(source, root, buffer)
     ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 
-  private def collectExpressions(source: Source, element: VFParser.ElementContext,
-                                 exprs: ArrayBuffer[LocationAnd[String]]): Unit = {
+  private def collectExpressions(
+    source: Source,
+    element: VFParser.ElementContext,
+    exprs: ArrayBuffer[LocationAnd[String]]
+  ): Unit = {
 
     PageParser
       .toScala(element.attribute())
@@ -83,7 +83,12 @@ object VFEvent {
           .foreach(attrValue => {
             val attrText = PageParser.getText(attrValue)
             if (attrText.startsWith("{!") && attrText.endsWith("}"))
-              exprs.addOne(LocationAnd(source.getLocation(attrValue).location, attrText.substring(2, attrText.length - 1)))
+              exprs.addOne(
+                LocationAnd(
+                  source.getLocation(attrValue).location,
+                  attrText.substring(2, attrText.length - 1)
+                )
+              )
           })
       })
 
@@ -95,10 +100,15 @@ object VFEvent {
           .foreach(charData => {
             val text = PageParser.getText(charData)
             expressionMatcher.reset(text)
-            while (expressionMatcher.find()) exprs.addOne(
-              LocationAnd(source.getLocation(charData).location,
-              text.substring(expressionMatcher.start() + 2, expressionMatcher.end() - 1)))
-          }))
+            while (expressionMatcher.find())
+              exprs.addOne(
+                LocationAnd(
+                  source.getLocation(charData).location,
+                  text.substring(expressionMatcher.start() + 2, expressionMatcher.end() - 1)
+                )
+              )
+          })
+    )
 
     content
       .map(c => PageParser.toScala(c.element()))

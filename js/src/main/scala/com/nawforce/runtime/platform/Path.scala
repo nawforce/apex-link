@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.runtime.platform
 
@@ -49,13 +35,13 @@ final class Path private (path: String) extends PathLike {
   }
   override def native: Any = path
 
-  override def basename: String = pathObject.base.toOption.get
-  override def parent: Path = join("..")
-  override def exists: Boolean = stat.nonEmpty
-  override def isRoot: Boolean = this.toString == parent.toString
+  override def basename: String     = pathObject.base.toOption.get
+  override def parent: Path         = join("..")
+  override def exists: Boolean      = stat.nonEmpty
+  override def isRoot: Boolean      = this.toString == parent.toString
   override def isDirectory: Boolean = stat.exists(_.isDirectory())
-  override def isFile: Boolean = stat.exists(_.isFile())
-  override def size: Long = stat.map(_.size.toLong).getOrElse(0)
+  override def isFile: Boolean      = stat.exists(_.isFile())
+  override def size: Long           = stat.map(_.size.toLong).getOrElse(0)
 
   override def join(arg: String): Path = {
     if (io.scalajs.nodejs.path.Path.isAbsolute(arg))
@@ -156,7 +142,7 @@ final class Path private (path: String) extends PathLike {
   }
 
   override def splitDirectoryEntries(): (Array[PathLike], Array[PathLike]) = {
-    val files = mutable.ArrayBuffer[PathLike]()
+    val files       = mutable.ArrayBuffer[PathLike]()
     val directories = mutable.ArrayBuffer[PathLike]()
 
     Fs.readdirSync(path)
@@ -215,7 +201,7 @@ object Path {
     Some(path.toString)
   }
 
-  def safeApply(path:String): Path = {
+  def safeApply(path: String): Path = {
     apply(Option(path).getOrElse(Process.cwd()))
   }
 }

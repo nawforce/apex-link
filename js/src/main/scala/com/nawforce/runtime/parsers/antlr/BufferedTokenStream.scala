@@ -7,5 +7,5 @@ import scala.scalajs.js.annotation.JSImport
 @JSImport("antlr4ts", "BufferedTokenStream")
 class BufferedTokenStream extends js.Object {
   def getHiddenTokensToRight(tokenIndex: Int): js.Array[Token] = js.native
-  def getHiddenTokensToLeft(tokenIndex: Int): js.Array[Token] = js.native
+  def getHiddenTokensToLeft(tokenIndex: Int): js.Array[Token]  = js.native
 }

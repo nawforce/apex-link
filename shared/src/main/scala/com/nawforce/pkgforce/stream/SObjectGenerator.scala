@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2021 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.nawforce.pkgforce.stream
@@ -39,37 +25,39 @@ import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable
 
 sealed abstract class SharingModel(val value: String)
-case object PrivateSharingModel extends SharingModel("Private")
-case object ReadSharingModel extends SharingModel("Read")
-case object ReadWriteSharingModel extends SharingModel("ReadWrite")
-case object ReadWriteTransferSharingModel extends SharingModel("ReadWriteTransfer")
-case object FullAccessSharingModel extends SharingModel("FullAccess")
-case object ControlledByParentSharingModel extends SharingModel("ControlledByParent")
+case object PrivateSharingModel              extends SharingModel("Private")
+case object ReadSharingModel                 extends SharingModel("Read")
+case object ReadWriteSharingModel            extends SharingModel("ReadWrite")
+case object ReadWriteTransferSharingModel    extends SharingModel("ReadWriteTransfer")
+case object FullAccessSharingModel           extends SharingModel("FullAccess")
+case object ControlledByParentSharingModel   extends SharingModel("ControlledByParent")
 case object ControlledByCampaignSharingModel extends SharingModel("ControlledByCampaign")
 case object ControlledByLeadOrContractSharingModel
     extends SharingModel("ControlledByLeadOrContract")
 
 sealed trait CustomSettingType
-case object ListCustomSetting extends CustomSettingType
+case object ListCustomSetting      extends CustomSettingType
 case object HierarchyCustomSetting extends CustomSettingType
 
 final case class SObjectEvent(
   sourceInfo: Option[SourceInfo],
   reportingPath: PathLike, // SFDX SObject directory or MDAPI .object file
-  isDefining: Boolean, // Metadata is defining a new SObject
+  isDefining: Boolean,     // Metadata is defining a new SObject
   customSettingsType: Option[CustomSettingType],
-  sharingModel: Option[SharingModel])
-    extends PackageEvent
-final case class CustomFieldEvent(sourceInfo: SourceInfo,
-                                  name: Name,
-                                  rawType: Name,
-                                  referenceTo: Option[(Name, Name)])
-    extends PackageEvent
-final case class FieldsetEvent(sourceInfo: SourceInfo, name: Name) extends PackageEvent
+  sharingModel: Option[SharingModel]
+) extends PackageEvent
+final case class CustomFieldEvent(
+  sourceInfo: SourceInfo,
+  name: Name,
+  rawType: Name,
+  referenceTo: Option[(Name, Name)]
+)                                                                       extends PackageEvent
+final case class FieldsetEvent(sourceInfo: SourceInfo, name: Name)      extends PackageEvent
 final case class SharingReasonEvent(sourceInfo: SourceInfo, name: Name) extends PackageEvent
 
 /** Convert SObject documents/folders into PackageEvents. We must call this even if there is not object-meta.xml file
-  * present to collect the SFDX fields, fieldSets and sharingRules. */
+  * present to collect the SFDX fields, fieldSets and sharingRules.
+  */
 object SObjectGenerator {
 
   def iterator(index: DocumentIndex): Iterator[PackageEvent] = iterator(index.get(SObjectNature))
@@ -80,7 +68,7 @@ object SObjectGenerator {
     val eventsByName =
       documents.map(document => (document.name, toEvents(document).toArray)).to(mutable.Map)
     val emitted = new mutable.HashSet[Name]()
-    val output = new mutable.ArrayBuffer[Array[PackageEvent]]()
+    val output  = new mutable.ArrayBuffer[Array[PackageEvent]]()
 
     var found = true
     while (found && eventsByName.nonEmpty) {
@@ -119,7 +107,7 @@ object SObjectGenerator {
     val customSettingsType =
       doc.map(doc => extractCustomSettingsType(doc)).getOrElse(IssuesAnd(None))
     val sharingModelType = doc.map(doc => extractSharingModel(doc)).getOrElse(IssuesAnd(None))
-    val isDefining = doc.exists(doc => doc.rootElement.getChildren("label").nonEmpty)
+    val isDefining       = doc.exists(doc => doc.rootElement.getChildren("label").nonEmpty)
     val reportingPath =
       if (document.path.toString.endsWith("object-meta.xml"))
         document.path.parent
@@ -128,40 +116,46 @@ object SObjectGenerator {
 
     // Collect whatever we can find into the stream, this is deliberately lax we are not trying to find errors here
     Iterator(
-      SObjectEvent(sourceInfo,
-                   reportingPath,
-                   isDefining,
-                   customSettingsType.value,
-                   sharingModelType.value)) ++
+      SObjectEvent(
+        sourceInfo,
+        reportingPath,
+        isDefining,
+        customSettingsType.value,
+        sharingModelType.value
+      )
+    ) ++
       IssuesEvent.iterator(customSettingsType.issues) ++ IssuesEvent.iterator(
-      sharingModelType.issues) ++
+      sharingModelType.issues
+    ) ++
       doc
         .map(doc => {
           val rootElement = doc.rootElement
           rootElement
             .getChildren("fields")
             .flatMap(field => {
-              createField(SourceInfo(PathLocation(path.get, Location(field.line)),
-                sourceData.get),
+              createField(
+                SourceInfo(PathLocation(path.get, Location(field.line)), sourceData.get),
                 field,
-                path.get)
+                path.get
+              )
             }) ++
             rootElement
               .getChildren("fieldSets")
               .flatMap(fieldSet => {
-                createFieldSet(SourceInfo(PathLocation(path.get, Location(fieldSet.line)),
-                  sourceData.get),
+                createFieldSet(
+                  SourceInfo(PathLocation(path.get, Location(fieldSet.line)), sourceData.get),
                   fieldSet,
-                  path.get)
+                  path.get
+                )
               }) ++
             rootElement
               .getChildren("sharingReasons")
               .flatMap(sharingReason => {
-                createSharingReason(SourceInfo(PathLocation(path.get,
-                  Location(sharingReason.line)),
-                  sourceData.get),
+                createSharingReason(
+                  SourceInfo(PathLocation(path.get, Location(sharingReason.line)), sourceData.get),
                   sharingReason,
-                  path.get)
+                  path.get
+                )
               })
         })
         .getOrElse(Iterator()) ++
@@ -171,30 +165,37 @@ object SObjectGenerator {
   }
 
   private def extractCustomSettingsType(
-    doc: XMLDocumentLike): IssuesAnd[Option[CustomSettingType]] = {
+    doc: XMLDocumentLike
+  ): IssuesAnd[Option[CustomSettingType]] = {
     doc.rootElement.getOptionalSingleChildAsString("customSettingsType") match {
       case Some("List")      => IssuesAnd(Some(ListCustomSetting))
       case Some("Hierarchy") => IssuesAnd(Some(HierarchyCustomSetting))
       case Some(x) =>
         IssuesAnd(
           ArraySeq(
-            Issue(doc.path,
-                  ERROR_CATEGORY,
-                  Location(doc.rootElement.line),
-                  s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'")),
-          None)
+            Issue(
+              doc.path,
+              ERROR_CATEGORY,
+              Location(doc.rootElement.line),
+              s"Unexpected customSettingsType value '$x', should be 'List' or 'Hierarchy'"
+            )
+          ),
+          None
+        )
       case None => IssuesAnd(None)
     }
   }
 
-  private val allSharingModels = Seq(PrivateSharingModel,
-                                     ReadSharingModel,
-                                     ReadWriteSharingModel,
-                                     ReadWriteTransferSharingModel,
-                                     FullAccessSharingModel,
-                                     ControlledByParentSharingModel,
-                                     ControlledByCampaignSharingModel,
-                                     ControlledByLeadOrContractSharingModel)
+  private val allSharingModels = Seq(
+    PrivateSharingModel,
+    ReadSharingModel,
+    ReadWriteSharingModel,
+    ReadWriteTransferSharingModel,
+    FullAccessSharingModel,
+    ControlledByParentSharingModel,
+    ControlledByCampaignSharingModel,
+    ControlledByLeadOrContractSharingModel
+  )
 
   private def extractSharingModel(doc: XMLDocumentLike): IssuesAnd[Option[SharingModel]] = {
     val sharingModel = doc.rootElement.getOptionalSingleChildAsString("sharingModel")
@@ -203,12 +204,17 @@ object SObjectGenerator {
       if (matched.nonEmpty) {
         IssuesAnd(matched)
       } else {
-        IssuesAnd(ArraySeq(
-                    Issue(doc.path,
-                          ERROR_CATEGORY,
-                          Location(doc.rootElement.line),
-                          s"Unexpected sharingModel value '${sharingModel.get}'")),
-                  None)
+        IssuesAnd(
+          ArraySeq(
+            Issue(
+              doc.path,
+              ERROR_CATEGORY,
+              Location(doc.rootElement.line),
+              s"Unexpected sharingModel value '${sharingModel.get}'"
+            )
+          ),
+          None
+        )
       }
     } else {
       IssuesAnd(None)
@@ -224,15 +230,19 @@ object SObjectGenerator {
   }
 
   private def collectSfdxSharingReason(path: PathLike): Iterator[PackageEvent] = {
-    collectMetadata(path.parent.join("sharingReasons"),
-                    ".sharingReason-meta.xml",
-                    "SharingReason",
-                    createSharingReason)
+    collectMetadata(
+      path.parent.join("sharingReasons"),
+      ".sharingReason-meta.xml",
+      "SharingReason",
+      createSharingReason
+    )
   }
 
-  private def createField(sourceInfo: SourceInfo,
-                          elem: XMLElementLike,
-                          path: PathLike): Iterator[PackageEvent] = {
+  private def createField(
+    sourceInfo: SourceInfo,
+    elem: XMLElementLike,
+    path: PathLike
+  ): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
       val name = Name(elem.getSingleChildAsString("fullName").trim)
 
@@ -244,18 +254,27 @@ object SObjectGenerator {
       if (!fieldTypes.contains(rawType)) {
         return IssuesEvent.iterator(
           ArraySeq(
-            Issue(path,
-                  Diagnostic(ERROR_CATEGORY,
-                             Location(elem.line),
-                             s"Unrecognised type '$rawType' on custom field '$name'"))))
+            Issue(
+              path,
+              Diagnostic(
+                ERROR_CATEGORY,
+                Location(elem.line),
+                s"Unrecognised type '$rawType' on custom field '$name'"
+              )
+            )
+          )
+        )
       }
 
       // Create additional fields & lookup relationships for special fields
       val target = rawType match {
         case "Lookup" | "MasterDetail" | "MetadataRelationship" =>
           Some(
-            (Name(elem.getSingleChildAsString("referenceTo").trim),
-             Name(elem.getSingleChildAsString("relationshipName").trim)))
+            (
+              Name(elem.getSingleChildAsString("referenceTo").trim),
+              Name(elem.getSingleChildAsString("relationshipName").trim)
+            )
+          )
         case _ => None
       }
 
@@ -263,27 +282,32 @@ object SObjectGenerator {
     }
   }
 
-  private def createFieldSet(sourceInfo: SourceInfo,
-                             elem: XMLElementLike,
-                             path: PathLike): Iterator[PackageEvent] = {
+  private def createFieldSet(
+    sourceInfo: SourceInfo,
+    elem: XMLElementLike,
+    path: PathLike
+  ): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
       Iterator(FieldsetEvent(sourceInfo, Name(elem.getSingleChildAsString("fullName"))))
     }
   }
 
-  private def createSharingReason(sourceInfo: SourceInfo,
-                                  elem: XMLElementLike,
-                                  path: PathLike): Iterator[PackageEvent] = {
+  private def createSharingReason(
+    sourceInfo: SourceInfo,
+    elem: XMLElementLike,
+    path: PathLike
+  ): Iterator[PackageEvent] = {
     catchXMLExceptions(path) {
       Iterator(SharingReasonEvent(sourceInfo, Name(elem.getSingleChildAsString("fullName"))))
     }
   }
 
-  private def collectMetadata(path: PathLike,
-                              suffix: String,
-                              rootElement: String,
-                              op: (SourceInfo, XMLElementLike, PathLike) => Iterator[PackageEvent])
-    : Iterator[PackageEvent] = {
+  private def collectMetadata(
+    path: PathLike,
+    suffix: String,
+    rootElement: String,
+    op: (SourceInfo, XMLElementLike, PathLike) => Iterator[PackageEvent]
+  ): Iterator[PackageEvent] = {
     if (!path.isDirectory)
       return Iterator()
 
@@ -297,16 +321,18 @@ object SObjectGenerator {
             catchXMLExceptions(filePath) {
               filePath.readSourceData() match {
                 case Left(err) =>
-                  IssuesEvent.iterator(
-                    ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location(0), err))))
+                  IssuesEvent
+                    .iterator(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location(0), err))))
                 case Right(sourceData) =>
                   XMLFactory.parse(filePath) match {
                     case IssuesAnd(issues, doc) if doc.isEmpty => IssuesEvent.iterator(issues)
                     case IssuesAnd(_, doc) =>
                       doc.get.rootElement.checkIsOrThrow(rootElement)
-                      op(SourceInfo(PathLocation(filePath, Location.all), sourceData),
+                      op(
+                        SourceInfo(PathLocation(filePath, Location.all), sourceData),
                         doc.get.rootElement,
-                        filePath)
+                        filePath
+                      )
                   }
               }
             }
@@ -314,39 +340,41 @@ object SObjectGenerator {
     }
   }
 
-  private def catchXMLExceptions(path: PathLike)(
-    op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
+  private def catchXMLExceptions(
+    path: PathLike
+  )(op: => Iterator[PackageEvent]): Iterator[PackageEvent] = {
     try {
       op
     } catch {
       case e: XMLException =>
-        IssuesEvent.iterator(
-          ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
+        IssuesEvent.iterator(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, e.where, e.msg))))
     }
   }
 
-  private val fieldTypes = Set[String]("MasterDetail",
-                                       "Lookup",
-                                       "MetadataRelationship",
-                                       "AutoNumber",
-                                       "Checkbox",
-                                       "Currency",
-                                       "Date",
-                                       "DateTime",
-                                       "Email",
-                                       "EncryptedText",
-                                       "Number",
-                                       "Percent",
-                                       "Phone",
-                                       "Picklist",
-                                       "MultiselectPicklist",
-                                       "Summary",
-                                       "Text",
-                                       "TextArea",
-                                       "LongTextArea",
-                                       "Url",
-                                       "File",
-                                       "Location",
-                                       "Time",
-                                       "Html")
+  private val fieldTypes = Set[String](
+    "MasterDetail",
+    "Lookup",
+    "MetadataRelationship",
+    "AutoNumber",
+    "Checkbox",
+    "Currency",
+    "Date",
+    "DateTime",
+    "Email",
+    "EncryptedText",
+    "Number",
+    "Percent",
+    "Phone",
+    "Picklist",
+    "MultiselectPicklist",
+    "Summary",
+    "Text",
+    "TextArea",
+    "LongTextArea",
+    "Url",
+    "File",
+    "Location",
+    "Time",
+    "Html"
+  )
 }

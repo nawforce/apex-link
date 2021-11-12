@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,21 +10,10 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.runtime.xml
 
-import com.nawforce.pkgforce.diagnostics.{Diagnostic, DiagnosticCategory, ERROR_CATEGORY, Issue, IssuesAnd}
+import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.xml.{XMLDocumentLike, XMLElementLike, XMLName}
 import com.nawforce.runtime.parsers.SourceData
@@ -58,10 +44,12 @@ class XMLElement(element: Element) extends XMLElementLike {
 
   override def getChildren(name: String): Seq[XMLElementLike] = {
     val matched = ArrayBuffer[XMLElementLike]()
-    val nl = element.childNodes
+    val nl      = element.childNodes
     for (i <- 0 until nl.length) {
       val n = nl.item(i)
-      if (n.nodeType == Node.ELEMENT_NODE && n.namespaceURI == XMLDocument.sfNamespace && n.localName == name) {
+      if (
+        n.nodeType == Node.ELEMENT_NODE && n.namespaceURI == XMLDocument.sfNamespace && n.localName == name
+      ) {
         matched.append(new XMLElement(n.asInstanceOf[Element]))
       }
     }
@@ -74,13 +62,13 @@ class XMLDocument(path: PathLike, doc: Document) extends XMLDocumentLike(path) {
 }
 
 object XMLDocument {
-  val sfNamespace = "http://soap.sforce.com/2006/04/metadata"
+  val sfNamespace         = "http://soap.sforce.com/2006/04/metadata"
   var errors: List[Issue] = Nil
 
   def apply(path: PathLike, sourceData: SourceData): IssuesAnd[Option[XMLDocument]] = {
     errors = Nil
     val parser = new DOMParser(getOptions(path))
-    val doc = parser.parseFromString(sourceData.asString, "text/xml")
+    val doc    = parser.parseFromString(sourceData.asString, "text/xml")
     if (errors.nonEmpty) {
       IssuesAnd(ArraySeq(errors.last), None)
     } else {
@@ -89,22 +77,28 @@ object XMLDocument {
   }
 
   private def getOptions(path: PathLike): Object with Dynamic = {
-    js.Dynamic.literal("locator" -> js.Dynamic.literal(),
-                       "errorHandler" ->
-                         js.Dynamic.literal("warning" -> { msg: String =>
-                           captureErrors(path, ERROR_CATEGORY, msg)
-                         }, "error" -> { msg: String =>
-                           captureErrors(path, ERROR_CATEGORY, msg)
-                         }, "fatalError" -> { msg: String =>
-                           captureErrors(path, ERROR_CATEGORY, msg)
-                         }))
+    js.Dynamic.literal(
+      "locator" -> js.Dynamic.literal(),
+      "errorHandler" ->
+        js.Dynamic.literal(
+          "warning" -> { msg: String =>
+            captureErrors(path, ERROR_CATEGORY, msg)
+          },
+          "error" -> { msg: String =>
+            captureErrors(path, ERROR_CATEGORY, msg)
+          },
+          "fatalError" -> { msg: String =>
+            captureErrors(path, ERROR_CATEGORY, msg)
+          }
+        )
+    )
   }
 
   private def captureErrors(path: PathLike, category: DiagnosticCategory, msg: String): Unit = {
     errors = toError(path, category, msg) :: errors
   }
 
-  private val lineMatch: Regex = "line:[0-9]*".r
+  private val lineMatch: Regex   = "line:[0-9]*".r
   private val columnMatch: Regex = "col:[0-9]*".r
 
   private def toError(path: PathLike, category: DiagnosticCategory, msg: String): Issue = {

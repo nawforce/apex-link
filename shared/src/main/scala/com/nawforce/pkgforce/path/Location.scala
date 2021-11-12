@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2020 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.nawforce.pkgforce.path
@@ -33,7 +19,12 @@ import upickle.default.{macroRW, ReadWriter => RW}
 
 /** Location for identifying a sub-part of a file */
 @upickle.implicits.key("Location")
-final case class Location(val startLine: Int, val startPosition: Int, val endLine: Int, val endPosition: Int) extends IssueLocation {
+final case class Location(
+  val startLine: Int,
+  val startPosition: Int,
+  val endLine: Int,
+  val endPosition: Int
+) extends IssueLocation {
 
   override def startLineNumber(): Integer = startLine
 
@@ -72,7 +63,7 @@ final case class Location(val startLine: Int, val startPosition: Int, val endLin
 
   def contains(other: Location): Boolean = {
     contains(other.startLine, other.startPosition) &&
-      contains(other.endLine, other.endPosition)
+    contains(other.endLine, other.endPosition)
   }
 }
 
@@ -80,7 +71,7 @@ object Location {
   implicit val rw: RW[Location] = macroRW
 
   val empty: Location = Location(1)
-  val all: Location = Location(1, 0, Int.MaxValue, 0)
+  val all: Location   = Location(1, 0, Int.MaxValue, 0)
 
   def apply(line: Int) = new Location(line, 0, line, 0)
 
@@ -128,16 +119,18 @@ trait UnsafeLocatable extends Locatable {
   */
 class Positionable extends UnsafeLocatable {
   private var locationPath: PathLike = _
-  private var startLine: Int = _
-  private var startOffset: Int = _
-  private var endLine: Int = _
-  private var endOffset: Int = _
+  private var startLine: Int         = _
+  private var startOffset: Int       = _
+  private var endLine: Int           = _
+  private var endOffset: Int         = _
 
-  def setLocation(path: PathLike,
-                  startLine: Int,
-                  startOffset: Int,
-                  endLine: Int,
-                  endOffset: Int): Unit = {
+  def setLocation(
+    path: PathLike,
+    startLine: Int,
+    startOffset: Int,
+    endLine: Int,
+    endOffset: Int
+  ): Unit = {
     this.locationPath = path
     this.startLine = startLine
     this.startOffset = startOffset

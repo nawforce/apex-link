@@ -18,19 +18,21 @@ object Scan {
 
     //Thread.sleep(30*1000)
 
-    val start = System.currentTimeMillis()
-    val path = PathFactory(args(0))
+    val start       = System.currentTimeMillis()
+    val path        = PathFactory(args(0))
     val issuesAndWs = Workspace(path)
     issuesAndWs.issues.foreach(issue => println(issue.asString))
     val scanned = System.currentTimeMillis()
-    println(issuesAndWs.value
-      .map(ws => {
-        val eventCount = ws.events.size
-        val events = System.currentTimeMillis()
-        s"Scanned $eventCount events, disk scan took ${scanned - start}ms, event loading took ${events - scanned}ms"
-      })
-      .getOrElse({
-        "Workspace failed to load"
-      }))
+    println(
+      issuesAndWs.value
+        .map(ws => {
+          val eventCount = ws.events.size
+          val events     = System.currentTimeMillis()
+          s"Scanned $eventCount events, disk scan took ${scanned - start}ms, event loading took ${events - scanned}ms"
+        })
+        .getOrElse({
+          "Workspace failed to load"
+        })
+    )
   }
 }

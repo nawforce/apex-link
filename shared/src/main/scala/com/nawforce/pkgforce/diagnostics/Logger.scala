@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.diagnostics
 
@@ -46,12 +32,12 @@ class DefaultLogger extends Logger {
 
 /** Collection of functions for logging and changing the logging behaviour. */
 object LoggerOps {
-  final val NO_LOGGING: Int = 0
-  final val INFO_LOGGING: Int = 1
+  final val NO_LOGGING: Int    = 0
+  final val INFO_LOGGING: Int  = 1
   final val DEBUG_LOGGING: Int = 2
 
   private var loggingLevel: Integer = NO_LOGGING
-  private var logger: Logger = new DefaultLogger
+  private var logger: Logger        = new DefaultLogger
 
   /** Set debug logging level, one of NO_LOGGING, INFO_LOGGING or DEBUG_LOGGING. */
   def setLoggingLevel(level: Integer): Integer = {
@@ -103,7 +89,8 @@ object LoggerOps {
 
   /** Time an operation and debug log how long it took */
   private def time[T](log: String => Unit, msg: String, show: Boolean, postMsg: String)(
-    op: => T): T = {
+    op: => T
+  ): T = {
     val start = System.currentTimeMillis()
     try {
       op

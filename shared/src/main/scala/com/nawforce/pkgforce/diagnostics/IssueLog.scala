@@ -36,7 +36,7 @@ import scala.collection.mutable
   * which would be the other obvious way to collate them.
   */
 class IssueLog {
-  private val log = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
+  private val log             = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
   private val possibleMissing = mutable.HashSet[PathLike]()
 
   /** Access all issues. */
@@ -50,14 +50,15 @@ class IssueLog {
   /** Do we have any issues, of any category. */
   def hasMessages: Boolean = log.nonEmpty
 
-  /** Do we have any issues with an error category.*/
+  /** Do we have any issues with an error category. */
   def hasErrors: Boolean =
     log.values.exists(_.exists(issue => DiagnosticCategory.isErrorType(issue.diagnostic.category)))
 
-  /** Do we have any issues with an error or warning category.*/
+  /** Do we have any issues with an error or warning category. */
   def hasErrorsOrWarnings: Boolean =
-    log.values.exists(_.exists(issue =>
-      DiagnosticCategory.isErrorOrWarningType(issue.diagnostic.category)))
+    log.values.exists(
+      _.exists(issue => DiagnosticCategory.isErrorOrWarningType(issue.diagnostic.category))
+    )
 
   /** Add an issue. */
   def add(issue: Issue): Unit = {
@@ -114,11 +115,13 @@ class IssueLog {
   private class TextMessageWriter(showPath: Boolean = true) extends MessageWriter {
     private val buffer = new StringBuilder()
 
-    override def startOutput(): Unit = buffer.clear()
+    override def startOutput(): Unit                 = buffer.clear()
     override def startDocument(path: PathLike): Unit = if (showPath) buffer ++= path.toString + '\n'
-    override def writeMessage(category: DiagnosticCategory,
-                              location: Location,
-                              message: String): Unit =
+    override def writeMessage(
+      category: DiagnosticCategory,
+      location: Location,
+      message: String
+    ): Unit =
       buffer ++= s"${category.value}: ${location.displayPosition}: $message\n"
     override def writeSummary(notShown: Int, total: Int): Unit =
       buffer ++= s"$notShown of $total errors not shown" + "\n"
@@ -127,9 +130,9 @@ class IssueLog {
   }
 
   private class JSONMessageWriter extends MessageWriter {
-    private val buffer = new StringBuilder()
+    private val buffer                 = new StringBuilder()
     private var firstDocument: Boolean = _
-    private var firstMessage: Boolean = _
+    private var firstMessage: Boolean  = _
 
     override def startOutput(): Unit = {
       buffer.clear()
@@ -142,16 +145,19 @@ class IssueLog {
       firstDocument = false
       firstMessage = true
     }
-    override def writeMessage(category: DiagnosticCategory,
-                              location: Location,
-                              message: String): Unit = {
+    override def writeMessage(
+      category: DiagnosticCategory,
+      location: Location,
+      message: String
+    ): Unit = {
       buffer ++= (if (firstMessage) "" else ",\n")
-      buffer ++= s"""{${location.asJSON}, "category": "${encode(category.value)}", "message": "${encode(
-        message)}"}"""
+      buffer ++= s"""{${location.asJSON}, "category": "${encode(
+        category.value
+      )}", "message": "${encode(message)}"}"""
       firstMessage = false
     }
     override def writeSummary(notShown: Int, total: Int): Unit = ()
-    override def endDocument(): Unit = buffer ++= "\n]}"
+    override def endDocument(): Unit                           = buffer ++= "\n]}"
     override def output: String = {
       buffer ++= "]}\n"
       buffer.toString()
@@ -162,11 +168,13 @@ class IssueLog {
     }
   }
 
-  private def writeMessages(writer: MessageWriter,
-                            path: PathLike,
-                            warnings: Boolean,
-                            unused: Boolean,
-                            maxErrors: Int): Unit = {
+  private def writeMessages(
+    writer: MessageWriter,
+    path: PathLike,
+    warnings: Boolean,
+    unused: Boolean,
+    maxErrors: Int
+  ): Unit = {
     val messages = log
       .getOrElse(path, List())
       .filterNot(!warnings && _.diagnostic.category == WARNING_CATEGORY)
@@ -178,9 +186,11 @@ class IssueLog {
         .sorted(Issue.ordering)
         .foreach(message => {
           if (count < maxErrors) {
-            writer.writeMessage(message.diagnostic.category,
-                                message.diagnostic.location,
-                                message.diagnostic.message)
+            writer.writeMessage(
+              message.diagnostic.category,
+              message.diagnostic.location,
+              message.diagnostic.message
+            )
           }
           count += 1
         })
@@ -196,10 +206,12 @@ class IssueLog {
     writer.output
   }
 
-  def asString(includeWarnings: Boolean,
-               includeUnused: Boolean,
-               maxErrors: Int,
-               format: String = ""): String = {
+  def asString(
+    includeWarnings: Boolean,
+    includeUnused: Boolean,
+    maxErrors: Int,
+    format: String = ""
+  ): String = {
     val writer = if (format == "json") new JSONMessageWriter() else new TextMessageWriter()
     writer.startOutput()
     log.keys.toSeq

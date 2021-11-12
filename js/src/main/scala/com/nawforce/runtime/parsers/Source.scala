@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.runtime.parsers
 
@@ -45,20 +31,24 @@ trait Locatable {
 }
 
 /** Encapsulation of a chunk of Apex code, position tells you where it came from in path */
-case class Source(path: PathLike,
-                  code: SourceData,
-                  lineOffset: Int,
-                  columnOffset: Int,
-                  outer: Option[Source]) {
+case class Source(
+  path: PathLike,
+  code: SourceData,
+  lineOffset: Int,
+  columnOffset: Int,
+  outer: Option[Source]
+) {
   lazy val hash: Int = code.hash
 
   def extractSource(context: ParserRuleContext): Source = {
     val subdata = code.subdata(context.start.startIndex, context.stop.stopIndex + 1)
-    new Source(path,
-               subdata,
-               context.start.line - 1,
-               context.start.charPositionInLine,
-               outer = Some(this))
+    new Source(
+      path,
+      subdata,
+      context.start.line - 1,
+      context.start.charPositionInLine,
+      outer = Some(this)
+    )
   }
 
   def asInsensitiveStream: CaseInsensitiveInputStream = {
@@ -75,12 +65,17 @@ case class Source(path: PathLike,
 
   /** Find a location for a rule, adapts based on source offsets to give absolute position in file */
   def getLocation(context: ParserRuleContext): PathLocation = {
-    PathLocation(path,
-     adjustLocation(
-       Location(context.start.line,
-                context.start.charPositionInLine,
-                context.stop.line,
-                context.stop.charPositionInLine + context.stop.text.length)))
+    PathLocation(
+      path,
+      adjustLocation(
+        Location(
+          context.start.line,
+          context.start.charPositionInLine,
+          context.stop.line,
+          context.stop.charPositionInLine + context.stop.text.length
+        )
+      )
+    )
   }
 
   private def adjustLocation(location: Location): Location = {
@@ -88,12 +83,12 @@ case class Source(path: PathLike,
       return location
     }
 
-    val startLine = location.startLine
+    val startLine     = location.startLine
     var startPosition = location.startPosition
     if (location.startLine == 1)
       startPosition += columnOffset
 
-    val endLine = location.endLine
+    val endLine     = location.endLine
     var endPosition = location.endPosition
     if (location.endLine == 1)
       endPosition += columnOffset

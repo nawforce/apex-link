@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2021 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.runtime.parsers
 
@@ -78,14 +64,14 @@ class PageParser(val source: Source) {
 
 object PageParser {
   type ParserRuleContext = org.antlr.v4.runtime.ParserRuleContext
-  type TerminalNode = org.antlr.v4.runtime.tree.TerminalNode
+  type TerminalNode      = org.antlr.v4.runtime.tree.TerminalNode
 
   def apply(path: PathLike, code: SourceData): PageParser = {
     new PageParser(Source(path, code, 0, 0, None))
   }
 
   def clearCaches(): Unit = {
-    val lexer = new VFLexer(new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
+    val lexer  = new VFLexer(new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
     val parser = new VFParser(new CommonTokenStream(lexer))
     lexer.clearCache()
     parser.clearCache()
@@ -114,10 +100,10 @@ object PageParser {
   // Helper for JS Portability
   def toScala[T: ClassTag](collection: java.util.List[T]): ArraySeq[T] = {
     collection match {
-      case null => PageParser.emptyArraySeq
+      case null                    => PageParser.emptyArraySeq
       case _ if collection.isEmpty => PageParser.emptyArraySeq
-      case al: util.ArrayList[T] => ArraySeq.unsafeWrapArray(al.toArray().asInstanceOf[Array[T]])
-      case l => ArraySeq.unsafeWrapArray(l.asScala.toArray)
+      case al: util.ArrayList[T]   => ArraySeq.unsafeWrapArray(al.toArray().asInstanceOf[Array[T]])
+      case l                       => ArraySeq.unsafeWrapArray(l.asScala.toArray)
     }
   }
 
@@ -128,4 +114,3 @@ object PageParser {
 
   private val emptyArraySeq = ArraySeq()
 }
-

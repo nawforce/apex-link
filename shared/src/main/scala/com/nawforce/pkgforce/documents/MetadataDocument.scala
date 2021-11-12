@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.documents
 
@@ -35,20 +21,20 @@ import com.nawforce.runtime.parsers.SourceData
 import scala.collection.compat.immutable.ArraySeq
 
 /** The type of some metadata, such as Trigger metadata. Partial type metadata signals that multiple documents
-  * may contribute to the same type. */
+  * may contribute to the same type.
+  */
 sealed abstract class MetadataNature(val partialType: Boolean = false)
 
-case object LabelNature extends MetadataNature(partialType = true)
-case object ApexNature extends MetadataNature
-case object TriggerNature extends MetadataNature
-case object ComponentNature extends MetadataNature
-case object PageNature extends MetadataNature
-case object FlowNature extends MetadataNature
-case object SObjectNature extends MetadataNature
-case object FieldNature extends MetadataNature
-case object FieldSetNature extends MetadataNature
+case object LabelNature         extends MetadataNature(partialType = true)
+case object ApexNature          extends MetadataNature
+case object TriggerNature       extends MetadataNature
+case object ComponentNature     extends MetadataNature
+case object PageNature          extends MetadataNature
+case object FlowNature          extends MetadataNature
+case object SObjectNature       extends MetadataNature
+case object FieldNature         extends MetadataNature
+case object FieldSetNature      extends MetadataNature
 case object SharingReasonNature extends MetadataNature
-
 
 /** A piece of Metadata described in a file */
 abstract class MetadataDocument(val path: PathLike, val name: Name) {
@@ -56,18 +42,18 @@ abstract class MetadataDocument(val path: PathLike, val name: Name) {
   /** Type of metadata, this could be stored but we prefer to save space ;-) */
   def nature: MetadataNature = {
     this match {
-      case _: LabelsDocument => LabelNature
-      case _: ApexClassDocument => ApexNature
-      case _: ApexTriggerDocument => TriggerNature
-      case _: ComponentDocument => ComponentNature
-      case _: PageDocument => PageNature
-      case _: FlowDocument => FlowNature
-      case _: PlatformEventDocument => SObjectNature
-      case _: BigObjectDocument => SObjectNature
-      case _: CustomMetadataDocument => SObjectNature
-      case _: SObjectDocument => SObjectNature
-      case _: SObjectFieldDocument => FieldNature
-      case _: SObjectFieldSetDocument => FieldSetNature
+      case _: LabelsDocument               => LabelNature
+      case _: ApexClassDocument            => ApexNature
+      case _: ApexTriggerDocument          => TriggerNature
+      case _: ComponentDocument            => ComponentNature
+      case _: PageDocument                 => PageNature
+      case _: FlowDocument                 => FlowNature
+      case _: PlatformEventDocument        => SObjectNature
+      case _: BigObjectDocument            => SObjectNature
+      case _: CustomMetadataDocument       => SObjectNature
+      case _: SObjectDocument              => SObjectNature
+      case _: SObjectFieldDocument         => FieldNature
+      case _: SObjectFieldSetDocument      => FieldSetNature
       case _: SObjectSharingReasonDocument => SharingReasonNature
     }
   }
@@ -136,12 +122,11 @@ final case class ComponentDocument(_path: PathLike, _name: Name)
   }
 }
 
-abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {
-}
+abstract class SObjectLike(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {}
 
 final case class SObjectDocument(_path: PathLike, _name: Name) extends SObjectLike(_path, _name) {
 
-  private val isCustom = name.value.endsWith("__c")
+  private val isCustom            = name.value.endsWith("__c")
   override val ignorable: Boolean = path.size == 0
   override def typeName(namespace: Option[Name]): TypeName = {
     val prefix =
@@ -180,7 +165,8 @@ final case class SObjectFieldDocument(_path: PathLike, _name: Name)
     val sobjectName = path.parent.parent.basename
     val fieldsType =
       TypeName.sObjectTypeFields$(
-        TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
+        TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema))
+      )
     TypeName(name, Nil, Some(fieldsType))
   }
 }
@@ -190,30 +176,30 @@ final case class SObjectFieldSetDocument(_path: PathLike, _name: Name)
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val fieldSetType = TypeName.sObjectTypeFieldSets$(
-      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
+      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema))
+    )
     TypeName(name, Nil, Some(fieldSetType))
   }
 }
 
 final case class SObjectSharingReasonDocument(_path: PathLike, _name: Name)
-  extends MetadataDocument(_path, _name) {
+    extends MetadataDocument(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     val sobjectName = path.parent.parent.basename
     val sharingReasonType = TypeName.sObjectTypeRowClause$(
-      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema)))
+      TypeName(NamespacePrefix(namespace, sobjectName), Nil, Some(TypeName.Schema))
+    )
     TypeName(name, Nil, Some(sharingReasonType))
   }
 }
 
-final case class PageDocument(_path: PathLike, _name: Name)
-    extends MetadataDocument(_path, _name) {
+final case class PageDocument(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     TypeName(NamespacePrefix(namespace, name.value), Nil, Some(TypeName.Page))
   }
 }
 
-final case class FlowDocument(_path: PathLike, _name: Name)
-    extends MetadataDocument(_path, _name) {
+final case class FlowDocument(_path: PathLike, _name: Name) extends MetadataDocument(_path, _name) {
   override def typeName(namespace: Option[Name]): TypeName = {
     namespace
       .map(ns => TypeName(name, Nil, Some(TypeName(ns, Nil, Some(TypeName.Interview)))))
@@ -239,44 +225,50 @@ object MetadataDocument {
     "flow-meta.xml",
     "labels",
     "labels-meta.xml",
-    "page",
+    "page"
   )
 
-  def extensionsGlob:String = s"{${extensions.mkString(",")}}"
+  def extensionsGlob: String = s"{${extensions.mkString(",")}}"
 
   def apply(path: PathLike): Option[MetadataDocument] = {
     val parts = path.basename.split('.')
     if (parts.length == 2) {
       val name = Name(parts.head)
       parts(1) match {
-        case "cls" => Some(ApexClassDocument(path, name))
-        case "trigger" => Some(ApexTriggerDocument(path, name))
+        case "cls"                                    => Some(ApexClassDocument(path, name))
+        case "trigger"                                => Some(ApexTriggerDocument(path, name))
         case "object" if name.value.endsWith("__mdt") => Some(CustomMetadataDocument(path, name))
-        case "object" if name.value.endsWith("__b") => Some(BigObjectDocument(path, name))
-        case "object" if name.value.endsWith("__e") => Some(PlatformEventDocument(path, name))
-        case "object" => Some(SObjectDocument(path, name))
-        case "component" => Some(ComponentDocument(path, name))
-        case "flow" => Some(FlowDocument(path, name))
-        case "labels" => Some(LabelsDocument(path, name))
-        case "page" => Some(PageDocument(path, name))
-        case _ => None
+        case "object" if name.value.endsWith("__b")   => Some(BigObjectDocument(path, name))
+        case "object" if name.value.endsWith("__e")   => Some(PlatformEventDocument(path, name))
+        case "object"                                 => Some(SObjectDocument(path, name))
+        case "component"                              => Some(ComponentDocument(path, name))
+        case "flow"                                   => Some(FlowDocument(path, name))
+        case "labels"                                 => Some(LabelsDocument(path, name))
+        case "page"                                   => Some(PageDocument(path, name))
+        case _                                        => None
       }
     } else if (parts.length == 3 && parts(2) == "xml") {
       val name = Name(parts.head)
       parts(1) match {
-        case "field-meta" if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
+        case "field-meta"
+            if path.parent.basename.equalsIgnoreCase("fields") && !path.parent.parent.isRoot =>
           Some(SObjectFieldDocument(path, name))
-        case "fieldSet-meta" if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
+        case "fieldSet-meta"
+            if path.parent.basename.equalsIgnoreCase("fieldSets") && !path.parent.parent.isRoot =>
           Some(SObjectFieldSetDocument(path, name))
-        case "sharingReason-meta" if path.parent.basename.equalsIgnoreCase("sharingReasons") && !path.parent.parent.isRoot =>
+        case "sharingReason-meta"
+            if path.parent.basename.equalsIgnoreCase(
+              "sharingReasons"
+            ) && !path.parent.parent.isRoot =>
           Some(SObjectSharingReasonDocument(path, name))
-        case "object-meta" if name.value.endsWith("__mdt") => Some(CustomMetadataDocument(path, name))
+        case "object-meta" if name.value.endsWith("__mdt") =>
+          Some(CustomMetadataDocument(path, name))
         case "object-meta" if name.value.endsWith("__b") => Some(BigObjectDocument(path, name))
         case "object-meta" if name.value.endsWith("__e") => Some(PlatformEventDocument(path, name))
-        case "object-meta" => Some(SObjectDocument(path, name))
-        case "flow-meta" => Some(FlowDocument(path, name))
-        case "labels-meta" => Some(LabelsDocument(path, name))
-        case _ => None
+        case "object-meta"                               => Some(SObjectDocument(path, name))
+        case "flow-meta"                                 => Some(FlowDocument(path, name))
+        case "labels-meta"                               => Some(LabelsDocument(path, name))
+        case _                                           => None
       }
     } else {
       None

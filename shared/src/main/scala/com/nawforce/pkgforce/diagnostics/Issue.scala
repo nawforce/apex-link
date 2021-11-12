@@ -36,7 +36,8 @@ import upickle.default.{macroRW, ReadWriter => RW}
 import scala.collection.compat.immutable.ArraySeq
 
 /** An issue recoded against a specific file location. */
-final case class Issue(val path: PathLike, val diagnostic: Diagnostic) extends com.nawforce.pkgforce.api.Issue {
+final case class Issue(val path: PathLike, val diagnostic: Diagnostic)
+    extends com.nawforce.pkgforce.api.Issue {
 
   override def filePath(): String = path.toString
 
@@ -53,15 +54,23 @@ final case class Issue(val path: PathLike, val diagnostic: Diagnostic) extends c
 object Issue {
   val emptyArray: ArraySeq[Issue] = ArraySeq.empty
 
-  implicit val pathLikeRW: RW[PathLike] = upickle.default.readwriter[String].bimap[PathLike](_.toString, Path(_))
+  implicit val pathLikeRW: RW[PathLike] =
+    upickle.default.readwriter[String].bimap[PathLike](_.toString, Path(_))
   implicit val rw: RW[Issue] = macroRW
 
   implicit val ordering: Ordering[Issue] = Ordering
-    .by[Issue, Int](issue => if (DiagnosticCategory.isErrorType(issue.diagnostic.category)) 0 else 1)
+    .by[Issue, Int](
+      issue => if (DiagnosticCategory.isErrorType(issue.diagnostic.category)) 0 else 1
+    )
     .orElseBy(_.diagnostic.location.startLine)
     .orElseBy(_.diagnostic.location.startPosition)
 
-  def apply(path: PathLike, category: DiagnosticCategory, location: Location, message: String): Issue = {
+  def apply(
+    path: PathLike,
+    category: DiagnosticCategory,
+    location: Location,
+    message: String
+  ): Issue = {
     new Issue(path, Diagnostic(category, location, message))
   }
 }

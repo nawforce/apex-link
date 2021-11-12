@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.runtime.xml
 
@@ -63,40 +49,54 @@ object XMLDocument {
 
   def apply(path: PathLike, sourceData: SourceData): IssuesAnd[Option[XMLDocument]] = {
     try {
-      IssuesAnd(Some(new XMLDocument(path, XMLLineLoader.load(new ByteArrayInputStream(sourceData.asUTF8)))))
+      IssuesAnd(
+        Some(new XMLDocument(path, XMLLineLoader.load(new ByteArrayInputStream(sourceData.asUTF8))))
+      )
     } catch {
       case e: SAXParseException =>
-        IssuesAnd(ArraySeq(
-          Issue(path,
-                Diagnostic(ERROR_CATEGORY,
-                           Location(e.getLineNumber, e.getColumnNumber - 1),
-                           e.getLocalizedMessage))), None)
+        IssuesAnd(
+          ArraySeq(
+            Issue(
+              path,
+              Diagnostic(
+                ERROR_CATEGORY,
+                Location(e.getLineNumber, e.getColumnNumber - 1),
+                e.getLocalizedMessage
+              )
+            )
+          ),
+          None
+        )
     }
   }
 }
 
 trait WithLocation extends NoBindingFactoryAdapter {
   private var locator: org.xml.sax.Locator = _
-  private val startLines = mutable.Stack[Int]()
+  private val startLines                   = mutable.Stack[Int]()
 
   final override def setDocumentLocator(locator: Locator): Unit = {
     this.locator = locator
     super.setDocumentLocator(locator)
   }
 
-  final override def createNode(pre: String,
-                                   label: String,
-                                   attrs: MetaData,
-                                   scope: NamespaceBinding,
-                                   children: List[Node]): Elem = {
+  final override def createNode(
+    pre: String,
+    label: String,
+    attrs: MetaData,
+    scope: NamespaceBinding,
+    children: List[Node]
+  ): Elem = {
     val newAttrs = attrs.append(Attribute("line", Text(startLines.pop().toString), Null))
     super.createNode(pre, label, newAttrs, scope, children)
   }
 
-  final override def startElement(uri: scala.Predef.String,
-                                     _localName: scala.Predef.String,
-                                     name: scala.Predef.String,
-                                     attributes: org.xml.sax.Attributes): scala.Unit = {
+  final override def startElement(
+    uri: scala.Predef.String,
+    _localName: scala.Predef.String,
+    name: scala.Predef.String,
+    attributes: org.xml.sax.Attributes
+  ): scala.Unit = {
     startLines.push(locator.getLineNumber)
     super.startElement(uri, _localName, name, attributes)
   }

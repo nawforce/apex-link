@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2020 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,25 +10,14 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.sfdx
 
-import java.util.regex.{Matcher, Pattern}
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.platform.Path
 
+import java.util.regex.{Matcher, Pattern}
 import scala.collection.compat.immutable.ArraySeq
 
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
@@ -55,7 +41,7 @@ class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
       return false
 
     val relativePath = absPath.substring(rootPathPrefixLength)
-    var include = true
+    var include      = true
     ignoreRules.foreach(rule => {
       if (directory || !rule.dirOnly) {
         if (include != rule.negation) {
@@ -76,7 +62,8 @@ object ForceIgnore {
       path.read() match {
         case Left(err) =>
           IssuesAnd(ArraySeq(Issue(path, Diagnostic(ERROR_CATEGORY, Location.empty, err))), None)
-        case Right(data) => IssuesAnd(ArraySeq(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
+        case Right(data) =>
+          IssuesAnd(ArraySeq(), Some(new ForceIgnore(path.parent, IgnoreRule.read(data))))
       }
     } else {
       IssuesAnd(None)
@@ -92,8 +79,8 @@ case class IgnoreRule(dirOnly: Boolean, negation: Boolean, pattern: String) {
   // See https://github.com/snark/ignorance/blob/master/ignorance/utils.py for reference
   lazy val regex: String = {
     val builder = new StringBuilder()
-    var i = 0
-    val n = pattern.length
+    var i       = 0
+    val n       = pattern.length
     while (i < n) {
       val c = pattern(i)
       i = i + 1
@@ -158,8 +145,8 @@ object IgnoreRule {
       .filter(l => l.split("\\*\\*", -1).length == l.split("/\\*\\*/", -1).length)
       .filterNot(_ == "/")
       .map(l => {
-        var pattern = l
-        var dirOnly = pattern.endsWith("/")
+        var pattern  = l
+        var dirOnly  = pattern.endsWith("/")
         val negation = pattern.startsWith("!")
         if (negation)
           pattern = pattern.substring(1)

@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2021 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.workspace
 
@@ -48,19 +34,24 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
 
   // Document indexes for each layer of actual metadata
   val indexes: Map[ModuleLayer, IssuesAnd[DocumentIndex]] =
-    layers.foldLeft(Map[ModuleLayer, IssuesAnd[DocumentIndex]]())((acc, layer) =>
-      acc ++ layer.indexes)
+    layers.foldLeft(Map[ModuleLayer, IssuesAnd[DocumentIndex]]())(
+      (acc, layer) => acc ++ layer.indexes
+    )
 
   def get(typeName: TypeName): Set[MetadataDocument] = {
     val indexes = deployOrderedIndexes.toSeq.reverse.map(_.value)
-    indexes.find(_.get(typeName).nonEmpty).map(index => {
-      index.get(typeName)
-    }).getOrElse(Set())
+    indexes
+      .find(_.get(typeName).nonEmpty)
+      .map(index => {
+        index.get(typeName)
+      })
+      .getOrElse(Set())
   }
 
   def events: Iterator[PackageEvent] = {
-    deployOrderedIndexes.flatMap(index =>
-      PackageStream.eventStream(index.value) ++ IssuesEvent.iterator(index.issues))
+    deployOrderedIndexes.flatMap(
+      index => PackageStream.eventStream(index.value) ++ IssuesEvent.iterator(index.issues)
+    )
   }
 
   def deployOrderedIndexes: Iterator[IssuesAnd[DocumentIndex]] = {
@@ -70,7 +61,7 @@ case class Workspace(layers: Seq[NamespaceLayer]) {
 
 object Workspace {
   def apply(path: PathLike): IssuesAnd[Option[Workspace]] = {
-    val logger = new CatchingLogger
+    val logger    = new CatchingLogger
     val workspace = Workspace(path, logger)
     IssuesAnd(logger.issues, workspace)
   }

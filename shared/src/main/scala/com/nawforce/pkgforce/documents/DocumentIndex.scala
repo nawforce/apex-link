@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.documents
 
@@ -43,10 +29,12 @@ import scala.collection.mutable
   * During an upsert/deletion of new types the index will also need to be updated so that it maintains an accurate
   * view of the metadata files being used.
   */
-final class DocumentIndex(val namespace: Option[Name],
-                    val path: PathLike,
-                    private val ignore: Option[ForceIgnore],
-                    private val collection: MetadataCollection) {
+final class DocumentIndex(
+  val namespace: Option[Name],
+  val path: PathLike,
+  private val ignore: Option[ForceIgnore],
+  private val collection: MetadataCollection
+) {
 
   /** Number of documents. */
   val size: Int = collection.size
@@ -54,7 +42,7 @@ final class DocumentIndex(val namespace: Option[Name],
   /** Get documents of some nature. */
   def get(nature: MetadataNature): Iterator[MetadataDocument] = collection.get(nature)
 
-  /** Get all documents of some nature that contribute to a type  */
+  /** Get all documents of some nature that contribute to a type */
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] =
     collection.get(nature, typeName)
 
@@ -64,7 +52,8 @@ final class DocumentIndex(val namespace: Option[Name],
 
   /** Add a new document, for non-partial documents this will replace any existing document in the store that provides
     * the same type. Duplicate detection is left to the caller. For partial types, the document will always be added
-    * to the store if not already present. */
+    * to the store if not already present.
+    */
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     if (isVisibleFile(document.path))
       collection.add(logger, document)
@@ -103,7 +92,8 @@ final class DocumentIndex(val namespace: Option[Name],
 }
 
 /** A DocumentStore specialised for duplicate detection and other metadata shenanigans. */
-final private class MetadataCollection(val namespace: Option[Name]) extends DocumentStore(namespace) {
+final private class MetadataCollection(val namespace: Option[Name])
+    extends DocumentStore(namespace) {
 
   override def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     // Reject if document may be ignored
@@ -116,11 +106,15 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
       val existing = get(document.nature, typeName)
       if (existing.nonEmpty) {
         logger.log(
-          Issue(document.path,
-                diagnostics.Diagnostic(
-                  ERROR_CATEGORY,
-                  Location.empty,
-                  s"File creates duplicate type '$typeName' as '${existing.head.path}', ignoring")))
+          Issue(
+            document.path,
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"File creates duplicate type '$typeName' as '${existing.head.path}', ignoring"
+            )
+          )
+        )
         return
       }
     }
@@ -128,8 +122,8 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
     // If we find a field or fieldSet without a SObject metadata, fake it exists to make later processing easier
     if (document.nature == FieldNature || document.nature == FieldSetNature) {
       val objectDir = document.path.parent.parent
-      val metaFile = objectDir.join(objectDir.basename + ".object-meta.xml")
-      val docType = SObjectDocument(metaFile, Name(objectDir.basename))
+      val metaFile  = objectDir.join(objectDir.basename + ".object-meta.xml")
+      val docType   = SObjectDocument(metaFile, Name(objectDir.basename))
       if (get(SObjectNature, docType.typeName(namespace)).isEmpty)
         super.add(logger, docType)
     }
@@ -160,16 +154,21 @@ final private class MetadataCollection(val namespace: Option[Name]) extends Docu
     logger.log(
       Issue(
         document.path,
-        Diagnostic(ERROR_CATEGORY,
-                   Location.empty,
-                   s"Duplicate type '$typeName' found in '${document.path}', ignoring this file")))
+        Diagnostic(
+          ERROR_CATEGORY,
+          Location.empty,
+          s"Duplicate type '$typeName' found in '${document.path}', ignoring this file"
+        )
+      )
+    )
     false
   }
 }
 
 /** Basic mutable store of documents partitioned by nature & type. To limit memory use, metadata that defines a unique
   * type is stored separately from partial metadata that contributes to a type. This make a bit of a mess of the
-  * code but I care more about the reduced memory. */
+  * code but I care more about the reduced memory.
+  */
 private class DocumentStore(namespace: Option[Name]) {
 
   /** Store for 'partial type' metadata, i.e. a set of documents defines a type */
@@ -219,11 +218,11 @@ private class DocumentStore(namespace: Option[Name]) {
 
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap = safePartialDocumentMap(document.nature)
+      val docMap   = safePartialDocumentMap(document.nature)
       val typeName = document.typeName(namespace)
       docMap.put(typeName, docMap.getOrElse(typeName, Set()) + document)
     } else {
-      val docMap = safeFullDocumentMap(document.nature)
+      val docMap   = safeFullDocumentMap(document.nature)
       val typeName = document.typeName(namespace)
       docMap.put(typeName, document)
     }
@@ -232,12 +231,12 @@ private class DocumentStore(namespace: Option[Name]) {
   /** Remove a document from the store. */
   def remove(document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap = safePartialDocumentMap(document.nature)
+      val docMap   = safePartialDocumentMap(document.nature)
       val typeName = document.typeName(namespace)
       if (docMap.contains(typeName))
         docMap.put(typeName, docMap(typeName).filterNot(_ == document))
     } else {
-      val docMap = safeFullDocumentMap(document.nature)
+      val docMap   = safeFullDocumentMap(document.nature)
       val typeName = document.typeName(namespace)
       if (docMap.get(typeName).contains(document))
         docMap.remove(typeName)
@@ -245,26 +244,33 @@ private class DocumentStore(namespace: Option[Name]) {
   }
 
   private def safePartialDocumentMap(
-    nature: MetadataNature): mutable.HashMap[TypeName, Set[MetadataDocument]] = {
-    partialTypeDocuments.getOrElseUpdate(nature, {
-      mutable.HashMap[TypeName, Set[MetadataDocument]]()
-    })
+    nature: MetadataNature
+  ): mutable.HashMap[TypeName, Set[MetadataDocument]] = {
+    partialTypeDocuments.getOrElseUpdate(
+      nature, {
+        mutable.HashMap[TypeName, Set[MetadataDocument]]()
+      }
+    )
   }
 
   private def safeFullDocumentMap(
-    nature: MetadataNature): mutable.HashMap[TypeName, MetadataDocument] = {
+    nature: MetadataNature
+  ): mutable.HashMap[TypeName, MetadataDocument] = {
     fullTypeDocuments.getOrElseUpdate(nature, { mutable.HashMap[TypeName, MetadataDocument]() })
   }
 
 }
 
 object DocumentIndex {
+
   /** Construct a new DocumentIndex from a recursive descent scan of the passed path. */
-  def apply(logger: IssueLogger,
-            namespace: Option[Name],
-            projectPath: PathLike,
-            path: PathLike): DocumentIndex = {
-    val ignore = logger.logAndGet(ForceIgnore(projectPath.join(".forceignore")))
+  def apply(
+    logger: IssueLogger,
+    namespace: Option[Name],
+    projectPath: PathLike,
+    path: PathLike
+  ): DocumentIndex = {
+    val ignore     = logger.logAndGet(ForceIgnore(projectPath.join(".forceignore")))
     val collection = new MetadataCollection(namespace)
     new DirectoryIndexer(logger, path, ignore, collection)
     new DocumentIndex(namespace, path, ignore, collection)
@@ -277,10 +283,12 @@ object DocumentIndex {
 }
 
 /** Directory indexer, somewhat optimised to minimise scan time */
-final class DirectoryIndexer(logger: IssueLogger,
-                             path: PathLike,
-                             forceIgnore: Option[ForceIgnore],
-                             collection: MetadataCollection) {
+final class DirectoryIndexer(
+  logger: IssueLogger,
+  path: PathLike,
+  forceIgnore: Option[ForceIgnore],
+  collection: MetadataCollection
+) {
 
   LoggerOps.debugTime(s"Indexed ${path.toString}") {
     indexPath(path)

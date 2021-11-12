@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2020 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2020 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.parsers
 
@@ -39,16 +25,16 @@ import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 sealed abstract class Nature(val value: String)
-case object CLASS_NATURE extends Nature("class")
-case object INTERFACE_NATURE extends Nature("interface")
-case object ENUM_NATURE extends Nature("enum")
-case object TRIGGER_NATURE extends Nature(value = "trigger")
-case object CONSTRUCTOR_NATURE extends Nature(value = "constructor")
-case object METHOD_NATURE extends Nature(value = "method")
-case object FIELD_NATURE extends Nature(value = "field")
-case object PROPERTY_NATURE extends Nature(value = "property")
+case object CLASS_NATURE         extends Nature("class")
+case object INTERFACE_NATURE     extends Nature("interface")
+case object ENUM_NATURE          extends Nature("enum")
+case object TRIGGER_NATURE       extends Nature(value = "trigger")
+case object CONSTRUCTOR_NATURE   extends Nature(value = "constructor")
+case object METHOD_NATURE        extends Nature(value = "method")
+case object FIELD_NATURE         extends Nature(value = "field")
+case object PROPERTY_NATURE      extends Nature(value = "property")
 case object ENUM_CONSTANT_NATURE extends Nature(value = "enum constant")
-case object INIT_NATURE extends Nature(value = "<init>")
+case object INIT_NATURE          extends Nature(value = "<init>")
 
 object Nature {
   def forType(value: String): Nature = {
@@ -104,7 +90,10 @@ trait ApexNode extends IdLocatable {
               Diagnostic(
                 ERROR_CATEGORY,
                 child.idLocation,
-                "Enclosing class must be declared global to use global or webservice modifiers")))
+                "Enclosing class must be declared global to use global or webservice modifiers"
+              )
+            )
+        )
     } else {
       Seq.empty
     }
@@ -119,7 +108,8 @@ trait ApexNode extends IdLocatable {
           Diagnostic(
             ERROR_CATEGORY,
             misnamed.idLocation,
-            s"Constructors should have same name as the class, maybe method return type is missing?")
+            s"Constructors should have same name as the class, maybe method return type is missing?"
+          )
         )
       })
   }
@@ -136,10 +126,12 @@ trait ApexNode extends IdLocatable {
             Diagnostic(
               ERROR_CATEGORY,
               dup.idLocation,
-              s"Constructor is a duplicate of an earlier constructor at ${duplicates._1.idLocation.displayPosition}")
+              s"Constructor is a duplicate of an earlier constructor at ${duplicates._1.idLocation.displayPosition}"
+            )
           )
         })
-      }).toSeq
+      })
+      .toSeq
   }
 
   private def checkDuplicateMethods(): Seq[Issue] = {
@@ -153,10 +145,12 @@ trait ApexNode extends IdLocatable {
             Diagnostic(
               ERROR_CATEGORY,
               dup.idLocation,
-              s"Method is a duplicate of an earlier method at ${duplicates._1.idLocation.displayPosition}")
+              s"Method is a duplicate of an earlier method at ${duplicates._1.idLocation.displayPosition}"
+            )
           )
         })
-      }).toSeq
+      })
+      .toSeq
   }
 }
 
@@ -174,53 +168,65 @@ object ApexNode {
   }
 }
 
-class ApexLightNode(val location: PathLocation,
-                    val nature: Nature,
-                    val name: Name,
-                    val idLocation: Location,
-                    val children: ArraySeq[ApexNode],
-                    val modifiers: ArraySeq[Modifier],
-                    override val signature: String,
-                    override val description: String,
-                    val parseIssues: ArraySeq[Issue])
-  extends ApexNode {}
+class ApexLightNode(
+  val location: PathLocation,
+  val nature: Nature,
+  val name: Name,
+  val idLocation: Location,
+  val children: ArraySeq[ApexNode],
+  val modifiers: ArraySeq[Modifier],
+  override val signature: String,
+  override val description: String,
+  val parseIssues: ArraySeq[Issue]
+) extends ApexNode {}
 
-case class ApexFormalParameter(modifiers: ArraySeq[Modifier], typeName: String, name: String, parseIssues: ArraySeq[Issue]) {
-  def toStringNoName: String = s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))}$typeName"
+case class ApexFormalParameter(
+  modifiers: ArraySeq[Modifier],
+  typeName: String,
+  name: String,
+  parseIssues: ArraySeq[Issue]
+) {
+  def toStringNoName: String =
+    s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))}$typeName"
 
   override def toString: String = s"$toStringNoName $name"
 }
 
-case class ApexConstructorNode(location: PathLocation,
-                               name: Name,
-                               idLocation: Location,
-                               children: ArraySeq[ApexLightNode],
-                               modifiers: ArraySeq[Modifier],
-                               parseIssues: ArraySeq[Issue],
-                               params: ArraySeq[ApexFormalParameter])
-  extends ApexNode {
+case class ApexConstructorNode(
+  location: PathLocation,
+  name: Name,
+  idLocation: Location,
+  children: ArraySeq[ApexLightNode],
+  modifiers: ArraySeq[Modifier],
+  parseIssues: ArraySeq[Issue],
+  params: ArraySeq[ApexFormalParameter]
+) extends ApexNode {
 
   override val nature: Nature = CONSTRUCTOR_NATURE
-  override lazy val signature: String = s"${ApexNode.appendSpace(modifiers.mkString(" "))}$name(${params.mkString(", ")})"
+  override lazy val signature: String =
+    s"${ApexNode.appendSpace(modifiers.mkString(" "))}$name(${params.mkString(", ")})"
   override lazy val description: String = s"(${params.mkString(", ")}) ${modifiers.mkString(" ")}"
-  lazy val compareString: String = s"$name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
+  lazy val compareString: String =
+    s"$name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
 }
 
-case class ApexMethodNode(location: PathLocation,
-                          name: Name,
-                          idLocation: Location,
-                          children: ArraySeq[ApexLightNode],
-                          modifiers: ArraySeq[Modifier],
-                          parseIssues: ArraySeq[Issue],
-                          returnType: String,
-                          params: ArraySeq[ApexFormalParameter])
-  extends ApexNode {
+case class ApexMethodNode(
+  location: PathLocation,
+  name: Name,
+  idLocation: Location,
+  children: ArraySeq[ApexLightNode],
+  modifiers: ArraySeq[Modifier],
+  parseIssues: ArraySeq[Issue],
+  returnType: String,
+  params: ArraySeq[ApexFormalParameter]
+) extends ApexNode {
 
   override val nature: Nature = METHOD_NATURE
-  override lazy val signature: String = s"${ApexNode.appendSpace(modifiers.mkString(" "))}$returnType $name(${params.mkString(", ")})"
-  override lazy val description: String = s"$returnType (${params.mkString(", ")}) ${modifiers.mkString(" ")}"
-  lazy val compareString: String = s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))} " +
-    s"$returnType $name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
+  override lazy val signature: String =
+    s"${ApexNode.appendSpace(modifiers.mkString(" "))}$returnType $name(${params.mkString(", ")})"
+  override lazy val description: String =
+    s"$returnType (${params.mkString(", ")}) ${modifiers.mkString(" ")}"
+  lazy val compareString: String =
+    s"${ApexNode.appendSpace(modifiers.map(_.name).sorted.mkString(" "))} " +
+      s"$returnType $name(${params.map(_.toStringNoName).mkString(", ")}".toLowerCase()
 }
-
-

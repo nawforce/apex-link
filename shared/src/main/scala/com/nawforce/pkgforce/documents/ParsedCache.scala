@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.documents
 
@@ -37,8 +23,8 @@ import scala.util.hashing.MurmurHash3
 // Key of cache entries, update version if the format changes
 final case class CacheKey(version: Int, packageContext: PackageContext, sourceKey: Int) {
   def hashParts: Array[String] = {
-    val hash = MurmurHash3.bytesHash(writeBinary(this))
-    val asHex = hash.toHexString
+    val hash      = MurmurHash3.bytesHash(writeBinary(this))
+    val asHex     = hash.toHexString
     val keyString = "0" * (8 - asHex.length) + asHex
     Array(keyString.substring(0, 4), keyString.substring(4, 8))
   }
@@ -57,19 +43,23 @@ final case class CacheKey(version: Int, packageContext: PackageContext, sourceKe
 object CacheKey {
   implicit val rw: RW[CacheKey] = macroRW
 
-  def apply(version: Int,
-            packageContext: PackageContext,
-            name: String,
-            contents: Array[Byte]): CacheKey = {
+  def apply(
+    version: Int,
+    packageContext: PackageContext,
+    name: String,
+    contents: Array[Byte]
+  ): CacheKey = {
     val keyHash = MurmurHash3.arrayHash(contents, MurmurHash3.stringHash(name))
     CacheKey(version, packageContext, keyHash)
   }
 }
 
 // Package details used in key to ensure error messages will be accurate
-final case class PackageContext(namespace: Option[String],
-                                ghostedPackages: Array[String],
-                                analysedPackages: Array[String]) {
+final case class PackageContext(
+  namespace: Option[String],
+  ghostedPackages: Array[String],
+  analysedPackages: Array[String]
+) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: PackageContext =>
@@ -96,11 +86,13 @@ object CacheEntry {
 final class ParsedCache(val path: PathLike, version: Int) {
 
   /** Upsert a key -> value pair, ignores storage errors */
-  def upsert(packageContext: PackageContext,
-             name: String,
-             contents: Array[Byte],
-             value: Array[Byte]): Unit = {
-    val cacheKey = CacheKey(version, packageContext, name, contents)
+  def upsert(
+    packageContext: PackageContext,
+    name: String,
+    contents: Array[Byte],
+    value: Array[Byte]
+  ): Unit = {
+    val cacheKey  = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
     path.createDirectory(hashParts.head) match {
       case Left(_) => ()
@@ -111,12 +103,14 @@ final class ParsedCache(val path: PathLike, version: Int) {
   }
 
   /** Recover a value from a key */
-  def get(packageContext: PackageContext,
-          name: String,
-          contents: Array[Byte]): Option[Array[Byte]] = {
-    val cacheKey = CacheKey(version, packageContext, name, contents)
+  def get(
+    packageContext: PackageContext,
+    name: String,
+    contents: Array[Byte]
+  ): Option[Array[Byte]] = {
+    val cacheKey  = CacheKey(version, packageContext, name, contents)
     val hashParts = cacheKey.hashParts
-    val outer = path.join(hashParts.head)
+    val outer     = path.join(hashParts.head)
     if (outer.isDirectory) {
       val inner = outer.join(hashParts(1))
       inner.readBytes() match {
@@ -174,14 +168,15 @@ final class ParsedCache(val path: PathLike, version: Int) {
 }
 
 object ParsedCache {
-  val TEST_FILE: String = "test_file"
+  val TEST_FILE: String   = "test_file"
   val EXPIRE_WINDOW: Long = 7 * 24 * 60 * 60 * 1000
 
   def create(version: Int): Either[String, ParsedCache] = {
     val cacheDirOpt = Environment.cacheDir
     if (cacheDirOpt.isEmpty) {
       return Left(
-        s"Cache directory could not be determined from APEXLINK_CACHE_DIR or home directory")
+        s"Cache directory could not be determined from APEXLINK_CACHE_DIR or home directory"
+      )
     }
 
     val cacheDir = cacheDirOpt.get

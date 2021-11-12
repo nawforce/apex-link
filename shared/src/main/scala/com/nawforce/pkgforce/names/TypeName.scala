@@ -1,8 +1,5 @@
 /*
- [The "BSD licence"]
- Copyright (c) 2019 Kevin Jones
- All rights reserved.
-
+ Copyright (c) 2019 Kevin Jones, All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -13,17 +10,6 @@
     documentation and/or other materials provided with the distribution.
  3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nawforce.pkgforce.names
 
@@ -54,29 +40,41 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
       case TypeName.InternalInterface     => "Object"
       case TypeName.RecordSet             => "[SOQL Results]"
       case TypeName.SObjectFieldRowCause$ => "SObjectField"
-      case TypeName(Names.DescribeSObjectResult$,
-                    Seq(TypeName(name, Nil, None)),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.DescribeSObjectResult$,
+            Seq(TypeName(name, Nil, None)),
+            Some(TypeName.Internal)
+          ) =>
         s"Schema.SObjectType.$name"
-      case TypeName(Names.SObjectType$,
-                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.SObjectType$,
+            Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+            Some(TypeName.Internal)
+          ) =>
         s"$name.SObjectType"
-      case TypeName(Names.SObjectTypeFields$,
-                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.SObjectTypeFields$,
+            Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+            Some(TypeName.Internal)
+          ) =>
         s"Schema.SObjectType.$name.Fields"
-      case TypeName(Names.SObjectTypeFieldSets$,
-                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.SObjectTypeFieldSets$,
+            Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+            Some(TypeName.Internal)
+          ) =>
         s"Schema.SObjectType.$name.FieldSets"
-      case TypeName(Names.SObjectFields$,
-                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.SObjectFields$,
+            Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+            Some(TypeName.Internal)
+          ) =>
         s"Schema.$name.Fields"
-      case TypeName(Names.SObjectFieldRowCause$,
-                    Seq(TypeName(name, Nil, Some(TypeName.Schema))),
-                    Some(TypeName.Internal)) =>
+      case TypeName(
+            Names.SObjectFieldRowCause$,
+            Seq(TypeName(name, Nil, Some(TypeName.Schema))),
+            Some(TypeName.Internal)
+          ) =>
         s"Schema.$name.RowCause"
       case _ => basicString
     }
@@ -143,8 +141,10 @@ object TypeName {
   }
 
   @scala.annotation.tailrec
-  private def buildTypeName(parts: List[String],
-                            outer: Option[TypeName]): Either[String, TypeName] = {
+  private def buildTypeName(
+    parts: List[String],
+    outer: Option[TypeName]
+  ): Either[String, TypeName] = {
     parts match {
       case Nil => Right(outer.get)
       case hd :: tl if hd.contains('<') =>
@@ -154,7 +154,7 @@ object TypeName {
         else {
           buildTypeNames(argSplit(1).take(argSplit(1).length - 1)) match {
             case Right(argTypes) =>
-              val name = Name(argSplit.head)
+              val name         = Name(argSplit.head)
               val illegalError = Identifier.isLegalIdentifier(name)
               if (illegalError.nonEmpty)
                 Left(s"Illegal identifier '$name': ${illegalError.get}")
@@ -165,7 +165,7 @@ object TypeName {
           }
         }
       case hd :: tl if hd.nonEmpty =>
-        val name = Name(hd)
+        val name         = Name(hd)
         val illegalError = Identifier.isLegalIdentifier(name)
         if (illegalError.nonEmpty)
           Left(s"Illegal identifier at '$name': ${illegalError.get}")
@@ -179,8 +179,8 @@ object TypeName {
   /** Split a string at 'separator' but ignoring if within '<...>' blocks. */
   private def safeSplit(value: String, separator: Char): List[String] = {
     var parts: List[String] = Nil
-    var current = new StringBuffer()
-    var depth = 0
+    var current             = new StringBuffer()
+    var depth               = 0
     value.foreach {
       case '<' => depth += 1; current.append('<')
       case '>' => depth -= 1; current.append('>')
@@ -194,26 +194,26 @@ object TypeName {
 
   // Package private to avoid accidental use in apex-link
   private[pkgforce] val Internal: TypeName = TypeName(Names.Internal)
-  private[pkgforce] val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
-  private[pkgforce] val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val Null: TypeName     = TypeName(Names.Null$, Nil, Some(TypeName.Internal))
+  private[pkgforce] val Any: TypeName      = TypeName(Names.Any$, Nil, Some(TypeName.Internal))
   private[pkgforce] val InternalObject: TypeName =
     TypeName(Names.Object$, Nil, Some(TypeName.Internal))
   private[pkgforce] val InternalInterface: TypeName =
     TypeName(Names.Interface$, Nil, Some(TypeName.Internal))
 
-  private[pkgforce] val System: TypeName = TypeName(Names.System)
+  private[pkgforce] val System: TypeName  = TypeName(Names.System)
   private[pkgforce] val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeName.System))
   private[pkgforce] val RecordSet: TypeName =
     TypeName(Names.RecordSet$, Seq(TypeName.SObject), Some(TypeName.Internal))
   private[pkgforce] val SObjectFieldRowCause$ : TypeName =
     TypeName(Names.SObjectFieldRowCause$, Nil, Some(TypeName.Internal))
 
-  private[pkgforce] val Schema: TypeName = TypeName(Names.Schema)
-  private[pkgforce] val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeName.System))
+  private[pkgforce] val Schema: TypeName    = TypeName(Names.Schema)
+  private[pkgforce] val Label: TypeName     = TypeName(Names.Label, Nil, Some(TypeName.System))
   private[pkgforce] val Component: TypeName = TypeName(Names.Component, Nil, None)
-  private[pkgforce] val Flow: TypeName = TypeName(Names.Flow)
+  private[pkgforce] val Flow: TypeName      = TypeName(Names.Flow)
   private[pkgforce] val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeName.Flow))
-  private[pkgforce] val Page: TypeName = TypeName(Names.Page, Nil, None)
+  private[pkgforce] val Page: TypeName      = TypeName(Names.Page, Nil, None)
 
   private[pkgforce] val SObjectTypeFields$ : TypeName =
     TypeName(Names.SObjectTypeFields$, Nil, Some(TypeName.Internal))
