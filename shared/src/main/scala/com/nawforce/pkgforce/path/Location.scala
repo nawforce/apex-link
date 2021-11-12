@@ -28,11 +28,21 @@
 
 package com.nawforce.pkgforce.path
 
+import com.nawforce.pkgforce.api.IssueLocation
 import upickle.default.{macroRW, ReadWriter => RW}
 
 /** Location for identifying a sub-part of a file */
 @upickle.implicits.key("Location")
-final case class Location(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int) {
+final case class Location(val startLine: Int, val startPosition: Int, val endLine: Int, val endPosition: Int) extends IssueLocation {
+
+  override def startLineNumber(): Integer = startLine
+
+  override def startCharOffset(): Integer = startPosition
+
+  override def endLineNumber(): Integer = endLine
+
+  override def endCharOffset(): Integer = endPosition
+
   def asJSON: String =
     s""""start": {"line": $startLine, "offset": $startPosition}, "end": {"line": $endLine, "offset": $endPosition}"""
 
@@ -62,7 +72,7 @@ final case class Location(startLine: Int, startPosition: Int, endLine: Int, endP
 
   def contains(other: Location): Boolean = {
     contains(other.startLine, other.startPosition) &&
-    contains(other.endLine, other.endPosition)
+      contains(other.endLine, other.endPosition)
   }
 }
 
@@ -73,7 +83,9 @@ object Location {
   val all: Location = Location(1, 0, Int.MaxValue, 0)
 
   def apply(line: Int) = new Location(line, 0, line, 0)
+
   def apply(line: Int, position: Int) = new Location(line, position, line, position)
+
   def apply(startLine: Int, startPosition: Int, endLine: Int, endPosition: Int): Location = {
     new Location(startLine, startPosition, endLine, endPosition)
   }

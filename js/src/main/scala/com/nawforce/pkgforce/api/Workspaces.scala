@@ -25,11 +25,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nawforce.runtime.documents
+package com.nawforce.pkgforce.api
 
 import com.nawforce.pkgforce.names.DotName
 import com.nawforce.pkgforce.path.PathFactory
-import com.nawforce.pkgforce.workspace.Workspace
+import com.nawforce.pkgforce.workspace.{Workspace => SWorkspace}
 
 import scala.collection.mutable
 import scala.scalajs.js
@@ -37,10 +37,10 @@ import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
 @JSExportTopLevel("WorkspaceException")
-class JSWorkspaceException(val message: String) extends Exception(message)
+class WorkspaceException(val message: String) extends Exception(message)
 
 @JSExportTopLevel("Workspace")
-class JSWorkspace(val workspace: Workspace) {
+class Workspace(val workspace: SWorkspace) {
 
   @JSExport
   def findType(name: String): js.Array[String] = {
@@ -49,25 +49,25 @@ class JSWorkspace(val workspace: Workspace) {
 }
 
 @JSExportTopLevel("Workspaces")
-object JSWorkspaces {
-  private val workspaces = new mutable.HashMap[String, JSWorkspace]()
+object Workspaces {
+  private val workspaces = new mutable.HashMap[String, Workspace]()
 
   @JSExport
-  def get(wsPath: String): JSWorkspace = {
+  def get(wsPath: String): Workspace = {
 
     val ws = workspaces.get(wsPath)
     if (ws.nonEmpty)
       return ws.get
 
-    val issuesAndWorkspace = Workspace(PathFactory(wsPath))
+    val issuesAndWorkspace = SWorkspace(PathFactory(wsPath))
     if (issuesAndWorkspace.issues.nonEmpty) {
-      throw new JSWorkspaceException(issuesAndWorkspace.issues.head.asString)
+      throw new WorkspaceException(issuesAndWorkspace.issues.head.asString)
     }
 
     issuesAndWorkspace.value
       .map(workspace => {
-        val jsWorkspace = new JSWorkspace(workspace)
-        workspaces.put(wsPath, new JSWorkspace(workspace))
+        val jsWorkspace = new Workspace(workspace)
+        workspaces.put(wsPath, new Workspace(workspace))
         jsWorkspace
       })
       .orNull

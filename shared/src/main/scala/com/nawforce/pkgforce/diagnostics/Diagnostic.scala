@@ -31,14 +31,13 @@ import com.nawforce.pkgforce.path.Location
 import upickle.default.{macroRW, ReadWriter => RW}
 
 @upickle.implicits.key("DiagnosticCategory")
-sealed class DiagnosticCategory(val value: String)
+sealed abstract class DiagnosticCategory(val value: String)
 
 case object SYNTAX_CATEGORY extends DiagnosticCategory("Syntax")
 case object ERROR_CATEGORY extends DiagnosticCategory("Error")
 case object MISSING_CATEGORY extends DiagnosticCategory("Missing")
 case object WARNING_CATEGORY extends DiagnosticCategory("Warning")
 case object UNUSED_CATEGORY extends DiagnosticCategory("Unused")
-case class UNKNOWN_CATEGORY(_value: String) extends DiagnosticCategory(_value)
 
 object DiagnosticCategory {
   def apply(value: String): DiagnosticCategory = {
@@ -48,7 +47,6 @@ object DiagnosticCategory {
       case MISSING_CATEGORY.value => MISSING_CATEGORY
       case WARNING_CATEGORY.value => WARNING_CATEGORY
       case UNUSED_CATEGORY.value  => UNUSED_CATEGORY
-      case _                      => UNKNOWN_CATEGORY(value)
     }
   }
 

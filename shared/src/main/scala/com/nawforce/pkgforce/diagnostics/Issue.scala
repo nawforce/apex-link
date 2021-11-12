@@ -28,14 +28,26 @@
 
 package com.nawforce.pkgforce.diagnostics
 
+import com.nawforce.pkgforce.api.IssueLocation
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.platform.Path
 import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.compat.immutable.ArraySeq
 
-sealed case class Issue(path: PathLike, diagnostic: Diagnostic) {
+/** An issue recoded against a specific file location. */
+final case class Issue(val path: PathLike, val diagnostic: Diagnostic) extends com.nawforce.pkgforce.api.Issue {
+
+  override def filePath(): String = path.toString
+
+  override def fileLocation(): IssueLocation = diagnostic.location
+
+  override def message(): String = diagnostic.message
+
+  override def category(): String = diagnostic.category.value
+
   def asString: String = s"$path ${diagnostic.asString}"
+
 }
 
 object Issue {
