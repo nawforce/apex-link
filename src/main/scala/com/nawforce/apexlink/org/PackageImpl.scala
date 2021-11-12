@@ -21,7 +21,7 @@ import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.ByteArraySourceData
+import com.nawforce.runtime.parsers.SourceData
 
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
@@ -120,11 +120,10 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
         getPackageModule(path).flatMap(module => {
           val existingIssues = org.issues.pop(path)
           try {
-            val asBytes = source.getBytes(StandardCharsets.UTF_8)
             FullDeclaration
               .create(module,
                 doc,
-                ByteArraySourceData(asBytes, 0, asBytes.length),
+                SourceData(source.getBytes(StandardCharsets.UTF_8)),
                 forceConstruct = true)
           } catch {
             case _: Exception => None
