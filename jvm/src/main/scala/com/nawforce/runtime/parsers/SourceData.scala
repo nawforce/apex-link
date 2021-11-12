@@ -29,48 +29,31 @@
 package com.nawforce.runtime.parsers
 
 import com.nawforce.apexparser.CaseInsensitiveInputStream
-
-import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 import com.nawforce.pkgforce.parsers.UTF8Decode
 import com.nawforce.runtime.SourceBlob
 import org.antlr.v4.runtime.{CharStream, CharStreams}
 
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 import scala.util.hashing.MurmurHash3
 
-trait SourceData {
-  val hash: Int
-  val length: Int
+final case class SourceData(source: Array[Byte], offset: Int, length: Int,
+                            var sourceHash: Option[Int] = None, var isASCII: Option[Boolean] = None) {
 
-  def subdata(startChar: Int, stopBeforeChar: Int): SourceData
-  def asStream: CharStream
-  def asInsensitiveStream: CaseInsensitiveInputStream
-  def asUTF8: Array[Byte]
-  def asString: String
-}
+  lazy val hash: Int = sourceHash.getOrElse(MurmurHash3.bytesHash(source))
 
-object SourceData {
-  def apply(value: String): SourceData = {
-    apply(value.getBytes(StandardCharsets.UTF_8))
-  }
+  def subdata(startChar: Int, stopBeforeChar: Int): SourceData = {
 
-  def apply(value: SourceBlob): SourceData = {
-    ByteArraySourceData(value, offset = 0, length = value.length)
-  }
-}
+    if (isASCII.isEmpty)
+      isASCII = Some(UTF8Decode.isASCII(source, offset, length))
 
-case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) extends SourceData {
-  val hash: Int = MurmurHash3.bytesHash(source)
-  private lazy val isASCII = UTF8Decode.isASCII(source, offset, length)
-
-  override def subdata(startChar: Int, stopBeforeChar: Int): ByteArraySourceData = {
-    if (isASCII) {
-      ByteArraySourceData(source, offset+startChar, stopBeforeChar-startChar)
+    if (isASCII.contains(true)) {
+      new SourceData(source, offset + startChar, stopBeforeChar - startChar, Some(hash), isASCII)
     } else {
       val startOffset = UTF8Decode.getCharOffsetFrom(source, offset, startChar)
       val endOffset = UTF8Decode.getCharOffsetFrom(source, startOffset, stopBeforeChar - startChar)
       val subLength = endOffset - startOffset
-      ByteArraySourceData(source, startOffset, subLength)
+      new SourceData(source, startOffset, subLength, Some(hash), isASCII)
     }
   }
 
@@ -92,5 +75,14 @@ case class ByteArraySourceData(source: Array[Byte], offset: Int, length: Int) ex
   def asString: String = {
     new String(asUTF8, StandardCharsets.UTF_8)
   }
+}
 
+object SourceData {
+  def apply(value: String): SourceData = {
+    apply(value.getBytes(StandardCharsets.UTF_8))
+  }
+
+  def apply(value: SourceBlob): SourceData = {
+    new SourceData(value, offset = 0, length = value.length)
+  }
 }
