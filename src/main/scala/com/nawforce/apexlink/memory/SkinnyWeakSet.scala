@@ -15,24 +15,20 @@
 package com.nawforce.apexlink.memory
 
 import java.lang.ref.WeakReference
-
 import scala.collection.mutable
 
-/** Low memory weak reference set.
-  *
-  * The natural representation for a WeakHasMap but the hashing can create a lot of memory overhead. To avoid this
-  * we use an ArrayBuffer for small sets and convert to a WeakHashMap as the WeakSet grows. For small sets contained
-  * in the array there is some overhead for accessing the values as the array is converted to a set.
-  */
+/** Low memory weak reference set. Uses an array for small sizes before swapping to a set. */
 class SkinnyWeakSet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[WeakReference[T]](4)
-  private var setOf: mutable.WeakHashMap[T, Boolean] = _
+  private var arrayOf: mutable.ArrayBuffer[WeakReference[T]] = _
+  private var setOf: mutable.WeakHashMap[T, Boolean]         = _
 
   def isEmpty: Boolean = {
     if (setOf != null)
       setOf.isEmpty
-    else
+    else if (arrayOf != null)
       arrayOf.forall(_.get == null)
+    else
+      true
   }
 
   def nonEmpty: Boolean = !isEmpty
@@ -40,15 +36,22 @@ class SkinnyWeakSet[T <: AnyRef] {
   def size: Int = {
     if (setOf != null)
       setOf.size
-    else
+    else if (arrayOf != null)
       arrayOf.count(_.get != null)
+    else
+      0
   }
 
   def add(t: T): Unit = {
     if (setOf != null)
       setOf.put(t, true)
-    else
+    else {
+      if (arrayOf == null)
+        arrayOf = new mutable.ArrayBuffer[WeakReference[T]](4)
       arrayOf.append(new WeakReference(t))
+      if (arrayOf.size > 64)
+        arrayOf = arrayOf.filter(_.get != null).distinct
+    }
 
     if (arrayOf != null && arrayOf.length > 64) {
       setOf = new mutable.WeakHashMap[T, Boolean]()
@@ -60,7 +63,9 @@ class SkinnyWeakSet[T <: AnyRef] {
   def toSet: Set[T] = {
     if (setOf != null)
       setOf.keys.toSet
-    else
+    else if (arrayOf != null)
       arrayOf.filter(_.get != null).map(_.get).toSet
+    else
+      Set.empty
   }
 }
