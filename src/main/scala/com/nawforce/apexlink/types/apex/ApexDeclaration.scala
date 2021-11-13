@@ -62,6 +62,10 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
 
+  def resetShadows(): Unit = {
+    shadows = Nil
+  }
+
   def addShadow(method: MethodDeclaration): Unit = {
     if (method ne this) {
       shadows = method :: shadows

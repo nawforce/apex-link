@@ -101,6 +101,11 @@ object MethodMap {
     val errors = mutable.Buffer[Issue]()
     val localMethodsByType = newMethods.groupBy(_.isStatic)
 
+    localMethodsByType.get(false).foreach(methods => methods.foreach( method => method match {
+      case am: ApexMethodLike => am.resetShadows()
+      case _ =>
+    }))
+
     // Add instance methods first with validation checks
     val isTest = td.outermostTypeDeclaration.modifiers.contains(ISTEST_ANNOTATION)
     val isComplete = td.isComplete
