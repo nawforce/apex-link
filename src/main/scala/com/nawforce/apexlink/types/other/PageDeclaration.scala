@@ -64,7 +64,7 @@ object Page {
   */
 final case class PageDeclaration(sources: ArraySeq[SourceInfo], override val module: Module, pages: ArraySeq[Page])
   extends BasicTypeDeclaration(pages.map(p => p.location.path).distinct, module, TypeNames.Page)
-    with DependentType {
+    with DependentType with Dependent {
 
   // Propagate dependencies to base packages
   module.baseModules.foreach(_.pages.addTypeDependencyHolder(typeId))

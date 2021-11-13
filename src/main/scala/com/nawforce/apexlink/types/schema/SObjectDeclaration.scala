@@ -82,7 +82,8 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     extends SObjectLikeDeclaration
     with SObjectFieldFinder
     with SObjectMethods
-    with UnsafeLocatable {
+    with UnsafeLocatable
+    with Dependent {
 
   override def location: PathLocation = sources.headOption.map(_.location).orNull
   override val moduleDeclaration: Option[Module] = Some(module)

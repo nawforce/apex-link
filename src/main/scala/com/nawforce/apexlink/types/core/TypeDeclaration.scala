@@ -41,7 +41,7 @@ object BlockDeclaration {
   val emptyBlockDeclarations: ArraySeq[BlockDeclaration] = ArraySeq()
 }
 
-trait FieldDeclaration extends DependencyHolder with UnsafeLocatable {
+trait FieldDeclaration extends DependencyHolder with UnsafeLocatable with Dependent {
   val name: Name
   val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
@@ -116,7 +116,7 @@ object ConstructorDeclaration {
   val emptyConstructorDeclarations: ArraySeq[ConstructorDeclaration] = ArraySeq()
 }
 
-trait MethodDeclaration extends DependencyHolder {
+trait MethodDeclaration extends DependencyHolder with Dependent{
   val name: Name
   val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
@@ -223,7 +223,7 @@ trait AbstractTypeDeclaration {
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
-trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder {
+trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder with Dependent {
   def paths: ArraySeq[PathLike]
   val moduleDeclaration: Option[Module]
 

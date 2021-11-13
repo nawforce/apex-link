@@ -44,9 +44,8 @@ trait Dependent extends IdentityEquality {
   }
 }
 
-/* Holder of a dependency, for convenience all holders are assumed to be potential dependents.
- */
-trait DependencyHolder extends Dependent {
+/** Holder of a dependencies. */
+trait DependencyHolder {
 
   // Get Dependents being held, default to empty for holders who do not use this, override as needed
   // TODO: Narrow where we introduce this so default not needed

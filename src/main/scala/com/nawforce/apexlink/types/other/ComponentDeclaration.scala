@@ -38,7 +38,8 @@ final case class Component(module: Module,
     extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
                                       module,
                                       TypeName(componentName, Nil, Some(TypeName(Names.Component))))
-    with UnsafeLocatable {
+    with UnsafeLocatable
+    with Dependent {
 
   private var depends: Option[Set[Dependent]] = None
 

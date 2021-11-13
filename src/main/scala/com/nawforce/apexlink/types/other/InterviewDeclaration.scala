@@ -34,7 +34,7 @@ final case class Interview(module: Module, location: PathLocation, interviewName
   extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
     module,
     TypeName(interviewName, Nil, Some(TypeNames.Interview)))
-    with UnsafeLocatable {
+    with UnsafeLocatable with Dependent {
 
   override val superClass: Option[TypeName] = Some(TypeNames.Interview)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.interviewType)

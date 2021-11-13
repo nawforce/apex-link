@@ -138,7 +138,7 @@ trait ApexFullDeclaration extends ApexDeclaration
 trait ApexTriggerDeclaration extends ApexDeclaration
 
 /** Apex defined classes, interfaces, enum of either full or summary type */
-trait ApexClassDeclaration extends ApexDeclaration {
+trait ApexClassDeclaration extends ApexDeclaration with Dependent{
   val localFields: ArraySeq[ApexFieldLike]
   val localMethods: ArraySeq[MethodDeclaration]
 

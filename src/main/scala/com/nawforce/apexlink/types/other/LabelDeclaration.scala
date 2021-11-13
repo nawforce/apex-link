@@ -45,6 +45,7 @@ object LabelField {
 final case class Label(outerTypeId: TypeId, override val location: PathLocation, name: Name, isProtected: Boolean)
     extends LabelField
     with Locatable
+    with Dependent
 
 final case class GhostLabel(name: Name) extends LabelField {
   override def location: PathLocation = null
@@ -57,7 +58,7 @@ final class LabelDeclaration(override val module: Module,
                              val labels: ArraySeq[Label],
                              val nestedLabels: ArraySeq[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
-    with DependentType {
+    with DependentType with Dependent {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
