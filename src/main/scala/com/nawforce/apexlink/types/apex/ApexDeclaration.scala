@@ -128,7 +128,7 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
 }
 
 /** Apex defined types core features, be they full or summary style */
-trait ApexDeclaration extends TypeDeclaration with DependentType with IdLocatable {
+trait ApexDeclaration extends DependentType with IdLocatable {
   val sourceHash: Int
   val module: Module
 
@@ -142,9 +142,11 @@ trait ApexFullDeclaration extends ApexDeclaration
 trait ApexTriggerDeclaration extends ApexDeclaration
 
 /** Apex defined classes, interfaces, enum of either full or summary type */
-trait ApexClassDeclaration extends ApexDeclaration with Dependent {
+trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   val localFields: ArraySeq[ApexFieldLike]
   val localMethods: ArraySeq[MethodDeclaration]
+
+  override def nestedTypes: ArraySeq[ApexClassDeclaration]
 
   def isTest: Boolean = modifiers.intersect(ApexClassDeclaration.testModifiers).nonEmpty
 

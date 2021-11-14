@@ -36,10 +36,11 @@ final case class Component(module: Module,
                            attributes: Option[ArraySeq[Name]],
                            vfContainer: Option[VFContainer])
     extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
-                                      module,
-                                      TypeName(componentName, Nil, Some(TypeName(Names.Component))))
-    with UnsafeLocatable
-    with Dependent {
+      module,
+      TypeName(componentName, Nil, Some(TypeName(Names.Component))))
+      with UnsafeLocatable
+      with Dependent
+      with DependencyHolder {
 
   private var depends: Option[Set[Dependent]] = None
 
@@ -111,7 +112,9 @@ final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
                                              apexOnly: Boolean,
                                              typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
-    components.foreach(component => component.dependencies().foreach(dependents.add))
+    components
+      .collect { case component: DependencyHolder => component }
+      .foreach(component => component.dependencies().foreach(dependents.add))
     DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
     if (!apexOnly)
       nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))

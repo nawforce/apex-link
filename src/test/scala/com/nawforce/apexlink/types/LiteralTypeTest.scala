@@ -15,14 +15,14 @@ package com.nawforce.apexlink.types
 
 import com.nawforce.apexlink.cst.{CST, Literal}
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.types.core.{DependencyHolder, TypeDeclaration}
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class LiteralTypeTest extends AnyFunSuite {
-  def typeLiteral(data: String): DependencyHolder = {
+  def typeLiteral(data: String): TypeDeclaration = {
     val source = Source(Path("Dummy.cls"), SourceData(""), 0, 0, None)
     CST.sourceContext.withValue(Some(source)) {
       val result = CodeParser(Path(""), SourceData(data)).parseLiteral()
@@ -35,7 +35,7 @@ class LiteralTypeTest extends AnyFunSuite {
     val t = typeLiteral(p)
     assert(t != null)
 
-    if (t.asInstanceOf[TypeDeclaration].typeName != r) {
+    if (t.typeName != r) {
       System.out.println("Type mismatch:")
       System.out.println("Expected: " + r)
       System.out.println("Got: " + t)

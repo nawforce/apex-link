@@ -283,7 +283,7 @@ class SummaryDeclaration(path: PathLike,
 
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: ArraySeq[TypeName] = typeSummary.interfaces
-  override val nestedTypes: ArraySeq[TypeDeclaration] =
+  override val nestedTypes: ArraySeq[SummaryDeclaration] =
     typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
   override val blocks: ArraySeq[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
   override val localFields: ArraySeq[SummaryField] = typeSummary.fields.map(new SummaryField(module, path, typeId, _))

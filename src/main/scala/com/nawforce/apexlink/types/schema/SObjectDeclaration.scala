@@ -83,6 +83,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     with SObjectFieldFinder
     with SObjectMethods
     with UnsafeLocatable
+    with DependencyHolder
     with Dependent {
 
   override def location: PathLocation = sources.headOption.map(_.location).orNull

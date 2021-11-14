@@ -51,7 +51,8 @@ final case class TriggerDeclaration(source: Source,
                                     block: Option[Block])
     extends CST
     with ApexTriggerDeclaration
-    with ApexFullDeclaration {
+    with ApexFullDeclaration
+    with DependencyHolder {
 
   override val idLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
@@ -109,7 +110,7 @@ final case class TriggerDeclaration(source: Source,
       }
 
       depends = Some(context.dependencies)
-      context.propagateDependencies()
+      propagateDependencies()
       propagateOuterDependencies(new TypeCache())
     }
   }

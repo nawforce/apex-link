@@ -201,9 +201,6 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
   override def suppressIssues: Boolean =
     typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
 
-  def propagateDependencies(): Unit =
-    typeDeclaration.propagateDependencies()
-
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)
 }

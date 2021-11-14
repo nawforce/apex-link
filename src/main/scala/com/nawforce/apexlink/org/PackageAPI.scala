@@ -24,6 +24,7 @@ import com.nawforce.apexlink.types.other.{LabelDeclaration, Page}
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.names
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.platform.Path
@@ -137,12 +138,16 @@ trait PackageAPI extends Package {
       getDependentType(typeId.typeName)
         .map(td => {
           if (outerInheritanceOnly) {
-            td.dependencies()
-              .flatMap({
-                case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
-                case _                        => None
-              })
-              .toArray
+            td match {
+              case declaration: ApexClassDeclaration =>
+                declaration.dependencies()
+                  .flatMap({
+                    case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
+                    case _ => None
+                  })
+                  .toArray
+              case _ => Array[TypeIdentifier]()
+            }
           } else {
             val typeCache = new TypeCache()
             val dependencies = mutable.Set[TypeId]()

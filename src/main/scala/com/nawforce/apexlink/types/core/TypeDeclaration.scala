@@ -223,8 +223,9 @@ trait AbstractTypeDeclaration {
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
-trait TypeDeclaration extends AbstractTypeDeclaration with DependencyHolder with Dependent {
+trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
   def paths: ArraySeq[PathLike]
+
   val moduleDeclaration: Option[Module]
 
   val name: Name

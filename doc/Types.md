@@ -21,7 +21,6 @@ TypeDeclaration (T)
         └───PackageInterviews
         └───PackageLabels
     └───AnyDeclaration
-    └───ComponentDeclaration
     └───SObjectFieldRowClause
     └───SObjectFields
     └───SObjectTypeFieldSets
@@ -38,6 +37,7 @@ TypeDeclaration (T)
         └───InterviewDeclaration
         └───LabelDeclaration
         └───PageDeclaration
+        └───ComponentDeclaration        
         └───SObjectLikeDeclaration
             └───SObjectDeclaration
             └───GhostSObjectDeclaration                    
@@ -51,7 +51,7 @@ Within the library we have the ability to convert between Full & Summary types e
 
 ```
 TypeDeclaration
-└───ApexDeclaration extends DepedentType (T)     
+└───ApexDeclaration extends DependentType (T)     
     └───ApexClassDeclaration (T)
         └───FullDeclaration extends ApexFullDeclaration (T)       
             └───ClassDeclaration
