@@ -2,7 +2,7 @@
 
 All types are represented using the trait TypeDeclaration. There are many forms of type declaration but to simplify we can group them as metadata related or Apex related. The classes BasicTypeDeclaration and InnerTypeDeclaration are used to provide default implementations of TypeDeclarations features but have no structural significance. 
 
-# Metdata Types
+# Metadata Types
 
 The diagram below shows the main TypeDeclarations used. The purpose of most of these should be fairly obvious from the naming. They are created in reponse to certain types of metadata being loaded and are visible because they can be referenced from Apex code. For example, LabelDeclaration provides an implementation of System.Label in Apex and fields on this TypeDeclaration provide access to individual fields.
 
