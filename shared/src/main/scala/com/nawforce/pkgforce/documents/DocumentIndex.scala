@@ -173,11 +173,11 @@ private class DocumentStore(namespace: Option[Name]) {
 
   /** Store for 'partial type' metadata, i.e. a set of documents defines a type */
   private val partialTypeDocuments =
-    new mutable.HashMap[MetadataNature, mutable.HashMap[TypeName, Set[MetadataDocument]]]()
+    new mutable.HashMap[MetadataNature, mutable.HashMap[String, Set[PathLike]]]()
 
   /** Store for 'full type' metadata, i.e. each document defines a type */
   private val fullTypeDocuments =
-    new mutable.HashMap[MetadataNature, mutable.HashMap[TypeName, MetadataDocument]]()
+    new mutable.HashMap[MetadataNature, mutable.HashMap[String, PathLike]]()
 
   def size: Int = {
     partialTypeDocuments.values.map(_.values.size).sum + fullTypeDocuments.values.size
@@ -186,13 +186,13 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(nature: MetadataNature): Iterator[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.valuesIterator.flatten
-        case None             => Iterator.empty
+        case Some(byTypeName) => byTypeName.valuesIterator.flatten.flatMap(path => MetadataDocument(path))
+        case None => Iterator.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.valuesIterator
-        case None             => Iterator.empty
+        case Some(byTypeName) => byTypeName.valuesIterator.flatMap(path => MetadataDocument(path))
+        case None => Iterator.empty
       }
     }
   }
@@ -200,63 +200,68 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.getOrElse(typeName, Set.empty)
-        case None             => Set.empty
+        case Some(byTypeName) => byTypeName.getOrElse(typeName.rawString, Set.empty).flatMap(path => MetadataDocument(path))
+        case None => Set.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.get(typeName).toSet
-        case None             => Set.empty
+        case Some(byTypeName) => byTypeName.get(typeName.rawString).toSet.flatMap(path => MetadataDocument(path))
+        case None => Set.empty
       }
     }
   }
 
   def get(typeName: TypeName): Set[MetadataDocument] = {
-    (partialTypeDocuments.values.flatMap(_.get(typeName)).flatten ++
-      fullTypeDocuments.values.flatMap(_.get(typeName))).toSet
+    val rawTypeName = typeName.rawString
+    (partialTypeDocuments.values.flatMap(_.get(rawTypeName)).flatten ++
+      fullTypeDocuments.values.flatMap(_.get(rawTypeName)))
+      .toSet
+      .flatMap(path => MetadataDocument(path))
   }
 
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap   = safePartialDocumentMap(document.nature)
-      val typeName = document.typeName(namespace)
-      docMap.put(typeName, docMap.getOrElse(typeName, Set()) + document)
+      val docMap = safePartialDocumentMap(document.nature)
+      val typeName = document.typeName(namespace).rawString
+      docMap.put(typeName, docMap.getOrElse(typeName, Set()) + document.path)
     } else {
-      val docMap   = safeFullDocumentMap(document.nature)
-      val typeName = document.typeName(namespace)
-      docMap.put(typeName, document)
+      val docMap = safeFullDocumentMap(document.nature)
+      val typeName = document.typeName(namespace).rawString
+      docMap.put(typeName, document.path)
     }
   }
 
   /** Remove a document from the store. */
   def remove(document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap   = safePartialDocumentMap(document.nature)
-      val typeName = document.typeName(namespace)
+      val docMap = safePartialDocumentMap(document.nature)
+      val typeName = document.typeName(namespace).rawString
       if (docMap.contains(typeName))
-        docMap.put(typeName, docMap(typeName).filterNot(_ == document))
+        docMap.put(typeName, docMap(typeName).filterNot(_ == document.path))
     } else {
-      val docMap   = safeFullDocumentMap(document.nature)
-      val typeName = document.typeName(namespace)
-      if (docMap.get(typeName).contains(document))
+      val docMap = safeFullDocumentMap(document.nature)
+      val typeName = document.typeName(namespace).rawString
+      if (docMap.get(typeName).contains(document.path))
         docMap.remove(typeName)
     }
   }
 
   private def safePartialDocumentMap(
-    nature: MetadataNature
-  ): mutable.HashMap[TypeName, Set[MetadataDocument]] = {
+                                      nature: MetadataNature
+                                    ): mutable.HashMap[String, Set[PathLike]] = {
     partialTypeDocuments.getOrElseUpdate(
       nature, {
-        mutable.HashMap[TypeName, Set[MetadataDocument]]()
+        mutable.HashMap[String, Set[PathLike]]()
       }
     )
   }
 
   private def safeFullDocumentMap(
-    nature: MetadataNature
-  ): mutable.HashMap[TypeName, MetadataDocument] = {
-    fullTypeDocuments.getOrElseUpdate(nature, { mutable.HashMap[TypeName, MetadataDocument]() })
+                                   nature: MetadataNature
+                                 ): mutable.HashMap[String, PathLike] = {
+    fullTypeDocuments.getOrElseUpdate(nature, {
+      mutable.HashMap[String, PathLike]()
+    })
   }
 
 }

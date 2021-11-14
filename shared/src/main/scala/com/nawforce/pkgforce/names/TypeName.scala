@@ -76,11 +76,11 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
             Some(TypeName.Internal)
           ) =>
         s"Schema.$name.RowCause"
-      case _ => basicString
+      case _ => rawString
     }
   }
 
-  private def basicString: String = {
+  def rawString: String = {
     (if (outer.isEmpty) "" else outer.get.toString + ".") +
       name.toString +
       (if (params.isEmpty) ""
