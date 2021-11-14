@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference
 import scala.collection.mutable
 
 /** Low memory weak reference set. Uses an array for small sizes before swapping to a set. */
-class SkinnyWeakSet[T <: AnyRef] {
+final class SkinnyWeakSet[T <: AnyRef] {
   private var arrayOf: mutable.ArrayBuffer[WeakReference[T]] = _
   private var setOf: mutable.WeakHashMap[T, Boolean]         = _
 

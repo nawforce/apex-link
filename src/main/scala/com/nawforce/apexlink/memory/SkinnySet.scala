@@ -17,7 +17,7 @@ package com.nawforce.apexlink.memory
 import scala.collection.mutable
 
 /** Low memory set. Uses an array for small sizes before swapping to a set. */
-class SkinnySet[T <: AnyRef] {
+final class SkinnySet[T <: AnyRef] {
   private var arrayOf: mutable.ArrayBuffer[T] = _
   private var setOf: mutable.Set[T]           = _
 
