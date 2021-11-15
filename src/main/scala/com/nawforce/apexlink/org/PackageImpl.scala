@@ -117,25 +117,27 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /** Load a class to obtain it's FullDeclaration, issues are not updated, this just returns a temporary version of
     * the class so that it can be inspected. */
-  protected def loadClass(path: PathLike, source: String): Option[(ApexParser, FullDeclaration)] = {
+  protected def loadClass(path: PathLike, source: String)
+  : (Option[(ApexParser, ApexParser.CompilationUnitContext)], Option[FullDeclaration]) = {
+
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
-        getPackageModule(path).flatMap(module => {
+        getPackageModule(path).map(module => {
           val existingIssues = org.issues.pop(path)
           val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
           val result = parser.parseClassReturningParser()
           try {
-            CompilationUnit.construct(parser, module, doc.name, result.value._2)
-              .map(cu => (result.value._1, cu.typeDeclaration))
+            (Some(result.value),
+              CompilationUnit.construct(parser, module, doc.name, result.value._2).map(_.typeDeclaration))
           } catch {
             case ex: Throwable =>
               LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
-              None
+              (None, None)
           } finally {
             org.issues.push(path, existingIssues)
           }
-        })
-      case _ => None
+        }).getOrElse((None, None))
+      case _ => (None, None)
     }
   }
 }

@@ -21,19 +21,31 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.PathLike
+import com.vmware.antlr4c3.CodeCompletionCore
 
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 trait CompletionProvider {
   this: PackageImpl =>
 
   def getCompletionItems(path: PathLike, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
-    content.extractDotTermExclusive(() => new IdentifierAndMethodLimiter, line, offset).map(searchTerm => {
-      val terminatedContent = injectStatementTerminator(line, offset, content)
-      loadClass(path, terminatedContent._1)
-        .map(typeDef => completionsFromValidation(searchTerm, typeDef._2, line, terminatedContent._2))
-        .getOrElse(Array.empty)
-    }).getOrElse(Array.empty)
+    val parserAndCU = loadClass(path, content)
+    parserAndCU._1.map(parserAndCU => {
+      val core = new CodeCompletionCore(parserAndCU._1, new java.util.HashSet[Integer](), new java.util.HashSet[Integer]())
+      val candidates = core.collectCandidates(0, parserAndCU._2)
+      candidates.tokens.asScala
+        .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
+        .map(keyword => stripQuotes(keyword))
+        .map(keyword => CompletionItemLink(keyword, "Method")).toArray
+    }).getOrElse(Array())
+  }
+
+  private def stripQuotes(keyword: String) : String = {
+    if (keyword.length > 3)
+      keyword.substring(1, keyword.length-1)
+    else
+      keyword
   }
 
   private def injectStatementTerminator(line: Int, offset: Int, content: String): (String, Int) = {

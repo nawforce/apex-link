@@ -89,6 +89,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.vmware.antlr4-c3</groupId>
+      <artifactId>antlr4-c3</artifactId>
+      <version>1.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.nawforce</groupId>
       <artifactId>scala-json-rpc_2.13</artifactId>
       <version>1.0.1</version>

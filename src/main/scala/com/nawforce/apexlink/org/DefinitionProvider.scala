@@ -59,12 +59,12 @@ trait DefinitionProvider {
         .collect { case td: FullDeclaration => td }
         .orElse({
           // If not try and load a temp version to work with, this is expensive
-          loadClass(path, sourceOpt.get).map(_._2)
+          loadClass(path, sourceOpt.get)._2
         })
         .map(td => (sourceOpt.get, td))
     } else {
       // No option but to load it as content is being provided
-      loadClass(path, sourceOpt.get).map(td => (sourceOpt.get, td._2))
+      loadClass(path, sourceOpt.get)._2.map(td => (sourceOpt.get, td))
     }
   }
 

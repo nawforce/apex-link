@@ -190,4 +190,15 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
     }
   }
+
+  test("Empty Class Completions") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 0, "").map(_.label).isEmpty)
+    }
+  }
+
 }
