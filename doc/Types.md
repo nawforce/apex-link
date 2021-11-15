@@ -1,6 +1,6 @@
 # Types
 
-All types are represented using the trait TypeDeclaration. There are many forms of type declaration but to simplify we can group them as metadata related or Apex related. The classes BasicTypeDeclaration and InnerTypeDeclaration are used to provide default implementations of TypeDeclarations features but have no structural significance. 
+All types are represented using the trait TypeDeclaration. There are many forms of type declaration but to simplify we can group them as eitehr Apex related or other metadata related. The classes BasicTypeDeclaration and InnerTypeDeclaration are used to provide default implementations of TypeDeclarations features but have no structural significance. 
 
 # Metadata Types
 
@@ -50,16 +50,17 @@ As you may expect, the TypeDeclarations supporting Apex are a little richer than
 Within the library we have the ability to convert between Full & Summary types either by creating a Summary from a Full type or by re-parsing so that we can discard a Summary in favour of Full type declaration.
 
 ```
-TypeDeclaration
-└───ApexDeclaration extends DependentType (T)     
-    └───ApexClassDeclaration (T)
-        └───FullDeclaration extends ApexFullDeclaration (T)       
-            └───ClassDeclaration
-            └───InterfaceDeclaration
-            └───EnumDeclaration
-    └───ApexTriggerDeclaration (T)
-        └───TriggerDeclaration extends ApexFullDeclaration (T)
-    └───SummaryDeclaration
+TypeDeclaration (T)
+└───DependentType (T)
+    └───ApexDeclaration extends      
+        └───ApexClassDeclaration (T)
+            └───FullDeclaration extends ApexFullDeclaration (T)       
+                └───ClassDeclaration
+                └───InterfaceDeclaration
+                └───EnumDeclaration
+        └───ApexTriggerDeclaration (T)
+            └───TriggerDeclaration extends ApexFullDeclaration (T)
+        └───SummaryDeclaration
 ```
 
 # Dependency Management
@@ -70,10 +71,10 @@ In practice each class body declaration in Apex code acts as a DepeendencyHolder
 
 For external & internal use, the DependentHolder->Depenent relationships are rolled up and stored on TypeDeclarations that implement DependentType. This model is uni-directional in that it only records holder relationships and it records them using TypeId references rather than object<->objeect lookups. 
 
-For example, if Apex code references a Label there will be Depedent<->DependencyHolder bi-directional relationship between that Apex code block and the specific Label and a type level relationship from Labels back to the Apex class via it's TypeId. The detailed relationship can be be used for forward/reverse reporting, whilst the type level relationship only supports reverse reporting but crucially for invalidation handling.
+For example, if Apex code references a Label there will be Depedent<->DependencyHolder bi-directional relationship between that Apex code block and the specific Label and a type level relationship from Labels back to the Apex class via it's TypeId. The detailed relationship can be be used for forward/reverse reporting, whilst the type level relationship only supports reverse reporting and importantly support invalidation handling.
 
 ## Invalidation Handling
-The dependency relationship enable to perform a form of invalidation handling to ensure that we are always reporting the correct diagnostics during IDE editing. Briefly, when metadata is changed (including Apex code) we automatically re-validate any metadata that could be impacted by following the type level dependency holder relationships.
+The dependency relationship enable a form of invalidation handling to ensure that we are always reporting the correct diagnostics during IDE editing. Briefly, when metadata is changed (including Apex code) we automatically re-validate any metadata that could be impacted by following the type level dependency holder relationships.
 
 For example, lets say the Labels available were changed, to re-validate our Apex code we find all classes that may be impacted via the type level dependency holder relationships on DependentType. The re-validation of these Apex classes will cause them to report diagnostics for any Labels they depend on that are no longer available.
 

@@ -14,20 +14,23 @@
 
 package com.nawforce.apexlink.org
 
+import com.nawforce.apexlink.cst.CompilationUnit
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names._
 import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
+import com.nawforce.apexparser.ApexParser
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.parsers.SourceData
+import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
-    extends PackageAPI
+  extends PackageAPI
     with DefinitionProvider with CompletionProvider {
 
   /** Modules used in this package, this will be null during construction. */
@@ -114,19 +117,20 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /** Load a class to obtain it's FullDeclaration, issues are not updated, this just returns a temporary version of
     * the class so that it can be inspected. */
-  protected def loadClass(path: PathLike, source: String): Option[FullDeclaration] = {
+  protected def loadClass(path: PathLike, source: String): Option[(ApexParser, FullDeclaration)] = {
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
         getPackageModule(path).flatMap(module => {
           val existingIssues = org.issues.pop(path)
+          val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
+          val result = parser.parseClassReturningParser()
           try {
-            FullDeclaration
-              .create(module,
-                doc,
-                SourceData(source.getBytes(StandardCharsets.UTF_8)),
-                forceConstruct = true)
+            CompilationUnit.construct(parser, module, doc.name, result.value._2)
+              .map(cu => (result.value._1, cu.typeDeclaration))
           } catch {
-            case _: Exception => None
+            case ex: Throwable =>
+              LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+              None
           } finally {
             org.issues.push(path, existingIssues)
           }
