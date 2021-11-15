@@ -35,6 +35,10 @@ class CodeParser(val source: Source) {
     parse(parser => parser.compilationUnit())
   }
 
+  def parseClassReturningParser(): IssuesAnd[(ApexParser, ApexParser.CompilationUnitContext)] = {
+    parseReturningParser(parser => parser.compilationUnit())
+  }
+
   def parseTrigger(): IssuesAnd[ApexParser.TriggerUnitContext] = {
     parse(parser => parser.triggerUnit())
   }
@@ -71,6 +75,11 @@ class CodeParser(val source: Source) {
   }
 
   def parse[T](parse: ApexParser => T): IssuesAnd[T] = {
+    val result = parseReturningParser[T](parse)
+    IssuesAnd(result.issues, result.value._2)
+  }
+
+  def parseReturningParser[T](parse: ApexParser => T): IssuesAnd[(ApexParser, T)] = {
     CodeParser.autoClearCache()
 
     lastTokenStream = None
@@ -78,13 +87,13 @@ class CodeParser(val source: Source) {
     tokenStream.fill()
 
     val listener = new CollectingErrorListener(source.path)
-    val parser   = new ApexParser(tokenStream)
+    val parser = new ApexParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)
 
     val result = parse(parser)
     lastTokenStream = Some(tokenStream)
-    IssuesAnd(listener.issues, result)
+    IssuesAnd(listener.issues, (parser, result))
   }
 }
 
