@@ -200,19 +200,19 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.getOrElse(typeName.rawString, Set.empty).flatMap(path => MetadataDocument(path))
+        case Some(byTypeName) => byTypeName.getOrElse(typeName.rawStringLower, Set.empty).flatMap(path => MetadataDocument(path))
         case None => Set.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.get(typeName.rawString).toSet.flatMap(path => MetadataDocument(path))
+        case Some(byTypeName) => byTypeName.get(typeName.rawStringLower).toSet.flatMap(path => MetadataDocument(path))
         case None => Set.empty
       }
     }
   }
 
   def get(typeName: TypeName): Set[MetadataDocument] = {
-    val rawTypeName = typeName.rawString
+    val rawTypeName = typeName.rawStringLower
     (partialTypeDocuments.values.flatMap(_.get(rawTypeName)).flatten ++
       fullTypeDocuments.values.flatMap(_.get(rawTypeName)))
       .toSet
@@ -222,11 +222,11 @@ private class DocumentStore(namespace: Option[Name]) {
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
       val docMap = safePartialDocumentMap(document.nature)
-      val typeName = document.typeName(namespace).rawString
+      val typeName = document.typeName(namespace).rawStringLower
       docMap.put(typeName, docMap.getOrElse(typeName, Set()) + document.path)
     } else {
       val docMap = safeFullDocumentMap(document.nature)
-      val typeName = document.typeName(namespace).rawString
+      val typeName = document.typeName(namespace).rawStringLower
       docMap.put(typeName, document.path)
     }
   }
@@ -235,12 +235,12 @@ private class DocumentStore(namespace: Option[Name]) {
   def remove(document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
       val docMap = safePartialDocumentMap(document.nature)
-      val typeName = document.typeName(namespace).rawString
+      val typeName = document.typeName(namespace).rawStringLower
       if (docMap.contains(typeName))
         docMap.put(typeName, docMap(typeName).filterNot(_ == document.path))
     } else {
       val docMap = safeFullDocumentMap(document.nature)
-      val typeName = document.typeName(namespace).rawString
+      val typeName = document.typeName(namespace).rawStringLower
       if (docMap.get(typeName).contains(document.path))
         docMap.remove(typeName)
     }

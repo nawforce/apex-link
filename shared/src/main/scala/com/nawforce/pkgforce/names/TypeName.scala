@@ -81,10 +81,30 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
   }
 
   def rawString: String = {
-    (if (outer.isEmpty) "" else outer.get.toString + ".") +
-      name.toString +
-      (if (params.isEmpty) ""
-       else s"<${params.map(_.toString).mkString(", ")}>")
+    val sb = new StringBuffer()
+    rawString(sb)
+    sb.toString
+  }
+
+  def rawStringLower: String = {
+    rawString.toLowerCase()
+  }
+
+  def rawString(sb: StringBuffer): Unit = {
+    outer.foreach(outer => {
+      outer.rawString(sb)
+      sb.append('.')
+    })
+    sb.append(name)
+    if (params.nonEmpty) {
+      sb.append('<')
+      for(i <- params.indices) {
+        params(i).rawString(sb)
+        if (i < params.length-1)
+          sb.append(", ")
+      }
+      sb.append('>')
+    }
   }
 
   private[pkgforce] def withOuter(newOuter: Option[TypeName]): TypeName = {
