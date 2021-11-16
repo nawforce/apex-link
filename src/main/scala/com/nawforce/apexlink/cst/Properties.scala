@@ -99,9 +99,8 @@ object ApexPropertyDeclaration {
       modifiers,
       typeName,
       Id.construct(propertyDeclaration.id()),
-      ArraySeq.unsafeWrapArray(CodeParser
-        .toScala(propertyDeclaration.propertyBlock()).toArray)
-        .map(pb => PropertyBlock.construct(parser, pb, typeName)),
+      CodeParser.toScala(propertyDeclaration.propertyBlock())
+        .flatMap(pb => PropertyBlock.construct(parser, pb, typeName)),
     ).withContext(propertyDeclaration)
   }
 }
@@ -130,23 +129,23 @@ final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeN
 }
 
 object PropertyBlock {
-  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): PropertyBlock = {
+  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): Option[PropertyBlock] = {
     val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
       parser,
-      ArraySeq.unsafeWrapArray(CodeParser.toScala(propertyBlockContext.modifier()).toArray),
+      CodeParser.toScala(propertyBlockContext.modifier()),
       propertyBlockContext)
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())
       val setter = CodeParser.toScala(propertyBlockContext.setter())
 
       if (getter.nonEmpty) {
-        GetterPropertyBlock(modifiers, Block.constructOption(parser, CodeParser.toScala(getter.get.block())))
+        Some(GetterPropertyBlock(modifiers, Block.constructOption(parser, CodeParser.toScala(getter.get.block()))))
       } else if (setter.nonEmpty) {
-        SetterPropertyBlock(modifiers, typeName, Block.constructOption(parser, CodeParser.toScala(setter.get.block())))
+        Some(SetterPropertyBlock(modifiers, typeName, Block.constructOption(parser, CodeParser.toScala(setter.get.block()))))
       } else {
-        throw new CSTException()
+        None
       }
     }
-    cst.withContext(propertyBlockContext)
+    cst.map(_.withContext(propertyBlockContext))
   }
 }

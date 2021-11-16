@@ -21,7 +21,6 @@ import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
-import com.nawforce.apexlink.types.extended.GenericTypeDeclaration
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
@@ -137,8 +136,6 @@ trait HolderVerifyContext {
 
       case _: SObjectDeclaration => _dependencies.add(dependent)
 
-      case td: GenericTypeDeclaration => _dependencies.add(td.baseType)
-
       case _ => ()
     }
   }
@@ -203,9 +200,6 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
 
   override def suppressIssues: Boolean =
     typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
-
-  def propagateDependencies(): Unit =
-    typeDeclaration.propagateDependencies()
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)

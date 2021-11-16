@@ -22,7 +22,7 @@ import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.immutable.ArraySeq
 
-class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeName: TypeName)
+class BasicTypeDeclaration(val paths: ArraySeq[PathLike], module: Module, val typeName: TypeName)
     extends TypeDeclaration {
 
   override val moduleDeclaration: Option[Module] = Some(module)
@@ -33,18 +33,18 @@ class BasicTypeDeclaration(val paths: Array[PathLike], module: Module, val typeN
   override lazy val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
-  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+  override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
-  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
-  override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
+  override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val fields: ArraySeq[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
-  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
+  override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def validate(): Unit = {}
 }
 
-class InnerBasicTypeDeclaration(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
+class InnerBasicTypeDeclaration(_paths: ArraySeq[PathLike], _module: Module, _typeName: TypeName)
     extends BasicTypeDeclaration(_paths, _module, _typeName) {
   override val outerTypeName: Option[TypeName] = typeName.outer
 }

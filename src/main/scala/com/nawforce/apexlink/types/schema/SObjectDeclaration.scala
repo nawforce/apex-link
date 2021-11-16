@@ -74,21 +74,23 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
                                     module: Module,
                                     typeName: TypeName,
                                     sobjectNature: SObjectNature,
-                                    fieldSets: Array[Name],
-                                    sharingReasons: Array[Name],
-                                    baseFields: Array[FieldDeclaration],
+                                    fieldSets: ArraySeq[Name],
+                                    sharingReasons: ArraySeq[Name],
+                                    baseFields: ArraySeq[FieldDeclaration],
                                     _isComplete: Boolean,
                                     isSynthetic: Boolean = false)
     extends SObjectLikeDeclaration
     with SObjectFieldFinder
     with SObjectMethods
-    with UnsafeLocatable {
+    with UnsafeLocatable
+    with DependencyHolder
+    with Dependent {
 
   override def location: PathLocation = sources.headOption.map(_.location).orNull
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
-  override val paths: Array[PathLike] = sources.map(source => source.location.path)
+  override val paths: ArraySeq[PathLike] = ArraySeq.unsafeWrapArray(sources.map(source => source.location.path))
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
   private val depends = mutable.Set[Dependent]()
 
@@ -96,10 +98,12 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override val outerTypeName: Option[TypeName] = None
   override val nature: Nature = CLASS_NATURE
   override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
-  override def nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+
+  override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
-  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
   override val superClass: Option[TypeName] = {
     Some(TypeNames.SObject)
@@ -134,16 +138,16 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     DependentType.dependentsToTypeIds(module, depends, apexOnly, dependsOn)
   }
 
-  override val fields: Array[FieldDeclaration] = baseFields
+  override val fields: ArraySeq[FieldDeclaration] = baseFields
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     findFieldSObject(name, staticContext)
   }
 
-  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
+  override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     if (staticContext.contains(true)) {
@@ -160,29 +164,29 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   }
 
   private lazy val hierarchyCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+    Seq(CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
-        CustomMethodDeclaration(Location.empty, Name("getOrgDefaults"), typeName, Array()),
+                                ArraySeq(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
+        CustomMethodDeclaration(Location.empty, Name("getOrgDefaults"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
+                                ArraySeq(CustomParameterDeclaration(Name("Id"), TypeNames.IdType))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 
   private lazy val listCustomSettingsMethods: Map[(Name, Int), MethodDeclaration] =
-    Seq(CustomMethodDeclaration(Location.empty, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), Array()),
-        CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, Array()),
+    Seq(CustomMethodDeclaration(Location.empty, Name("getAll"), TypeNames.mapOf(TypeNames.String, typeName), CustomMethodDeclaration.emptyParameters),
+        CustomMethodDeclaration(Location.empty, Name("getInstance"), typeName, CustomMethodDeclaration.emptyParameters),
         CustomMethodDeclaration(Location.empty,
                                 Name("getInstance"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+                                ArraySeq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
         CustomMethodDeclaration(Location.empty,
                                 Name("getValues"),
                                 typeName,
-                                Array(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
+                                ArraySeq(CustomParameterDeclaration(Name("Name"), TypeNames.String))),
     ).map(m => ((m.name, m.parameters.length), m)).toMap
 }
 

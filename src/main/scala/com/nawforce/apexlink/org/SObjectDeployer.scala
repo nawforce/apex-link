@@ -29,6 +29,7 @@ import com.nawforce.pkgforce.names._
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.stream._
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{BufferedIterator, mutable}
 
@@ -163,16 +164,16 @@ class SObjectDeployer(module: Module) {
 
       sobjectNature.map(nature => {
         createdSObjects.put(td.typeName,
-                            extendExistingSObject(Some(td),
-                                                  Array(),
-                                                  td.typeName,
-                                                  nature,
-                                                  Array(
-                                                    CustomFieldDeclaration(targetFieldName,
-                                                                           TypeNames.recordSetOf(originatingTypeName),
-                                                                           None)),
-                                                  Array(),
-                                                  Array()))
+          extendExistingSObject(Some(td),
+            Array(),
+            td.typeName,
+            nature,
+            ArraySeq(
+              CustomFieldDeclaration(targetFieldName,
+                TypeNames.recordSetOf(originatingTypeName),
+                None)),
+            ArraySeq(),
+            ArraySeq()))
       })
     })
   }
@@ -185,9 +186,9 @@ class SObjectDeployer(module: Module) {
                                  event: SObjectEvent,
                                  typeName: TypeName,
                                  nature: SObjectNature,
-                                 fields: Array[FieldDeclaration],
-                                 fieldSets: Array[Name],
-                                 sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+                                 fields: ArraySeq[FieldDeclaration],
+                                 fieldSets: ArraySeq[Name],
+                                 sharingReasons: ArraySeq[Name]): Array[SObjectDeclaration] = {
 
     if (module.isGhostedType(typeName))
       Array(extendExistingSObject(None, sources, typeName, nature, fields, fieldSets, sharingReasons))
@@ -212,9 +213,9 @@ class SObjectDeployer(module: Module) {
   private def createNewSObject(sources: Array[SourceInfo],
                                typeName: TypeName,
                                nature: SObjectNature,
-                               fields: Array[FieldDeclaration],
-                               fieldSets: Array[Name],
-                               sharingReasons: Array[Name],
+                               fields: ArraySeq[FieldDeclaration],
+                               fieldSets: ArraySeq[Name],
+                               sharingReasons: ArraySeq[Name],
                                sharingModel: Option[SharingModel]): Array[SObjectDeclaration] = {
     val syntheticSObjects =
       if (nature == CustomObjectNature) {
@@ -235,51 +236,51 @@ class SObjectDeployer(module: Module) {
 
     syntheticSObjects :+
       new SObjectDeclaration(sources,
-                             module,
-                             typeName,
-                             nature,
-                             fieldSets,
-                             Name.emptyNames,
-                             collectFields(typeName, nature, fields, hasOwner),
-                             _isComplete = true)
+        module,
+        typeName,
+        nature,
+        fieldSets,
+        ArraySeq(),
+        collectFields(typeName, nature, fields, hasOwner),
+        _isComplete = true)
   }
 
   private def createShare(sources: Array[SourceInfo],
                           typeName: TypeName,
-                          sharingReasons: Array[Name]): SObjectDeclaration = {
+                          sharingReasons: ArraySeq[Name]): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__Share"),
-                       CustomObjectNature,
-                       Array(),
-                       sharingReasons,
-                       shareFieldsFor(typeName),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__Share"),
+      CustomObjectNature,
+      ArraySeq(),
+      sharingReasons,
+      shareFieldsFor(typeName),
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   private def createFeed(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__Feed"),
-                       CustomObjectNature,
-                       Name.emptyNames,
-                       Name.emptyNames,
-                       feedFieldsFor(typeName),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__Feed"),
+      CustomObjectNature,
+      ArraySeq(),
+      ArraySeq(),
+      feedFieldsFor(typeName),
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   private def createHistory(sources: Array[SourceInfo], typeName: TypeName): SObjectDeclaration = {
     SObjectDeclaration(sources,
-                       module,
-                       typeName.withNameReplace("__c$", "__History"),
-                       CustomObjectNature,
-                       Name.emptyNames,
-                       Name.emptyNames,
-                       historyFieldsFor(typeName),
-                       _isComplete = true,
-                       isSynthetic = true)
+      module,
+      typeName.withNameReplace("__c$", "__History"),
+      CustomObjectNature,
+      ArraySeq(),
+      ArraySeq(),
+      historyFieldsFor(typeName),
+      _isComplete = true,
+      isSynthetic = true)
   }
 
   /** Create an SObject to replace some existing SObject so that it can be extended. If no existing can be found then
@@ -287,9 +288,9 @@ class SObjectDeployer(module: Module) {
   private def createReplacementSObject(sources: Array[SourceInfo],
                                        typeName: TypeName,
                                        nature: SObjectNature,
-                                       fields: Array[FieldDeclaration],
-                                       fieldSets: Array[Name],
-                                       sharingReasons: Array[Name]): Array[SObjectDeclaration] = {
+                                       fields: ArraySeq[FieldDeclaration],
+                                       fieldSets: ArraySeq[Name],
+                                       sharingReasons: ArraySeq[Name]): Array[SObjectDeclaration] = {
 
     if (typeName == TypeNames.Activity) {
       // Fake Activity as applying to Task & Event, how bizarre is that
@@ -298,7 +299,7 @@ class SObjectDeployer(module: Module) {
     } else {
       val sobjectType = resolveBaseType(typeName)
       if (sobjectType.isEmpty || !sobjectType.get.superClassDeclaration.exists(superClass =>
-            superClass.typeName == TypeNames.SObject)) {
+        superClass.typeName == TypeNames.SObject)) {
         OrgImpl.logError(sources.head.location, s"No SObject declaration found for '$typeName'")
         return Array()
       }
@@ -326,9 +327,9 @@ class SObjectDeployer(module: Module) {
                                     sources: Array[SourceInfo],
                                     typeName: TypeName,
                                     nature: SObjectNature,
-                                    fields: Array[FieldDeclaration],
-                                    fieldSets: Array[Name],
-                                    sharingReasons: Array[Name]): SObjectDeclaration = {
+                                    fields: ArraySeq[FieldDeclaration],
+                                    fieldSets: ArraySeq[Name],
+                                    sharingReasons: ArraySeq[Name]): SObjectDeclaration = {
 
     // Check we are not trying to extend a non-extensible over a namespace boundary
     val crossModule = base.flatMap(_.moduleDeclaration).exists(_ != module)
@@ -355,21 +356,21 @@ class SObjectDeployer(module: Module) {
     val extend = base.getOrElse(PlatformTypes.sObjectType)
     val combinedSources = asSObject.map(_.sources).getOrElse(Array()) ++ sources
     val combinedFields = collectFields(typeName, nature, extend.fields ++ fields, hasOwner = base.isEmpty)
-    val combinedFieldsets = fieldSets
-      .foldLeft(asSObject.map(_.fieldSets).getOrElse(Array()).toSet)((acc, fieldset) => acc + fieldset)
-      .toArray
-    val combinedSharingReasons = sharingReasons
-      .foldLeft(asSObject.map(_.sharingReasons).getOrElse(Array()).toSet)((acc, sharingReason) => acc + sharingReason)
-      .toArray
+    val combinedFieldsets = ArraySeq.unsafeWrapArray(fieldSets
+      .foldLeft(asSObject.map(_.fieldSets).getOrElse(ArraySeq()).toSet)((acc, fieldset) => acc + fieldset)
+      .toArray)
+    val combinedSharingReasons = ArraySeq.unsafeWrapArray(sharingReasons
+      .foldLeft(asSObject.map(_.sharingReasons).getOrElse(ArraySeq()).toSet)((acc, sharingReason) => acc + sharingReason)
+      .toArray)
 
     val newSObject = new SObjectDeclaration(combinedSources,
-                                            module,
-                                            typeName,
-                                            nature,
-                                            combinedFieldsets,
-                                            combinedSharingReasons,
-                                            combinedFields,
-                                            base.nonEmpty && base.get.isComplete)
+      module,
+      typeName,
+      nature,
+      combinedFieldsets,
+      combinedSharingReasons,
+      combinedFields,
+      base.nonEmpty && base.get.isComplete)
 
     // If we are extending over a module boundary then link via dependencies for refresh handling
     if (crossModule) {
@@ -382,24 +383,24 @@ class SObjectDeployer(module: Module) {
   /** Collect fields for an SObject by folding custom fields over standard fields. */
   def collectFields(typeName: TypeName,
                     nature: SObjectNature,
-                    fields: Array[FieldDeclaration],
-                    hasOwner: Boolean): Array[FieldDeclaration] = {
+                    fields: ArraySeq[FieldDeclaration],
+                    hasOwner: Boolean): ArraySeq[FieldDeclaration] = {
     nature match {
-      case ListCustomSettingNature       => customObjectFields(typeName, nature, fields, hasOwner)
+      case ListCustomSettingNature => customObjectFields(typeName, nature, fields, hasOwner)
       case HierarchyCustomSettingsNature => customObjectFields(typeName, nature, fields, hasOwner)
-      case CustomObjectNature            => customObjectFields(typeName, nature, fields, hasOwner)
-      case CustomMetadataNature          => customMetadataFields(typeName, fields)
-      case BigObjectNature               => fields
-      case PlatformEventNature           => platformEventFields(typeName, fields)
-      case PlatformObjectNature          => fields
+      case CustomObjectNature => customObjectFields(typeName, nature, fields, hasOwner)
+      case CustomMetadataNature => customMetadataFields(typeName, fields)
+      case BigObjectNature => fields
+      case PlatformEventNature => platformEventFields(typeName, fields)
+      case PlatformObjectNature => fields
     }
   }
 
   /** Construct a full set of fields for a custom objects from the custom fields defined in the event. */
   private def customObjectFields(typeName: TypeName,
                                  nature: SObjectNature,
-                                 fields: Array[FieldDeclaration],
-                                 hasOwner: Boolean): Array[FieldDeclaration] = {
+                                 fields: ArraySeq[FieldDeclaration],
+                                 hasOwner: Boolean): ArraySeq[FieldDeclaration] = {
 
     def fieldFilter(field: FieldDeclaration): Boolean = {
       if (hasOwner)
@@ -409,98 +410,98 @@ class SObjectDeployer(module: Module) {
     }
 
     deDuplicateFields(
-      Array(CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
-            CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true),
-            CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName))) ++
+      ArraySeq(CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
+        CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true),
+        CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName))) ++
         SObjectDeployer.standardCustomObjectFields.filterNot(fieldFilter) ++
         fields ++
         (if (nature == HierarchyCustomSettingsNature)
-           Array(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
-         else
-           Array[FieldDeclaration]()))
+          ArraySeq(CustomFieldDeclaration(Names.SetupOwnerId, PlatformTypes.idType.typeName, None))
+        else
+          ArraySeq[FieldDeclaration]()))
   }
 
   /** Construct a full set of fields for a custom metadata from the custom fields defined in the event. */
-  private def customMetadataFields(typeName: TypeName, fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+  private def customMetadataFields(typeName: TypeName, fields: ArraySeq[FieldDeclaration]): ArraySeq[FieldDeclaration] = {
     deDuplicateFields(
-      Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName)),
-            CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true)) ++
+      ArraySeq(CustomFieldDeclaration(Names.Id, TypeNames.IdType, Some(typeName)),
+        CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true)) ++
         SObjectDeployer.standardCustomMetadataFields ++
         fields)
   }
 
   /** Construct a full set of fields for a platform event from the custom fields defined in the event. */
-  private def platformEventFields(typeName: TypeName, fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+  private def platformEventFields(typeName: TypeName, fields: ArraySeq[FieldDeclaration]): ArraySeq[FieldDeclaration] = {
     deDuplicateFields(
       SObjectDeployer.standardPlatformEventFields ++
         fields :+
         CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true))
   }
 
-  private def deDuplicateFields(fields: Array[FieldDeclaration]): Array[FieldDeclaration] = {
+  private def deDuplicateFields(fields: ArraySeq[FieldDeclaration]): ArraySeq[FieldDeclaration] = {
     // FUTURE: Duplicates are likely OK due to deploy handling, but we should warn?
-    fields.map(field => (field.name, field)).toMap.values.toArray
+    ArraySeq.unsafeWrapArray(fields.map(field => (field.name, field)).toMap.values.toArray)
   }
 }
 
 object SObjectDeployer {
 
   /** Standard fields for custom objects, this is a superset, filtering may be needed to trim do to available. */
-  val standardCustomObjectFields: Array[FieldDeclaration] = {
+  val standardCustomObjectFields: ArraySeq[FieldDeclaration] = {
     PlatformTypes.sObjectType.fields ++
-      Array(CustomFieldDeclaration(Names.Id, TypeNames.IdType, None),
-            CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
-            CustomFieldDeclaration(XNames.RecordTypeId, TypeNames.IdType, None),
-            CustomFieldDeclaration(XNames.RecordType, TypeNames.RecordType, None),
-            CustomFieldDeclaration(XNames.OwnerId, TypeNames.IdType, None),
-            CustomFieldDeclaration(XNames.Owner, TypeNames.NameSObject, None),
-            CustomFieldDeclaration(XNames.CurrencyIsoCode, TypeNames.String, None),
-            CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
-            CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
-            CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),
-            CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
-            CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
-            CustomFieldDeclaration(XNames.LastModifiedDate, TypeNames.Datetime, None),
-            CustomFieldDeclaration(XNames.LastReferencedDate, TypeNames.Datetime, None),
-            CustomFieldDeclaration(XNames.LastViewedDate, TypeNames.Datetime, None),
-            CustomFieldDeclaration(XNames.LastActivityDate, TypeNames.Datetime, None),
-            CustomFieldDeclaration(XNames.Tasks, TypeNames.listOf(TypeNames.Task), None),
-            CustomFieldDeclaration(XNames.Notes, TypeNames.listOf(TypeNames.Note), None),
-            CustomFieldDeclaration(XNames.NotesAndAttachments, TypeNames.listOf(TypeNames.NoteAndAttachment), None),
-            CustomFieldDeclaration(XNames.Attachments, TypeNames.listOf(TypeNames.Attachment), None),
-            CustomFieldDeclaration(XNames.ContentDocumentLinks, TypeNames.listOf(TypeNames.ContentDocumentLink), None),
-            CustomFieldDeclaration(XNames.ProcessSteps, TypeNames.listOf(TypeNames.ProcessInstanceHistory), None),
-            CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
-            CustomFieldDeclaration(XNames.SystemModstamp, TypeNames.Datetime, None))
+      ArraySeq(CustomFieldDeclaration(Names.Id, TypeNames.IdType, None),
+        CustomFieldDeclaration(Names.NameName, TypeNames.String, None),
+        CustomFieldDeclaration(XNames.RecordTypeId, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.RecordType, TypeNames.RecordType, None),
+        CustomFieldDeclaration(XNames.OwnerId, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.Owner, TypeNames.NameSObject, None),
+        CustomFieldDeclaration(XNames.CurrencyIsoCode, TypeNames.String, None),
+        CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
+        CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
+        CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
+        CustomFieldDeclaration(XNames.LastModifiedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastReferencedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastViewedDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.LastActivityDate, TypeNames.Datetime, None),
+        CustomFieldDeclaration(XNames.Tasks, TypeNames.listOf(TypeNames.Task), None),
+        CustomFieldDeclaration(XNames.Notes, TypeNames.listOf(TypeNames.Note), None),
+        CustomFieldDeclaration(XNames.NotesAndAttachments, TypeNames.listOf(TypeNames.NoteAndAttachment), None),
+        CustomFieldDeclaration(XNames.Attachments, TypeNames.listOf(TypeNames.Attachment), None),
+        CustomFieldDeclaration(XNames.ContentDocumentLinks, TypeNames.listOf(TypeNames.ContentDocumentLink), None),
+        CustomFieldDeclaration(XNames.ProcessSteps, TypeNames.listOf(TypeNames.ProcessInstanceHistory), None),
+        CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
+        CustomFieldDeclaration(XNames.SystemModstamp, TypeNames.Datetime, None))
   }
 
   /** Standard fields for platform events. */
-  val standardPlatformEventFields: Array[FieldDeclaration] = {
-    Array(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
-          CustomFieldDeclaration(XNames.CreatedBy, TypeNames.User, None),
-          CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
-          CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None))
+  val standardPlatformEventFields: ArraySeq[FieldDeclaration] = {
+    ArraySeq(CustomFieldDeclaration(Names.ReplayId, TypeNames.String, None),
+      CustomFieldDeclaration(XNames.CreatedBy, TypeNames.User, None),
+      CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
+      CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None))
   }
 
   /** Standard fields for custom metadata. */
-  val standardCustomMetadataFields: Array[FieldDeclaration] = {
-    Array(CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
-          CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
-          CustomFieldDeclaration(Names.Label, TypeNames.String, None),
-          CustomFieldDeclaration(Names.Language, TypeNames.String, None),
-          CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
-          CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
-          CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
+  val standardCustomMetadataFields: ArraySeq[FieldDeclaration] = {
+    ArraySeq(CustomFieldDeclaration(Names.DeveloperName, TypeNames.String, None),
+      CustomFieldDeclaration(Names.IsProtected, TypeNames.Boolean, None),
+      CustomFieldDeclaration(Names.Label, TypeNames.String, None),
+      CustomFieldDeclaration(Names.Language, TypeNames.String, None),
+      CustomFieldDeclaration(Names.MasterLabel, TypeNames.String, None),
+      CustomFieldDeclaration(Names.NamespacePrefix, TypeNames.String, None),
+      CustomFieldDeclaration(Names.QualifiedAPIName, TypeNames.String, None))
   }
 
   /** Standard fields for a \_\_Share SObject. */
-  def shareFieldsFor(typeName: TypeName): Array[FieldDeclaration] = {
-    shareFields ++ Array(
+  def shareFieldsFor(typeName: TypeName): ArraySeq[FieldDeclaration] = {
+    shareFields ++ ArraySeq(
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
       CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true))
   }
 
-  private val shareFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+  private val shareFields: ArraySeq[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ ArraySeq(
     CustomFieldDeclaration(XNames.IsDeleted, TypeNames.Boolean, None),
     CustomFieldDeclaration(XNames.LastModifiedBy, TypeNames.User, None),
     CustomFieldDeclaration(XNames.LastModifiedById, TypeNames.IdType, None),
@@ -510,14 +511,14 @@ object SObjectDeployer {
     CustomFieldDeclaration(Names.RowCause, PlatformTypes.stringType.typeName, None),
     CustomFieldDeclaration(Names.UserOrGroupId, PlatformTypes.idType.typeName, None))
 
-  def feedFieldsFor(typeName: TypeName): Array[FieldDeclaration] = {
-    feedFields ++ Array(
+  def feedFieldsFor(typeName: TypeName): ArraySeq[FieldDeclaration] = {
+    feedFields ++ ArraySeq(
       CustomFieldDeclaration(Names.SObjectType, TypeNames.sObjectType$(typeName), None, asStatic = true),
       CustomFieldDeclaration(Names.Fields, TypeNames.sObjectFields$(typeName), None, asStatic = true))
   }
 
   /** Standard fields for a \_\_Feed SObject. */
-  private val feedFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+  private val feedFields: ArraySeq[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ ArraySeq(
     CustomFieldDeclaration(XNames.BestCommentId, TypeNames.IdType, None),
     CustomFieldDeclaration(XNames.Body, TypeNames.String, None),
     CustomFieldDeclaration(XNames.CommentCount, TypeNames.Decimal, None),
@@ -543,18 +544,18 @@ object SObjectDeployer {
     CustomFieldDeclaration(XNames.Visibility, TypeNames.String, None),
   )
 
-  def historyFieldsFor(typeName: TypeName): Array[FieldDeclaration] =
+  def historyFieldsFor(typeName: TypeName): ArraySeq[FieldDeclaration] =
     historyFields ++ Array(CustomFieldDeclaration(XNames.ParentId, typeName, None),
-                           CustomFieldDeclaration(Names.SObjectType,
-                                                  TypeNames.sObjectType$(typeName),
-                                                  None,
-                                                  asStatic = true),
-                           CustomFieldDeclaration(Names.Fields,
-                                                  TypeNames.sObjectFields$(typeName),
-                                                  None,
-                                                  asStatic = true))
+      CustomFieldDeclaration(Names.SObjectType,
+        TypeNames.sObjectType$(typeName),
+        None,
+        asStatic = true),
+      CustomFieldDeclaration(Names.Fields,
+        TypeNames.sObjectFields$(typeName),
+        None,
+        asStatic = true))
 
-  private val historyFields: Array[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ Array(
+  private val historyFields: ArraySeq[FieldDeclaration] = PlatformTypes.sObjectType.fields ++ ArraySeq(
     CustomFieldDeclaration(XNames.CreatedBy, TypeNames.NameSObject, None),
     CustomFieldDeclaration(XNames.CreatedById, TypeNames.IdType, None),
     CustomFieldDeclaration(XNames.CreatedDate, TypeNames.Datetime, None),

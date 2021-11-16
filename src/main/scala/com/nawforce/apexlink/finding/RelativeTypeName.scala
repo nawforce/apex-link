@@ -111,7 +111,8 @@ final case class RelativeTypeName(typeContext: RelativeTypeContext, relativeType
         context.addVar(name, Some(definition), td)
         context.addDependency(td)
       case _ =>
-        context.missingType(definition.location, relativeTypeName)
+        Option(definition.location)
+          .foreach(location => context.missingType(location, relativeTypeName))
         context.addVar(name, None, typeContext.contextTypeDeclaration.module.any)
     }
   }

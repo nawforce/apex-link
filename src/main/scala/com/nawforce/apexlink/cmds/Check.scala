@@ -16,7 +16,9 @@ package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
 import com.nawforce.pkgforce.diagnostics.LoggerOps
+import com.nawforce.pkgforce.documents.ParsedCache
 import com.nawforce.runtime.json.JSON
+import com.nawforce.runtime.platform.{Environment, Path}
 
 import scala.jdk.CollectionConverters._
 
@@ -30,7 +32,7 @@ object Check {
     s"Usage: $name [-json] [-verbose] [-info|-debug] [-noflush] [-zombie] [-depends] <directory>"
 
   def run(args: Array[String]): Int = {
-    val flags = Set("-json", "-verbose", "-info", "-debug", "-noflush", "-zombie", "-depends")
+    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-zombie", "-depends")
 
     val json = args.contains("-json")
     val verbose = !json && args.contains("-verbose")
@@ -38,7 +40,7 @@ object Check {
     val info = !json && !debug && args.contains("-info")
     val depends = args.contains("-depends")
     val zombie = args.contains("-zombie")
-    val noFlush = args.contains("-noflush")
+    val noCache = args.contains("-nocache")
 
     ServerOps.setAutoFlush(false)
     if (debug)
@@ -58,9 +60,14 @@ object Check {
     }
 
     try {
+      if (noCache) {
+        Environment.setCacheDir(Some(None))
+      }
+
+      //Thread.sleep(20000)
+
       val org = Org.newOrg(dirs.head)
-      if (!noFlush)
-        org.flush()
+      org.flush()
       if (depends) {
         if (json) {
           writeDependenciesAsJSON(org)

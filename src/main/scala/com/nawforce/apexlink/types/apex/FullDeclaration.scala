@@ -21,7 +21,6 @@ import com.nawforce.apexlink.finding.{RelativeTypeContext, TypeResolver}
 import com.nawforce.apexlink.memory.Monitor
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.apex
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.TypeDeclarationContext
 import com.nawforce.pkgforce.diagnostics.LoggerOps
@@ -45,7 +44,7 @@ abstract class FullDeclaration(val source: Source,
                                val id: Id,
                                _modifiers: ModifierResults,
                                val superClass: Option[TypeName],
-                               val interfaces: Array[TypeName],
+                               val interfaces: ArraySeq[TypeName],
                                val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
     extends ClassBodyDeclaration(_modifiers)
     with ApexClassDeclaration
@@ -53,7 +52,7 @@ abstract class FullDeclaration(val source: Source,
 
   lazy val sourceHash: Int = source.hash
 
-  override def paths: Array[PathLike] = Array(source.path)
+  override def paths: ArraySeq[PathLike] = ArraySeq(source.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
@@ -64,30 +63,25 @@ abstract class FullDeclaration(val source: Source,
   // For ApexNode compatibility
   override val children: ArraySeq[ApexNode] = bodyDeclarations
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    _nestedTypes.asInstanceOf[Array[TypeDeclaration]]
-
-  private lazy val _nestedTypes: Array[FullDeclaration] = {
+  override def nestedTypes: ArraySeq[FullDeclaration] =
     bodyDeclarations.flatMap {
       case x: FullDeclaration => Some(x)
       case _ => None
-    }.toArray
-  }
+    }
 
-  override lazy val blocks: Array[BlockDeclaration] = _blocks.asInstanceOf[Array[BlockDeclaration]]
-  private lazy val _blocks: Array[ApexInitializerBlock] = {
+  override lazy val blocks: ArraySeq[ApexInitializerBlock] = {
     bodyDeclarations.flatMap {
       case x: ApexInitializerBlock => Some(x)
       case _ => None
-    }.toArray
+    }
   }
 
-  lazy val localFields: Array[ApexFieldLike] = {
+  lazy val localFields: ArraySeq[ApexFieldLike] = {
     bodyDeclarations.flatMap {
       case x: ApexFieldDeclaration => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
       case _ => None
-    }.toArray
+    }
   }
 
   override lazy val constructors: ArraySeq[ApexConstructorDeclaration] = {
@@ -97,13 +91,11 @@ abstract class FullDeclaration(val source: Source,
     }
   }
 
-  override lazy val localMethods: Array[MethodDeclaration] =
-    _localMethods.asInstanceOf[Array[MethodDeclaration]]
-  lazy val _localMethods: Array[ApexVisibleMethodLike] = {
+  lazy val localMethods: ArraySeq[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
       case m: ApexVisibleMethodLike => Some(m)
       case _ => None
-    }).toArray
+    })
   }
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
@@ -164,9 +156,9 @@ abstract class FullDeclaration(val source: Source,
 
     // Check for duplicate nested types
     val duplicateNestedType =
-      (this +: nestedTypes).toSeq.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
+      (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
     duplicateNestedType.foreach(td =>
-      OrgImpl.logError(td.asInstanceOf[apex.FullDeclaration].location, s"Duplicate type name '${td.name.toString}'"))
+      OrgImpl.logError(td.location, s"Duplicate type name '${td.name.toString}'"))
 
     // Check interfaces are visible
     interfaces.foreach(interface => {
@@ -181,13 +173,11 @@ abstract class FullDeclaration(val source: Source,
     // Detail check each body declaration
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
-    nestedTypes.filter(t => !t.nestedTypes.isEmpty)
-      .foreach( _.nestedTypes.foreach(i =>
-        i match {
-          case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
-          case _ =>
-        }
-    ))
+    nestedTypes.filter(t => t.nestedTypes.nonEmpty)
+      .foreach(_.nestedTypes.foreach {
+        case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
+        case _ =>
+      })
 
     // Log dependencies logged against this context
     setDepends(context.dependencies)
@@ -277,11 +267,11 @@ abstract class FullDeclaration(val source: Source,
       modifiers.map(_.toString).sorted,
       superClass,
       interfaces,
-      _blocks.map(_.summary),
+      blocks.map(_.summary),
       localFields.map(_.summary).sortBy(_.name),
       constructors.map(_.summary).sortBy(_.parameters.length),
-      _localMethods.map(_.summary).sortBy(_.name),
-      _nestedTypes.map(_.summary).sortBy(_.name),
+      localMethods.map(_.summary).sortBy(_.name),
+      nestedTypes.map(_.summary).sortBy(_.name),
       dependencySummary())
   }
 }
@@ -290,24 +280,30 @@ object FullDeclaration {
   def create(module: Module,
              doc: ClassDocument,
              data: SourceData,
-             extendedApex: Boolean,
              forceConstruct: Boolean): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
     val result = parser.parseClass()
     val issues = result.issues
     issues.foreach(OrgImpl.log)
-    if (issues.isEmpty || forceConstruct)
-      Some(CompilationUnit.construct(parser, module, doc.name, extendedApex, result.value).typeDeclaration)
-    else
+    if (issues.isEmpty || forceConstruct) {
+      try {
+        CompilationUnit.construct(parser, module, doc.name, result.value).map(_.typeDeclaration)
+      } catch {
+        case ex: Throwable =>
+          LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+          None
+      }
+    } else {
       None
+    }
   }
 
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, typeDecl: TypeDeclarationContext): FullDeclaration = {
+  def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
 
     val modifiers = ArraySeq.unsafeWrapArray(CodeParser.toScala(typeDecl.modifier()).toArray)
     val thisType = TypeName(name).withNamespace(module.namespace)
 
-    val cst = CodeParser
+    val cst: Option[FullDeclaration] = CodeParser
       .toScala(typeDecl.classDeclaration())
       .map(
         cd =>
@@ -315,7 +311,6 @@ object FullDeclaration {
             module,
             thisType,
             None,
-            extendedApex,
             ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
             cd))
       .orElse(
@@ -335,17 +330,13 @@ object FullDeclaration {
           .map(
             ed =>
               EnumDeclaration.construct(parser,
-                                        module,
-                                        thisType,
-                                        None,
-                                        ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
-                                        ed)))
+                module,
+                thisType,
+                None,
+                ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
+                ed)))
 
-    if (cst.isEmpty)
-      throw new CSTException()
-    else {
-      Monitor.push(cst.get)
-      cst.get.withContext(typeDecl)
-    }
+    cst.foreach(Monitor.push(_))
+    cst.map(_.withContext(typeDecl))
   }
 }

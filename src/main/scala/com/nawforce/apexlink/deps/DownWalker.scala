@@ -17,6 +17,7 @@ package com.nawforce.apexlink.deps
 import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration}
+import com.nawforce.apexlink.types.core.DependencyHolder
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 
@@ -77,6 +78,7 @@ class DownWalker(org: Org, apexOnly: Boolean) {
       .asInstanceOf[OrgImpl]
       .findTypeIdentifier(id)
       .filter(td => !apexOnly || td.isInstanceOf[ApexDeclaration])
+      .collect { case td: DependencyHolder => td }
       .map(td => {
         val pkg = td.moduleDeclaration.map(_.pkg)
         val typeId = pkg.map(pkg => TypeIdentifier(pkg.namespace, td.typeName))

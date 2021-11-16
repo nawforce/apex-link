@@ -18,7 +18,12 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.apexparser.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
+import com.nawforce.apexparser.ApexParser.{
+  SwitchStatementContext,
+  WhenControlContext,
+  WhenLiteralContext,
+  WhenValueContext
+}
 import com.nawforce.pkgforce.names.{EncodedName, TypeName}
 import com.nawforce.pkgforce.parsers.ENUM_NATURE
 import com.nawforce.runtime.parsers.CodeParser
@@ -37,26 +42,30 @@ final case class WhenIntegerLiteral(negate: Boolean, value: String) extends When
 }
 
 object WhenLiteral {
-  def construct(literal: WhenLiteralContext): WhenLiteral = {
+  def construct(literal: WhenLiteralContext): Option[WhenLiteral] = {
     val whenLiteral = CodeParser
       .toScala(literal.NULL())
       .map(_ => new WhenNullLiteral())
       .orElse(
         CodeParser
           .toScala(literal.IntegerLiteral())
-          .map(l =>
-            WhenIntegerLiteral(CodeParser.toScala(literal.SUB()).nonEmpty, CodeParser.getText(l))))
-      .orElse(CodeParser
-        .toScala(literal.StringLiteral())
-        .map(l => WhenStringLiteral(CodeParser.getText(l))))
-      .orElse(CodeParser
-        .toScala(literal.id())
-        .map(l => WhenIdLiteral(Id.construct(l))))
+          .map(
+            l =>
+              WhenIntegerLiteral(CodeParser.toScala(literal.SUB()).nonEmpty, CodeParser.getText(l))
+          )
+      )
+      .orElse(
+        CodeParser
+          .toScala(literal.StringLiteral())
+          .map(l => WhenStringLiteral(CodeParser.getText(l)))
+      )
+      .orElse(
+        CodeParser
+          .toScala(literal.id())
+          .map(l => WhenIdLiteral(Id.construct(l)))
+      )
 
-    if (whenLiteral.isEmpty)
-      throw new CSTException()
-    else
-      whenLiteral.get.withContext(literal)
+    whenLiteral.map(_.withContext(literal))
   }
 }
 
@@ -68,17 +77,19 @@ sealed abstract class WhenValue extends CST {
 }
 
 final class WhenElseValue extends WhenValue {
-  def checkMatchableTo(typeName: TypeName): Seq[String] = Seq()
-  def checkIsSObject(context: BlockVerifyContext): Seq[String] = Seq()
+  def checkMatchableTo(typeName: TypeName): Seq[String]             = Seq()
+  def checkIsSObject(context: BlockVerifyContext): Seq[String]      = Seq()
   def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = Seq()
 }
 
 final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue {
   override def checkMatchableTo(typeName: TypeName): Seq[String] = {
 
-    def processErrors(invalid: Seq[WhenLiteral],
-                      all: Seq[WhenLiteral],
-                      typeName: TypeName): Seq[String] = {
+    def processErrors(
+      invalid: Seq[WhenLiteral],
+      all: Seq[WhenLiteral],
+      typeName: TypeName
+    ): Seq[String] = {
       if (invalid.nonEmpty) {
         OrgImpl.logError(invalid.head.location, s"A $typeName literal is required for this value")
         Seq()
@@ -100,8 +111,10 @@ final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
   override def checkIsSObject(context: BlockVerifyContext): Seq[String] = {
     val nonNull = literals.filterNot(_.isInstanceOf[WhenNullLiteral])
     if (nonNull.nonEmpty)
-      OrgImpl.logError(nonNull.head.location,
-                       "An SObject name and variable name are required for this value")
+      OrgImpl.logError(
+        nonNull.head.location,
+        "An SObject name and variable name are required for this value"
+      )
     Seq()
   }
 
@@ -137,12 +150,16 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
   }
 
   override def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = {
-    OrgImpl.logError(ids.head.location, "Expecting an enum constant value")
+    ids.headOption.foreach(head => {
+      OrgImpl.logError(head.location, "Expecting an enum constant value")
+    })
     Seq()
   }
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.addVar(ids(1).name, ids.head, EncodedName(ids.head.name).asTypeName)
+    if (ids.size > 1) {
+      context.addVar(ids(1).name, ids.head, EncodedName(ids.head.name).asTypeName)
+    }
   }
 }
 
@@ -151,14 +168,15 @@ object WhenValue {
     if (CodeParser.toScala(value.ELSE()).nonEmpty)
       new WhenElseValue()
     else {
-      val literals = CodeParser.toScala(value.whenLiteral()).map(l => WhenLiteral.construct(l))
+      val literals = CodeParser.toScala(value.whenLiteral()).flatMap(l => WhenLiteral.construct(l))
       if (literals.nonEmpty)
         WhenLiteralsValue(literals)
       else
         WhenIdsValue(
           CodeParser
             .toScala(value.id())
-            .map(id => Id.construct(id).withContext(id)))
+            .map(id => Id.construct(id).withContext(id))
+        )
     }
   }
 }
@@ -174,8 +192,10 @@ final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
 
 object WhenControl {
   def construct(parser: CodeParser, whenControl: WhenControlContext): WhenControl = {
-    WhenControl(CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
-                Block.construct(parser, whenControl.block(), isTrigger = false))
+    WhenControl(
+      CodeParser.toScala(whenControl.whenValue()).map(v => WhenValue.construct(v)).get,
+      Block.construct(parser, whenControl.block(), isTrigger = false)
+    )
   }
 }
 
@@ -194,14 +214,16 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
         case _ =>
           OrgImpl.logError(
             expression.location,
-            s"Switch expression must be a Integer, Long, String, SObject record or enum value, not '${result.typeName}'")
+            s"Switch expression must be a Integer, Long, String, SObject record or enum value, not '${result.typeName}'"
+          )
           return;
       }
       checkWhenElseIsLast()
       checkForDoubleNull()
       val duplicates = values.groupBy(identity).collect { case (_, Seq(_, y, _*)) => y }
-      duplicates.headOption.foreach(dup =>
-        OrgImpl.logError(expression.location, s"Duplicate when case for $dup"))
+      duplicates.headOption.foreach(
+        dup => OrgImpl.logError(expression.location, s"Duplicate when case for $dup")
+      )
 
       whenControls.foreach(_.verify(context))
     }
@@ -235,18 +257,21 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
       }
     })
     if (literals.count(_.isInstanceOf[WhenNullLiteral]) > 1)
-      OrgImpl.logError(literals.last.location,
-                       "There should only be one 'when null' block in a switch")
+      OrgImpl.logError(
+        literals.last.location,
+        "There should only be one 'when null' block in a switch"
+      )
   }
 }
 
 object SwitchStatement {
   def construct(parser: CodeParser, switchStatement: SwitchStatementContext): SwitchStatement = {
-    SwitchStatement(Expression.construct(switchStatement.expression()),
-                    CodeParser
-                      .toScala(switchStatement.whenControl())
-                      .map(wc => WhenControl.construct(parser, wc).withContext(wc))
-                      .toList,
+    SwitchStatement(
+      Expression.construct(switchStatement.expression()),
+      CodeParser
+        .toScala(switchStatement.whenControl())
+        .map(wc => WhenControl.construct(parser, wc).withContext(wc))
+        .toList
     )
   }
 }

@@ -52,7 +52,6 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       val pages = consumePages(bufferedIterator)
       consumeFlows(bufferedIterator)
       consumeSObjects(bufferedIterator)
-      consumeExtendedClasses(bufferedIterator)
       consumeClasses(bufferedIterator)
       consumeTriggers(bufferedIterator)
       components.validate()
@@ -104,13 +103,6 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
     * to reading the source and parsing.  */
-  private def consumeExtendedClasses(events: BufferedIterator[PackageEvent]): Unit = {
-    val docs = bufferEvents[ExtendedApexEvent](events).map(e => ExtendedApexDocument(e.path))
-    parseAndValidateClasses(ArraySeq.unsafeWrapArray(docs), extendedApex = true)
-  }
-
-  /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
-    * to reading the source and parsing.  */
   private def consumeClasses(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[ApexEvent](events).map(e => ApexClassDocument(e.path))
 
@@ -123,11 +115,11 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     val missingClasses =
       docs.filterNot(doc => types.contains(TypeName(doc.name).withNamespace(module.namespace)))
     LoggerOps.debug(s"${missingClasses.length} of ${docs.length} classes not available from cache")
-    parseAndValidateClasses(ArraySeq.unsafeWrapArray(missingClasses), extendedApex = false)
+    parseAndValidateClasses(missingClasses)
   }
 
   /** Parse a collection of Apex classes, insert them and validate them. */
-  private def parseAndValidateClasses(docs: ArraySeq[ClassDocument], extendedApex: Boolean): Unit = {
+  private def parseAndValidateClasses(docs: ArraySeq[ClassDocument]): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
         .flatMap(doc =>
@@ -136,7 +128,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
             case Right(data) =>
               LoggerOps.debugTime(s"Parsed ${doc.path}") {
                 FullDeclaration
-                  .create(module, doc, data, extendedApex, forceConstruct = false)
+                  .create(module, doc, data, forceConstruct = false)
                   .map(td => {
                     types.put(td.typeName, td)
                     td
@@ -191,7 +183,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
   /** Load classes from the code cache as types returning TypeNames of those available. Benchmarking has shown
     * running this in parallel helps performance quite a bit with SSDs. */
-  private def loadClassesFromCache(classes: Array[ApexClassDocument]): Iterator[SummaryApex] = {
+  private def loadClassesFromCache(classes: ArraySeq[ApexClassDocument]): Iterator[SummaryApex] = {
     module.pkg.org.parsedCache
       .map(parsedCache => {
 

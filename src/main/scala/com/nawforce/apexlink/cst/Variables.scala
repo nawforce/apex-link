@@ -21,8 +21,6 @@ import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 
-import scala.collection.immutable.ArraySeq
-
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression])
     extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
@@ -67,7 +65,7 @@ object VariableDeclarator {
   }
 }
 
-final case class VariableDeclarators(declarators: List[VariableDeclarator]) extends CST {
+final case class VariableDeclarators(declarators: Seq[VariableDeclarator]) extends CST {
   def verify(input: ExprContext, context: BlockVerifyContext): Unit = {
     declarators.foreach(_.verify(input, context))
   }
@@ -80,11 +78,13 @@ final case class VariableDeclarators(declarators: List[VariableDeclarator]) exte
 object VariableDeclarators {
   def construct(typeName: TypeName,
                 variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
-    val variableDeclarators: Seq[VariableDeclaratorContext] =
-      CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
+    val variableDeclarators: Seq[VariableDeclaratorContext] = {
+      Option(variableDeclaratorsContext).map(variableDeclaratorsContext => {
+        CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
+      }).getOrElse(Seq())
+    }
     VariableDeclarators(
-      variableDeclarators.toList
-        .map(x => VariableDeclarator.construct(typeName, x)))
+      variableDeclarators.map(x => VariableDeclarator.construct(typeName, x)))
       .withContext(variableDeclaratorsContext)
   }
 }
@@ -125,9 +125,9 @@ object LocalVariableDeclaration {
     val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
       ApexModifiers.localVariableModifiers(parser,
-                                           ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray),
-                                           from,
-                                           isTrigger),
+        CodeParser.toScala(from.modifier()),
+        from,
+        isTrigger),
       typeName,
       VariableDeclarators.construct(typeName, from.variableDeclarators()))
       .withContext(from)

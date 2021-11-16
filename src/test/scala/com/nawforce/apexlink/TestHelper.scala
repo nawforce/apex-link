@@ -65,13 +65,13 @@ trait TestHelper {
     }
   }
 
-  def typeDeclarations(classes: Map[String, String]): Seq[TypeDeclaration] = {
+  def typeDeclarations(classes: Map[String, String]): Seq[ApexClassDeclaration] = {
     try {
       ServerOps.setAutoFlush(false)
       FileSystemHelper.run(classes) { root: PathLike =>
         createOrg(root)
         classes.keys
-          .map(cls => unmanagedType(TypeName(Name(cls.replace(".cls", "")))).get)
+          .map(cls => unmanagedClass(cls.replace(".cls", "")).get)
           .toSeq
       }
     } finally {
@@ -79,7 +79,7 @@ trait TestHelper {
     }
   }
 
-  def typeDeclaration(clsText: String): TypeDeclaration = {
+  def typeDeclaration(clsText: String): ApexClassDeclaration = {
     typeDeclarations(Map("Dummy.cls" -> clsText)).head
   }
 

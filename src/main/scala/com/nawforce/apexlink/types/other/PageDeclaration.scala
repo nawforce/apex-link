@@ -62,9 +62,9 @@ object Page {
 /** Page 'namespace' implementation. Provides access to pages in the package as well as pages that are accessible in
   * base packages via the `namespace__name` format.
   */
-final case class PageDeclaration(sources: Array[SourceInfo], override val module: Module, pages: Array[Page])
+final case class PageDeclaration(sources: ArraySeq[SourceInfo], override val module: Module, pages: ArraySeq[Page])
   extends BasicTypeDeclaration(pages.map(p => p.location.path).distinct, module, TypeNames.Page)
-    with DependentType {
+    with DependentType with Dependent {
 
   // Propagate dependencies to base packages
   module.baseModules.foreach(_.pages.addTypeDependencyHolder(typeId))
@@ -72,14 +72,14 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   override lazy val isComplete: Boolean = !module.pkg.hasGhosted
-  override val fields: Array[FieldDeclaration] = pages.asInstanceOf[Array[FieldDeclaration]]
+  override val fields: ArraySeq[FieldDeclaration] = pages
 
   /** Create new pages from merging those in the provided stream */
   def merge(stream: PackageStream): PageDeclaration = {
     merge(stream.pages)
   }
 
-  def merge(pageEvents: Array[PageEvent]): PageDeclaration = {
+  def merge(pageEvents: ArraySeq[PageEvent]): PageDeclaration = {
     val newPages = pages ++ pageEvents.flatMap(pe => Page(module, pe))
     val sourceInfo = pageEvents.map(_.sourceInfo).distinct
     new PageDeclaration(sourceInfo, module, newPages)
@@ -103,11 +103,11 @@ final case class PageDeclaration(sources: Array[SourceInfo], override val module
 
 object PageDeclaration {
   def apply(module: Module): PageDeclaration = {
-    new PageDeclaration(Array(), module, collectBasePages(module))
+    new PageDeclaration(ArraySeq(), module, collectBasePages(module))
   }
 
-  private def collectBasePages(module: Module): Array[Page] = {
-    module.basePackages
+  private def collectBasePages(module: Module): ArraySeq[Page] = {
+    ArraySeq.unsafeWrapArray(module.basePackages
       .flatMap(basePkg => {
         val nsPrefix = basePkg.namespace.get.toString() + "__"
         basePkg.orderedModules.headOption.map(m => {
@@ -120,7 +120,6 @@ object PageDeclaration {
           })
         })
       })
-      .flatten
-      .toArray
+      .flatten.toArray)
   }
 }

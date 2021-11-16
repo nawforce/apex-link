@@ -31,6 +31,7 @@ import com.nawforce.runtime.platform.Path
 import java.io.File
 import java.util
 import java.util.jar.JarFile
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.DynamicVariable
@@ -349,7 +350,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     }
 
     def targetsForInterfaces(pkg: Package,
-                             summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+                             summary: TypeSummary): ArraySeq[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
       summary.interfaces.flatMap { interface =>
         Option(pkg.getTypeIdentifier(interface))
           .flatMap { interfaceTypeId =>
@@ -437,13 +438,12 @@ object OrgImpl {
 
   /** Log an issue against the in-scope org */
   private[nawforce] def log(issue: Issue): Unit = {
-    OrgImpl.current.value.issues.add(issue)
+    if (issue.path != null)
+      OrgImpl.current.value.issues.add(issue)
   }
 
   /** Log a general error against the in-scope org */
-  // TODO: Remove this in favour of passing issues around
   private[nawforce] def logError(pathLocation: PathLocation, message: String): Unit = {
-    OrgImpl.current.value.issues
-      .add(new Issue(pathLocation.path, Diagnostic(ERROR_CATEGORY, pathLocation.location, message)))
+    log(new Issue(pathLocation.path, Diagnostic(ERROR_CATEGORY, pathLocation.location, message)))
   }
 }

@@ -21,55 +21,32 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
-import com.nawforce.pkgforce.diagnostics.Issue
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers._
-import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.CodeParser.TerminalNode
 import com.nawforce.runtime.parsers.{CodeParser, Source}
 
 import scala.collection.immutable.ArraySeq
 
-class CompilationUnit(val typeDeclaration: FullDeclaration, val extendedApex: Boolean) extends CST
+class CompilationUnit(val typeDeclaration: FullDeclaration) extends CST
 
 object CompilationUnit {
-  def construct(parser: CodeParser, module: Module, name: Name, extendedApex: Boolean, compilationUnit: CompilationUnitContext)
-  : CompilationUnit = {
+  def construct(parser: CodeParser, module: Module, name: Name, compilationUnit: CompilationUnitContext): Option[CompilationUnit] = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      new CompilationUnit(FullDeclaration.construct(parser, module, name, extendedApex, compilationUnit.typeDeclaration()),
-        extendedApex).withContext(compilationUnit)
+      FullDeclaration.construct(parser, module, name, compilationUnit.typeDeclaration())
+        .map(fd => new CompilationUnit(fd).withContext(compilationUnit))
     }
   }
 }
 
-final case class TypeArgumentProxy(_paths: Array[PathLike], _module: Module, _typeName: TypeName)
-  extends BasicTypeDeclaration(_paths, _module, _typeName) {
-  override lazy val isComplete: Boolean = false
-}
-
 final case class ClassDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
-                                  _outerTypeName: Option[TypeName], _id: Id, extendedApex: Boolean,
-                                  _modifiers: ModifierResults, typeArguments: Seq[Id], _extendsType: Option[TypeName],
-                                  _implementsTypes: Array[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
+                                  _outerTypeName: Option[TypeName], _id: Id, _modifiers: ModifierResults, _extendsType: Option[TypeName],
+                                  _implementsTypes: ArraySeq[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, _extendsType, _implementsTypes,
     _bodyDeclarations) with ApexNode {
 
   override val nature: Nature = CLASS_NATURE
-
-  override lazy val nestedTypes: Array[TypeDeclaration] = {
-    typeArguments
-      .groupBy(_.name)
-      .map(_._2.head)
-      .map(typeArg => TypeArgumentProxy(Array(source.path), module, TypeName(typeArg.name, Nil, Some(typeName)))).toArray ++ super.nestedTypes
-  }
-
-  override def unused(): ArraySeq[Issue] = {
-    if (extendedApex && typeArguments.nonEmpty)
-      ArraySeq()
-    else
-      super.unused()
-  }
 
   override def verify(context: TypeVerifyContext): Unit = {
     verifyCommon(context)
@@ -83,24 +60,6 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 
   private def verifyCommon(context: VerifyContext): Unit = {
     localIssues.foreach(context.log)
-
-    if (!extendedApex) {
-      if (typeArguments.nonEmpty)
-        context.logError(typeArguments.head.location, "Class type arguments can only by used by 'Extended' Apex classes")
-    } else {
-      if (typeArguments.nonEmpty && outerTypeName.nonEmpty)
-        context.logError(typeArguments.head.location, "Class type arguments can only by used by outer classes")
-    }
-
-    typeArguments
-      .groupBy(_.name)
-      .foreach {
-        case (_, single) if single.length == 1 => ()
-        case (_, duplicates) =>
-          duplicates.tail.foreach(dup => {
-            context.logError(dup.location, s"Duplicate type argument for '${duplicates.head.name.toString()}'")
-          })
-      }
 
     // This should likely be handled by method mapping, but constructors are not currently methods
     constructors.duplicates(_.formalParameters.map(_.typeName.toString()).mkString(","))
@@ -119,13 +78,13 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
 object ClassDeclaration {
   val staticModifier: ArraySeq[Modifier] = ArraySeq(STATIC_MODIFIER)
 
-  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, extendedApex: Boolean, modifiers: ModifierResults,
+  def constructInner(parser: CodeParser, module: Module, outerType: TypeName, modifiers: ModifierResults,
                      classDeclaration: ClassDeclarationContext): ClassDeclaration = {
     val thisType = TypeName(Names(CodeParser.getText(classDeclaration.id())), Nil, Some(outerType))
-    construct(parser, module, thisType, Some(outerType), extendedApex, modifiers, classDeclaration)
+    construct(parser, module, thisType, Some(outerType), modifiers, classDeclaration)
   }
 
-  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName], extendedApex: Boolean,
+  def construct(parser: CodeParser, module: Module, thisType: TypeName, outerTypeName: Option[TypeName],
                 modifiers: ModifierResults, classDeclaration: ClassDeclarationContext): ClassDeclaration = {
 
     val extendType =
@@ -135,30 +94,27 @@ object ClassDeclaration {
     val implementsType =
       CodeParser.toScala(classDeclaration.typeList())
         .map(tl => TypeList.construct(tl))
-        .getOrElse(TypeName.emptyTypeName)
-    val typeArguments : Seq[Id] =
-      CodeParser.toScala(classDeclaration.typeParameters())
-        .map(args => ArraySeq.unsafeWrapArray(CodeParser.toScala(args.id()).toArray).map(Id.construct))
-        .getOrElse(Seq.empty)
+        .getOrElse(TypeNames.emptyTypeNames)
 
-    val classBody = classDeclaration.classBody()
-    val classBodyDeclarations = CodeParser.toScala(classBody.classBodyDeclaration())
+    val classBodyDeclarations = CodeParser.toScala(classDeclaration.classBody())
+      .map(cb => CodeParser.toScala(cb.classBodyDeclaration()))
+      .getOrElse(ArraySeq())
     val typeContext = new RelativeTypeContext
 
-    val bodyDeclarations = ArraySeq.unsafeWrapArray(
+    val bodyDeclarations =
       classBodyDeclarations.flatMap(cbd =>
         CodeParser.toScala(cbd.block())
-          .map(x => Seq(ApexInitializerBlock.construct(parser,
+          .map(x => ArraySeq(ApexInitializerBlock.construct(parser,
             ModifierResults(getModifiers(CodeParser.toScala(cbd.STATIC())), ArraySeq()), x)))
           .orElse(CodeParser.toScala(cbd.memberDeclaration())
             .map(x => ClassBodyDeclaration.construct(parser, typeContext, module, modifiers.methodOwnerNature,
-              outerTypeName.isEmpty, thisType, extendedApex, ArraySeq.unsafeWrapArray(CodeParser.toScala(cbd.modifier()).toArray), x))
+              outerTypeName.isEmpty, thisType, CodeParser.toScala(cbd.modifier()), x))
           )
-      ).flatten.toArray)
+      ).flatten
 
     val td = ClassDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
-      Id.construct(classDeclaration.id()), extendedApex, modifiers, typeArguments,
-      Some(extendType), implementsType, bodyDeclarations).withContext(classDeclaration)
+      Id.construct(classDeclaration.id()), modifiers, Some(extendType), implementsType, bodyDeclarations
+    ).withContext(classDeclaration)
     typeContext.freeze(td)
     td
   }
@@ -171,7 +127,7 @@ object ClassDeclaration {
 
 final case class InterfaceDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                       _outerTypeName: Option[TypeName], _id: Id, _modifiers: ModifierResults,
-                                      _implementsTypes: Array[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
+                                      _implementsTypes: ArraySeq[TypeName], _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
   extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, _implementsTypes,
     _bodyDeclarations) {
 
@@ -196,18 +152,24 @@ object InterfaceDeclaration {
     val implementsType =
       CodeParser.toScala(interfaceDeclaration.typeList())
         .map(x => TypeList.construct(x))
-        .getOrElse(Array(TypeNames.InternalInterface))
+        .getOrElse(ArraySeq(TypeNames.InternalInterface))
 
     val typeContext = new RelativeTypeContext()
 
-    val methods
-    = ArraySeq.unsafeWrapArray(CodeParser.toScala(interfaceDeclaration.interfaceBody().interfaceMethodDeclaration()).map(m =>
-      ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
-        MethodModifiers.interfaceMethodModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(m.modifier()).toArray), m.id(), outerTypeName.isEmpty), m)
-    ).toArray)
+    val methods =
+      CodeParser.toScala(interfaceDeclaration.interfaceBody())
+        .map(interfaceBody => CodeParser.toScala(interfaceBody.interfaceMethodDeclaration()))
+        .map(methods => {
+          methods.map(method => {
+            ApexMethodDeclaration.construct(parser, typeContext, module, TypeId(module, thisType),
+              MethodModifiers.interfaceMethodModifiers(parser,
+                CodeParser.toScala(method.modifier()), method.id(), outerTypeName.isEmpty),
+              method)
+          })
+        }).getOrElse(ArraySeq[ApexMethodDeclaration]())
 
-    val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName, Id.construct(interfaceDeclaration.id()), modifiers,
-      implementsType, methods).withContext(interfaceDeclaration)
+    val td = InterfaceDeclaration(parser.source, module, typeContext, thisType, outerTypeName,
+      Id.construct(interfaceDeclaration.id()), modifiers, implementsType, methods).withContext(interfaceDeclaration)
     typeContext.freeze(td)
     td
   }
@@ -216,7 +178,7 @@ object InterfaceDeclaration {
 final case class EnumDeclaration(_source: Source, _module: Module, _typeContext: RelativeTypeContext, _typeName: TypeName,
                                  _outerTypeName: Option[TypeName], _id: Id,
                                  _modifiers: ModifierResults, _bodyDeclarations: ArraySeq[ClassBodyDeclaration])
-  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, TypeName.emptyTypeName,
+  extends FullDeclaration(_source, _module, _typeContext, _typeName, _outerTypeName, _id, _modifiers, None, ArraySeq(),
     _bodyDeclarations) {
 
   override val nature: Nature = ENUM_NATURE
@@ -225,14 +187,14 @@ final case class EnumDeclaration(_source: Source, _module: Module, _typeContext:
     super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 
-  override lazy val _localMethods: Array[ApexVisibleMethodLike] =
-    Array(
-      CustomMethodDeclaration(id.location.location, Name("name"), TypeNames.String, Array()),
-      CustomMethodDeclaration(id.location.location, Name("ordinal"), TypeNames.Integer, Array()),
-      CustomMethodDeclaration(id.location.location, Name("values"), TypeNames.listOf(typeName), Array(), asStatic = true),
-      CustomMethodDeclaration(id.location.location, Name("equals"), TypeNames.Boolean, Array(
+  override lazy val localMethods: ArraySeq[ApexVisibleMethodLike] =
+    ArraySeq(
+      CustomMethodDeclaration(id.location.location, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(id.location.location, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
+      CustomMethodDeclaration(id.location.location, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
+      CustomMethodDeclaration(id.location.location, Name("equals"), TypeNames.Boolean, ArraySeq(
         CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(id.location.location, Name("hashCode"), TypeNames.Integer, Array())
+      CustomMethodDeclaration(id.location.location, Name("hashCode"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters)
     )
 }
 
@@ -250,8 +212,8 @@ object EnumDeclaration {
     // FUTURE: Add standard enum methods
     val id = Id.construct(enumDeclaration.id())
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
-      .map(ec => CodeParser.toScala(ec.id())).getOrElse(Seq())
-    val fields = ArraySeq.unsafeWrapArray(constants.map(constant => {
+      .map(ec => CodeParser.toScala(ec.id())).getOrElse(ArraySeq())
+    val fields = constants.map(constant => {
       ApexFieldDeclaration(TypeId(module, thisType), ModifierResults(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER), ArraySeq()), thisType,
         VariableDeclarator(
           thisType,
@@ -259,7 +221,7 @@ object EnumDeclaration {
           None
         ).withContext(constant)
       ).withContext(constant)
-    }).toArray)
+    })
 
     EnumDeclaration(parser.source, module, new RelativeTypeContext() ,thisType, outerTypeName, id, typeModifiers, fields).withContext(enumDeclaration)
   }

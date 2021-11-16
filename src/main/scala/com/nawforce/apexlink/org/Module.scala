@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.{ClassDeclaration, UnusedLog}
+import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
@@ -32,13 +32,15 @@ import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder with GenericTypeFactory {
+class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
 
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
   val namespace: Option[Name] = pkg.namespace
+
   def namespaces: Set[Name] = pkg.namespaces
 
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
@@ -218,15 +220,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         return declaration
     }
 
-    // Or extended Apex generic, we only need to support this when from is available
-    from.foreach(from => {
-      declaration = typeName.decodedExtendedGeneric().flatMap(genericTypeName =>
-        findPackageType(genericTypeName, Some(from)).flatMap {
-          case cd: ClassDeclaration if cd.extendedApex && cd.outerTypeName.isEmpty => getOrCreateExtendedGeneric(typeName, from, cd)
-          case _ => None
-        }
-      )
-    })
     if (declaration.nonEmpty) {
       upsertMetadata(declaration.get)
       return declaration
@@ -331,16 +324,14 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def createLabelDeclaration(): LabelDeclaration ={
     val events = LabelGenerator.iterator(index)
-    val stream = new PackageStream(events.toArray)
+    val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
     LabelDeclaration(this).merge(stream)
   }
 
   private def createTypes(doc: MetadataDocument, source: Option[SourceData]): Seq[DependentType] = {
     doc match {
-      case doc: ExtendedApexDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = true, forceConstruct = false)).toSeq
       case doc: ApexClassDocument =>
-        source.flatMap(s => FullDeclaration.create(this, doc, s, extendedApex = false, forceConstruct = false)).toSeq
+        source.flatMap(s => FullDeclaration.create(this, doc, s, forceConstruct = true)).toSeq
       case _: ApexTriggerDocument =>
         source.flatMap(s => TriggerDeclaration.create(this, doc.path, s)).toSeq
       case doc: SObjectLike =>
@@ -358,15 +349,15 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
         Seq(createLabelDeclaration())
       case _: PageDocument =>
         val events = PageGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(PageDeclaration(this).merge(stream))
       case _: ComponentDocument =>
         val events = ComponentGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(ComponentDeclaration(this).merge(stream))
       case _: FlowDocument =>
         val events = FlowGenerator.iterator(index)
-        val stream = new PackageStream(events.toArray)
+        val stream = new PackageStream(ArraySeq.unsafeWrapArray(events.toArray))
         Seq(InterviewDeclaration(this).merge(stream))
     }
   }

@@ -84,7 +84,7 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
   private def createStatements(context: BlockContext,
                                parser: CodeParser,
                                isTrigger: Boolean): WeakReference[Seq[Statement]] = {
-    val statementContexts = ArraySeq.unsafeWrapArray(CodeParser.toScala(context.statement()).toArray)
+    val statementContexts = CodeParser.toScala(context.statement())
     val statements = Some(Statement.construct(parser, statementContexts, isTrigger))
     new WeakReference(statements.get)
   }
@@ -100,7 +100,7 @@ object Block {
   }
 
   def construct(parser: CodeParser, blockContext: BlockContext, isTrigger: Boolean): Block = {
-    EagerBlock(Statement.construct(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(blockContext.statement()).toArray), isTrigger))
+    EagerBlock(Statement.construct(parser, CodeParser.toScala(blockContext.statement()), isTrigger))
   }
 
   def constructOption(parser: CodeParser, blockContext: Option[BlockContext]): Option[Block] = {
@@ -149,22 +149,24 @@ object IfStatement {
   }
 }
 
-final case class ForStatement(control: ForControl, statement: Option[Statement]) extends Statement {
+final case class ForStatement(control: Option[ForControl], statement: Option[Statement]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
-    context.withInnerBlockVerifyContext() { forContext =>
-      control.verify(forContext)
-      forContext.withInnerBlockVerifyContext() { loopContext =>
-        control.addVars(loopContext)
-        statement.foreach(_.verify(loopContext))
+    control.foreach(control => {
+      context.withInnerBlockVerifyContext() { forContext =>
+        control.verify(forContext)
+        forContext.withInnerBlockVerifyContext() { loopContext =>
+          control.addVars(loopContext)
+          statement.foreach(_.verify(loopContext))
+        }
       }
-    }
+    })
   }
 }
 
 object ForStatement {
   def construct(parser: CodeParser, statement: ForStatementContext): ForStatement = {
-    ForStatement(ForControl.construct(parser, statement.forControl()),
-                 Statement.construct(parser, statement.statement(), isTrigger = false))
+    ForStatement(CodeParser.toScala(statement.forControl()).map(fc => ForControl.construct(parser, fc)),
+      CodeParser.toScala(statement.statement()).flatMap(stmt => Statement.construct(parser, stmt, isTrigger = false)))
   }
 }
 
@@ -251,7 +253,7 @@ final case class LocalVariableForInit(variable: LocalVariableDeclaration) extend
   }
 }
 
-final case class ExpressionListForInit(expressions: Array[Expression]) extends ForInit {
+final case class ExpressionListForInit(expressions: ArraySeq[Expression]) extends ForInit {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -265,15 +267,14 @@ object ForInit {
       .toScala(from.localVariableDeclaration())
       .map(lvd => LocalVariableForInit(LocalVariableDeclaration.construct(parser, lvd, isTrigger = false)))
       .getOrElse({
-        val expressions =
-          CodeParser.toScala(CodeParser.toScala(from.expressionList()).get.expression()).toArray
+        val expressions = CodeParser.toScala(CodeParser.toScala(from.expressionList()).get.expression())
         ExpressionListForInit(Expression.construct(expressions))
       })
       .withContext(from)
   }
 }
 
-final case class ForUpdate(expressions: Array[Expression]) extends CST {
+final case class ForUpdate(expressions: ArraySeq[Expression]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
   }
@@ -281,7 +282,7 @@ final case class ForUpdate(expressions: Array[Expression]) extends CST {
 
 object ForUpdate {
   def construct(from: ForUpdateContext): ForUpdate = {
-    val expressions = CodeParser.toScala(from.expressionList().expression()).toArray
+    val expressions = CodeParser.toScala(from.expressionList().expression())
     ForUpdate(Expression.construct(expressions)).withContext(from)
   }
 }
@@ -300,9 +301,9 @@ object WhileStatement {
   }
 }
 
-final case class DoWhileStatement(statement: Option[Statement], expression: Expression) extends Statement {
+final case class DoWhileStatement(statement: Option[Statement], expression: Option[Expression]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
-    expression.verify(context)
+    expression.foreach(_.verify(context))
     statement.foreach(_.verify(context))
   }
 }
@@ -310,7 +311,8 @@ final case class DoWhileStatement(statement: Option[Statement], expression: Expr
 object DoWhileStatement {
   def construct(parser: CodeParser, statement: DoWhileStatementContext): DoWhileStatement = {
     DoWhileStatement(Statement.construct(parser, statement.statement(), isTrigger = false),
-                     Expression.construct(statement.parExpression().expression()))
+      Option(statement.parExpression())
+        .map(parExpression => Expression.construct(parExpression.expression())))
   }
 }
 
@@ -324,7 +326,7 @@ final case class TryStatement(block: Block, catches: Seq[CatchClause], finallyBl
 
 object TryStatement {
   def construct(parser: CodeParser, from: TryStatementContext): TryStatement = {
-    val catches = ArraySeq.unsafeWrapArray(CodeParser.toScala(from.catchClause()).toArray)
+    val catches = CodeParser.toScala(from.catchClause())
     val finallyBlock =
       CodeParser
         .toScala(from.finallyBlock())
@@ -335,7 +337,7 @@ object TryStatement {
   }
 }
 
-final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, id: String, block: Block) extends CST {
+final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, id: String, block: Option[Block]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     modifiers.issues.foreach(context.log)
     context.withInnerBlockVerifyContext() { blockContext =>
@@ -344,25 +346,30 @@ final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, i
         case Left(_) => context.missingType(qname.location, exceptionTypeName)
         case Right(exceptionType) =>
           blockContext.addVar(Name(id), None, exceptionType)
-          block.verify(blockContext)
+          block.map(_.verify(blockContext))
       }
     }
   }
 }
 
 object CatchClause {
-  def construct(parser: CodeParser, aList: Seq[CatchClauseContext]): Seq[CatchClause] = {
-    if (aList != null)
-      aList.map(x => CatchClause.construct(parser, x))
+  def construct(parser: CodeParser, clauses: Seq[CatchClauseContext]): Seq[CatchClause] = {
+    if (clauses != null)
+      clauses.flatMap(x => CatchClause.construct(parser, x))
     else
-      List()
+      Seq()
   }
 
-  def construct(parser: CodeParser, from: CatchClauseContext): CatchClause = {
-    CatchClause(ApexModifiers.catchModifiers(parser, ArraySeq.unsafeWrapArray(CodeParser.toScala(from.modifier()).toArray), from),
-      QualifiedName.construct(from.qualifiedName()),
-      CodeParser.getText(from.id()),
-      Block.construct(parser, from.block(), isTrigger = false)).withContext(from)
+  def construct(parser: CodeParser, from: CatchClauseContext): Option[CatchClause] = {
+    QualifiedName.construct(from.qualifiedName())
+      .map(qualifiedName => {
+        CatchClause(ApexModifiers.catchModifiers(parser, CodeParser.toScala(from.modifier()), from),
+          qualifiedName,
+          CodeParser.getText(from.id()),
+          CodeParser.toScala(from.block())
+            .map(block => Block.construct(parser, block, isTrigger = false))
+        ).withContext(from)
+      })
   }
 }
 
@@ -469,13 +476,12 @@ final case class UpsertStatement(expression: Expression, field: Option[Qualified
 }
 
 object UpsertStatement {
-  def construct(statement: UpsertStatementContext): UpsertStatement = {
+  def construct(statement: UpsertStatementContext): Option[UpsertStatement] = {
     val expression = Expression.construct(statement.expression())
-    val qualifiedName =
-      CodeParser
-        .toScala(statement.qualifiedName())
-        .map(qn => QualifiedName.construct(qn))
-    UpsertStatement(expression, qualifiedName)
+    CodeParser
+      .toScala(statement.qualifiedName())
+      .map(qualifiedName => QualifiedName.construct(qualifiedName))
+      .map(qualifiedName => UpsertStatement(expression, qualifiedName))
   }
 }
 
@@ -493,7 +499,7 @@ object MergeStatement {
   }
 }
 
-final case class RunAsStatement(expressions: Array[Expression], block: Option[Block]) extends Statement {
+final case class RunAsStatement(expressions: ArraySeq[Expression], block: Option[Block]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     expressions.foreach(_.verify(context))
     block.foreach(_.verify(context))
@@ -502,10 +508,10 @@ final case class RunAsStatement(expressions: Array[Expression], block: Option[Bl
 
 object RunAsStatement {
   def construct(parser: CodeParser, statement: RunAsStatementContext): RunAsStatement = {
-    val expressions =
+    val expressions: ArraySeq[Expression] =
       CodeParser
         .toScala(statement.expressionList())
-        .map(el => Expression.construct(CodeParser.toScala(el.expression()).toArray))
+        .map(el => Expression.construct(CodeParser.toScala(el.expression())))
         .getOrElse(Expression.emptyExpressions)
     val block =
       CodeParser
@@ -584,7 +590,7 @@ object Statement {
         .map(x => UndeleteStatement.construct(x)))
       .orElse(CodeParser
         .toScala(statement.upsertStatement())
-        .map(x => UpsertStatement.construct(x)))
+        .flatMap(x => UpsertStatement.construct(x)))
       .orElse(CodeParser
         .toScala(statement.mergeStatement())
         .map(x => MergeStatement.construct(x)))

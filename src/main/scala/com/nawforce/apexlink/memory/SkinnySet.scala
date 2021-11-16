@@ -16,19 +16,18 @@ package com.nawforce.apexlink.memory
 
 import scala.collection.mutable
 
-/** Low memory set.
-  *
-  * Uses a an array for small size before using a set.
-  */
-class SkinnySet[T <: AnyRef] {
-  private var arrayOf = new mutable.ArrayBuffer[T](4)
-  private var setOf: mutable.Set[T] = _
+/** Low memory set. Uses an array for small sizes before swapping to a set. */
+final class SkinnySet[T <: AnyRef] {
+  private var arrayOf: mutable.ArrayBuffer[T] = _
+  private var setOf: mutable.Set[T]           = _
 
   def isEmpty: Boolean = {
     if (setOf != null)
       setOf.isEmpty
-    else
+    else if (arrayOf != null)
       arrayOf.isEmpty
+    else
+      true
   }
 
   def nonEmpty: Boolean = !isEmpty
@@ -36,15 +35,22 @@ class SkinnySet[T <: AnyRef] {
   def size: Int = {
     if (setOf != null)
       setOf.size
-    else
+    else if (arrayOf != null)
       arrayOf.size
+    else
+      0
   }
 
   def add(t: T): Unit = {
     if (setOf != null)
       setOf.add(t)
-    else
+    else {
+      if (arrayOf == null)
+        arrayOf = new mutable.ArrayBuffer[T](4)
       arrayOf.append(t)
+      if (arrayOf.size > 64)
+        arrayOf = arrayOf.distinct
+    }
 
     if (arrayOf != null && arrayOf.length > 64) {
       setOf = new mutable.HashSet[T]()
@@ -56,14 +62,20 @@ class SkinnySet[T <: AnyRef] {
   def toSet: Set[T] = {
     if (setOf != null)
       setOf.toSet
-    else
+    else if (arrayOf != null)
       arrayOf.toSet
+    else
+      Set.empty
   }
 
   def toIterable: mutable.Iterable[T] = {
-    if (setOf != null)
+    if (setOf != null) {
       setOf
-    else
-      arrayOf.distinct
+    } else if (arrayOf != null) {
+      arrayOf = arrayOf.distinct
+      arrayOf
+    } else {
+      mutable.Iterable()
+    }
   }
 }

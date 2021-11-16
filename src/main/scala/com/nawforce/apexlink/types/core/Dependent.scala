@@ -14,49 +14,45 @@
 
 package com.nawforce.apexlink.types.core
 
-import com.nawforce.apexlink.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
+import com.nawforce.apexlink.api.{
+  DependentSummary,
+  FieldDependentSummary,
+  MethodDependentSummary,
+  TypeDependentSummary
+}
 import com.nawforce.apexlink.memory.SkinnyWeakSet
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.{PlatformObjectNature, SObjectDeclaration}
+import com.nawforce.pkgforce.memory.IdentityEquality
 
 /* Dependents are referencable elements in code such as types, fields, constructors, methods & labels.
  *
- * A dependent has a set of 'holders' of that dependency for reverse lookup although the set may be stale. They use
- * identity equality to help with collections performance.
+ * A dependent has a set of 'holders' of the dependent for reverse lookup although the set may may contain references
+ * to dead holders that have yet to be GC'd. They use identity equality to help with collections performance.
  */
-trait Dependent {
-  // The set of holders on this dependency element, may be stale!
+trait Dependent extends IdentityEquality {
+  // The set of holders of this dependent
   private var dependencyHolders: SkinnyWeakSet[DependencyHolder] = _
 
   // Has any holders
-  def hasHolders: Boolean = Option(dependencyHolders).exists(_.nonEmpty)
+  def hasHolders: Boolean =
+    Option(dependencyHolders).exists(_.nonEmpty)
 
   // The set of current holders
   def getDependencyHolders: Set[DependencyHolder] =
-    Option(dependencyHolders).map(_.toSet).getOrElse(Set().empty)
+    Option(dependencyHolders).map(_.toSet).getOrElse(DependencyHolder.emptySet)
 
   // Add a new holder
   def addDependencyHolder(dependencyHolder: DependencyHolder): Unit = {
-    if (dependencyHolders == null) dependencyHolders = new SkinnyWeakSet[DependencyHolder]()
+    if (dependencyHolders == null)
+      dependencyHolders = new SkinnyWeakSet[DependencyHolder]()
     dependencyHolders.add(dependencyHolder)
   }
-
-  // Identity equality
-  override def equals(that: Any): Boolean = {
-    that match {
-      case other: Dependent => other.eq(this)
-      case _                => false
-    }
-  }
-
-  // Identity hash, may not be unique
-  override def hashCode(): Int = System.identityHashCode(this)
 }
 
-/* Holder of a dependency, for convenience all holders are assumed to be potential dependents.
- */
-trait DependencyHolder extends Dependent {
+/** Holder of a dependencies. */
+trait DependencyHolder {
 
   // Get Dependents being held, default to empty for holders who do not use this, override as needed
   // TODO: Narrow where we introduce this so default not needed
@@ -76,7 +72,13 @@ trait DependencyHolder extends Dependent {
         case fd: ApexFieldLike =>
           Some(FieldDependentSummary(fd.outerTypeId.asTypeIdentifier, fd.name.value))
         case md: ApexMethodLike =>
-          Some(MethodDependentSummary(md.outerTypeId.asTypeIdentifier, md.name.value, md.parameters.map(_.typeName)))
+          Some(
+            MethodDependentSummary(
+              md.outerTypeId.asTypeIdentifier,
+              md.name.value,
+              md.parameters.map(_.typeName)
+            )
+          )
         // Don't need these yet
         case _: ApexConstructorLike => None
         case _: ApexBlockLike       => None
@@ -111,4 +113,8 @@ trait DependencyHolder extends Dependent {
       .toSet
       .toArray
   }
+}
+
+object DependencyHolder {
+  final val emptySet: Set[DependencyHolder] = Set.empty
 }

@@ -20,6 +20,7 @@ import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTy
 import com.nawforce.apexlink.types.schema.{PlatformObjectNature, SObjectDeclaration}
 import com.nawforce.pkgforce.names.TypeName
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /** Various forms of TypeDeclaration searches. There are broadly three types of searches used, a local typename can
@@ -98,13 +99,13 @@ object TypeResolver {
         result match {
           case Right(base) if base.isSObject && base.isInstanceOf[PlatformTypeDeclaration] =>
             val td = new SObjectDeclaration(Array(),
-                                            m,
-                                            base.typeName,
-                                            PlatformObjectNature,
-                                            Array(),
-                                            Array(),
-                                            base.fields,
-                                            _isComplete = true)
+              m,
+              base.typeName,
+              PlatformObjectNature,
+              ArraySeq(),
+              ArraySeq(),
+              base.fields,
+              _isComplete = true)
             m.upsertMetadata(td)
             Right(td)
           case x => x

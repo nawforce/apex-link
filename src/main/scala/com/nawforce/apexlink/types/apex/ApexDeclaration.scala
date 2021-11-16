@@ -62,6 +62,10 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   // Populated by type MethodMap construction
   private var shadows: List[MethodDeclaration] = Nil
 
+  def resetShadows(): Unit = {
+    shadows = Nil
+  }
+
   def addShadow(method: MethodDeclaration): Unit = {
     if (method ne this) {
       shadows = method :: shadows
@@ -124,7 +128,7 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
 }
 
 /** Apex defined types core features, be they full or summary style */
-trait ApexDeclaration extends TypeDeclaration with DependentType with IdLocatable {
+trait ApexDeclaration extends DependentType with IdLocatable {
   val sourceHash: Int
   val module: Module
 
@@ -138,9 +142,11 @@ trait ApexFullDeclaration extends ApexDeclaration
 trait ApexTriggerDeclaration extends ApexDeclaration
 
 /** Apex defined classes, interfaces, enum of either full or summary type */
-trait ApexClassDeclaration extends ApexDeclaration {
-  val localFields: Array[ApexFieldLike]
-  val localMethods: Array[MethodDeclaration]
+trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
+  val localFields: ArraySeq[ApexFieldLike]
+  val localMethods: ArraySeq[MethodDeclaration]
+
+  override def nestedTypes: ArraySeq[ApexClassDeclaration]
 
   def isTest: Boolean = modifiers.intersect(ApexClassDeclaration.testModifiers).nonEmpty
 
@@ -153,23 +159,32 @@ trait ApexClassDeclaration extends ApexDeclaration {
   override def superClassDeclaration: Option[TypeDeclaration] =
     superClass.flatMap(sc => TypeResolver(sc, this).toOption)
 
-  override def interfaceDeclarations: Array[TypeDeclaration] =
+  override def interfaceDeclarations: ArraySeq[TypeDeclaration] =
     interfaces.flatMap(i => TypeResolver(i, this).toOption)
 
   /** Obtain a source hash for this class and all it's ancestors */
   def deepHash: Int = {
-    MurmurHash3.arrayHash(
-      Array(this.sourceHash) ++
-        superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash).toArray ++
-        interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash))
+    deepHash(mutable.Set())
+  }
+
+  private def deepHash(accum: mutable.Set[ApexClassDeclaration]): Int = {
+    if (accum.contains(this)) {
+      0
+    } else {
+      accum.add(this)
+      MurmurHash3.arrayHash(
+        Array(this.sourceHash) ++
+          superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)).toArray ++
+          interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)))
+    }
   }
 
   override lazy val isComplete: Boolean = {
     (superClassDeclaration.nonEmpty && superClassDeclaration.get.isComplete) || superClass.isEmpty
   }
 
-  override lazy val fields: Array[FieldDeclaration] = {
-    localFields
+  override lazy val fields: ArraySeq[FieldDeclaration] = {
+    ArraySeq.unsafeWrapArray(localFields
       .groupBy(f => f.name)
       .collect {
         case (_, single) if single.length == 1 => single.head
@@ -181,10 +196,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
           }
           duplicates.head
       }
-      .toArray
+      .toArray)
   }
 
-  lazy val staticMethods: Array[MethodDeclaration] = {
+  lazy val staticMethods: ArraySeq[MethodDeclaration] = {
     localMethods.filter(_.isStatic) ++
       (superClassDeclaration match {
         case Some(td: ApexClassDeclaration) =>
@@ -194,10 +209,10 @@ trait ApexClassDeclaration extends ApexDeclaration {
       })
   }
 
-  lazy val outerStaticMethods: Array[MethodDeclaration] = {
+  lazy val outerStaticMethods: ArraySeq[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeResolver(ot, this).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
-      case _                              => MethodDeclaration.emptyMethodDeclarations
+      case _ => MethodDeclaration.emptyMethodDeclarations
     }
   }
 
@@ -223,7 +238,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
       case Some(td: TypeDeclaration) =>
         MethodMap(this,
           errorLocation,
-          MethodMap(td, None, MethodMap.empty(), td.methods, Array(), TypeDeclaration.emptyTypeDeclarations),
+          MethodMap(td, None, MethodMap.empty(), td.methods, ArraySeq(), TypeDeclaration.emptyTypeDeclarations),
           localMethods, outerStaticMethods,
           interfaceDeclarations)
       case _ =>
@@ -234,12 +249,12 @@ trait ApexClassDeclaration extends ApexDeclaration {
     methods
   }
 
-  override def methods: Array[MethodDeclaration] = {
+  override def methods: ArraySeq[MethodDeclaration] = {
     methodMap.allMethods
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
@@ -283,7 +298,7 @@ trait ApexClassDeclaration extends ApexDeclaration {
     if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
       ArraySeq(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
     } else {
-      ArraySeq.unsafeWrapArray(unused)
+      unused
     }
   }
 

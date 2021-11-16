@@ -20,24 +20,28 @@ import com.nawforce.apexparser.ApexParser.{TypeArgumentsContext, TypeListContext
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
 
+import scala.collection.immutable.ArraySeq
+
 object TypeReference {
-  def construct(aList: List[TypeRefContext]): List[TypeName] = {
-    aList.map(x => TypeReference.construct(x))
+  def construct(typeRefs: List[TypeRefContext]): List[TypeName] = {
+    typeRefs.map(x => TypeReference.construct(x))
   }
 
   def construct(typeRef: TypeRefContext): TypeName = {
-    val arraySubs = CodeParser.getText(typeRef.arraySubscripts()).count(_ == '[')
-    val names = CodeParser.toScala(typeRef.typeName())
+    CodeParser.toScala(typeRef).map(typeRef => {
+      val arraySubs = CodeParser.getText(typeRef.arraySubscripts()).count(_ == '[')
+      val names = CodeParser.toScala(typeRef.typeName())
 
-    // Only decode head as rest can't legally be in EncodedName format
-    createTypeName(decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
+      // Only decode head as rest can't legally be in EncodedName format
+      createTypeName(decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
+    }).getOrElse(TypeNames.Void)
   }
 
   private def getName(name: TypeNameContext): Name = {
     if (CodeParser.toScala(name.LIST()).nonEmpty) Names.ListName
     else if (CodeParser.toScala(name.SET()).nonEmpty) Names.SetName
     else if (CodeParser.toScala(name.MAP()).nonEmpty) Names.MapName
-    else Names(CodeParser.getText(name.id))
+    else Option(name.id).map(id => Names(CodeParser.getText(id))).getOrElse(Names.Empty)
   }
 
   private def decodeName(name: TypeNameContext): TypeName = {
@@ -71,8 +75,8 @@ object TypeReference {
 }
 
 object TypeList {
-  def construct(typeList: TypeListContext): Array[TypeName] = {
-    val types = CodeParser.toScala(typeList.typeRef()).toArray
+  def construct(typeList: TypeListContext): ArraySeq[TypeName] = {
+    val types = CodeParser.toScala(typeList.typeRef())
     types.map(t => TypeReference.construct(t))
   }
 }

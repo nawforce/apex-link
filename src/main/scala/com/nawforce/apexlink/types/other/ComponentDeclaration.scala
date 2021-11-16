@@ -25,6 +25,7 @@ import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.{PathLike, PathLocation, UnsafeLocatable}
 import com.nawforce.pkgforce.stream.{ComponentEvent, PackageStream}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
@@ -32,20 +33,23 @@ import scala.util.hashing.MurmurHash3
 final case class Component(module: Module,
                            location: PathLocation,
                            componentName: Name,
-                           attributes: Option[Array[Name]],
+                           attributes: Option[ArraySeq[Name]],
                            vfContainer: Option[VFContainer])
-    extends InnerBasicTypeDeclaration(Option(location).map(_.path).toArray,
-                                      module,
-                                      TypeName(componentName, Nil, Some(TypeName(Names.Component))))
-    with UnsafeLocatable {
+    extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
+      module,
+      TypeName(componentName, Nil, Some(TypeName(Names.Component))))
+      with UnsafeLocatable
+      with Dependent
+      with DependencyHolder {
 
   private var depends: Option[Set[Dependent]] = None
 
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
-  override val fields: Array[FieldDeclaration] = attributes
-    .getOrElse(Array())
-    .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
+  override val fields: ArraySeq[FieldDeclaration] = {
+    attributes.getOrElse(ArraySeq())
+      .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
+  }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     if (attributes.isEmpty)
@@ -76,17 +80,19 @@ object Component {
 }
 
 /** Component namespace handler */
-final case class ComponentDeclaration(sources: Array[SourceInfo],
+final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
                                       module: Module,
                                       components: Seq[TypeDeclaration],
                                       nestedComponents: Seq[NestedComponents])
-    extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
+  extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
     with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
-  override def nestedTypes: Array[TypeDeclaration] =
-    (components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)).toArray
+  override def nestedTypes: ArraySeq[TypeDeclaration] = {
+    val nested = components ++ nestedComponents ++ namespaceDeclaration.toSeq ++ Seq(cDeclaration)
+    ArraySeq.unsafeWrapArray(nested.toArray)
+  }
 
   // This is the optional Component.namespace implementation
   private var namespaceDeclaration = module.namespace.map(ns => new NamespaceDeclaration(ns))
@@ -106,21 +112,23 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
                                              apexOnly: Boolean,
                                              typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
-    components.foreach(component => component.dependencies().foreach(dependents.add))
+    components
+      .collect { case component: DependencyHolder => component }
+      .foreach(component => component.dependencies().foreach(dependents.add))
     DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
     if (!apexOnly)
       nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
 
   class NamespaceDeclaration(name: Name,
-                             nestedComponents: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
+                             nestedComponents: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
       extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
-    override def nestedTypes: Array[TypeDeclaration] = nestedComponents
+    override def nestedTypes: ArraySeq[TypeDeclaration] = nestedComponents
 
-    def merge(events: Array[ComponentEvent]): NamespaceDeclaration = {
+    def merge(events: ArraySeq[ComponentEvent]): NamespaceDeclaration = {
       new NamespaceDeclaration(name,
-                               nestedComponents ++
-                                 events.map(ce => Component(module, ce)))
+        nestedComponents ++
+          events.map(ce => Component(module, ce)))
     }
   }
 
@@ -129,7 +137,7 @@ final case class ComponentDeclaration(sources: Array[SourceInfo],
     merge(stream.components)
   }
 
-  def merge(events: Array[ComponentEvent]): ComponentDeclaration = {
+  def merge(events: ArraySeq[ComponentEvent]): ComponentDeclaration = {
     val components = ComponentDeclaration.standardTypes ++
       events.map(ce => Component(module, ce))
     val sourceInfo = events.map(_.sourceInfo).distinct
@@ -165,7 +173,7 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
     componentDeclaration.addTypeDependencyHolder(typeId)
   }
 
-  override def nestedTypes: Array[TypeDeclaration] = componentDeclaration.nestedTypes
+  override def nestedTypes: ArraySeq[TypeDeclaration] = componentDeclaration.nestedTypes
 }
 
 final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)
@@ -187,7 +195,7 @@ object ComponentDeclaration {
   val standardTypes = Seq(PlatformTypes.apexComponent, PlatformTypes.chatterComponent)
 
   def apply(module: Module): ComponentDeclaration = {
-    new ComponentDeclaration(Array(), module, standardTypes, collectBaseComponents(module))
+    new ComponentDeclaration(ArraySeq(), module, standardTypes, collectBaseComponents(module))
   }
 
   private def collectBaseComponents(module: Module): Seq[NestedComponents] = {

@@ -45,6 +45,7 @@ object LabelField {
 final case class Label(outerTypeId: TypeId, override val location: PathLocation, name: Name, isProtected: Boolean)
     extends LabelField
     with Locatable
+    with Dependent
 
 final case class GhostLabel(name: Name) extends LabelField {
   override def location: PathLocation = null
@@ -53,27 +54,26 @@ final case class GhostLabel(name: Name) extends LabelField {
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
   * base packages via the Label.namespace.name format. */
 final class LabelDeclaration(override val module: Module,
-                             val sources: Array[SourceInfo],
-                             val labels: Array[Label],
-                             val nestedLabels: Array[NestedLabels])
+                             val sources: ArraySeq[SourceInfo],
+                             val labels: ArraySeq[Label],
+                             val nestedLabels: ArraySeq[NestedLabels])
     extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
-    with DependentType {
+    with DependentType with Dependent {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
   // Propagate dependencies to nested
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
-  override val nestedTypes: Array[TypeDeclaration] =
-    nestedLabels.asInstanceOf[Array[TypeDeclaration]]
-  override val fields: Array[FieldDeclaration] = labels.asInstanceOf[Array[FieldDeclaration]]
+  override val nestedTypes: ArraySeq[TypeDeclaration] = nestedLabels
+  override val fields: ArraySeq[FieldDeclaration] = labels
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     merge(stream.labelsFiles, stream.labels)
   }
 
-  def merge(labelFileEvents: Array[LabelFileEvent], labelEvents: Array[LabelEvent]): LabelDeclaration = {
+  def merge(labelFileEvents: ArraySeq[LabelFileEvent], labelEvents: ArraySeq[LabelEvent]): LabelDeclaration = {
     val outerTypeId = TypeId(module, typeName)
     val newLabels = labels ++ labelEvents.map(le => Label(outerTypeId, le.location, le.name, le.isProtected))
     val sourceInfo = (sources ++ labelFileEvents.map(_.sourceInfo)).distinct
@@ -89,13 +89,13 @@ final class LabelDeclaration(override val module: Module,
   }
 
   /** Report on unused labels */
-  def unused(): Array[Issue] = {
+  def unused(): ArraySeq[Issue] = {
     labels
       .filterNot(_.hasHolders)
       .map(
         label =>
           new Issue(label.location.path,
-                    Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
+            Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
   }
 }
 
@@ -161,12 +161,12 @@ object LabelDeclaration {
         base.addTypeDependencyHolder(newLabel.typeId)
         newLabel
       })
-      .getOrElse(new LabelDeclaration(module, Array(), Array(), createPackageLabels(module)))
+      .getOrElse(new LabelDeclaration(module, ArraySeq(), ArraySeq(), createPackageLabels(module)))
   }
 
   // Create labels declarations for each base package
-  private def createPackageLabels(module: Module): Array[NestedLabels] = {
-    module.basePackages
+  private def createPackageLabels(module: Module): ArraySeq[NestedLabels] = {
+    ArraySeq.unsafeWrapArray(module.basePackages
       .map(basePkg => {
         if (basePkg.orderedModules.isEmpty) {
           new GhostedLabels(module, basePkg.namespace.get)
@@ -174,6 +174,6 @@ object LabelDeclaration {
           new PackageLabels(module, basePkg.orderedModules.head.labels)
         }
       })
-      .toArray
+      .toArray)
   }
 }

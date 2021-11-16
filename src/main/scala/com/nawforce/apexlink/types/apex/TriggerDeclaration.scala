@@ -51,11 +51,12 @@ final case class TriggerDeclaration(source: Source,
                                     block: Option[Block])
     extends CST
     with ApexTriggerDeclaration
-    with ApexFullDeclaration {
+    with ApexFullDeclaration
+    with DependencyHolder {
 
   override val idLocation: Location = nameId.location.location
   override lazy val sourceHash: Int = source.hash
-  override def paths: Array[PathLike] = Array(location.path)
+  override def paths: ArraySeq[PathLike] = ArraySeq(location.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
   override val name: Name = typeName.name
@@ -65,13 +66,13 @@ final case class TriggerDeclaration(source: Source,
   override val isComplete: Boolean = true
 
   override val superClass: Option[TypeName] = None
-  override val interfaces: Array[TypeName] = TypeName.emptyTypeName
-  override val nestedTypes: Array[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+  override val nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
-  override val blocks: Array[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
-  override val fields: Array[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
+  override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
+  override val fields: ArraySeq[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
   override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
-  override val methods: Array[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
+  override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
   private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
@@ -109,7 +110,7 @@ final case class TriggerDeclaration(source: Source,
       }
 
       depends = Some(context.dependencies)
-      context.propagateDependencies()
+      propagateDependencies()
       propagateOuterDependencies(new TypeCache())
     }
   }
@@ -134,20 +135,20 @@ final case class TriggerDeclaration(source: Source,
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
-                location.location,
-                nameId.location.location,
-                name.toString,
-                typeName,
-                nature.value,
-                modifiers.map(_.toString).sorted,
-                superClass,
-                interfaces,
-                Array(),
-                Array(),
-                ArraySeq(),
-                Array(),
-                Array(),
-                dependencySummary())
+      location.location,
+      nameId.location.location,
+      name.toString,
+      typeName,
+      nature.value,
+      modifiers.map(_.toString).sorted,
+      superClass,
+      interfaces,
+      ArraySeq(),
+      ArraySeq(),
+      ArraySeq(),
+      ArraySeq(),
+      ArraySeq(),
+      dependencySummary())
   }
 }
 
@@ -221,7 +222,7 @@ final case class TriggerContext(module: Module, baseType: TypeDeclaration)
   }
 
   override def findMethod(name: Name,
-                          params: Array[TypeName],
+                          params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     baseType.findMethod(name, params, staticContext, verifyContext)
