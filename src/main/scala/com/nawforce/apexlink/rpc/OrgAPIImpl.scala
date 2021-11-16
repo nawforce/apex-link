@@ -274,6 +274,22 @@ object GetCompletionItems {
   }
 }
 
+case class GetAllTestMethods(promise: Promise[Array[TestMethod]])
+  extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    promise.success(orgImpl.getAllTestMethods())
+  }
+}
+
+object GetAllTestMethods {
+  def apply(queue: OrgQueue): Future[Array[TestMethod]] = {
+    val promise = Promise[Array[TestMethod]]()
+    queue.add(new GetAllTestMethods(promise))
+    promise.future
+  }
+}
+
 object OrgQueue {
   private var _instance: Option[OrgQueue] = None
 
@@ -361,5 +377,9 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
                              offset: Int,
                              content: String): Future[Array[CompletionItemLink]] = {
     GetCompletionItems(OrgQueue.instance(), path, line, offset, content)
+  }
+
+  override def getAllTestMethods(): Future[Array[TestMethod]] = {
+    GetAllTestMethods(OrgQueue.instance())
   }
 }
