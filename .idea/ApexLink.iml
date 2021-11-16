@@ -14,10 +14,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/common/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/common-test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/Java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/samples" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

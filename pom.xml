@@ -89,12 +89,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.vmware.antlr4-c3</groupId>
-      <artifactId>antlr4-c3</artifactId>
-      <version>1.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.nawforce</groupId>
       <artifactId>scala-json-rpc_2.13</artifactId>
       <version>1.0.1</version>
@@ -152,6 +146,27 @@
     <testSourceDirectory>src/test/scala</testSourceDirectory>
 
     <plugins>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.3</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/main/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

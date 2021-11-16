@@ -197,8 +197,22 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         assert(
           org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 0, "").map(_.label).isEmpty)
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 0, "").map(_.label)
+            sameElements Array("abstract", "static", "class", "testmethod", "transient", "enum", "final", "virtual",
+            "global", "webservice", "inherited", "with", "without", "interface", "override", "private", "protected", "public"))
     }
   }
+
+  test("Declaration Class Completions") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 9, "class Foo")
+              .map(_.label) sameElements Array("implements", "extends"))
+    }
+  }
+
 
 }

@@ -18,11 +18,14 @@ import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.core._
+import com.nawforce.apexparser.{ApexLexer, ApexParser}
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.PathLike
 import com.vmware.antlr4c3.CodeCompletionCore
+import org.antlr.v4.runtime.{Token, TokenStream}
 
+import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -32,17 +35,38 @@ trait CompletionProvider {
   def getCompletionItems(path: PathLike, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
     val parserAndCU = loadClass(path, content)
     parserAndCU._1.map(parserAndCU => {
+      val tokenIndex = findTokenIndex(parserAndCU._1, line, offset)
       val core = new CodeCompletionCore(parserAndCU._1, new java.util.HashSet[Integer](), new java.util.HashSet[Integer]())
-      val candidates = core.collectCandidates(0, parserAndCU._2)
+      val candidates = core.collectCandidates(tokenIndex, parserAndCU._2)
       candidates.tokens.asScala
+        .filterNot(kv => CompletionProvider.ignoredTokens.contains(kv._1))
         .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
         .map(keyword => stripQuotes(keyword))
         .map(keyword => CompletionItemLink(keyword, "Method")).toArray
     }).getOrElse(Array())
   }
 
+  private def findTokenIndex(parser: ApexParser, line: Int, offset: Int): Int = {
+    val tokenStream = parser.getInputStream
+    tokenStream.seek(0)
+    var i = 0;
+    var token = tokenStream.get(i)
+    while (token.getType != -1 && !tokenContains(token, line, offset)) {
+      i += 1
+      token = tokenStream.get(i)
+    }
+    i
+  }
+
+  private def tokenContains(token: Token, line: Int, offset: Int): Boolean = {
+    // TODO: Check character encoding behaviour
+    token.getLine == line &&
+      token.getCharPositionInLine <= offset &&
+      token.getCharPositionInLine + token.getText.length > offset
+  }
+
   private def stripQuotes(keyword: String) : String = {
-    if (keyword.length > 3)
+    if (keyword.length > 2)
       keyword.substring(1, keyword.length-1)
     else
       keyword
@@ -172,4 +196,8 @@ trait CompletionProvider {
       .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
       .map(loc => (resultMap(loc)._2, searchTerm.residualExpr))
   }
+}
+
+object CompletionProvider {
+  val ignoredTokens: Set[Integer] = Set[Integer](ApexLexer.ATSIGN, ApexLexer.LBRACE)
 }
