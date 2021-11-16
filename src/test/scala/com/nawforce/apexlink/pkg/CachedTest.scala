@@ -464,7 +464,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
   test("Component dependency is cached") {
     FileSystemHelper.run(
       Map("Test.component" -> "<apex:component/>",
-          "Dummy.cls" -> "public class Dummy { {Component c = new Component.Test();} }")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {Component.Test c = new Component.Test();} }")) { root: PathLike =>
       val org1 = createOrg(root)
       assert(!org1.issues.hasErrorsOrWarnings)
       org1.flush()
@@ -485,7 +485,8 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       assertIsFullDeclaration(pkg3, "Dummy")
       assert(
         org3.getIssues(new IssueOptions()) ==
-          "/Dummy.cls\nMissing: line 1 at 40-54: No type declaration found for 'Component.Test'\n")
+          "/Dummy.cls\nMissing: line 1 at 37-61: No type declaration found for 'Component.Test'\n" +
+          "Missing: line 1 at 45-59: No type declaration found for 'Component.Test'\n")
     }
   }
 
@@ -499,7 +500,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Test.component" -> "<apex:component/>",
-        "pkg2/Dummy.cls" -> "public class Dummy { {Component c = new Component.pkg1.Test();} }")) { root: PathLike =>
+        "pkg2/Dummy.cls" -> "public class Dummy { {Component.pkg1.Test c = new Component.pkg1.Test();} }")) { root: PathLike =>
       val org1 = createOrg(root)
       assert(!org1.issues.hasErrorsOrWarnings)
       org1.flush()
@@ -525,7 +526,8 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       assertIsFullDeclaration(pkg32, "Dummy", Some(Name("pkg2")))
       assert(
         org3.getIssues(new IssueOptions()) ==
-          "/pkg2/Dummy.cls\nMissing: line 1 at 40-59: No type declaration found for 'Component.pkg1.Test'\n")
+          "/pkg2/Dummy.cls\nMissing: line 1 at 42-71: No type declaration found for 'Component.pkg1.Test'\n"+
+            "Missing: line 1 at 50-69: No type declaration found for 'Component.pkg1.Test'\n" )
     }
   }
 

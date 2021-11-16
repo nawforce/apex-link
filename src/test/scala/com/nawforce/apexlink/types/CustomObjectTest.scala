@@ -324,7 +324,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Field describable") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Bar__c;} }")) {
+          "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = SObjectType.Foo__c.Fields.Bar__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -335,7 +335,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Field describable via Object") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Fields.Bar__c;} }")) {
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.SObjectType.Fields.Bar__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -346,7 +346,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Field describable via Object (without Fields)") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {DescribeFieldResult a = Foo__c.SObjectType.Bar__c;} }")) {
+          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.SObjectType.Bar__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -370,7 +370,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("FieldSet describable") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(), Set("TestFS")),
-          "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }")) {
+          "Dummy.cls" -> "public class Dummy { {FieldSet a = SObjectType.Foo__c.FieldSets.TestFS;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -406,7 +406,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq()),
           "Foo__c/fieldSets/TestFS.fieldSet-meta.xml" -> customFieldSet("TestFS"),
-          "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.TestFS;} }")) {
+          "Dummy.cls" -> "public class Dummy { {FieldSet a = SObjectType.Foo__c.FieldSets.TestFS;} }")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(!org.issues.hasErrorsOrWarnings)
@@ -427,7 +427,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Share visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Share.RowCause;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__Share.ParentId;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
@@ -439,7 +439,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("History visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__History.Field;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__History.Field;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
@@ -451,7 +451,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
   test("Feed visible") {
     FileSystemHelper.run(
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-        "Dummy.cls" -> "public class Dummy { {SObjectType a = Foo__Feed.BestCommentId;} }")) { root: PathLike =>
+        "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__Feed.BestCommentId;} }")) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
       assert(
