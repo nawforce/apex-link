@@ -231,7 +231,14 @@ object MetadataDocument {
   def extensionsGlob: String = s"{${extensions.mkString(",")}}"
 
   def apply(path: PathLike): Option[MetadataDocument] = {
-    val parts = path.basename.split('.')
+    var parts = path.basename.split('.')
+
+    // If we have over split, likely due to '.' in name, try to recombine
+    while (parts.length>3 || (parts.length == 3 && parts(2)!= "xml")) {
+      parts = Array(s"${parts.head}.${parts(1)}") ++ parts.takeRight(parts.length-2)
+    }
+
+
     if (parts.length == 2) {
       val name = Name(parts.head)
       parts(1) match {

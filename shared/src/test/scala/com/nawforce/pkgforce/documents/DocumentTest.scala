@@ -25,7 +25,7 @@ class DocumentTest extends AnyFunSuite {
   test("cls file") {
     MetadataDocument(root.join("Foo.cls")) match {
       case Some(ApexClassDocument(path, Name("Foo"))) if path == root.join("Foo.cls") => ()
-      case x => assert(false, x)
+      case x                                                                          => assert(false, x)
     }
   }
 
@@ -87,8 +87,7 @@ class DocumentTest extends AnyFunSuite {
 
   test("big object file") {
     MetadataDocument(root.join("Foo__b.object")) match {
-      case Some(BigObjectDocument(path, Name("Foo__b")))
-        if path == root.join("Foo__b.object") =>
+      case Some(BigObjectDocument(path, Name("Foo__b"))) if path == root.join("Foo__b.object") =>
         ()
       case x => assert(false, x)
     }
@@ -97,7 +96,7 @@ class DocumentTest extends AnyFunSuite {
   test("big object file (sfdx)") {
     MetadataDocument(root.join("Foo__b.object-meta.xml")) match {
       case Some(BigObjectDocument(path, Name("Foo__b")))
-        if path == root.join("Foo__b.object-meta.xml") =>
+          if path == root.join("Foo__b.object-meta.xml") =>
         ()
       case x => assert(false, x)
     }
@@ -159,4 +158,14 @@ class DocumentTest extends AnyFunSuite {
       case x                                                                      => assert(false, x)
     }
   }
+
+  test("extra dots") {
+    MetadataDocument(root.join("gantt_v13.1.labels-meta.xml")) match {
+      case Some(LabelsDocument(path, Name("gantt_v13.1")))
+          if path == root.join("gantt_v13.1.labels-meta.xml") =>
+        ()
+      case x => assert(false, x)
+    }
+  }
+
 }
