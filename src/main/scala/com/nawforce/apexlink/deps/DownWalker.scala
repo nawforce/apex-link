@@ -43,16 +43,16 @@ class DownWalker(org: Org, apexOnly: Boolean) {
   /* Collect information on dependencies of the passed identifiers. The walk depth can be limited but the result will
    * always include the root node(s) information as the first 'n' elements of the returned Array.
    */
-  def walk(identifiers: Array[TypeIdentifier], depth: Int): Array[NodeData] = {
+  def walk(identifiers: Array[TypeIdentifier], depth: Int, ignoring:Array[TypeIdentifier]): Array[NodeData] = {
     val collectedNodes = new ArrayBuffer[NodeData]()
     val collectedIds = new mutable.HashSet[TypeIdentifier]()
 
-    val roots = identifiers.flatMap(createNode)
+    val roots = identifiers.flatMap(i => createNode(i,ignoring))
     collectedNodes.addAll(roots)
     collectedIds.addAll(identifiers)
 
     roots.foreach(root => {
-      walkNode(root, collectedNodes, collectedIds, depth)
+      walkNode(root, collectedNodes, collectedIds, depth, ignoring)
     })
     collectedNodes.toArray
   }
@@ -60,20 +60,21 @@ class DownWalker(org: Org, apexOnly: Boolean) {
   private def walkNode(node: NodeData,
                        collector: ArrayBuffer[NodeData],
                        collected: mutable.Set[TypeIdentifier],
-                       depth: Int): Unit = {
+                       depth: Int,
+                       ignoring:Array[TypeIdentifier]): Unit = {
     if (depth == 0) return
     (node.extending ++ node.implementing ++ node.using).foreach(id => {
       if (!collected.contains(id)) {
         collected.add(id)
-        createNode(id).foreach(node => {
+        createNode(id, ignoring).foreach(node => {
           collector.append(node)
-          walkNode(node, collector, collected, depth - 1)
+          walkNode(node, collector, collected, depth - 1, ignoring)
         })
       }
     })
   }
 
-  private def createNode(id: TypeIdentifier): Option[NodeData] = {
+  private def createNode(id: TypeIdentifier, ignoring:Array[TypeIdentifier]): Option[NodeData] = {
     org
       .asInstanceOf[OrgImpl]
       .findTypeIdentifier(id)
@@ -103,7 +104,7 @@ class DownWalker(org: Org, apexOnly: Boolean) {
             .getOrElse(Array[TypeIdentifier]())
         val uses = all.filterNot(output.contains).filterNot(id => typeId.contains(id))
 
-        NodeData(id, td.nature.value, transitiveCollector.count(id), extending.toArray, implementing.toArray, uses)
+        NodeData(id, td.nature.value, transitiveCollector.count(id, ignoring), extending.toArray, implementing.toArray, uses)
       })
   }
 }
