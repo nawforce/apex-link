@@ -81,7 +81,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   }
 
   protected def getInterfaces: ArraySeq[TypeName] =
-    ArraySeq.unsafeWrapArray(cls.getInterfaces.map(i => PlatformTypeDeclaration.typeNameFromClass(i, cls)))
+    ArraySeq.unsafeWrapArray(cls.getGenericInterfaces.map(i => PlatformTypeDeclaration.typeNameFromType(i, cls)))
 
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)

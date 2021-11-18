@@ -19,7 +19,7 @@ import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
-import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE, TRIGGER_NATURE}
+import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.PathLike
 
 import scala.collection.mutable
@@ -31,7 +31,7 @@ trait CompletionProvider {
     content.extractDotTermExclusive(() => new IdentifierAndMethodLimiter, line, offset).map(searchTerm => {
       val terminatedContent = injectStatementTerminator(line, offset, content)
       loadClass(path, terminatedContent._1)
-        .map(typeDef => completionsFromValidation(searchTerm, typeDef, line, terminatedContent._2))
+        .map(typeDef => completionsFromValidation(searchTerm, typeDef._2, line, terminatedContent._2))
         .getOrElse(Array.empty)
     }).getOrElse(Array.empty)
   }
