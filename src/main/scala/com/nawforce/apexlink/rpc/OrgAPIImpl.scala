@@ -126,17 +126,18 @@ object TypeIdentifiers {
 case class DependencyGraphRequest(promise: Promise[DependencyGraph],
                                   identifiers: Array[TypeIdentifier],
                                   depth: Int,
-                                  apexOnly: Boolean)
+                                  apexOnly: Boolean,
+                                  ignoring: Array[TypeIdentifier])
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-    promise.success(queue.org.getDependencyGraph(identifiers, depth, apexOnly))
+    promise.success(queue.org.getDependencyGraph(identifiers, depth, apexOnly, ignoring))
   }
 }
 
 object DependencyGraphRequest {
-  def apply(queue: OrgQueue, identifiers: Array[TypeIdentifier], depth: Int, apexOnly: Boolean): Future[DependencyGraph] = {
+  def apply(queue: OrgQueue, identifiers: Array[TypeIdentifier], depth: Int, apexOnly: Boolean,  ignoring: Array[TypeIdentifier]): Future[DependencyGraph] = {
     val promise = Promise[DependencyGraph]()
-    queue.add(new DependencyGraphRequest(promise, identifiers, depth, apexOnly))
+    queue.add(new DependencyGraphRequest(promise, identifiers, depth, apexOnly, ignoring))
     promise.future
   }
 }
@@ -325,8 +326,9 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
 
   override def dependencyGraph(identifiers: IdentifiersRequest,
                                depth: Int,
-                               apexOnly: Boolean): Future[DependencyGraph] = {
-    DependencyGraphRequest(OrgQueue.instance(), identifiers.identifiers, depth, apexOnly)
+                               apexOnly: Boolean,
+                               ignoring: IdentifiersRequest): Future[DependencyGraph] = {
+    DependencyGraphRequest(OrgQueue.instance(), identifiers.identifiers, depth, apexOnly, ignoring.identifiers)
   }
 
   override def identifierLocation(request: IdentifierRequest): Future[IdentifierLocationResult] = {

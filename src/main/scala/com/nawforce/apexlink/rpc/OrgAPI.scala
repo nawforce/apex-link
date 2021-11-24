@@ -159,7 +159,7 @@ trait OrgAPI {
   def typeIdentifiers(apexOnly: Boolean): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
-  def dependencyGraph(identifiers: IdentifiersRequest, depth: Int, apexOnly: Boolean): Future[DependencyGraph]
+  def dependencyGraph(identifiers: IdentifiersRequest, depth: Int, apexOnly: Boolean, ignoring: IdentifiersRequest): Future[DependencyGraph]
 
   @api.JSONRPCMethod(name = "identifierLocation")
   def identifierLocation(identifier: IdentifierRequest): Future[IdentifierLocationResult]
