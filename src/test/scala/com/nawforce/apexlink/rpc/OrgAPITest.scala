@@ -198,16 +198,9 @@ class OrgAPITest extends AsyncFunSuite {
             0,
             Array(),
             Array(),
-            Array(TypeIdentifier(None, TypeName(Name("World"))))),
-          DependencyNode(TypeIdentifier(None, TypeName(Name("World"))),
-            71,
-            "class",
-            0,
-            Array(),
-            Array(),
-            Array()),
+            Array())
         ))
-      assert(graph.linkData sameElements Array(DependencyLink(0, 1, "uses")))
+      assert(graph.linkData.isEmpty)
     }
   }
 
