@@ -47,7 +47,7 @@ class DownWalker(org: Org, apexOnly: Boolean) {
     val collectedNodes = new ArrayBuffer[NodeData]()
     val collectedIds = new mutable.HashSet[TypeIdentifier]()
 
-    val roots = identifiers.flatMap(i => createNode(i,ignoring))
+    val roots = identifiers.filterNot(i=>ignoring.contains(i)).flatMap(i => createNode(i,ignoring))
     collectedNodes.addAll(roots)
     collectedIds.addAll(identifiers)
 
@@ -63,7 +63,7 @@ class DownWalker(org: Org, apexOnly: Boolean) {
                        depth: Int,
                        ignoring:Array[TypeIdentifier]): Unit = {
     if (depth == 0) return
-    (node.extending ++ node.implementing ++ node.using).foreach(id => {
+    (node.extending ++ node.implementing ++ node.using).filterNot(n=>ignoring.contains(n)).foreach(id => {
       if (!collected.contains(id)) {
         collected.add(id)
         createNode(id, ignoring).foreach(node => {
