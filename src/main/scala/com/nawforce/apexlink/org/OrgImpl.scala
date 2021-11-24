@@ -22,6 +22,7 @@ import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
@@ -233,15 +234,14 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       })
   }
 
-  def getDependencyGraph(identifiers: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean): DependencyGraph = {
+  def getDependencyGraph(identifiers: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean, ignoring: Array[TypeIdentifier]): DependencyGraph = {
     OrgImpl.current.withValue(this) {
       val depWalker = new DownWalker(this, apexOnly)
       val nodeData = depWalker
-        .walk(identifiers, depth)
+        .walk(identifiers, depth, ignoring)
         .map(n => {
           DependencyNode(n.id, nodeFileSize(n.id), n.nature, n.transitiveCount, n.extending, n.implementing, n.using)
         })
-
       val nodeIndex = nodeData.map(_.identifier).zipWithIndex.toMap
 
       val linkData = new ArrayBuffer[DependencyLink]()
@@ -418,6 +418,14 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
             case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))
           }
       }
+  }
+
+  def getAllTestMethods(): Array[TestMethod] = {
+    val allClasses = packages.flatMap(_.orderedModules.flatMap(_.testClasses.toSeq))
+
+    allClasses.flatMap(c => c.methods
+      .filter(m => m.modifiers.contains(ISTEST_ANNOTATION) || m.modifiers.contains(TEST_METHOD_MODIFIER) )
+      .map(m => TestMethod(c.name.toString(), m.name.toString()))).toSet.toArray
   }
 }
 

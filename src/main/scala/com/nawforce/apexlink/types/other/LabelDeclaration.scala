@@ -16,11 +16,17 @@ package com.nawforce.apexlink.types.other
 
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.XNames.NameUtils
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{
+  GLOBAL_MODIFIER,
+  Modifier,
+  PRIVATE_MODIFIER,
+  STATIC_MODIFIER
+}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{Locatable, PathLike, PathLocation}
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
@@ -31,10 +37,10 @@ import scala.util.hashing.MurmurHash3
 
 abstract class LabelField extends FieldDeclaration {
   override lazy val modifiers: ArraySeq[Modifier] = LabelField.modifiers
-  override lazy val typeName: TypeName = TypeNames.String
-  override lazy val readAccess: Modifier = GLOBAL_MODIFIER
-  override lazy val writeAccess: Modifier = PRIVATE_MODIFIER
-  override val idTarget: Option[TypeName] = None
+  override lazy val typeName: TypeName            = TypeNames.String
+  override lazy val readAccess: Modifier          = GLOBAL_MODIFIER
+  override lazy val writeAccess: Modifier         = PRIVATE_MODIFIER
+  override val idTarget: Option[TypeName]         = None
 }
 
 object LabelField {
@@ -42,8 +48,12 @@ object LabelField {
 }
 
 /** A individual Label being represented as a static field. */
-final case class Label(outerTypeId: TypeId, override val location: PathLocation, name: Name, isProtected: Boolean)
-    extends LabelField
+final case class Label(
+  outerTypeId: TypeId,
+  override val location: PathLocation,
+  name: Name,
+  isProtected: Boolean
+) extends LabelField
     with Locatable
     with Dependent
 
@@ -52,13 +62,16 @@ final case class GhostLabel(name: Name) extends LabelField {
 }
 
 /** System.Label implementation. Provides access to labels in the package as well as labels that are accessible in
-  * base packages via the Label.namespace.name format. */
-final class LabelDeclaration(override val module: Module,
-                             val sources: ArraySeq[SourceInfo],
-                             val labels: ArraySeq[Label],
-                             val nestedLabels: ArraySeq[NestedLabels])
-    extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
-    with DependentType with Dependent {
+  * base packages via the Label.namespace.name format.
+  */
+final class LabelDeclaration(
+  override val module: Module,
+  val sources: ArraySeq[SourceInfo],
+  val labels: ArraySeq[Label],
+  val nestedLabels: ArraySeq[NestedLabels]
+) extends BasicTypeDeclaration(sources.map(s => s.location.path), module, TypeNames.Label)
+    with DependentType
+    with Dependent {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
 
@@ -66,23 +79,39 @@ final class LabelDeclaration(override val module: Module,
   nestedLabels.foreach(_.addTypeDependencyHolder(typeId))
 
   override val nestedTypes: ArraySeq[TypeDeclaration] = nestedLabels
-  override val fields: ArraySeq[FieldDeclaration] = labels
+  override val fields: ArraySeq[FieldDeclaration]     = labels
 
   /** Create new labels from merging those in the provided stream */
   def merge(stream: PackageStream): LabelDeclaration = {
     merge(stream.labelsFiles, stream.labels)
   }
 
-  def merge(labelFileEvents: ArraySeq[LabelFileEvent], labelEvents: ArraySeq[LabelEvent]): LabelDeclaration = {
+  def merge(
+    labelFileEvents: ArraySeq[LabelFileEvent],
+    labelEvents: ArraySeq[LabelEvent]
+  ): LabelDeclaration = {
+    val namespacePrefix = module.namespace.map(ns => s"${ns}__").getOrElse("").toLowerCase
+
+    def stripNamespacePrefix(name: Name): Name = {
+      if (namespacePrefix.nonEmpty && name.startsWithIgnoreCase(namespacePrefix))
+        name.substring(namespacePrefix.length)
+      else
+        name
+    }
+
     val outerTypeId = TypeId(module, typeName)
-    val newLabels = labels ++ labelEvents.map(le => Label(outerTypeId, le.location, le.name, le.isProtected))
+    val newLabels = labels ++ labelEvents.map(
+      le => Label(outerTypeId, le.location, stripNamespacePrefix(le.name), le.isProtected)
+    )
     val sourceInfo = (sources ++ labelFileEvents.map(_.sourceInfo)).distinct
     new LabelDeclaration(module, sourceInfo, newLabels, nestedLabels)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
+  override def collectDependenciesByTypeName(
+    dependsOn: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     // Labels depend on labels from dependent packages
     if (!apexOnly)
       nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))
@@ -94,8 +123,11 @@ final class LabelDeclaration(override val module: Module,
       .filterNot(_.hasHolders)
       .map(
         label =>
-          new Issue(label.location.path,
-            Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")))
+          new Issue(
+            label.location.path,
+            Diagnostic(UNUSED_CATEGORY, label.location.location, s"Label '$typeName.${label.name}'")
+          )
+      )
   }
 }
 
@@ -111,9 +143,11 @@ trait NestedLabels extends TypeDeclaration {
   * controller here.
   */
 private final class PackageLabels(module: Module, labelDeclaration: LabelDeclaration)
-    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                      module,
-                                      TypeName(labelDeclaration.module.namespace.get, Nil, Some(TypeNames.Label)))
+    extends InnerBasicTypeDeclaration(
+      PathLike.emptyPaths,
+      module,
+      TypeName(labelDeclaration.module.namespace.get, Nil, Some(TypeNames.Label))
+    )
     with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = Some(labelDeclaration.typeId)
@@ -132,9 +166,11 @@ private final class PackageLabels(module: Module, labelDeclaration: LabelDeclara
 
 /** System.Label.ns implementation for ghosted packages. This simulates the existence of any label you ask for. */
 final class GhostedLabels(module: Module, ghostedNamespace: Name)
-    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                      module,
-                                      TypeName(ghostedNamespace, Nil, Some(TypeNames.Label)))
+    extends InnerBasicTypeDeclaration(
+      PathLike.emptyPaths,
+      module,
+      TypeName(ghostedNamespace, Nil, Some(TypeNames.Label))
+    )
     with NestedLabels {
 
   override val labelTypeId: Option[TypeId] = None
@@ -166,14 +202,16 @@ object LabelDeclaration {
 
   // Create labels declarations for each base package
   private def createPackageLabels(module: Module): ArraySeq[NestedLabels] = {
-    ArraySeq.unsafeWrapArray(module.basePackages
-      .map(basePkg => {
-        if (basePkg.orderedModules.isEmpty) {
-          new GhostedLabels(module, basePkg.namespace.get)
-        } else {
-          new PackageLabels(module, basePkg.orderedModules.head.labels)
-        }
-      })
-      .toArray)
+    ArraySeq.unsafeWrapArray(
+      module.basePackages
+        .map(basePkg => {
+          if (basePkg.orderedModules.isEmpty) {
+            new GhostedLabels(module, basePkg.namespace.get)
+          } else {
+            new PackageLabels(module, basePkg.orderedModules.head.labels)
+          }
+        })
+        .toArray
+    )
   }
 }

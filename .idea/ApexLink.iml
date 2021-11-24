@@ -14,10 +14,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/common/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/common-test/scala" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/Java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/samples" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
@@ -25,18 +25,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parallel-collections_2.13:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: com.github.nawforce:pkgforce_2.13:2.2.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.github.nawforce:pkgforce_2.13:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.13:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.8-1" level="project" />
     <orderEntry type="library" name="Maven: com.github.nawforce:apex-parser:2.11.0" level="project" />
-    <orderEntry type="library" name="Maven: com.github.nawforce:runforce:53.1.0" level="project" />
-    <orderEntry type="library" name="Maven: com.vmware.antlr4-c3:antlr4-c3:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.antlr:antlr4:4.7" level="project" />
-    <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.5.2" level="project" />
-    <orderEntry type="library" name="Maven: org.antlr:ST4:4.0.8" level="project" />
-    <orderEntry type="library" name="Maven: org.abego.treelayout:org.abego.treelayout.core:1.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish:javax.json:1.0.4" level="project" />
-    <orderEntry type="library" name="Maven: com.ibm.icu:icu4j:58.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.nawforce:runforce:53.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.nawforce:scala-json-rpc_2.13:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.13.3" level="project" />
     <orderEntry type="library" name="Maven: com.github.nawforce:scala-json-rpc-upickle-json-serializer_2.13:1.0.1" level="project" />
