@@ -22,6 +22,7 @@ import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
@@ -417,6 +418,14 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
             case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))
           }
       }
+  }
+
+  def getAllTestMethods(): Array[TestMethod] = {
+    val allClasses = packages.flatMap(_.orderedModules.flatMap(_.testClasses.toSeq))
+
+    allClasses.flatMap(c => c.methods
+      .filter(m => m.modifiers.contains(ISTEST_ANNOTATION) || m.modifiers.contains(TEST_METHOD_MODIFIER) )
+      .map(m => TestMethod(c.name.toString(), m.name.toString()))).toSet.toArray
   }
 }
 
