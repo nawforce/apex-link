@@ -7,6 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CompletionProviderTest extends AnyFunSuite with TestHelper {
 
+  /*
   test("Internal Completion") {
     FileSystemHelper.run(Map()) {
       root: PathLike =>
@@ -190,6 +191,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
     }
   }
+  */
 
   test("Empty Class Completions") {
     FileSystemHelper.run(Map("Dummy.cls" -> "")) {
@@ -203,16 +205,28 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Declaration Class Completions") {
+  test("Class Declaration Completions") {
     FileSystemHelper.run(Map("Dummy.cls" -> "")) {
       root: PathLike =>
         val org = createOrg(root)
         assert(
           org
             .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 9, "class Foo")
-              .map(_.label) sameElements Array("implements", "extends"))
+            .map(_.label) sameElements Array("implements", "extends"))
     }
   }
 
-
+  test("Class Declaration Completions (extends)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "",
+      "Foo.cls" -> "public class Foo { }"
+    )) {
+      root: PathLike =>
+        val org = createOrg(root)
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 21, "class Dummy extends F")
+            .map(_.label) sameElements Array("Foo"))
+    }
+  }
 }

@@ -14,6 +14,7 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.org.CompletionProvider.{ignoredTokens, preferredRules}
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.FullDeclaration
@@ -23,9 +24,8 @@ import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.PathLike
 import com.vmware.antlr4c3.CodeCompletionCore
-import org.antlr.v4.runtime.{Token, TokenStream}
+import org.antlr.v4.runtime.Token
 
-import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -33,29 +33,40 @@ trait CompletionProvider {
   this: PackageImpl =>
 
   def getCompletionItems(path: PathLike, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+    val module = getPackageModule(path)
     val parserAndCU = loadClass(path, content)
     parserAndCU._1.map(parserAndCU => {
-      val tokenIndex = findTokenIndex(parserAndCU._1, line, offset)
-      val core = new CodeCompletionCore(parserAndCU._1, new java.util.HashSet[Integer](), new java.util.HashSet[Integer]())
-      val candidates = core.collectCandidates(tokenIndex, parserAndCU._2)
-      candidates.tokens.asScala
-        .filterNot(kv => CompletionProvider.ignoredTokens.contains(kv._1))
+      val tokenAndIndex = findTokenAndIndex(parserAndCU._1, line, offset)
+      val core = new CodeCompletionCore(parserAndCU._1, preferredRules.asJava, ignoredTokens.asJava)
+      val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2)
+
+      val keywords = candidates.tokens.asScala
+        .filter(_._1 >= 1)
         .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
         .map(keyword => stripQuotes(keyword))
         .map(keyword => CompletionItemLink(keyword, "Method")).toArray
+
+      val rules = candidates.rules.asScala.keys.collect(ruleIndex =>
+        ruleIndex.toInt match {
+          case ApexParser.RULE_typeName =>
+            module.map(_.matchTypeName(tokenAndIndex._1.getText)).getOrElse(Array())
+              .map(name => CompletionItemLink(name, "Method"))
+        }).flatten.toArray
+
+      keywords ++ rules
     }).getOrElse(Array())
   }
 
-  private def findTokenIndex(parser: ApexParser, line: Int, offset: Int): Int = {
+  private def findTokenAndIndex(parser: ApexParser, line: Int, offset: Int): (Token, Int) = {
     val tokenStream = parser.getInputStream
     tokenStream.seek(0)
-    var i = 0;
+    var i = 0
     var token = tokenStream.get(i)
     while (token.getType != -1 && !tokenContains(token, line, offset)) {
       i += 1
       token = tokenStream.get(i)
     }
-    i
+    (tokenStream.get(Math.max(0, i - 1)), i)
   }
 
   private def tokenContains(token: Token, line: Int, offset: Int): Boolean = {
@@ -199,5 +210,54 @@ trait CompletionProvider {
 }
 
 object CompletionProvider {
-  val ignoredTokens: Set[Integer] = Set[Integer](ApexLexer.ATSIGN, ApexLexer.LBRACE)
+  val ignoredTokens: Set[Integer] = Set[Integer](
+    ApexLexer.LPAREN,
+    ApexLexer.RPAREN,
+    ApexLexer.LBRACE,
+    ApexLexer.RBRACE,
+    ApexLexer.LBRACK,
+    ApexLexer.RBRACK,
+    ApexLexer.SEMI,
+    ApexLexer.COMMA,
+    ApexLexer.DOT,
+    ApexLexer.ASSIGN,
+    ApexLexer.GT,
+    ApexLexer.LT,
+    ApexLexer.BANG,
+    ApexLexer.TILDE,
+    ApexLexer.QUESTIONDOT,
+    ApexLexer.QUESTION,
+    ApexLexer.COLON,
+    ApexLexer.EQUAL,
+    ApexLexer.TRIPLEEQUAL,
+    ApexLexer.NOTEQUAL,
+    ApexLexer.LESSANDGREATER,
+    ApexLexer.TRIPLENOTEQUAL,
+    ApexLexer.AND,
+    ApexLexer.OR,
+    ApexLexer.INC,
+    ApexLexer.DEC,
+    ApexLexer.ADD,
+    ApexLexer.SUB,
+    ApexLexer.MUL,
+    ApexLexer.DIV,
+    ApexLexer.BITAND,
+    ApexLexer.BITOR,
+    ApexLexer.CARET,
+    ApexLexer.MOD,
+    ApexLexer.MAPTO,
+    ApexLexer.ADD_ASSIGN,
+    ApexLexer.SUB_ASSIGN,
+    ApexLexer.MUL_ASSIGN,
+    ApexLexer.DIV_ASSIGN,
+    ApexLexer.AND_ASSIGN,
+    ApexLexer.OR_ASSIGN,
+    ApexLexer.XOR_ASSIGN,
+    ApexLexer.MOD_ASSIGN,
+    ApexLexer.LSHIFT_ASSIGN,
+    ApexLexer.RSHIFT_ASSIGN,
+    ApexLexer.URSHIFT_ASSIGN,
+    ApexLexer.ATSIGN
+  )
+  val preferredRules: Set[Integer] = Set[Integer](ApexParser.RULE_typeName)
 }

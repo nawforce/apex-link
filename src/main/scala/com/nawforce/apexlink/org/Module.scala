@@ -35,7 +35,8 @@ import com.nawforce.runtime.parsers.SourceData
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module]) extends TypeFinder {
+class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Module])
+  extends TypeFinder with ModuleCompletions {
 
   val baseModules: Seq[Module] = dependents.reverse
   val basePackages: Seq[PackageImpl] = pkg.basePackages.reverse
