@@ -14,10 +14,9 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
-import com.nawforce.apexlink.org.CompletionProvider.{ignoredTokens, preferredRules}
+import com.nawforce.apexlink.org.CompletionProvider.{emptyCompletions, ignoredTokens, preferredRules}
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
-import com.nawforce.apexlink.types.apex.FullDeclaration
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.{ApexLexer, ApexParser}
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
@@ -33,28 +32,86 @@ trait CompletionProvider {
   this: PackageImpl =>
 
   def getCompletionItems(path: PathLike, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+
+    // Get basic context of what we are looking at
     val module = getPackageModule(path)
-    val parserAndCU = loadClass(path, content)
-    parserAndCU._1.map(parserAndCU => {
-      val tokenAndIndex = findTokenAndIndex(parserAndCU._1, line, offset)
-      val core = new CodeCompletionCore(parserAndCU._1, preferredRules.asJava, ignoredTokens.asJava)
-      val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2)
+    val terminatedContent = injectStatementTerminator(line, offset, content)
+    val classDetails = loadClass(path, terminatedContent._1)
+    if (classDetails._1.isEmpty) /* Bail if we did not at least parse the content */
+      return emptyCompletions
+    val parserAndCU = classDetails._1.get
+    val adjustedOffset = terminatedContent._2
 
-      val keywords = candidates.tokens.asScala
-        .filter(_._1 >= 1)
-        .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
-        .map(keyword => stripQuotes(keyword))
-        .map(keyword => CompletionItemLink(keyword, "Method")).toArray
+    // Attempt to find a searchTerm for dealing with dot expressions
+    lazy val searchTerm = content.extractDotTermExclusive(() => new IdentifierAndMethodLimiter, line, offset)
 
-      val rules = candidates.rules.asScala.keys.collect(ruleIndex =>
-        ruleIndex.toInt match {
-          case ApexParser.RULE_typeName =>
-            module.map(_.matchTypeName(tokenAndIndex._1.getText)).getOrElse(Array())
-              .map(name => CompletionItemLink(name, "Method"))
-        }).flatten.toArray
+    // Setup to lazy validate the Class block to recover the validationResult for the cursor position
+    lazy val validationResult: Option[ValidationResult] = {
+      if (classDetails._2.nonEmpty && searchTerm.nonEmpty) {
+        val searchEnd = searchTerm.get.location.endPosition
+        val resultMap = classDetails._2.get.getBodyDeclarationValidationMap(line, searchEnd)
+        val exprLocations = resultMap.keys.filter(_.contains(line, searchEnd))
+        val targetExpression = exprLocations.find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
+        targetExpression.map(targetExpression => resultMap(targetExpression))
+      } else {
+        None
+      }
+    }
 
-      keywords ++ rules
-    }).getOrElse(Array())
+    // Lazy extract local vars in scope at cursor position from the validation
+    lazy val localVars = validationResult.flatMap(_.vars).getOrElse(mutable.Map())
+
+    // Run C3 to get our keywords & rule matches
+    val tokenAndIndex = findTokenAndIndex(parserAndCU._1, line, adjustedOffset)
+    val core = new CodeCompletionCore(parserAndCU._1, preferredRules.asJava, ignoredTokens.asJava)
+    val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2)
+
+    // Generate a list of possible keyword matches
+    val keywords = candidates.tokens.asScala
+      .filter(_._1 >= 1)
+      .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
+      .map(keyword => stripQuotes(keyword))
+      .map(keyword => CompletionItemLink(keyword, "Method")).toArray
+
+    // Find completions for a dot expression, we use the safe navigation operator here as a trigger as it is unique to
+    // dot expressions. We can't use rule matching for these as often the expression before the '.' is complete and
+    // we have to remove the '.' so the parser constructions a statement, see injectStatementTerminator().
+    val dotCompletions =
+    if (keywords.exists(_.label == "?.") && searchTerm.nonEmpty) {
+      validationResult
+        .filter(_.result.declaration.nonEmpty)
+        .map(validationResult => getAllCompletionItems(validationResult.result.declaration.get,
+          validationResult.result.isStatic, searchTerm.get.residualExpr))
+        .getOrElse(emptyCompletions)
+    } else {
+      emptyCompletions
+    }
+
+    /* Now for rule matches. These are not distinct cases, they combine to give the correct result. */
+    val rules = candidates.rules.asScala.collect(rule =>
+      rule._1.toInt match {
+        /* TypeRefs appear in lots of places, e.g. inside Primaries but we just handle once for simplicity. */
+        case ApexParser.RULE_typeRef =>
+          module.map(_.matchTypeName(tokenAndIndex._1.getText)).getOrElse(Array())
+            .map(name => CompletionItemLink(name, "Method"))
+
+        /* Primary will appear at the start of an expression (recursively) but this just handles the first primary as
+         * dotCompletions covers over cases. At the point it is being handled it is indistinguishable from a MethodCall
+         * so we handle both cases. This is really just picking up the idPrimary cases as TypeRef is handled above. */
+        case ApexParser.RULE_primary => /* Also handles start of methodCall */
+          searchTerm.map(searchTerm => {
+            // Local vars can only be on initial primary
+            if (searchTerm.prefixExpr.isEmpty) {
+              localVars.keys.filter(_.value.toLowerCase.startsWith(searchTerm.residualExpr))
+                .map(name => CompletionItemLink(name.value, "Method")).toArray ++
+                classDetails._2.map(td => getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)).getOrElse(Array())
+            } else {
+              emptyCompletions
+            }
+          }).getOrElse(emptyCompletions)
+      }).flatten.toArray
+
+    keywords.filterNot(_.label == "?.") ++ dotCompletions ++ rules
   }
 
   private def findTokenAndIndex(parser: ApexParser, line: Int, offset: Int): (Token, Int) = {
@@ -92,6 +149,7 @@ trait CompletionProvider {
       val currentLine = lines(i)
       if (i == line - 1) {
         result.append(currentLine.substring(0, offset))
+        // Erase trailing dot so we have a legal expression that ANTLR will construct
         if (result.last == '.') {
           result.deleteCharAt(result.length() - 1)
           adjustedOffset -= 1
@@ -143,21 +201,6 @@ trait CompletionProvider {
     buffer.append(";")
   }
 
-  /** Extract a location link from an expression at the passed location */
-  private def completionsFromValidation(searchTerm: ExclusiveDotTerm,
-                                        td: FullDeclaration,
-                                        line: Int,
-                                        offset: Int): Array[CompletionItemLink] = {
-    if (searchTerm.prefixExpr.isEmpty) {
-      getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)
-    } else {
-      getExpressionFromValidation(searchTerm, td, line, offset)
-        .filter(_._1.declaration.nonEmpty)
-        .map(exprContext => getAllCompletionItems(exprContext._1.declaration.get, exprContext._1.isStatic, exprContext._2))
-        .getOrElse(Array.empty)
-    }
-  }
-
   private def getAllCompletionItems(td: TypeDeclaration,
                                     isStatic: Option[Boolean],
                                     filterBy: String,
@@ -176,9 +219,6 @@ trait CompletionProvider {
       .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
       .map(x => new CompletionItemLink(x.name.toString, "Field"))
 
-    items = items ++ td.constructors.map(ctor =>
-      new CompletionItemLink(td.name.value + "(" + ctor.parameters.map(_.name.toString()).mkString(", ") + ")", "Constructor"))
-
     if (isStatic.isEmpty || isStatic.contains(true)) {
       items = items ++ td.nestedTypes
         .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
@@ -195,21 +235,11 @@ trait CompletionProvider {
     else
       items
   }
-
-  private def getExpressionFromValidation(
-                                           searchTerm: ExclusiveDotTerm,
-                                           td: FullDeclaration,
-                                           line: Int,
-                                           offset: Int): Option[(ExprContext, String)] = {
-    val resultMap = td.getBodyDeclarationValidationMap(line, offset)
-    val exprLocations = resultMap.keys.filter(_.contains(searchTerm.location.endLine, searchTerm.location.endPosition))
-    exprLocations
-      .find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
-      .map(loc => (resultMap(loc)._2, searchTerm.residualExpr))
-  }
 }
 
 object CompletionProvider {
+  val emptyCompletions: Array[CompletionItemLink] = Array[CompletionItemLink]()
+
   val ignoredTokens: Set[Integer] = Set[Integer](
     ApexLexer.LPAREN,
     ApexLexer.RPAREN,
@@ -225,7 +255,7 @@ object CompletionProvider {
     ApexLexer.LT,
     ApexLexer.BANG,
     ApexLexer.TILDE,
-    ApexLexer.QUESTIONDOT,
+    /* ApexLexer.QUESTIONDOT, - Needed for dotCompletion handling */
     ApexLexer.QUESTION,
     ApexLexer.COLON,
     ApexLexer.EQUAL,
@@ -257,7 +287,11 @@ object CompletionProvider {
     ApexLexer.LSHIFT_ASSIGN,
     ApexLexer.RSHIFT_ASSIGN,
     ApexLexer.URSHIFT_ASSIGN,
-    ApexLexer.ATSIGN
+    ApexLexer.ATSIGN,
+    ApexLexer.INSTANCEOF
   )
-  val preferredRules: Set[Integer] = Set[Integer](ApexParser.RULE_typeName)
+  val preferredRules: Set[Integer] = Set[Integer](
+    ApexParser.RULE_typeRef,
+    ApexParser.RULE_primary
+  )
 }

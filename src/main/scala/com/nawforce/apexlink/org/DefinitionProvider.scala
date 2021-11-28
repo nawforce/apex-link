@@ -81,7 +81,7 @@ trait DefinitionProvider {
       .flatMap(loc => {
         // If the result has a locatable we can use that as the target, beware the order here matters due
         // to both inheritance and some objects supporting multiple Locatable traits
-        resultMap(loc)._2.locatable match {
+        resultMap(loc).result.locatable match {
           case Some(l: IdLocatable) =>
             Some(LocationLink(loc, l.location.path.toString, l.location.location, l.idLocation))
           case Some(l: UnsafeLocatable) =>

@@ -7,7 +7,6 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CompletionProviderTest extends AnyFunSuite with TestHelper {
 
-  /*
   test("Internal Completion") {
     FileSystemHelper.run(Map()) {
       root: PathLike =>
@@ -191,7 +190,6 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
     }
   }
-  */
 
   test("Empty Class Completions") {
     FileSystemHelper.run(Map("Dummy.cls" -> "")) {
@@ -209,9 +207,10 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "")) {
       root: PathLike =>
         val org = createOrg(root)
+        val testSrc = "class Dummy"
         assert(
           org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 9, "class Foo")
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
             .map(_.label) sameElements Array("implements", "extends"))
     }
   }
@@ -223,10 +222,56 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     )) {
       root: PathLike =>
         val org = createOrg(root)
+        val testSrc = "class Dummy extends F"
         assert(
           org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 21, "class Dummy extends F")
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
             .map(_.label) sameElements Array("Foo"))
     }
   }
+
+  test("Primary Completions (variable)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> ""
+    )) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "class Dummy { {String abc; a"
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("abc"))
+    }
+  }
+
+  test("Primary Completions (variable type)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> ""
+    )) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "class Dummy { {Boolean abc; abc."
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("addError(msg, escape)", "addError(msg, escape)", "addError(msg)", "addError(msg)"))
+    }
+  }
+
+  test("Primary Completions (method type)") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> ""
+    )) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "class Dummy { public Boolean func() {func()."
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("addError(msg, escape)", "addError(msg, escape)", "addError(msg)", "addError(msg)"))
+    }
+  }
+
+
+
 }
