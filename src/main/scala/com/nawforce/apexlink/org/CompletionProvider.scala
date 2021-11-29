@@ -92,8 +92,7 @@ trait CompletionProvider {
       rule._1.toInt match {
         /* TypeRefs appear in lots of places, e.g. inside Primaries but we just handle once for simplicity. */
         case ApexParser.RULE_typeRef =>
-          module.map(_.matchTypeName(tokenAndIndex._1.getText)).getOrElse(Array())
-            .map(name => CompletionItemLink(name, "Method"))
+          module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
 
         /* Primary will appear at the start of an expression (recursively) but this just handles the first primary as
          * dotCompletions covers over cases. At the point it is being handled it is indistinguishable from a MethodCall
@@ -140,15 +139,17 @@ trait CompletionProvider {
       keyword
   }
 
-  private def injectStatementTerminator(line: Int, offset: Int, content: String): (String, Int) = {
+  private def injectStatementTerminator(line: Int, offset: Int, content: String): (String, Int, String) = {
     val lines = content.splitLines
     val result = new mutable.StringBuilder()
     var adjustedOffset = offset
+    var activeLine = ""
 
     for (i <- lines.indices) {
       val currentLine = lines(i)
       if (i == line - 1) {
-        result.append(currentLine.substring(0, offset))
+        activeLine = currentLine.substring(0, offset)
+        result.append(activeLine)
         // Erase trailing dot so we have a legal expression that ANTLR will construct
         if (result.last == '.') {
           result.deleteCharAt(result.length() - 1)
@@ -162,7 +163,7 @@ trait CompletionProvider {
         result.append('\n')
       }
     }
-    (result.toString(), adjustedOffset)
+    (result.toString(), adjustedOffset, activeLine)
   }
 
   private def appendTerminators(buffer: mutable.StringBuilder): Unit = {
