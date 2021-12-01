@@ -1,59 +1,113 @@
+/*
+ Copyright (c) 2021 Kevin Jones, All rights reserved.
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. The name of the author may not be used to endorse or promote products
+    derived from this software without specific prior written permission.
+ */
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.ApexClassDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.pkgforce.names.EncodedName
+import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 
 import scala.collection.compat.immutable.ArraySeq
+import scala.collection.mutable.ArrayBuffer
 
 /** Matchers to support code completion */
 trait ModuleCompletions {
   this: Module =>
 
   def matchTypeName(content: String, offset: Int): Array[CompletionItemLink] = {
-    val prefix = content.findLimit(new IdentifierLimiter, forward = false, offset - 1)
+    val prefix = content
+      .findLimit(new IdentifierLimiter, forward = false, offset - 1)
       .map(start => content.substring(start, offset))
 
-    prefix.map(prefix => {
-      val parts = prefix.split('.')
-      if (parts.head == prefix) {
-        // Match on first character, being careful about namespace handling
-        val typeName = EncodedName(parts.head).defaultNamespace(namespace).asTypeName
-        types
-          .filter(kv => kv._1.name.value.take(1).equalsIgnoreCase(prefix) && kv._1.outer == typeName.outer)
+    // If we lead with our namespace, throw it away
+    val searchTerm = prefix.map(prefix => {
+      if (
+        namespace.nonEmpty && prefix.toLowerCase
+          .startsWith(namespace.get.value.toLowerCase + ".")
+      ) {
+        prefix.substring(namespace.get.value.length + 1)
+      } else {
+        prefix
+      }
+    })
+
+    // Collect over the modules (aka same namespace)
+    val accum = ArrayBuffer[CompletionItemLink]()
+    accum.addAll(matchTypeNameForModule(this, searchTerm))
+    baseModules.foreach(module => accum.addAll(matchTypeNameForModule(module, searchTerm)))
+    accum.toArray
+  }
+
+  def matchTypeNameForModule(
+    module: Module,
+    searchTerm: Option[String]
+  ): Array[CompletionItemLink] = {
+
+    searchTerm
+      .map(searchTerm => {
+
+        val parts = searchTerm.split('.')
+        val partCount =
+          parts.length + (if (searchTerm.length > 1 && searchTerm.endsWith(".")) 1 else 0)
+
+        if (partCount == 1) {
+          // Match on first character of only part against any class name
+          module.types
+            .filter(
+              kv =>
+                parts.head.isEmpty || kv._1.name.value.take(1).equalsIgnoreCase(parts.head.take(1))
+            )
+            .collect { case (_, td: ApexClassDeclaration) => td }
+            .flatMap(toCompletionItem)
+            .toArray
+        } else if (partCount == 2) {
+          // Match on first character of inner type, if we can find the outer
+          val typeName = TypeName(Name(parts.head), Seq(), namespace.map(ns => TypeName(ns)))
+          module.types
+            .get(typeName)
+            .collect { case td: ApexClassDeclaration => td }
+            .map(td => {
+              val innerName = if (parts.length == 2) parts(1) else ""
+              td.nestedTypes.filter(
+                itd =>
+                  innerName.isEmpty || itd.name.value.take(1).equalsIgnoreCase(innerName.take(1))
+              )
+            })
+            .getOrElse(ArraySeq.empty)
+            .flatMap(toCompletionItem)
+            .toArray
+        } else {
+          Array[CompletionItemLink]()
+        }
+      })
+      .getOrElse {
+        // Return all classes in module when no prefix
+        module.types
           .collect { case (_, td: ApexClassDeclaration) => td }
           .flatMap(toCompletionItem)
           .toArray
-      } else if (parts.length == 1 || (parts.length == 2 && prefix.last != '.')) {
-        // Match on first character of inner type, if we can find the outer
-        val typeName = EncodedName(parts.head).defaultNamespace(namespace).asTypeName
-        types.get(typeName)
-          .collect { case td: ApexClassDeclaration => td }
-          .map(td => {
-            td.nestedTypes.filter(itd => parts.length == 1 || parts(1).isEmpty ||
-              itd.typeName.name.value.take(1).equalsIgnoreCase(parts(1).take(1)))
-          }).getOrElse(ArraySeq.empty)
-          .flatMap(toCompletionItem)
-          .toArray
-      } else {
-        Array[CompletionItemLink]()
       }
-    }).getOrElse {
-      // Return all classes in module when no prefix
-      types.collect { case (_, td: ApexClassDeclaration) => td }
-        .flatMap(toCompletionItem).toArray
-    }
   }
 
   def toCompletionItem(td: TypeDeclaration): Option[CompletionItemLink] = {
     td.nature match {
-      case CLASS_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Class"))
+      case CLASS_NATURE     => Some(CompletionItemLink(td.typeName.name.value, "Class"))
       case INTERFACE_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Interface"))
-      case ENUM_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Enum"))
-      case _ => None
+      case ENUM_NATURE      => Some(CompletionItemLink(td.typeName.name.value, "Enum"))
+      case _                => None
     }
   }
 }
