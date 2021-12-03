@@ -20,7 +20,6 @@ import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.{ApexLexer, ApexParser}
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
-import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.PathLike
 import com.vmware.antlr4c3.CodeCompletionCore
 import org.antlr.v4.runtime.Token
@@ -62,7 +61,7 @@ trait CompletionProvider {
     lazy val localVars = validationResult.flatMap(_.vars).getOrElse(mutable.Map())
 
     // Run C3 to get our keywords & rule matches
-    val tokenAndIndex = findTokenAndIndex(parserAndCU._1, line, adjustedOffset)
+    val tokenAndIndex = findTokenAndIndex(parserAndCU._1, line, adjustedOffset, offset != adjustedOffset)
     val core = new CodeCompletionCore(parserAndCU._1, preferredRules.asJava, ignoredTokens.asJava)
     val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2)
 
@@ -71,11 +70,11 @@ trait CompletionProvider {
       .filter(_._1 >= 1)
       .map(kv => parserAndCU._1.getVocabulary.getDisplayName(kv._1))
       .map(keyword => stripQuotes(keyword))
-      .map(keyword => CompletionItemLink(keyword, "Method")).toArray
+      .map(keyword => CompletionItemLink(keyword, "Keyword")).toArray
 
     // Find completions for a dot expression, we use the safe navigation operator here as a trigger as it is unique to
     // dot expressions. We can't use rule matching for these as often the expression before the '.' is complete and
-    // we have to remove the '.' so the parser constructions a statement, see injectStatementTerminator().
+    // we have to remove the '.' so the parser constructs a statement, see injectStatementTerminator().
     val dotCompletions =
     if (keywords.exists(_.label == "?.") && searchTerm.nonEmpty) {
       validationResult
@@ -87,7 +86,7 @@ trait CompletionProvider {
       emptyCompletions
     }
 
-    /* Now for rule matches. These are not distinct cases, they combine to give the correct result. */
+    /* Now for rule matches. These are not distinct cases, they might combine to give the correct result. */
     val rules = candidates.rules.asScala.collect(rule =>
       rule._1.toInt match {
         /* TypeRefs appear in lots of places, e.g. inside Primaries but we just handle once for simplicity. */
@@ -96,14 +95,15 @@ trait CompletionProvider {
 
         /* Primary will appear at the start of an expression (recursively) but this just handles the first primary as
          * dotCompletions covers over cases. At the point it is being handled it is indistinguishable from a MethodCall
-         * so we handle both cases. This is really just picking up the idPrimary cases as TypeRef is handled above. */
+         * so we handle both cases. */
         case ApexParser.RULE_primary => /* Also handles start of methodCall */
           searchTerm.map(searchTerm => {
             // Local vars can only be on initial primary
             if (searchTerm.prefixExpr.isEmpty) {
-              localVars.keys.filter(_.value.toLowerCase.startsWith(searchTerm.residualExpr))
-                .map(name => CompletionItemLink(name.value, "Method")).toArray ++
-                classDetails._2.map(td => getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)).getOrElse(Array())
+              localVars.keys.filter(_.value.take(1).toLowerCase == searchTerm.residualExpr.take(1).toLowerCase)
+                .map(name => CompletionItemLink(name.value, "Variable", localVars(name).declaration.typeName.toString())).toArray ++
+                classDetails._2.map(td => getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)).getOrElse(Array()) ++
+                module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
             } else {
               emptyCompletions
             }
@@ -113,7 +113,7 @@ trait CompletionProvider {
     keywords.filterNot(_.label == "?.") ++ dotCompletions ++ rules
   }
 
-  private def findTokenAndIndex(parser: ApexParser, line: Int, offset: Int): (Token, Int) = {
+  private def findTokenAndIndex(parser: ApexParser, line: Int, offset: Int, dotRemoved: Boolean): (Token, Int) = {
     val tokenStream = parser.getInputStream
     tokenStream.seek(0)
     var i = 0
@@ -122,11 +122,18 @@ trait CompletionProvider {
       i += 1
       token = tokenStream.get(i)
     }
-    (tokenStream.get(Math.max(0, i - 1)), i)
+
+    // Adjust cursor, see c3 README for details of cursor positioning
+    val idx =
+      if (dotRemoved || (i > 1 && tokenStream.get(i - 2).getText == ".")) {
+        i
+      } else {
+        Math.max(0, i - 1)
+      }
+    (tokenStream.get(idx), idx)
   }
 
   private def tokenContains(token: Token, line: Int, offset: Int): Boolean = {
-    // TODO: Check character encoding behaviour
     token.getLine == line &&
       token.getCharPositionInLine <= offset &&
       token.getCharPositionInLine + token.getText.length > offset
@@ -211,28 +218,21 @@ trait CompletionProvider {
     items = items ++ td.methods
       .filter(isStatic.isEmpty || _.isStatic == isStatic.get)
       .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
-      .map(method =>
-        new CompletionItemLink(method.name.toString + "(" + method.parameters.map(_.name.toString()).mkString(", ") + ")",
-          "Method"))
+      .map(method => CompletionItemLink(method))
 
     items = items ++ td.fields
       .filter(isStatic.isEmpty || _.isStatic == isStatic.get)
       .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
-      .map(x => new CompletionItemLink(x.name.toString, "Field"))
+      .map(field => CompletionItemLink(field))
 
     if (isStatic.isEmpty || isStatic.contains(true)) {
       items = items ++ td.nestedTypes
         .filter(hasPrivateAccess || _.modifiers.contains(PUBLIC_MODIFIER))
-        .flatMap(nested => nested.nature match {
-          case CLASS_NATURE => Some(CompletionItemLink(nested.name.value, "Class"))
-          case INTERFACE_NATURE => Some(CompletionItemLink(nested.name.value, "Interface"))
-          case ENUM_NATURE => Some(CompletionItemLink(nested.name.value, "Enum"))
-          case _ => None
-        })
+        .flatMap(nested => CompletionItemLink(nested))
     }
 
     if (filterBy.nonEmpty)
-      items.filter(x => x.label.toLowerCase().startsWith(filterBy.toLowerCase()))
+      items.filter(x => x.label.take(1).toLowerCase == filterBy.take(1).toLowerCase)
     else
       items
   }

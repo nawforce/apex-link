@@ -16,9 +16,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.apex.ApexClassDeclaration
-import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, TypeName}
-import com.nawforce.pkgforce.parsers.{CLASS_NATURE, ENUM_NATURE, INTERFACE_NATURE}
 
 import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
@@ -71,7 +69,7 @@ trait ModuleCompletions {
                 parts.head.isEmpty || kv._1.name.value.take(1).equalsIgnoreCase(parts.head.take(1))
             )
             .collect { case (_, td: ApexClassDeclaration) => td }
-            .flatMap(toCompletionItem)
+            .flatMap(td => CompletionItemLink(td))
             .toArray
         } else if (partCount == 2) {
           // Match on first character of inner type, if we can find the outer
@@ -87,7 +85,7 @@ trait ModuleCompletions {
               )
             })
             .getOrElse(ArraySeq.empty)
-            .flatMap(toCompletionItem)
+            .flatMap(td => CompletionItemLink(td))
             .toArray
         } else {
           Array[CompletionItemLink]()
@@ -97,17 +95,8 @@ trait ModuleCompletions {
         // Return all classes in module when no prefix
         module.types
           .collect { case (_, td: ApexClassDeclaration) => td }
-          .flatMap(toCompletionItem)
+          .flatMap(td => CompletionItemLink(td))
           .toArray
       }
-  }
-
-  def toCompletionItem(td: TypeDeclaration): Option[CompletionItemLink] = {
-    td.nature match {
-      case CLASS_NATURE     => Some(CompletionItemLink(td.typeName.name.value, "Class"))
-      case INTERFACE_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Interface"))
-      case ENUM_NATURE      => Some(CompletionItemLink(td.typeName.name.value, "Enum"))
-      case _                => None
-    }
   }
 }

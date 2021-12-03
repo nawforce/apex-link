@@ -25,14 +25,21 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             |private interface MyPrivateInner{};
             |}""".stripMargin
         val offset = content.split('\n').head.length - 1
+        val completions = org.getCompletionItems(path.toString, line = 1, offset, content)
+        assert(completions.exists(_.kind == "Keyword"))
         assert(
-          org
-            .getCompletionItems(path.toString, line = 1, offset, content).toSet ==
-            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
-              CompletionItemLink("methodPrivate()", "Method"), CompletionItemLink("methodStatic()", "Method"),
-              CompletionItemLink("myField", "Field"), CompletionItemLink("myStaticField", "Field"),
-              CompletionItemLink("myPrivateField", "Field"), CompletionItemLink("MyInner", "Class"),
-              CompletionItemLink("MyPrivateInner", "Interface"))
+          completions
+            .filterNot(_.kind == "Keyword")
+            .toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method", "public System.String methodB(System.String a, System.String b)"),
+              CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
+              CompletionItemLink("methodPrivate()", "Method", "private System.String methodPrivate()"),
+              CompletionItemLink("methodStatic()", "Method", "public static System.String methodStatic()"),
+              CompletionItemLink("myField", "Field", "public String myField"),
+              CompletionItemLink("myStaticField", "Field", "public static String myStaticField"),
+              CompletionItemLink("myPrivateField", "Field", "private String myPrivateField"),
+              CompletionItemLink("MyInner", "Class", "public"),
+              CompletionItemLink("MyPrivateInner", "Interface", "private"))
         )
     }
   }
@@ -43,24 +50,34 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val path = root.join("Completion.cls")
         val content =
-          """public class Dummy { public void someMethod() {me}
+          """public class Dummy { public void someMethod() {m}
             |public String methodA(){}
             |public String methodB(String a, String b){}
             |public static String methodStatic(){}
             |private String methodPrivate(){}
-            |public String meField;
+            |public String myField;
             |public static String myStaticField;
             |private String myPrivateField;
-            |public class MeInner{};
+            |public class MyInner{};
             |private interface MyPrivateInner{};
             |}""".stripMargin
         val offset = content.split('\n').head.length - 1
+        val completions = org.getCompletionItems(path.toString, line = 1, offset, content)
+        assert(completions.exists(_.kind == "Keyword"))
         assert(
-          org
-            .getCompletionItems(path.toString, line = 1, offset, content).toSet ==
-            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
-              CompletionItemLink("methodPrivate()", "Method"), CompletionItemLink("methodStatic()", "Method"),
-              CompletionItemLink("meField", "Field"), CompletionItemLink("MeInner", "Class"))
+          completions
+            .filterNot(_.kind == "Keyword")
+            .toSet ==
+            Set(CompletionItemLink("methodB(a, b)", "Method", "public System.String methodB(System.String a, System.String b)"),
+              CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
+              CompletionItemLink("methodPrivate()", "Method", "private System.String methodPrivate()"),
+              CompletionItemLink("methodStatic()", "Method", "public static System.String methodStatic()"),
+              CompletionItemLink("myField", "Field", "public String myField"),
+              CompletionItemLink("myStaticField", "Field", "public static String myStaticField"),
+              CompletionItemLink("myPrivateField", "Field", "private String myPrivateField"),
+              CompletionItemLink("MyInner", "Class", "public"),
+              CompletionItemLink("MyPrivateInner", "Interface", "private")
+            )
         )
     }
   }
@@ -86,8 +103,10 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         assert(
           org
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
-            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
-              CompletionItemLink("myField", "Field")))
+            Set(
+              CompletionItemLink("methodB(a, b)", "Method", "public System.String methodB(System.String a, System.String b)"),
+              CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
+              CompletionItemLink("myField", "Field", "public String myField")))
     }
   }
 
@@ -112,8 +131,9 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         assert(
           org
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
-            Set(CompletionItemLink("methodStatic()", "Method"), CompletionItemLink("myStaticField", "Field"),
-              CompletionItemLink("MyInner", "Class")))
+            Set(CompletionItemLink("methodStatic()", "Method", "public static System.String methodStatic()"),
+              CompletionItemLink("myStaticField", "Field", "public static String myStaticField"),
+              CompletionItemLink("MyInner", "Class", "public")))
     }
   }
 
@@ -138,8 +158,9 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         assert(
           org
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
-            Set(CompletionItemLink("methodB(a, b)", "Method"), CompletionItemLink("methodA()", "Method"),
-              CompletionItemLink("myField", "Field")
+            Set(CompletionItemLink("methodB(a, b)", "Method", "public System.String methodB(System.String a, System.String b)"),
+              CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
+              CompletionItemLink("myField", "Field", "public String myField")
             ))
     }
   }
@@ -165,29 +186,13 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         assert(
           org
             .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
-            Set(CompletionItemLink("methodA()", "Method"), CompletionItemLink("methodB(a, b)", "Method"),
-              CompletionItemLink("clone()", "Method"), CompletionItemLink("hashCode()", "Method"),
-              CompletionItemLink("toString()", "Method"), CompletionItemLink("equals(other)", "Method"),
-              CompletionItemLink("myField", "Field")))
-    }
-  }
-
-  test("External Method Completions (at end)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" ->
-        """public class Dummy {
-          |public String methodA(){}
-          |public String methodB(String a, String b){}
-          | public static String methodStatic(){}
-          |private String methodPrivate(){}
-          |}""".stripMargin)) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val path = root.join("Completion.cls")
-        val content = "public class Completion { public Completion() {String a = new Dummy()"
-        assert(
-          org
-            .getCompletionItems(path.toString, line = 1, offset = content.length, content).map(_.label).isEmpty)
+            Set(CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
+              CompletionItemLink("methodB(a, b)", "Method", "public System.String methodB(System.String a, System.String b)"),
+              CompletionItemLink("clone()", "Method", "public Dummy clone()"),
+              CompletionItemLink("hashCode()", "Method", "public virtual System.Integer hashCode()"),
+              CompletionItemLink("toString()", "Method", "public virtual System.String toString()"),
+              CompletionItemLink("equals(other)", "Method", "public virtual System.Boolean equals(Object other)"),
+              CompletionItemLink("myField", "Field", "public String myField")))
     }
   }
 
@@ -207,7 +212,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "")) {
       root: PathLike =>
         val org = createOrg(root)
-        val testSrc = "class Dummy"
+        val testSrc = "class Dummy e"
         assert(
           org
             .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
@@ -227,20 +232,6 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
           org
             .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
             .map(_.label) sameElements Array("Foo"))
-    }
-  }
-
-  test("Primary Completions (variable)") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> ""
-    )) {
-      root: PathLike =>
-        val org = createOrg(root)
-        val testSrc = "class Dummy { {String abc; a"
-        assert(
-          org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
-            .map(_.label) sameElements Array("abc"))
     }
   }
 
@@ -271,7 +262,4 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             .map(_.label) sameElements Array("addError(msg, escape)", "addError(msg, escape)", "addError(msg)", "addError(msg)"))
     }
   }
-
-
-
 }
