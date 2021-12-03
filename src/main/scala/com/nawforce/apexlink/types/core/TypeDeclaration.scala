@@ -50,7 +50,11 @@ trait FieldDeclaration extends DependencyHolder with UnsafeLocatable with Depend
   val writeAccess: Modifier
 
   def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
+
   def isPrivate: Boolean = modifiers.contains(PRIVATE_MODIFIER)
+
+  override def toString: String =
+    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString
 
   // Create an SObjectField version of this field
   def getSObjectStaticField(shareTypeName: Option[TypeName], module: Option[Module]): CustomField = {
@@ -385,6 +389,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
       superclasses.map(_.superTypes()).getOrElse(Nil) ++
       interfaces.flatMap(_.superTypes())
   }
+
 }
 
 object TypeDeclaration {
