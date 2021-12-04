@@ -123,7 +123,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
         getPackageModule(path).map(module => {
-          val existingIssues = org.issues.pop(path)
+          val existingIssues = org.issueManager.pop(path)
           val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
           val result = parser.parseClassReturningParser()
           try {
@@ -134,7 +134,7 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
               LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
               (None, None)
           } finally {
-            org.issues.push(path, existingIssues)
+            org.issueManager.push(path, existingIssues)
           }
         }).getOrElse((None, None))
       case _ => (None, None)

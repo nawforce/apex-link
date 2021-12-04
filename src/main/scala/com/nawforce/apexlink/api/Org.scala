@@ -64,6 +64,11 @@ trait Org {
   /** Check issue log for errors, ignores warning messages. */
   def hasErrors(): Boolean
 
+  /**
+    * Collection of all current issues reported against this org.
+    */
+  def issues: IssuesCollection
+
   /** Get current issue log as a possibly very large string.
     *
     * See IssueOptions for control over what is returned.
@@ -152,7 +157,7 @@ object Org {
                        s" with autoFlush = ${ServerOps.getAutoFlush}, build = ${OrgImpl.implementationBuild}") {
       val ws = Workspace(path)
       val org = new OrgImpl(ws.value)
-      ws.issues.foreach(org.issues.add)
+      ws.issues.foreach(org.issueManager.add)
       org
     }
   }

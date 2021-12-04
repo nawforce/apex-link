@@ -279,7 +279,7 @@ case class GetAllTestMethods(promise: Promise[Array[TestMethod]])
   extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
-    promise.success(orgImpl.getAllTestMethods())
+    promise.success(orgImpl.getAllTestMethods)
   }
 }
 

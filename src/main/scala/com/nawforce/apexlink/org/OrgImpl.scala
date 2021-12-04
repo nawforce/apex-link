@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, IssuesCollection, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
 import com.nawforce.apexlink.rpc._
@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
@@ -47,7 +47,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
     * for which there is no natural type representation. */
-  private[nawforce] val issues = new IssueLog
+  private[nawforce] val issueManager = new IssuesManager
 
   /** Parsed Apex data cache, the cache holds summary information about Apex types to speed startup */
   private[nawforce] val parsedCache =
@@ -86,7 +86,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         val dependents = packageAndDependent._2
         dependents.foldLeft(acc)((acc, layer) => {
           val issuesAndIndex = workspace.indexes(layer)
-          issuesAndIndex.issues.foreach(issues.add)
+          issuesAndIndex.issues.foreach(issueManager.add)
           val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
           pkg.add(module)
           acc + (layer -> module)
@@ -120,6 +120,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Get all loaded packages. */
   def getPackages(): Array[Package] = packages.toArray[Package]
 
+  /** Provide access to IssueManager for org */
+  override def issues: IssuesManager = issueManager
+
   /** Check to see if cache has been flushed */
   override def isDirty(): Boolean = flusher.isDirty
 
@@ -137,7 +140,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   /** CHeck for errors in the log. */
-  override def hasErrors(): Boolean = issues.hasErrors
+  override def hasErrors(): Boolean = issueManager.hasErrors
 
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
@@ -154,7 +157,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     val path = Path(fileName)
     OrgImpl.current.withValue(this) {
       val fileIssues = new IssueLog()
-      fileIssues.push(path, issues.getIssues.getOrElse(path, Nil))
+      fileIssues.push(path, issueManager.getIssues.getOrElse(path, Nil))
 
       if (options.includeZombies) {
         propagateAllDependencies()
@@ -172,7 +175,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   def reportableIssues(options: IssueOptions): IssueLog = {
     if (options.includeZombies) {
       propagateAllDependencies()
-      val allIssues = IssueLog(issues)
+      val allIssues = IssueLog(issueManager)
       packages
         .filterNot(_.isGhosted)
         .foreach(pkg => {
@@ -182,7 +185,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         })
       allIssues
     } else {
-      issues
+      issueManager
     }
   }
 
@@ -420,7 +423,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       }
   }
 
-  def getAllTestMethods(): Array[TestMethod] = {
+  def getAllTestMethods: Array[TestMethod] = {
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.testClasses.toSeq))
 
     allClasses.flatMap(c => c.methods
@@ -447,7 +450,7 @@ object OrgImpl {
   /** Log an issue against the in-scope org */
   private[nawforce] def log(issue: Issue): Unit = {
     if (issue.path != null)
-      OrgImpl.current.value.issues.add(issue)
+      OrgImpl.current.value.issueManager.add(issue)
   }
 
   /** Log a general error against the in-scope org */

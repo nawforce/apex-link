@@ -284,12 +284,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       val typeId = TypeId(this, doc.typeName(namespace))
 
       // Update internal document tracking
-      index.upsert(new LocalLogger(pkg.org.issues), doc)
+      index.upsert(new LocalLogger(pkg.org.issueManager), doc)
       if (sourceOpt.isEmpty)
         index.remove(doc)
 
       // Clear errors as might fail to create type, SObjects are handled later due to multiple files
-      pkg.org.issues.pop(doc.path)
+      pkg.org.issueManager.pop(doc.path)
 
       // Create type & forward holders to limit need for invalidation chaining
       val newTypes = createTypes(doc, sourceOpt)
@@ -398,7 +398,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       clearSObjectErrors(sObjectPath)
       val deployer = new SObjectDeployer(this)
       val sobjects = deployer.createSObjects(
-        SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
+        SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issueManager), namespace, sObjectPath)).buffered)
 
       sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
       sobjects.toIndexedSeq
@@ -409,10 +409,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def clearSObjectErrors(path: PathLike): Unit = {
     if (!path.isDirectory) {
-      pkg.org.issues.pop(path)
+      pkg.org.issueManager.pop(path)
     } else {
       val (files, directories) = path.splitDirectoryEntries()
-      files.foreach(file => pkg.org.issues.pop(file))
+      files.foreach(file => pkg.org.issueManager.pop(file))
       directories.foreach(clearSObjectErrors)
     }
   }

@@ -100,7 +100,7 @@ abstract class FullDeclaration(val source: Source,
 
   override def flush(pc: ParsedCache, context: PackageContext): Unit = {
     if (!flushedToCache) {
-      val diagnostics = module.pkg.org.issues.getDiagnostics(location.path).toArray
+      val diagnostics = module.pkg.org.issueManager.getDiagnostics(location.path).toArray
       pc.upsert(context, name.value, source.asUTF8, writeBinary(ApexSummary(summary, diagnostics)))
       flushedToCache = true
     }
