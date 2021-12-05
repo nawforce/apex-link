@@ -46,7 +46,7 @@ class IssuesManager extends IssueLog with IssuesCollection {
   override def issuesForFileLocation(path: String, location: IssueLocation): Array[APIIssue] = {
     val loc = Location(location.startLineNumber(), location.startCharOffset(), location.endLineNumber(), location.endCharOffset())
     getIssues.getOrElse(Path(path), Nil)
-      .filter(issue => issue.diagnostic.location.contains(loc))
+      .filter(issue => loc.contains(issue.diagnostic.location))
       .toArray[APIIssue]
   }
 
@@ -61,7 +61,8 @@ class IssuesManager extends IssueLog with IssuesCollection {
         .sorted(Issue.ordering)
       if (maxErrorsPerFile > 0)
         fileIssues = fileIssues.take(maxErrorsPerFile)
-      buffer.addAll(issues(file))
+      buffer.addAll(fileIssues)
+      hasChanged.remove(file)
     })
     buffer.toArray
   }
