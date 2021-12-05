@@ -48,7 +48,18 @@ case class GetIssuesResult(issues: Array[Issue])
 
 object GetIssuesResult {
   implicit val rw: RW[GetIssuesResult] = macroRW
-  implicit val rwIssue: RW[Issue] = macroRW
+  implicit val rwIssue: RW[com.nawforce.pkgforce.diagnostics.Issue] = macroRW
+  implicit val rwDiagnostic: RW[Diagnostic] = macroRW
+  implicit val rwDiagnosticCategory: RW[DiagnosticCategory] = macroRW
+  implicit val rwLocation: RW[Location] = macroRW
+  implicit val rwPathLike: RW[PathLike] = JSONRPCPickler.readwriter[String].bimap[PathLike](_.toString, Path(_))
+}
+
+case class IssuesResult(issues: Array[Issue])
+
+object IssuesResult {
+  implicit val rw: RW[IssuesResult] = macroRW
+  implicit val rwIssue: RW[com.nawforce.pkgforce.diagnostics.Issue] = macroRW
   implicit val rwDiagnostic: RW[Diagnostic] = macroRW
   implicit val rwDiagnosticCategory: RW[DiagnosticCategory] = macroRW
   implicit val rwLocation: RW[Location] = macroRW
@@ -157,6 +168,18 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "getIssues")
   def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult]
+
+  @api.JSONRPCMethod(name = "hasUpdatedIssues")
+  def hasUpdatedIssues: Future[Array[String]]
+
+  @api.JSONRPCMethod(name = "ignoreUpdatedIssues")
+  def ignoreUpdatedIssues(path: String): Future[Unit]
+
+  @api.JSONRPCMethod(name = "issuesForFile")
+  def issuesForFile(path: String): Future[IssuesResult]
+
+  @api.JSONRPCMethod(name = "issuesForFiles")
+  def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Future[IssuesResult]
 
   @api.JSONRPCMethod(name = "refresh")
   def refresh(path: String): Future[Unit]

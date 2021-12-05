@@ -27,7 +27,6 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
 
         assert(org.issues.hasUpdatedIssues.isEmpty)
         assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).isEmpty)
-
       }
     }
   }

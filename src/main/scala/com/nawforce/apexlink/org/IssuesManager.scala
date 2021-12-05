@@ -52,7 +52,7 @@ class IssuesManager extends IssueLog with IssuesCollection {
 
   override def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Array[APIIssue] = {
     val issues = getIssues
-    val files = if (paths == null) issues.keys else paths.map(p => Path(p)).toIterable
+    val files = if (paths == null || paths.isEmpty) issues.keys else paths.map(p => Path(p)).toIterable
 
     val buffer = mutable.ArrayBuffer[Issue]()
     files.foreach(file => {

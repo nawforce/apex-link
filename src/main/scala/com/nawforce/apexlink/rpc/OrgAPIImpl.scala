@@ -106,6 +106,74 @@ object GetIssues {
   }
 }
 
+case class HasUpdatedIssues(promise: Promise[Array[String]]) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(orgImpl.issues.hasUpdatedIssues)
+    }
+  }
+}
+
+object HasUpdatedIssues {
+  def apply(queue: OrgQueue): Future[Array[String]] = {
+    val promise = Promise[Array[String]]()
+    queue.add(new HasUpdatedIssues(promise))
+    promise.future
+  }
+}
+
+case class IgnoreUpdatedIssues(promise: Promise[Unit], path: String) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(orgImpl.issues.ignoreUpdatedIssues(path))
+    }
+  }
+}
+
+object IgnoreUpdatedIssues {
+  def apply(queue: OrgQueue, path: String): Future[Unit] = {
+    val promise = Promise[Unit]()
+    queue.add(new IgnoreUpdatedIssues(promise, path))
+    promise.future
+  }
+}
+
+case class IssuesForFile(promise: Promise[IssuesResult], path: String) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(IssuesResult(orgImpl.issues.issuesForFile(path).asInstanceOf[Array[Issue]]))
+    }
+  }
+}
+
+object IssuesForFile {
+  def apply(queue: OrgQueue, path: String): Future[IssuesResult] = {
+    val promise = Promise[IssuesResult]()
+    queue.add(new IssuesForFile(promise, path))
+    promise.future
+  }
+}
+
+case class IssuesForFiles(promise: Promise[IssuesResult], paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int) extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    OrgImpl.current.withValue(orgImpl) {
+      promise.success(IssuesResult(orgImpl.issues.issuesForFiles(paths, includeWarnings, maxErrorsPerFile).asInstanceOf[Array[Issue]]))
+    }
+  }
+}
+
+object IssuesForFiles {
+  def apply(queue: OrgQueue, paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Future[IssuesResult] = {
+    val promise = Promise[IssuesResult]()
+    queue.add(new IssuesForFiles(promise, paths, includeWarnings, maxErrorsPerFile))
+    promise.future
+  }
+}
+
 case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult], apexOnly: Boolean) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
@@ -330,6 +398,22 @@ class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
 
   override def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult] = {
     GetIssues(OrgQueue.instance(), includeWarnings, includeZombies)
+  }
+
+  override def hasUpdatedIssues: Future[Array[String]] = {
+    HasUpdatedIssues(OrgQueue.instance())
+  }
+
+  override def ignoreUpdatedIssues(path: String): Future[Unit] = {
+    IgnoreUpdatedIssues(OrgQueue.instance(), path)
+  }
+
+  override def issuesForFile(path: String): Future[IssuesResult] = {
+    IssuesForFile(OrgQueue.instance(), path)
+  }
+
+  override def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Future[IssuesResult] = {
+    IssuesForFiles(OrgQueue.instance(), paths, includeWarnings, maxErrorsPerFile)
   }
 
   override def refresh(path: String): Future[Unit] = {
