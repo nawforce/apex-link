@@ -71,9 +71,9 @@ case class TypeSummary(sourceHash: Int,
       this.superClass == other.superClass &&
       this.interfaces == other.interfaces &&
       this.blocks == other.blocks &&
-      this.fields.sameElements(other.fields) &&
+      this.fields == other.fields &&
       this.constructors == other.constructors &&
-      this.methods.sameElements(other.methods) &&
+      this.methods == other.methods &&
       this.nestedTypes == other.nestedTypes &&
       this.dependents.sameElements(other.dependents)
   }

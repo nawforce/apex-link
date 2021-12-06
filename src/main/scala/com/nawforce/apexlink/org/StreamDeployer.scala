@@ -138,6 +138,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())
+      classTypes.foreach(td => td.module.pkg.org.pluginsManager.onTypeValidated(td))
     }
   }
 
@@ -178,6 +179,9 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
         // Report any (existing) diagnostics
         val path = cls.declaration.location.path
         cls.diagnostics.foreach(diagnostic => module.pkg.org.issues.add(Issue(path, diagnostic)))
+
+        cls.declaration.propagateDependencies()
+        cls.module.pkg.org.pluginsManager.onTypeValidated(cls.declaration)
       })
   }
 

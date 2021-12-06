@@ -24,7 +24,6 @@ import com.nawforce.apexlink.types.other.{LabelDeclaration, Page}
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.names
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.platform.Path
@@ -322,6 +321,7 @@ trait PackageAPI extends Package {
       td.preReValidate()
     })
     tds.foreach(_.validate())
+    tds.collect { case td: DependentType => td }.foreach(td => td.module.pkg.org.pluginsManager.onTypeValidated(td))
   }
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {

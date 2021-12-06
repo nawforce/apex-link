@@ -319,10 +319,6 @@ class SummaryDeclaration(path: PathLike,
     propagateOuterDependencies(new TypeCache())
   }
 
-  override def propagateAllDependencies(): Unit = {
-    propagateDependencies()
-  }
-
   private def propagateInnerDependencies(): Unit = {
     blocks.foreach(_.propagateDependencies())
     localFields.foreach(_.propagateDependencies())

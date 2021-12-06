@@ -153,9 +153,6 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit
 
-  /** Override to handle request to propagate all dependencies in type */
-  def propagateAllDependencies(): Unit
-
   override def superClassDeclaration: Option[TypeDeclaration] =
     superClass.flatMap(sc => TypeResolver(sc, this).toOption)
 

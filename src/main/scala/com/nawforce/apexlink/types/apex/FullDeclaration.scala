@@ -106,10 +106,6 @@ abstract class FullDeclaration(val source: Source,
     }
   }
 
-  override def propagateAllDependencies(): Unit = {
-    // Not needed, dependencies are propagated by default during validation
-  }
-
   override def validate(): Unit = {
     LoggerOps.debugTime(s"Validated ${location.path}") {
       // Validate inside a parsing context as LazyBlock may call parser

@@ -188,7 +188,6 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         val module2 = pkg2.orderedModules.headOption.get
         assertIsSummaryDeclaration(pkg2, "Dummy")
         OrgImpl.current.withValue(org2) {
-          pkg2.propagateAllDependencies()
           assert(module2.reportUnused().getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
         }
       }
@@ -216,7 +215,6 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         val module2 = pkg2.orderedModules.headOption.get
         assertIsSummaryDeclaration(pkg2, "Dummy")
         OrgImpl.current.withValue(org2) {
-          pkg2.propagateAllDependencies()
           assert(
             module2.reportUnused().getMessages(root.join("Dummy.cls"), unused = true) == "" +
               "Unused: line 1 at 32-35: Unused Method 'void foo()'\n")

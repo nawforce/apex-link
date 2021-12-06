@@ -17,6 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, IssuesCollection, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
+import com.nawforce.apexlink.plugins.PluginsManager
 import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
@@ -48,6 +49,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
     * for which there is no natural type representation. */
   private[nawforce] val issueManager = new IssuesManager
+
+  /** Manager for post validation plugins */
+  private[nawforce] val pluginsManager = new PluginsManager
 
   /** Parsed Apex data cache, the cache holds summary information about Apex types to speed startup */
   private[nawforce] val parsedCache =
@@ -160,7 +164,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       fileIssues.push(path, issueManager.getIssues.getOrElse(path, Nil))
 
       if (options.includeZombies) {
-        propagateAllDependencies()
         packagesByNamespace.values.foreach(pkg => {
           pkg
             .getTypeOfPathInternal(path)
@@ -174,7 +177,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   def reportableIssues(options: IssueOptions): IssueLog = {
     if (options.includeZombies) {
-      propagateAllDependencies()
       val allIssues = IssueLog(issueManager)
       packages
         .filterNot(_.isGhosted)
@@ -191,13 +193,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   def getPackageForPath(path: String): Package = {
     packages.find(_.isPackagePath(path)).orNull
-  }
-
-  private def propagateAllDependencies(): Unit = {
-    // This is lazy evaluated in classes so safe to call again
-    packages.foreach(pkg => {
-      pkg.propagateAllDependencies()
-    })
   }
 
   /** Get a array of type identifiers available across all packages. */
@@ -298,8 +293,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
-    propagateAllDependencies()
-
     val maxBombs = Math.max(0, count)
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.nonTestClasses.toSeq))
     val bombs = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
@@ -317,8 +310,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
-    propagateAllDependencies()
-
     def findPackageIdentifierAndSummary(path: String): Option[(Package, TypeIdentifier, TypeSummary)] = {
       packages.view
         .flatMap(pkg => {
@@ -400,7 +391,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {
-    propagateAllDependencies()
 
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption

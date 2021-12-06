@@ -88,14 +88,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       .getOrElse(baseModules.toSet)
   }
 
-  /** Check all summary types have propagated their dependencies */
-  def propagateAllDependencies(): Unit = {
-    types.values.foreach({
-      case ad: ApexClassDeclaration => ad.propagateAllDependencies()
-      case _                        => ()
-    })
-  }
-
   /* Iterator over available types */
   def getTypes: Iterable[TypeDeclaration] = {
     types.values
@@ -304,6 +296,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
           // Update and validate
           replaceType(newType.typeName, Some(newType))
           newType.validate()
+          newType.module.pkg.org.pluginsManager.onTypeValidated(newType)
           (typeId, holders.toSet)
         })
       } else {

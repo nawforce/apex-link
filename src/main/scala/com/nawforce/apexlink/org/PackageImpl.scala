@@ -110,11 +110,6 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     }
   }
 
-  /** Check all summary types have propagated their dependencies. */
-  def propagateAllDependencies(): Unit = {
-    modules.foreach(_.propagateAllDependencies())
-  }
-
   /** Load a class to obtain it's FullDeclaration, issues are not updated, this just returns a temporary version of
     * the class so that it can be inspected. */
   protected def loadClass(path: PathLike, source: String)
