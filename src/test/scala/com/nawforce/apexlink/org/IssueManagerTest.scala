@@ -14,7 +14,7 @@
 package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
-import com.nawforce.pkgforce.diagnostics.{Issue, SYNTAX_CATEGORY}
+import com.nawforce.pkgforce.diagnostics.{Issue, SYNTAX_CATEGORY, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -69,8 +69,9 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
         val org = createOrg(root)
 
+        assert(org.issues.hasUpdatedIssues sameElements Array("/Dummy.cls"))
+        org.issues.ignoreUpdatedIssues("/Dummy.cls")
         assert(org.issues.hasUpdatedIssues.isEmpty)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).isEmpty)
 
         val path = root.join("/Dummy.cls")
         path.write("public class Dummy")
@@ -79,23 +80,29 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
 
         assert(org.issues.hasUpdatedIssues sameElements Array("/Dummy.cls"))
 
-        val expectedIssue = Issue(root.join("Dummy.cls"), SYNTAX_CATEGORY, Location(1, 18),
-          "mismatched input '<EOF>' expecting {'extends', 'implements', '{'}")
+        val expectedIssues = Array(
+          Issue(root.join("Dummy.cls"), SYNTAX_CATEGORY, Location(1, 18),
+            "mismatched input '<EOF>' expecting {'extends', 'implements', '{'}"),
+          Issue(root.join("Dummy.cls"), UNUSED_CATEGORY, Location(1, 13, 1, 18),
+            "Type 'Dummy' is unused"),
+        )
 
-        assert(org.issues.issuesForFile("/Dummy.cls") sameElements Array(expectedIssue))
+        assert(org.issues.issuesForFile("/Dummy.cls") sameElements expectedIssues)
         assert(org.issues.hasUpdatedIssues.isEmpty)
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 17)).isEmpty)
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 19)).isEmpty)
-        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18)) sameElements Array(expectedIssue))
-        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 17, 1, 19)) sameElements Array(expectedIssue))
-        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18, 2, 0)) sameElements Array(expectedIssue))
+        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18)) sameElements Array(expectedIssues.head))
+        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 17, 1, 19)) sameElements Array(expectedIssues.head))
+        assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18, 2, 0)) sameElements Array(expectedIssues.head))
 
         assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100) sameElements
-          Array(expectedIssue))
+          expectedIssues)
         assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxErrorsPerFile = 100) sameElements
-          Array(expectedIssue))
+          expectedIssues)
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxErrorsPerFile = 1) sameElements
+          Array(expectedIssues.head))
         assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = false, maxErrorsPerFile = 0) sameElements
-          Array(expectedIssue))
+          Array(expectedIssues.head))
       }
     }
   }
@@ -109,8 +116,8 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
 
         assert(org.issues.hasUpdatedIssues sameElements Array("/Dummy.cls"))
 
-        assert(org.issues.issuesForFile("/Dummy.cls").length == 3)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).length == 3)
+        assert(org.issues.issuesForFile("/Dummy.cls").length == 4)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).length == 4)
         assert(org.issues.issuesForFiles(paths = null, includeWarnings = false, maxErrorsPerFile = 100).length == 1)
         assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 1).length == 1)
         assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 2).length == 2)

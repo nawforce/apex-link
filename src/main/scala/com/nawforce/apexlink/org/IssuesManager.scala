@@ -40,7 +40,7 @@ class IssuesManager extends IssueLog with IssuesCollection {
 
   override def issuesForFile(path: String): Array[APIIssue] = {
     hasChanged.remove(Path(path))
-    getIssues.getOrElse(Path(path), Nil).toArray
+    getIssues.getOrElse(Path(path), Nil).sorted(Issue.ordering).toArray
   }
 
   override def issuesForFileLocation(path: String, location: IssueLocation): Array[APIIssue] = {

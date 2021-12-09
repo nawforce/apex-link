@@ -12,13 +12,19 @@
     derived from this software without specific prior written permission.
  */
 package com.nawforce.apexlink.plugins
-
-import com.nawforce.apexlink.types.apex.SummaryDeclaration
-import com.nawforce.pkgforce.diagnostics.LoggerOps
+import com.nawforce.apexlink.cst.{ClassDeclaration, EnumDeclaration, InterfaceDeclaration}
 
 class UnusedPlugin extends Plugin {
-  override def onSummaryValidated(td: SummaryDeclaration): Unit = {
-    LoggerOps.info(s"Propagated: ${td.typeName}")
-    td.propagateDependencies()
+
+  override def onClassValidated(td: ClassDeclaration): Unit = {
+    td.unused().foreach(td.module.pkg.org.issues.add)
+  }
+
+  override def onEnumValidated(td: EnumDeclaration): Unit = {
+    td.unused().foreach(td.module.pkg.org.issues.add)
+  }
+
+  override def onInterfaceValidated(td: InterfaceDeclaration): Unit = {
+    td.unused().foreach(td.module.pkg.org.issues.add)
   }
 }

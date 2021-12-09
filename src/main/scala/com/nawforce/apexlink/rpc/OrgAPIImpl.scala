@@ -87,9 +87,7 @@ case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean
       val options = new IssueOptions
       options.includeZombies = includeZombies
       options.includeWarnings = includeWarnings
-      val issues = orgImpl
-        .reportableIssues(options)
-        .getIssues
+      val issues = orgImpl.issueManager.getIssues
       issues.keys.foreach(key => {
         buffer.addAll(issues(key).sorted(Issue.ordering).take(10))
       })

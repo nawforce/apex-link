@@ -297,7 +297,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
       assert(!org.issues.hasErrorsOrWarnings)
-      assert(!org.unmanaged.orderedModules.head.reportUnused().hasErrorsOrWarnings)
+      assert(!org.issueManager.hasErrorsOrWarnings)
     }
   }
 

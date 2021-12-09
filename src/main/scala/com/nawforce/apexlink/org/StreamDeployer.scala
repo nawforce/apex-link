@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
-import com.nawforce.apexlink.types.core.TypeDeclaration
+import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.diagnostics._
@@ -57,6 +57,11 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       components.validate()
       pages.validate()
     }
+
+    // Run plugins over loaded types DependentTypes
+    // This has to be done post loading to allow dependencies to be established
+    val plugins = module.pkg.org.pluginsManager
+    types.values.collect { case dt: DependentType => dt }.foreach(plugins.onTypeValidated)
 
     // Report progress and tidy up
     if (types.size > basicTypesSize) {
@@ -138,7 +143,6 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())
-      classTypes.foreach(td => td.module.pkg.org.pluginsManager.onTypeValidated(td))
     }
   }
 
@@ -173,15 +177,13 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     classes
       .filterNot(rejected.contains)
       .foreach(cls => {
-        // Re-establish outer dependencies, others are deferred until we need unused analysis
+        // Re-establish dependencies
         cls.declaration.propagateOuterDependencies(typeCache)
+        cls.declaration.propagateDependencies()
 
         // Report any (existing) diagnostics
         val path = cls.declaration.location.path
         cls.diagnostics.foreach(diagnostic => module.pkg.org.issues.add(Issue(path, diagnostic)))
-
-        cls.declaration.propagateDependencies()
-        cls.module.pkg.org.pluginsManager.onTypeValidated(cls.declaration)
       })
   }
 

@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
@@ -150,11 +149,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def removeMetadata(typeName: TypeName): Unit = {
     types.remove(typeName)
-  }
-
-  /** Obtain log with unused metadata warnings */
-  def reportUnused(): IssueLog = {
-    new UnusedLog(types.values)
   }
 
   // Add dependencies for Apex types to a map

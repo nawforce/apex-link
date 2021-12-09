@@ -64,8 +64,6 @@ object Check {
         Environment.setCacheDir(Some(None))
       }
 
-      //Thread.sleep(20000)
-
       val org = Org.newOrg(dirs.head)
       org.flush()
       if (depends) {

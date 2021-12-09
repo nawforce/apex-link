@@ -14,8 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, IssuesCollection, Org, Package, ServerOps, TypeSummary}
-import com.nawforce.apexlink.cst.UnusedLog
+import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
 import com.nawforce.apexlink.plugins.PluginsManager
 import com.nawforce.apexlink.rpc._
@@ -149,7 +148,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Collect all issues into a String log */
   override def getIssues(options: IssueOptions): String = {
     OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings,
+      issueManager.asString(options.includeWarnings,
                                          options.includeZombies,
                                          options.maxErrorsPerFile,
                                          options.format)
@@ -160,34 +159,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
     val path = Path(fileName)
     OrgImpl.current.withValue(this) {
-      val fileIssues = new IssueLog()
-      fileIssues.push(path, issueManager.getIssues.getOrElse(path, Nil))
-
-      if (options.includeZombies) {
-        packagesByNamespace.values.foreach(pkg => {
-          pkg
-            .getTypeOfPathInternal(path)
-            .flatMap(typeId => typeId.module.findModuleType(typeId.typeName))
-            .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
-        })
-      }
-      fileIssues.getIssues.getOrElse(path, Nil).toArray
-    }
-  }
-
-  def reportableIssues(options: IssueOptions): IssueLog = {
-    if (options.includeZombies) {
-      val allIssues = IssueLog(issueManager)
-      packages
-        .filterNot(_.isGhosted)
-        .foreach(pkg => {
-          pkg.orderedModules.foreach(module => {
-            allIssues.merge(module.reportUnused())
-          })
-        })
-      allIssues
-    } else {
-      issueManager
+      issueManager.getIssues.getOrElse(path, Nil).toArray
     }
   }
 

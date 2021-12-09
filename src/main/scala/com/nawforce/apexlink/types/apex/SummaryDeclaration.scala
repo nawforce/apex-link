@@ -193,11 +193,6 @@ trait SummaryDependencyHandler extends DependencyHolder {
     }
     _dependents.get
   }
-
-  /** For summary types we defer propagation of internal dependencies as they are only needed for unused analysis
-    * currently but we don't want to re-execute them every time. */
-  override def propagateDependencies(): Unit = propagated
-  private lazy val propagated: Boolean = { super.propagateDependencies(); true }
 }
 
 class SummaryParameter(parameterSummary: ParameterSummary) extends ParameterDeclaration {
@@ -319,14 +314,6 @@ class SummaryDeclaration(path: PathLike,
     propagateOuterDependencies(new TypeCache())
   }
 
-  private def propagateInnerDependencies(): Unit = {
-    blocks.foreach(_.propagateDependencies())
-    localFields.foreach(_.propagateDependencies())
-    constructors.foreach(_.propagateDependencies())
-    localMethods.foreach(_.propagateDependencies())
-    nestedTypes.foreach(_.propagateDependencies())
-  }
-
   def hasValidDependencies(typeCache: TypeCache): Boolean =
     areTypeDependenciesValid(typeCache) &&
       blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
@@ -335,11 +322,14 @@ class SummaryDeclaration(path: PathLike,
       localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
       nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies(typeCache))
 
-  override def propagateDependencies(): Unit = propagated
-  private lazy val propagated: Boolean = {
+  override def propagateDependencies(): Unit = {
     super.propagateDependencies()
-    propagateInnerDependencies()
-    true
+
+    blocks.foreach(_.propagateDependencies())
+    localFields.foreach(_.propagateDependencies())
+    constructors.foreach(_.propagateDependencies())
+    localMethods.foreach(_.propagateDependencies())
+    nestedTypes.foreach(_.propagateDependencies())
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],

@@ -546,11 +546,6 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
       val org1 = createOrg(root)
       val pkg1 = org1.unmanaged
       assert(!org1.issues.hasErrorsOrWarnings)
-      assert(
-        pkg1.orderedModules.head
-          .reportUnused()
-          .getMessages(root.join("MyConcrete.cls"))
-          .isEmpty)
       org1.flush()
 
       val org2 = createOrg(root)
