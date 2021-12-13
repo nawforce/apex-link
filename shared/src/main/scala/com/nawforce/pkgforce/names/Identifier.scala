@@ -20,7 +20,12 @@ object Identifier {
     val value = name.value
     assert(value.nonEmpty)
 
-    if (!value.matches("^[0-9a-zA-Z_]*$")) {
+    if(value.startsWith("__sfdc_trigger")){
+      if(!value.matches("^((__sfdc_trigger)[/][0-9a-zA-Z_]+)([/][0-9a-zA-Z_]+)?$")){
+        return Some("can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'")
+      }
+      None
+    } else if (!value.matches("^[0-9a-zA-Z_]*$")) {
       Some("can only use characters A-Z, a-z, 0-9 or _")
     } else if (value(0) >= '0' && value(0) <= '9') {
       Some("can not start with a digit")
