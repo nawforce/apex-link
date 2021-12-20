@@ -15,9 +15,11 @@ package com.nawforce.apexlink
 
 import com.nawforce.apexlink.api.{Org, ServerOps, TypeSummary}
 import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexFullDeclaration, FullDeclaration}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
+import com.nawforce.pkgforce.diagnostics.UNUSED_CATEGORY
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.platform.Path
@@ -27,13 +29,31 @@ trait TestHelper {
   private var defaultOrg: OrgImpl = _
 
   def createOrg(path: PathLike): OrgImpl = {
-    defaultOrg = Org.newOrg(path).asInstanceOf[OrgImpl]
-    defaultOrg
+    val plugins = PluginsManager.overridePlugins(Seq())
+    try {
+      defaultOrg = Org.newOrg(path).asInstanceOf[OrgImpl]
+      defaultOrg
+    } finally {
+      PluginsManager.overridePlugins(plugins)
+    }
   }
 
-  def createHappyOrg(path: PathLike): OrgImpl = {
-    defaultOrg = createOrg(path)
-    assert(!hasIssues)
+  def createOrgWithUnused(path: PathLike): OrgImpl = {
+    val plugins = PluginsManager.overridePlugins(Seq(classOf[UnusedPlugin]))
+    try {
+      defaultOrg = Org.newOrg(path).asInstanceOf[OrgImpl]
+      defaultOrg
+    } finally {
+      PluginsManager.overridePlugins(plugins)
+    }
+  }
+
+  def createHappyOrg(path: PathLike, ignoreUnused: Boolean = false): OrgImpl = {
+    createOrg(path)
+    if (ignoreUnused)
+      assert(!hasIssuesIgnoringUnused)
+    else
+      assert(!hasIssues)
     defaultOrg
   }
 
@@ -97,7 +117,7 @@ trait TestHelper {
     try {
       ServerOps.setAutoFlush(false)
       FileSystemHelper.run(Map("Dummy.trigger" -> text)) { root: PathLike =>
-        defaultOrg = Org.newOrg(root).asInstanceOf[OrgImpl]
+        createOrg(root)
         unmanagedType(TypeName(Name("__sfdc_trigger/Dummy"))).get
       }
     } finally {
@@ -146,7 +166,10 @@ trait TestHelper {
       .map(_.asInstanceOf[SObjectDeclaration])
   }
 
-  def hasIssues: Boolean = defaultOrg.issues.hasErrorsOrWarnings
+  def hasIssues: Boolean = defaultOrg.issues.nonEmpty
+
+  def hasIssuesIgnoringUnused: Boolean =
+    defaultOrg.issues.getIssues.values.exists(_.exists(_.diagnostic.category != UNUSED_CATEGORY))
 
   def dummyIssues: String = defaultOrg.issues.getMessages(Path("/Dummy.cls"))
 

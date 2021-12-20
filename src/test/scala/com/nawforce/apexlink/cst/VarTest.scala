@@ -43,7 +43,7 @@ class VarTest extends AnyFunSuite with TestHelper {
   test("Duplicate for vars") {
     typeDeclaration(
       "public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}")
-    assert(!hasIssues)
+    assert(!hasIssuesIgnoringUnused)
   }
 
   test("Shadow local var") {
@@ -62,7 +62,7 @@ class VarTest extends AnyFunSuite with TestHelper {
 
   test("Shadow local var, not extending") {
     typeDeclaration("public class Dummy {String a; class Dummy2 { void func() {String a;}}}")
-    assert(!hasIssues)
+    assert(!hasIssuesIgnoringUnused)
   }
 
   test("Shadow local var, extending") {

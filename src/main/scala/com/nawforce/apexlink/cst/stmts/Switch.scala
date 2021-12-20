@@ -18,12 +18,7 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.apexparser.ApexParser.{
-  SwitchStatementContext,
-  WhenControlContext,
-  WhenLiteralContext,
-  WhenValueContext
-}
+import com.nawforce.apexparser.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
 import com.nawforce.pkgforce.names.{EncodedName, TypeName}
 import com.nawforce.pkgforce.parsers.ENUM_NATURE
 import com.nawforce.runtime.parsers.CodeParser
@@ -183,10 +178,10 @@ object WhenValue {
 
 final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
-    context.withInnerBlockVerifyContext() { blockContext =>
-      whenValue.verify(blockContext)
-      block.verify(blockContext)
-    }
+    val blockContext = new InnerBlockVerifyContext(context)
+    whenValue.verify(blockContext)
+    block.verify(blockContext)
+    context.typePlugin.onBlockValidated(block, context.isStatic, blockContext)
   }
 }
 

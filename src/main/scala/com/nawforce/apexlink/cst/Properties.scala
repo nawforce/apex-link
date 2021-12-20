@@ -111,9 +111,10 @@ sealed abstract class PropertyBlock extends CST {
 
 final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
-    block.foreach(blk =>
-      context.withOuterBlockVerifyContext(isStatic) { blockContext =>
-        blk.verify(blockContext)
+    block.foreach(block => {
+      val blockContext = new OuterBlockVerifyContext(context, isStatic)
+      block.verify(blockContext)
+      context.typePlugin.onBlockValidated(block, isStatic, blockContext)
     })
   }
 }
@@ -121,10 +122,12 @@ final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[B
 final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block])
     extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
-    context.withOuterBlockVerifyContext(isStatic) { blockContext =>
+    block.foreach(block => {
+      val blockContext = new OuterBlockVerifyContext(context, isStatic)
       blockContext.addVar(Name("value"), None, propertyType)
-      block.foreach(_.verify(blockContext))
-    }
+      block.verify(blockContext)
+      context.typePlugin.onBlockValidated(block, isStatic, blockContext)
+    })
   }
 }
 

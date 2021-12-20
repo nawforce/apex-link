@@ -33,11 +33,11 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__c/Foo__c.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__c").join("Foo__c.object"), customObjectMetadata)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -50,12 +50,12 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         root.createDirectory("Foo__c")
         refresh(pkg, root.join("Foo__c").join("Foo__c.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -69,10 +69,10 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__c/Foo__c.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__c").join("Foo__c.object"), customObjectMetadata + " ")
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -85,12 +85,12 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq()))) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         root.createDirectory("Bar__c")
         refresh(pkg, root.join("Bar__c").join("Bar__c.object"), customObject("Bar", Seq()))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -106,7 +106,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
         objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
@@ -118,7 +118,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(fieldFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -131,7 +131,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
         objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
@@ -143,7 +143,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(fieldSetFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -156,7 +156,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__c").toOption.get
         objectDir.createFile("Foo__c.object-meta.xml", customObject("Foo", Seq()))
@@ -168,7 +168,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(sharingReasonFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
@@ -183,7 +183,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
             "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__c").join("Foo__c.object"), customObject("Foo", Seq()))
         assert(org.flush())
@@ -207,7 +207,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
                 root.join("Foo__c").join("Foo__c.object"),
                 customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -227,7 +227,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
                 root.join("base").join("Foo__c").join("Foo__c.object"),
                 customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Baz__c"))
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Bar__c"))
       }
@@ -245,7 +245,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
                 root.join("base").join("Foo__c").join("Foo__c.object"),
                 customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Baz__c"))
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Bar__c"))
       }
@@ -377,11 +377,11 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
@@ -394,12 +394,12 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         root.createDirectory("Foo__mdt")
         refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
@@ -413,10 +413,10 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata + " ")
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
@@ -429,7 +429,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__mdt").toOption.get
         objectDir.createFile("Foo__mdt.object-meta.xml", customObject("Foo", Seq()))
@@ -441,7 +441,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(fieldFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
@@ -456,7 +456,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObject("Foo", Seq()))
         assert(org.flush())
@@ -480,7 +480,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           root.join("Foo__mdt").join("Foo__mdt.object"),
           customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -526,11 +526,11 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__e/Foo__e.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObjectMetadata)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
@@ -543,12 +543,12 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         root.createDirectory("Foo__e")
         refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
@@ -562,10 +562,10 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__e/Foo__e.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObjectMetadata + " ")
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
@@ -578,7 +578,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__e").toOption.get
         objectDir.createFile("Foo__e.object-meta.xml", customObject("Foo", Seq()))
@@ -590,7 +590,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(fieldFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
@@ -605,7 +605,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObject("Foo", Seq()))
         assert(org.flush())
@@ -629,7 +629,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           root.join("Foo__e").join("Foo__e.object"),
           customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -675,11 +675,11 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__b/Foo__b.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObjectMetadata)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
@@ -692,12 +692,12 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         root.createDirectory("Foo__b")
         refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
@@ -711,10 +711,10 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Foo__b/Foo__b.object" -> customObjectMetadata)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObjectMetadata + " ")
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
@@ -727,7 +727,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val objectDir = root.createDirectory("Foo__b").toOption.get
         objectDir.createFile("Foo__b.object-meta.xml", customObject("Foo", Seq()))
@@ -739,7 +739,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
         pkg.refresh(fieldFile)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
             .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
@@ -754,7 +754,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObject("Foo", Seq()))
         assert(org.flush())
@@ -778,7 +778,7 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
           root.join("Foo__b").join("Foo__b.object"),
           customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }

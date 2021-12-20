@@ -19,6 +19,7 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.org.{Module, OrgImpl}
+import com.nawforce.apexlink.plugins.Plugin
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
@@ -51,6 +52,9 @@ trait VerifyContext {
 
   /** Helper to locate a relative or absolute type and add as dependency if found */
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse
+
+  /** Get Plugin instance for this type */
+  def typePlugin: Plugin
 
   /** Test if result saving is enabled */
   def isSaving: Boolean
@@ -94,17 +98,6 @@ trait VerifyContext {
   def log(issue: Issue): Unit = {
     if (!suppressIssues)
       OrgImpl.log(issue)
-  }
-
-  def withOuterBlockVerifyContext[T](isStatic: Boolean, noUnused: Boolean = false)(
-    op: OuterBlockVerifyContext => T): T = {
-    val context = new OuterBlockVerifyContext(this, isStatic)
-    try {
-      op(context)
-    } finally {
-      if (!noUnused)
-        context.report()
-    }
   }
 }
 
@@ -198,6 +191,8 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
 
   private val typeCache = mutable.Map[(TypeName, TypeDeclaration), TypeResponse]()
 
+  private val plugin = typeDeclaration.module.pkg.org.pluginsManager.createPlugin(typeDeclaration)
+
   override def parent(): Option[VerifyContext] = parentContext
 
   override def module: Module = typeDeclaration.module
@@ -218,6 +213,8 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
 
   def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     super.getTypeAndAddDependency(typeName, from, module)
+
+  def typePlugin: Plugin = plugin
 }
 
 final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
@@ -237,6 +234,8 @@ final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
 
   override def getTypeFor(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeFor(typeName, from)
+
+  override def typePlugin: Plugin = parentContext.typePlugin
 
   override def suppressIssues: Boolean =
     classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
@@ -275,6 +274,12 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
 
+  override def typePlugin: Plugin = parentContext.typePlugin
+
+  def declaredVars: Map[Name, VarTypeAndDefinition] = vars.toMap
+
+  def referencedVars: Set[Name] = usedVars.toSet
+
   def collectVars(accum: mutable.Map[Name, VarTypeAndDefinition]): Unit = {
     accum.addAll(vars)
   }
@@ -302,26 +307,6 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
   }
 
   def isStatic: Boolean
-
-  def withInnerBlockVerifyContext[T]()(op: InnerBlockVerifyContext => T): T = {
-    val context = new InnerBlockVerifyContext(this)
-    try {
-      op(context)
-    } finally {
-      context.report()
-    }
-  }
-
-  def report(): Unit = {
-    vars
-      .filter(v => !usedVars.contains(v._1) && v._2.definition.nonEmpty)
-      .foreach(v => {
-        val definition = v._2.definition.get
-        log(
-          new Issue(definition.location.path,
-            Diagnostic(UNUSED_CATEGORY, definition.location.location, s"Unused local variable '${v._1}'")))
-      })
-  }
 
   override def isSaving: Boolean = parentContext.isSaving
 
@@ -378,6 +363,8 @@ final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends V
 
   override def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration): TypeResponse =
     parentContext.getTypeAndAddDependency(typeName, from)
+
+  override def typePlugin: Plugin = parentContext.typePlugin
 
   override def isSaving: Boolean = parentContext.isSaving
 

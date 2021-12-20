@@ -219,9 +219,10 @@ final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block)
   override def idLocation: Location = location.location
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    context.withOuterBlockVerifyContext(isStatic) { blockContext =>
-      block.verify(blockContext)
-    }
+    val blockContext = new OuterBlockVerifyContext(context, isStatic)
+    block.verify(blockContext)
+    context.typePlugin.onBlockValidated(block, isStatic, blockContext)
+
     setDepends(context.dependencies)
     context.propagateDependencies()
   }
@@ -274,11 +275,11 @@ final class ApexMethodDeclaration(override val outerTypeId: TypeId,
     returnTypeName.dependOn(id.location, context)
     formalParameters.foreach(_.verify(context))
 
-    context.withOuterBlockVerifyContext(modifiers.contains(STATIC_MODIFIER), noUnused = true) {
-      blockContext =>
-        formalParameters.foreach(param => param.addVar(blockContext))
-        block.foreach(_.verify(blockContext))
-    }
+    val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
+    formalParameters.foreach(param => param.addVar(blockContext))
+    block.foreach(block => {
+      block.verify(blockContext)
+    })
 
     setDepends(context.dependencies)
     context.propagateDependencies()
@@ -415,10 +416,10 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     formalParameters.foreach(_.verify(context))
 
-    context.withOuterBlockVerifyContext(isStatic = false, noUnused = true) { blockContext =>
-      formalParameters.foreach(param => blockContext.addVar(param.name, param.id, param.typeName))
-      block.verify(blockContext)
-    }
+    val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
+    formalParameters.foreach(param => blockContext.addVar(param.name, param.id, param.typeName))
+    block.verify(blockContext)
+    context.typePlugin.onBlockValidated(block, isStatic = false, blockContext)
 
     setDepends(context.dependencies)
     context.propagateDependencies()

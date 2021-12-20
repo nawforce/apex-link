@@ -35,7 +35,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -47,7 +47,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg").join("Foo.cls"), "public class Foo {}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")) != null)
       }
     }
@@ -60,7 +60,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {Object a;}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -72,7 +72,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {/* A change */}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -84,7 +84,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
@@ -108,7 +108,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
           refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
           assert(org.flush())
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
       }
     }
   }
@@ -121,7 +121,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           val pkg = org.unmanaged
           refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {Bar b;}")
           assert(org.flush())
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
 
           val fooTypeId =
             pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
@@ -156,7 +156,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
         refresh(pkg2, root.join("pkg2/Foo.cls"), "public class Foo {pkg1.Bar b;}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val barTypeId =
           pkg1.getTypeOfPathInternal(root.join("pkg1").join("Bar.cls")).get.asTypeIdentifier
@@ -180,10 +180,10 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Dummy.cls"), "public class Dummy {")
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         assert(org.flush())
         assert(
@@ -201,7 +201,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -213,7 +213,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")) != null)
       }
     }
@@ -226,7 +226,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {Object a;}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -238,7 +238,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
@@ -262,7 +262,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -335,13 +335,13 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
 
           refresh(pkg,
                   root.join("CustomLabels.labels"),
                   "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
           assert(org.flush())
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
       }
     }
   }
@@ -351,13 +351,13 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg,
                 root.join("CustomLabels.labels"),
                 "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -376,7 +376,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           |""".stripMargin)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg,
                 root.join("CustomLabels.labels"),
@@ -410,7 +410,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
           |""".stripMargin)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg,
                 root.join("Alt.labels"),
@@ -446,7 +446,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg,
                 root.join("CustomLabels.labels"),
@@ -479,7 +479,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             |</CustomLabels>
             |""".stripMargin)
         assert(org.flush())
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -489,12 +489,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "")
         assert(org.flush())
         assert(pkg.orderedModules.head.interviews.findNestedType(Name("Test")).nonEmpty)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -504,12 +504,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "")
         assert(org.flush())
         assert(pkg.orderedModules.head.interviews.findNestedType(Name("Test")).nonEmpty)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -519,7 +519,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.flow-meta.xml"), "Changed")
         assert(org.flush())
@@ -533,7 +533,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test2.flow-meta.xml"), "")
         assert(org.flush())
@@ -547,7 +547,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("TestPage.page"), "<apex:page/>")
         assert(org.flush())
@@ -561,7 +561,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("TestPage.page"), "<apex:page/>")
         assert(org.flush())
@@ -575,7 +575,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("TestPage.page"), "<apex:page/> ")
         assert(org.flush())
@@ -589,7 +589,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("TestPage2.page"), "<apex:page/> ")
         assert(org.flush())
@@ -603,7 +603,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.component"), "<apex:component/> ")
         assert(org.flush())
@@ -617,7 +617,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map()) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.component"), "<apex:component/>")
         assert(org.flush())
@@ -631,7 +631,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test.component"), "<apex:component/> ")
         assert(org.flush())
@@ -645,7 +645,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Test2.component"), "<apex:component/> ")
         assert(org.flush())

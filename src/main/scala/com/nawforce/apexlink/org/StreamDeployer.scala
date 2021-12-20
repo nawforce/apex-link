@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryApex, TriggerDeclaration}
-import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration}
+import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.diagnostics._
@@ -60,8 +60,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
 
     // Run plugins over loaded types DependentTypes
     // This has to be done post loading to allow dependencies to be established
-    val plugins = module.pkg.org.pluginsManager
-    types.values.collect { case dt: DependentType => dt }.foreach(plugins.onTypeValidated)
+    module.pkg.org.pluginsManager.closePlugins()
 
     // Report progress and tidy up
     if (types.size > basicTypesSize) {

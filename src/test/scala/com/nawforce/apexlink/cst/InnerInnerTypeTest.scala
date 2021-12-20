@@ -47,7 +47,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
       )
     ) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 
@@ -91,7 +91,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
       )
     ) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 

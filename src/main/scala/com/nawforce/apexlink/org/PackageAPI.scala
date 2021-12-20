@@ -292,8 +292,11 @@ trait PackageAPI extends Package {
         }
       })
 
-    // Finally batched invalidation
+    // Then batched invalidation
     reValidate(references.toSet ++ getTypesWithMissingIssues.toSet)
+
+    // Close any open plugins
+    org.pluginsManager.closePlugins()
     true
   }
 
@@ -321,7 +324,6 @@ trait PackageAPI extends Package {
       td.preReValidate()
     })
     tds.foreach(_.validate())
-    tds.collect { case td: DependentType => td }.foreach(td => td.module.pkg.org.pluginsManager.onTypeValidated(td))
   }
 
   private def getTypesWithMissingIssues: Seq[TypeId] = {

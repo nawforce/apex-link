@@ -12,17 +12,40 @@
     derived from this software without specific prior written permission.
  */
 package com.nawforce.apexlink.plugins
-import com.nawforce.apexlink.types.apex.ApexDeclaration
+
+import com.nawforce.apexlink.plugins.PluginsManager.activePlugins
 import com.nawforce.apexlink.types.core.DependentType
 
+import java.lang.reflect.Constructor
+import scala.collection.mutable
+
 class PluginsManager {
+  private val availablePlugins = activePlugins()
+  private val livePlugins = new mutable.ArrayBuffer[Plugin]()
 
-  private val plugins = Seq[Plugin](new UnusedPlugin())
+  def createPlugin(td: DependentType): Plugin = {
+    val plugin = PluginDispatcher(td, availablePlugins)
+    livePlugins.append(plugin)
+    plugin
+  }
 
-  def onTypeValidated(td: DependentType): Unit = {
-    td match {
-      case td: ApexDeclaration => plugins.foreach(_.onTypeValidated(td))
-      case _ => ()
-    }
+  def closePlugins(): Unit = {
+    livePlugins.foreach(_.onTypeValidated())
+    livePlugins.clear()
+  }
+}
+
+object PluginsManager {
+  private val defaultPlugins = Seq[Class[_ <: Plugin]](classOf[UnusedPlugin])
+  private var plugins = defaultPlugins
+  private var pluginConstructors = defaultPlugins.map(_.getConstructor(classOf[DependentType]))
+
+  def activePlugins(): Seq[Constructor[_ <: Plugin]] = pluginConstructors
+
+  def overridePlugins(newPlugins: Seq[Class[_ <: Plugin]]): Seq[Class[_ <: Plugin]] = {
+    val current = plugins
+    plugins = newPlugins
+    pluginConstructors = newPlugins.map(_.getConstructor(classOf[DependentType]))
+    current
   }
 }

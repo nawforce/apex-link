@@ -13,16 +13,15 @@
  */
 package com.nawforce.apexlink.parsers
 
-import com.nawforce.apexlink.FileSystemHelper
-import com.nawforce.apexlink.api.{Org, ServerOps}
-import com.nawforce.apexlink.org.OrgImpl
+import com.nawforce.apexlink.api.ServerOps
+import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import com.nawforce.runtime.platform.Path
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
+class CodeParserTest extends AnyFunSuite with BeforeAndAfter with TestHelper {
 
   before {
     ServerOps.setAutoFlush(false)
@@ -47,8 +46,8 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter {
   test("UTF-8 class") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")) {
       root: PathLike =>
-        val org = Org.newOrg(root).asInstanceOf[OrgImpl]
-        assert(!org.issues.hasErrorsOrWarnings)
+        val org = createOrg(root)
+        assert(org.issues.isEmpty)
     }
   }
 }

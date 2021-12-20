@@ -13,11 +13,13 @@
  */
 package com.nawforce.apexlink.plugins
 
-import com.nawforce.apexlink.cst.{ClassDeclaration, EnumDeclaration, InterfaceDeclaration}
-import com.nawforce.apexlink.types.apex.{ApexDeclaration, SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.types.apex.{SummaryDeclaration, TriggerDeclaration}
+import com.nawforce.apexlink.types.core.DependentType
 
-trait Plugin {
-  def onTypeValidated(td: ApexDeclaration): Unit = {
+class Plugin(td: DependentType) {
+
+  def onTypeValidated(): Unit = {
     td match {
       case td: ClassDeclaration => onClassValidated(td)
       case td: InterfaceDeclaration => onInterfaceValidated(td)
@@ -28,8 +30,14 @@ trait Plugin {
   }
 
   def onClassValidated(td: ClassDeclaration): Unit = {}
+
   def onInterfaceValidated(td: InterfaceDeclaration): Unit = {}
+
   def onEnumValidated(td: EnumDeclaration): Unit = {}
+
   def onTriggerValidated(td: TriggerDeclaration): Unit = {}
+
   def onSummaryValidated(td: SummaryDeclaration): Unit = {}
+
+  def onBlockValidated(block: Block, isStatic: Boolean, context: BlockVerifyContext): Unit = {}
 }

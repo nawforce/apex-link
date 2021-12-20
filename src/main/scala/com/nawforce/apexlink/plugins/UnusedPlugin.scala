@@ -12,19 +12,36 @@
     derived from this software without specific prior written permission.
  */
 package com.nawforce.apexlink.plugins
-import com.nawforce.apexlink.cst.{ClassDeclaration, EnumDeclaration, InterfaceDeclaration}
 
-class UnusedPlugin extends Plugin {
+import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.types.core.DependentType
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
+
+class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
   override def onClassValidated(td: ClassDeclaration): Unit = {
-    td.unused().foreach(td.module.pkg.org.issues.add)
+    if (td.outerTypeName.isEmpty)
+      td.unused().foreach(td.module.pkg.org.issues.add)
   }
 
   override def onEnumValidated(td: EnumDeclaration): Unit = {
-    td.unused().foreach(td.module.pkg.org.issues.add)
+    if (td.outerTypeName.isEmpty)
+      td.unused().foreach(td.module.pkg.org.issues.add)
   }
 
   override def onInterfaceValidated(td: InterfaceDeclaration): Unit = {
-    td.unused().foreach(td.module.pkg.org.issues.add)
+    if (td.outerTypeName.isEmpty)
+      td.unused().foreach(td.module.pkg.org.issues.add)
+  }
+
+  override def onBlockValidated(block: Block, isStatic: Boolean, context: BlockVerifyContext): Unit = {
+    context.declaredVars
+      .filter(v => !context.referencedVars.contains(v._1) && v._2.definition.nonEmpty)
+      .foreach(v => {
+        val definition = v._2.definition.get
+        context.log(
+          new Issue(definition.location.path,
+            Diagnostic(UNUSED_CATEGORY, definition.location.location, s"Unused local variable '${v._1}'")))
+      })
   }
 }
