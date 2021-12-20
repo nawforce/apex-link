@@ -48,17 +48,12 @@ class IssueLog {
   }
 
   /** Do we have any issues, of any category. */
-  def hasMessages: Boolean = log.nonEmpty
+  def isEmpty: Boolean = log.isEmpty
+  def nonEmpty: Boolean = log.nonEmpty
 
   /** Do we have any issues with an error category. */
   def hasErrors: Boolean =
     log.values.exists(_.exists(issue => DiagnosticCategory.isErrorType(issue.diagnostic.category)))
-
-  /** Do we have any issues with an error or warning category. */
-  def hasErrorsOrWarnings: Boolean =
-    log.values.exists(
-      _.exists(issue => DiagnosticCategory.isErrorOrWarningType(issue.diagnostic.category))
-    )
 
   /** Add an issue. */
   def add(issue: Issue): Unit = {
@@ -151,7 +146,7 @@ class IssueLog {
       message: String
     ): Unit = {
       buffer ++= (if (firstMessage) "" else ",\n")
-      buffer ++= s"""{${location.asJSON}, "category": "${encode(
+      buffer ++= s"""{${locationAsJSON(location)}, "category": "${encode(
         category.value
       )}", "message": "${encode(message)}"}"""
       firstMessage = false
@@ -162,6 +157,9 @@ class IssueLog {
       buffer ++= "]}\n"
       buffer.toString()
     }
+
+    private def locationAsJSON(location: Location): String =
+      s""""start": {"line": ${location.startLine}, "offset": ${location.startPosition} }, "end": {"line": ${location.endLine}, "offset": ${location.endPosition} }"""
 
     private def encode(value: String): String = {
       JSON.encode(value)

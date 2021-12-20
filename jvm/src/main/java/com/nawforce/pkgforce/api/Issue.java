@@ -14,16 +14,21 @@
 
 package com.nawforce.pkgforce.api;
 
-public interface Issue {
+public abstract class Issue {
     /* The file path where the issue was found */
-    String filePath();
+    public abstract String filePath();
 
     /* The location within the file */
-    IssueLocation fileLocation();
+    public abstract IssueLocation fileLocation();
 
     /* The category of the issue, one of "Syntax", "Error", "Missing", "Warning" or "Unused" */
-    String category();
+    public abstract String category();
 
     /* The issue message */
-    String message();
+    public abstract String message();
+
+    /* Format as String, filePath is omitted to avoid duplicating over multiple Issues */
+    public String asString() {
+        return category()+ ": " + fileLocation().displayPosition() + ": " + message() + "\n";
+    }
 }

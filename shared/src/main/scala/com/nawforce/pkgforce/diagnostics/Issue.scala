@@ -36,7 +36,7 @@ import upickle.default.{macroRW, ReadWriter => RW}
 import scala.collection.compat.immutable.ArraySeq
 
 /** An issue recoded against a specific file location. */
-final case class Issue(val path: PathLike, val diagnostic: Diagnostic)
+final case class Issue(path: PathLike, diagnostic: Diagnostic)
     extends com.nawforce.pkgforce.api.Issue {
 
   override def filePath(): String = path.toString
@@ -46,9 +46,6 @@ final case class Issue(val path: PathLike, val diagnostic: Diagnostic)
   override def message(): String = diagnostic.message
 
   override def category(): String = diagnostic.category.value
-
-  def asString: String = s"$path ${diagnostic.asString}"
-
 }
 
 object Issue {

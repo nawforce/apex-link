@@ -25,4 +25,7 @@ trait Issue {
 
   /* The issue message */
   def message(): String
+
+  /* Format as String, filePath is omitted to avoid duplicating over multiple Issues */
+  def asString: String = category() + ": " + fileLocation().displayPosition + ": " + message() + "\n"
 }

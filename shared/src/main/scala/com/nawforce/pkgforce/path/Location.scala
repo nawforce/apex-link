@@ -17,54 +17,22 @@ package com.nawforce.pkgforce.path
 import com.nawforce.pkgforce.api.IssueLocation
 import upickle.default.{macroRW, ReadWriter => RW}
 
-/** Location for identifying a sub-part of a file */
+/** Internal implementation for identifying sub-parts of a file. */
 @upickle.implicits.key("Location")
 final case class Location(
-  val startLine: Int,
-  val startPosition: Int,
-  val endLine: Int,
-  val endPosition: Int
+  startLine: Int,
+  startPosition: Int,
+  endLine: Int,
+  endPosition: Int
 ) extends IssueLocation {
 
-  override def startLineNumber(): Integer = startLine
+  override def startLineNumber(): Int = startLine
 
-  override def startCharOffset(): Integer = startPosition
+  override def startCharOffset(): Int = startPosition
 
-  override def endLineNumber(): Integer = endLine
+  override def endLineNumber(): Int = endLine
 
-  override def endCharOffset(): Integer = endPosition
-
-  def asJSON: String =
-    s""""start": {"line": $startLine, "offset": $startPosition}, "end": {"line": $endLine, "offset": $endPosition}"""
-
-  def displayPosition: String = {
-    if (this == Location.all) {
-      s"line $startLine"
-    } else if (startLine == endLine) {
-      if (startPosition == 0 && endPosition == 0)
-        s"line $startLine"
-      else if (startPosition == endPosition)
-        s"line $startLine at $startPosition"
-      else
-        s"line $startLine at $startPosition-$endPosition"
-    } else {
-      if (startPosition == 0 && endPosition == 0)
-        s"line $startLine to $endLine"
-      else
-        s"line $startLine:$startPosition to $endLine:$endPosition"
-    }
-  }
-
-  def contains(line: Int, offset: Int): Boolean = {
-    !(line < startLine || line > endLine ||
-      (line == startLine && offset < startPosition) ||
-      (line == endLine && offset > endPosition))
-  }
-
-  def contains(other: Location): Boolean = {
-    contains(other.startLine, other.startPosition) &&
-    contains(other.endLine, other.endPosition)
-  }
+  override def endCharOffset(): Int = endPosition
 }
 
 object Location {
