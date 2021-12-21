@@ -34,6 +34,7 @@ class IdentifierTest extends AnyFunSuite {
   private val illegalDigit = "can not start with a digit"
   private val illegalChar = "can only use characters A-Z, a-z, 0-9 or _"
   private val illegalDoubleUnderscore = "can not use '__'"
+  private val illegalTriggerChars = "can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"
 
   implicit class NameUtils(name: Name) {
     def isLegalIdentifier: Option[String] = Identifier.isLegalIdentifier(name)
@@ -43,6 +44,8 @@ class IdentifierTest extends AnyFunSuite {
   test("Illegal identifiers") {
     assert(Name("a").isLegalIdentifier.isEmpty)
     assert(Name("ab").isLegalIdentifier.isEmpty)
+    assert(Name("__sfdc_trigger/ns/foo").isLegalIdentifier.isEmpty)
+    assert(Name("__sfdc_trigger/foo").isLegalIdentifier.isEmpty)
     assert(Name("_").isLegalIdentifier.contains(illegalUnderscore))
     assert(Name("_a").isLegalIdentifier.contains(illegalUnderscore))
     assert(Name("a_").isLegalIdentifier.contains(illegalUnderscore))
@@ -52,6 +55,11 @@ class IdentifierTest extends AnyFunSuite {
     assert(Name("$ab").isLegalIdentifier.contains(illegalChar))
     assert(Name("a$b").isLegalIdentifier.contains(illegalChar))
     assert(Name("ab$").isLegalIdentifier.contains(illegalChar))
+    assert(Name("__sfdc_trigger").isLegalIdentifier.contains(illegalTriggerChars))
+    assert(Name("__sfdc_trigger/").isLegalIdentifier.contains(illegalTriggerChars))
+    assert(Name("__sfdc_trigger/ns/").isLegalIdentifier.contains(illegalTriggerChars))
+    assert(Name("__sfdc_trigger//name").isLegalIdentifier.contains(illegalTriggerChars))
+    assert(Name("__sfdc_trigger/ns.fo/n").isLegalIdentifier.contains(illegalTriggerChars))
   }
 
   test("Reserved identifiers") {

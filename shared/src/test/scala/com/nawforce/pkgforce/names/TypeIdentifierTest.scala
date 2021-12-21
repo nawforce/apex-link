@@ -31,6 +31,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class TypeIdentifierTest extends AnyFunSuite {
 
+  test("parse triggers type names") {
+    assert(TypeIdentifier.apply("__sfdc_trigger/Foo") === Right(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))))
+    assert(TypeIdentifier.apply("__sfdc_trigger/ns/Foo") === Right(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/ns/Foo")))))
+  }
+
   test("parse type name") {
     assert(TypeIdentifier.apply("Foo") == Right(TypeIdentifier(None, TypeName(Name("Foo")))))
     assert(TypeIdentifier.apply("Foo.Bar") == Right(TypeIdentifier(None, TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))))

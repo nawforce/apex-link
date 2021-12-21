@@ -74,6 +74,11 @@ class TypeNameTest extends AnyFunSuite {
         TypeName(Name("Foo"), Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), None), TypeName(Name("Quz"))), None)))
   }
 
+  test("parse trigger type names") {
+    assert(TypeName.apply("__sfdc_trigger/foo/baz") == Right(TypeName(Name("__sfdc_trigger/foo/baz"))))
+    assert(TypeName.apply("__sfdc_trigger/baz") == Right(TypeName(Name("__sfdc_trigger/baz"))))
+  }
+
   test("parse bad type names") {
     assert(
       TypeName.apply("") == Left("Empty identifier found in type name"))
@@ -99,5 +104,7 @@ class TypeNameTest extends AnyFunSuite {
       TypeName.apply("Foo<Bar, Baz") == Left("Unmatched '<' found in 'Foo<Bar, Baz'"))
     assert(
       TypeName.apply("Foo<>") == Left("Unmatched '<' found in 'Foo<>'"))
+    assert(
+      TypeName.apply("__sfdc_trigger/baz/") == Left("Illegal identifier at '__sfdc_trigger/baz/': can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"))
   }
 }
