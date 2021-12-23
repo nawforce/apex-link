@@ -39,8 +39,12 @@ class IssuesManager extends IssueLog with IssuesCollection {
   }
 
   override def issuesForFile(path: String): Array[APIIssue] = {
+    issuesForFileInternal(path).toArray
+  }
+
+  def issuesForFileInternal(path: String): Seq[Issue] = {
     hasChanged.remove(Path(path))
-    getIssues.getOrElse(Path(path), Nil).sorted(Issue.ordering).toArray
+    getIssues.getOrElse(Path(path), Nil).sorted(Issue.ordering)
   }
 
   override def issuesForFileLocation(path: String, location: IssueLocation): Array[APIIssue] = {
@@ -51,6 +55,10 @@ class IssuesManager extends IssueLog with IssuesCollection {
   }
 
   override def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Array[APIIssue] = {
+    issuesForFilesInternal(paths, includeWarnings, maxErrorsPerFile).toArray
+  }
+
+  def issuesForFilesInternal(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Seq[Issue] = {
     val issues = getIssues
     val files = if (paths == null || paths.isEmpty) issues.keys else paths.map(p => Path(p)).toIterable
 
@@ -64,7 +72,7 @@ class IssuesManager extends IssueLog with IssuesCollection {
       buffer.addAll(fileIssues)
       hasChanged.remove(file)
     })
-    buffer.toArray
+    buffer.toSeq
   }
 
   override def clear(): Unit = {
