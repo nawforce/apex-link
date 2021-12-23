@@ -143,8 +143,8 @@ trait OrgAPI {
   @api.JSONRPCMethod(name = "version")
   def version(): Future[String]
 
-  @api.JSONRPCMethod(name = "reset")
-  def reset(): Future[Unit]
+  @api.JSONRPCMethod(name = "setLoggingLevel")
+  def setLoggingLevel(level: String): Future[Unit]
 
   @api.JSONRPCMethod(name = "open")
   def open(directory: String): Future[OpenResult]
@@ -185,5 +185,5 @@ trait OrgAPI {
 
 object OrgAPI {
   // Just a test entry point
-  def apply(): OrgAPI = new OrgAPIImpl(true)
+  def apply(): OrgAPI = new OrgAPIImpl()
 }
