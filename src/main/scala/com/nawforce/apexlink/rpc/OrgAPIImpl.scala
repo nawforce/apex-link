@@ -28,9 +28,7 @@ trait APIRequest {
   def process(org: OrgQueue): Unit
 }
 
-class OrgQueue(quiet: Boolean, path: String) { self =>
-  if (!quiet) LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
-
+class OrgQueue(path: String) { self =>
   val org: Org = Org.newOrg(path)
 
   private val queue = new LinkedBlockingQueue[APIRequest]()
@@ -294,9 +292,9 @@ object GetAllTestMethods {
 object OrgQueue {
   private var _instance: Option[OrgQueue] = None
 
-  def open(quiet: Boolean, path: String): OrgQueue = {
+  def open(path: String): OrgQueue = {
     synchronized {
-      _instance = Some(new OrgQueue(quiet, path))
+      _instance = Some(new OrgQueue(path))
       _instance.get
     }
   }
@@ -306,25 +304,20 @@ object OrgQueue {
       _instance.get
     }
   }
-
-  def reset(): Unit = {
-    synchronized {
-      _instance = None
-    }
-  }
 }
 
-class OrgAPIImpl(quiet: Boolean) extends OrgAPI {
+class OrgAPIImpl extends OrgAPI {
   override def version(): Future[String] = {
     Future(classOf[OrgAPIImpl].getProtectionDomain.getCodeSource.getLocation.getPath)
   }
 
-  override def reset(): Future[Unit] = {
-    Future(OrgQueue.reset())
+  override def setLoggingLevel(level: String): Future[Unit] = {
+    LoggerOps.setLoggingLevel(level)
+    Future.successful(())
   }
 
   override def open(directory: String): Future[OpenResult] = {
-    OrgQueue.open(quiet, directory)
+    OrgQueue.open(directory)
     OpenRequest(OrgQueue.instance())
   }
 

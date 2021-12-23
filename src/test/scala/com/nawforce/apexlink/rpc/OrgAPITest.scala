@@ -28,7 +28,6 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.version()
-      _ <- orgAPI.reset()
     } yield {
       assert(result.nonEmpty)
     }
@@ -39,7 +38,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open("/silly")
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -54,7 +52,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -66,7 +63,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open("samples/synthetic/sfdx-test")
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -79,7 +75,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -91,7 +86,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open("samples/synthetic/sfdx-ns-test")
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test", "")))
       assert(!issues.issues.exists(_.diagnostic.category == ERROR_CATEGORY))
@@ -104,7 +98,6 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test", "")))
       assert(!issues.issues.exists(_.diagnostic.category == ERROR_CATEGORY))
@@ -121,7 +114,6 @@ class OrgAPITest extends AsyncFunSuite {
 
     val issues: Future[Assertion] = pkg flatMap { _ =>
       orgAPI.getIssues(includeWarnings = true, includeZombies = true) map { issuesResult =>
-        orgAPI.reset()
         assert(issuesResult.issues.length == 4)
         assert(issuesResult.issues.count(_.path.toString.contains("SingleError")) == 1)
         assert(issuesResult.issues.count(_.path.toString.contains("DoubleError")) == 2)
@@ -139,7 +131,6 @@ class OrgAPITest extends AsyncFunSuite {
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
         depth = 0, apexOnly = true, IdentifiersRequest(Array()))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.length == 1)
@@ -155,7 +146,6 @@ class OrgAPITest extends AsyncFunSuite {
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
         depth = 1, apexOnly = true,  IdentifiersRequest(Array()))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -187,7 +177,6 @@ class OrgAPITest extends AsyncFunSuite {
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
         depth = 1, apexOnly = true,  IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World"))))))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -212,7 +201,6 @@ class OrgAPITest extends AsyncFunSuite {
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Dummy"))))),
         depth = 0, apexOnly = true, IdentifiersRequest(Array()))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.isEmpty)
@@ -227,7 +215,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/HelloTest.cls"), false))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.length==1)
@@ -242,7 +229,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/Hello.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("HelloTest"))
@@ -256,7 +242,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/NoTest.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.isEmpty)
@@ -270,7 +255,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/ServiceImpl.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
@@ -284,7 +268,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/APIImpl.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("APITest"))
@@ -298,7 +281,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/InnerServiceImpl.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
@@ -312,7 +294,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/Service.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("ServiceAPITest", "ServiceTest"))
@@ -326,7 +307,6 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
         Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"), true))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet==Set("DerivedTest", "BaseTest", "APITest"))
@@ -343,7 +323,6 @@ class OrgAPITest extends AsyncFunSuite {
           workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
           workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
           workspace.toString + "/force-app/main/default/classes/TransDep.cls" )))
-      _ <- orgAPI.reset()
     } yield {
       assert(result.error.isEmpty)
       assert(dependencyCounts.counts.length == 3)
