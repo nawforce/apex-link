@@ -83,7 +83,7 @@ object LoggerOps {
     info(exceptionMessage(ex))
   }
 
-  private def exceptionMessage(ex: Throwable): String = {
+  def exceptionMessage(ex: Throwable): String = {
     val writer = new StringWriter
     ex.printStackTrace(new PrintWriter(writer))
     writer.toString
