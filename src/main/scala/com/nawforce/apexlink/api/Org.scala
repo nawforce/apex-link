@@ -108,7 +108,7 @@ trait Org {
     * Depth should be a positive integer that indicates how far to search from the starting node for the passed
     * TypeIdentifier. The root node of the search is always returned if it can be found. Depths > 0 will include
     * additional nodes. */
-  def getDependencyGraph(identifier: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean): DependencyGraph
+  def getDependencyGraph(identifier: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean, ignoring: Array[TypeIdentifier]): DependencyGraph
 
   /** Locate a type definition given source file position of the type name to search for.
     *

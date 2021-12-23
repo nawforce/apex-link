@@ -223,12 +223,12 @@ abstract class FullDeclaration(val source: Source,
   }
 
   /** Get a validation result map for the body declaration at the specified location. */
-  def getBodyDeclarationValidationMap(line: Int, offset: Int): Map[Location, (CST, ExprContext)] = {
+  def getBodyDeclarationValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
     try {
       getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
         // Validate the body declaration for the side-effect of being able to collect a map of expression results
         val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-        val resultMap = mutable.Map[Location, (CST, ExprContext)]()
+        val resultMap = mutable.Map[Location, ValidationResult]()
         val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
         context.disableIssueReporting() {
           typeAndBody._2.validate(context)

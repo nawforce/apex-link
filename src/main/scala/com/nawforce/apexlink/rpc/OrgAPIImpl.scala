@@ -124,17 +124,18 @@ object TypeIdentifiers {
 case class DependencyGraphRequest(promise: Promise[DependencyGraph],
                                   identifiers: Array[TypeIdentifier],
                                   depth: Int,
-                                  apexOnly: Boolean)
+                                  apexOnly: Boolean,
+                                  ignoring: Array[TypeIdentifier])
     extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
-    promise.success(queue.org.getDependencyGraph(identifiers, depth, apexOnly))
+    promise.success(queue.org.getDependencyGraph(identifiers, depth, apexOnly, ignoring))
   }
 }
 
 object DependencyGraphRequest {
-  def apply(queue: OrgQueue, identifiers: Array[TypeIdentifier], depth: Int, apexOnly: Boolean): Future[DependencyGraph] = {
+  def apply(queue: OrgQueue, identifiers: Array[TypeIdentifier], depth: Int, apexOnly: Boolean,  ignoring: Array[TypeIdentifier]): Future[DependencyGraph] = {
     val promise = Promise[DependencyGraph]()
-    queue.add(new DependencyGraphRequest(promise, identifiers, depth, apexOnly))
+    queue.add(new DependencyGraphRequest(promise, identifiers, depth, apexOnly, ignoring))
     promise.future
   }
 }
@@ -272,6 +273,22 @@ object GetCompletionItems {
   }
 }
 
+case class GetAllTestMethods(promise: Promise[Array[TestMethod]])
+  extends APIRequest {
+  override def process(queue: OrgQueue): Unit = {
+    val orgImpl = queue.org.asInstanceOf[OrgImpl]
+    promise.success(orgImpl.getAllTestMethods())
+  }
+}
+
+object GetAllTestMethods {
+  def apply(queue: OrgQueue): Future[Array[TestMethod]] = {
+    val promise = Promise[Array[TestMethod]]()
+    queue.add(new GetAllTestMethods(promise))
+    promise.future
+  }
+}
+
 object OrgQueue {
   private var _instance: Option[OrgQueue] = None
 
@@ -318,8 +335,9 @@ class OrgAPIImpl extends OrgAPI {
 
   override def dependencyGraph(identifiers: IdentifiersRequest,
                                depth: Int,
-                               apexOnly: Boolean): Future[DependencyGraph] = {
-    DependencyGraphRequest(OrgQueue.instance(), identifiers.identifiers, depth, apexOnly)
+                               apexOnly: Boolean,
+                               ignoring: IdentifiersRequest): Future[DependencyGraph] = {
+    DependencyGraphRequest(OrgQueue.instance(), identifiers.identifiers, depth, apexOnly, ignoring.identifiers)
   }
 
   override def identifierLocation(request: IdentifierRequest): Future[IdentifierLocationResult] = {
@@ -354,5 +372,9 @@ class OrgAPIImpl extends OrgAPI {
                              offset: Int,
                              content: String): Future[Array[CompletionItemLink]] = {
     GetCompletionItems(OrgQueue.instance(), path, line, offset, content)
+  }
+
+  override def getAllTestMethods(): Future[Array[TestMethod]] = {
+    GetAllTestMethods(OrgQueue.instance())
   }
 }

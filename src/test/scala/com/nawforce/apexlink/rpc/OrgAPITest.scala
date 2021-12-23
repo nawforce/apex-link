@@ -130,7 +130,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 0, apexOnly = true)
+        depth = 0, apexOnly = true, IdentifiersRequest(Array()))
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.length == 1)
@@ -145,7 +145,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 1, apexOnly = true)
+        depth = 1, apexOnly = true,  IdentifiersRequest(Array()))
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -169,6 +169,30 @@ class OrgAPITest extends AsyncFunSuite {
     }
   }
 
+  test("Get Dependency Graph (some depth) with ignored identifiers") {
+    val workspace = Path("samples/synthetic/mdapi-test")
+    val orgAPI = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      graph <- orgAPI.dependencyGraph(
+        IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
+        depth = 1, apexOnly = true,  IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World"))))))
+    } yield {
+      assert(result.error.isEmpty)
+      assert(
+        graph.nodeData sameElements Array(
+          DependencyNode(TypeIdentifier(None, TypeName(Name("Hello"))),
+            85,
+            "class",
+            0,
+            Array(),
+            Array(),
+            Array())
+        ))
+      assert(graph.linkData.isEmpty)
+    }
+  }
+
   test("Get Dependency Graph (bad identifier))") {
     val workspace = Path("samples/synthetic/mdapi-test")
     val orgAPI = OrgAPI()
@@ -176,7 +200,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Dummy"))))),
-        depth = 0, apexOnly = true)
+        depth = 0, apexOnly = true, IdentifiersRequest(Array()))
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.isEmpty)

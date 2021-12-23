@@ -139,6 +139,12 @@ object GetDependencyCountsResult {
   implicit val rw: RW[GetDependencyCountsResult] = macroRW
 }
 
+case class TestMethod(className: String, methodName: String)
+
+object TestMethod {
+  implicit val rw: RW[TestMethod] = macroRW
+}
+
 trait OrgAPI {
   @api.JSONRPCMethod(name = "version")
   def version(): Future[String]
@@ -159,7 +165,7 @@ trait OrgAPI {
   def typeIdentifiers(apexOnly: Boolean): Future[GetTypeIdentifiersResult]
 
   @api.JSONRPCMethod(name = "dependencyGraph")
-  def dependencyGraph(identifiers: IdentifiersRequest, depth: Int, apexOnly: Boolean): Future[DependencyGraph]
+  def dependencyGraph(identifiers: IdentifiersRequest, depth: Int, apexOnly: Boolean, ignoring: IdentifiersRequest): Future[DependencyGraph]
 
   @api.JSONRPCMethod(name = "identifierLocation")
   def identifierLocation(identifier: IdentifierRequest): Future[IdentifierLocationResult]
@@ -181,6 +187,9 @@ trait OrgAPI {
 
   @api.JSONRPCMethod(name = "getCompletionItems")
   def getCompletionItems(path: String, line: Int, offset: Int, content: String): Future[Array[CompletionItemLink]]
+
+  @api.JSONRPCMethod(name = "getAllTestMethods")
+  def getAllTestMethods(): Future[Array[TestMethod]]
 }
 
 object OrgAPI {
