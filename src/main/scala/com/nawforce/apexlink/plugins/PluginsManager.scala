@@ -15,22 +15,23 @@ package com.nawforce.apexlink.plugins
 
 import com.nawforce.apexlink.plugins.PluginsManager.activePlugins
 import com.nawforce.apexlink.types.core.DependentType
+import com.nawforce.pkgforce.names.TypeName
 
 import java.lang.reflect.Constructor
 import scala.collection.mutable
 
 class PluginsManager {
   private val availablePlugins = activePlugins()
-  private val livePlugins = new mutable.ArrayBuffer[Plugin]()
+  private val livePlugins = new mutable.HashMap[TypeName, Plugin]()
 
   def createPlugin(td: DependentType): Plugin = {
     val plugin = PluginDispatcher(td, availablePlugins)
-    livePlugins.append(plugin)
+    livePlugins.put(td.typeName, plugin)
     plugin
   }
 
   def closePlugins(): Unit = {
-    livePlugins.foreach(_.onTypeValidated())
+    livePlugins.values.foreach(_.onTypeValidated())
     livePlugins.clear()
   }
 }
