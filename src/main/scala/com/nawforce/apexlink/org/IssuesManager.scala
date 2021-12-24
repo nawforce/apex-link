@@ -64,7 +64,7 @@ class IssuesManager extends IssueLog with IssuesCollection {
 
     val buffer = mutable.ArrayBuffer[Issue]()
     files.foreach(file => {
-      var fileIssues = issues(file)
+      var fileIssues = issues.getOrElse(file, Nil)
         .filter(issue => includeWarnings || DiagnosticCategory.isErrorType(issue.diagnostic.category))
         .sorted(Issue.ordering)
       if (maxErrorsPerFile > 0)
