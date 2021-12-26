@@ -358,4 +358,14 @@ class UnusedTest extends AnyFunSuite with TestHelper {
           == "Unused: line 1 at 13-18: Unused class 'Dummy', only referenced by test code\n")
     }
   }
+
+  test("Unused enum constant bug") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public enum A { B } {switch on a { when B {}} }}",
+        "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")) == "")
+    }
+  }
+
 }
