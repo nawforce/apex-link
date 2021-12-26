@@ -243,9 +243,13 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val testSrc = "class Dummy { {Boolean abc; abc."
         assert(
-          org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
-            .map(_.label) sameElements Array("addError(msg, escape)", "addError(msg, escape)", "addError(msg)", "addError(msg)"))
+          org.getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc).toSet == Set(
+            CompletionItemLink("addError(msg, escape)", "Method", "public virtual void addError(System.String msg, System.Boolean escape)"),
+            CompletionItemLink("addError(msg, escape)", "Method", "public virtual void addError(System.Exception msg, System.Boolean escape)"),
+            CompletionItemLink("addError(msg)", "Method", "public virtual void addError(System.Exception msg)"),
+            CompletionItemLink("addError(msg)", "Method", "public virtual void addError(System.String msg)")
+          )
+        )
     }
   }
 
@@ -258,8 +262,13 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val testSrc = "class Dummy { public Boolean func() {func()."
         assert(
           org
-            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc)
-            .map(_.label) sameElements Array("addError(msg, escape)", "addError(msg, escape)", "addError(msg)", "addError(msg)"))
+            .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = testSrc.length, testSrc).toSet == Set (
+            CompletionItemLink("addError(msg, escape)", "Method", "public virtual void addError(System.String msg, System.Boolean escape)"),
+            CompletionItemLink("addError(msg, escape)", "Method", "public virtual void addError(System.Exception msg, System.Boolean escape)"),
+            CompletionItemLink("addError(msg)", "Method", "public virtual void addError(System.Exception msg)"),
+            CompletionItemLink("addError(msg)", "Method", "public virtual void addError(System.String msg)")
+          )
+        )
     }
   }
 }
