@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.types.apex.ApexFieldLike
+import com.nawforce.apexlink.types.apex.{ApexFieldLike, ThisType}
 import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
@@ -25,17 +25,18 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 
-final case class ApexPropertyDeclaration(outerTypeId: TypeId,
+final case class ApexPropertyDeclaration(thisType: ThisType,
                                          _modifiers: ModifierResults,
                                          typeName: TypeName,
                                          id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers)
+  extends ClassBodyDeclaration(_modifiers, thisType.inTest)
     with ApexFieldLike {
 
   override val name: Name = id.name
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val nature: Nature = PROPERTY_NATURE
+  override val outerTypeId: TypeId = thisType.typeId
 
   override def idLocation: Location = id.location.location
 
@@ -91,11 +92,11 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
 
 object ApexPropertyDeclaration {
   def construct(parser: CodeParser,
-                outerTypeId: TypeId,
+                thisType: ThisType,
                 modifiers: ModifierResults,
                 propertyDeclaration: PropertyDeclarationContext): ApexPropertyDeclaration = {
     val typeName = TypeReference.construct(propertyDeclaration.typeRef())
-    ApexPropertyDeclaration(outerTypeId,
+    ApexPropertyDeclaration(thisType,
       modifiers,
       typeName,
       Id.construct(propertyDeclaration.id()),

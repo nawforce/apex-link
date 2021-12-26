@@ -25,8 +25,8 @@ import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser.TypeDeclarationContext
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ApexModifiers, ModifierResults, VIRTUAL_MODIFIER}
-import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.names.{Name, Names, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.parsers.{ApexNode, CLASS_NATURE, INTERFACE_NATURE, Nature}
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
@@ -43,10 +43,11 @@ abstract class FullDeclaration(val source: Source,
                                override val outerTypeName: Option[TypeName],
                                val id: Id,
                                _modifiers: ModifierResults,
+                               _inTest: Boolean,
                                val superClass: Option[TypeName],
                                val interfaces: ArraySeq[TypeName],
                                val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
-    extends ClassBodyDeclaration(_modifiers)
+  extends ClassBodyDeclaration(_modifiers, _inTest)
     with ApexClassDeclaration
     with ApexFullDeclaration {
 
@@ -261,6 +262,7 @@ abstract class FullDeclaration(val source: Source,
       typeName,
       nature.value,
       modifiers.map(_.toString).sorted,
+      inTest,
       superClass,
       interfaces,
       blocks.map(_.summary),
@@ -272,7 +274,18 @@ abstract class FullDeclaration(val source: Source,
   }
 }
 
+final case class ThisType(module: Module, typeName: TypeName, inTest: Boolean) {
+  def typeId: TypeId = TypeId(module, typeName)
+
+  def typeIdentifier: TypeIdentifier = typeId.asTypeIdentifier
+
+  def asInner(name: String): ThisType = {
+    ThisType(module, TypeName(Names(name), Nil, Some(typeName)), inTest)
+  }
+}
+
 object FullDeclaration {
+
   def create(module: Module,
              doc: ClassDocument,
              data: SourceData,
@@ -302,32 +315,31 @@ object FullDeclaration {
     val cst: Option[FullDeclaration] = CodeParser
       .toScala(typeDecl.classDeclaration())
       .map(
-        cd =>
+        cd => {
+          val classModifiers = ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id())
           ClassDeclaration.construct(parser,
-            module,
-            thisType,
+            ThisType(module, thisType, classModifiers.modifiers.contains(ISTEST_ANNOTATION)),
             None,
-            ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id()),
-            cd))
+            classModifiers,
+            cd)
+        })
       .orElse(
         CodeParser
           .toScala(typeDecl.interfaceDeclaration())
           .map(
             id =>
               InterfaceDeclaration.construct(parser,
-                                             module,
-                                             thisType,
-                                             None,
-                                             ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
-                                             id)))
+                ThisType(module, thisType, inTest = false),
+                None,
+                ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
+                id)))
       .orElse(
         CodeParser
           .toScala(typeDecl.enumDeclaration())
           .map(
             ed =>
               EnumDeclaration.construct(parser,
-                module,
-                thisType,
+                ThisType(module, thisType, inTest = false),
                 None,
                 ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
                 ed)))

@@ -14,24 +14,32 @@
 package com.nawforce.apexlink.plugins
 
 import com.nawforce.apexlink.cst._
-import com.nawforce.apexlink.types.core.DependentType
+import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.org.Module
+import com.nawforce.apexlink.plugins.UnusedPlugin.onlyTestCodeReferenceText
+import com.nawforce.apexlink.types.apex.{ApexFieldLike, ApexMethodLike, FullDeclaration}
+import com.nawforce.apexlink.types.core.{DependentType, MethodDeclaration}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
+import com.nawforce.pkgforce.modifiers._
+import com.nawforce.pkgforce.parsers.{FIELD_NATURE, PROPERTY_NATURE}
+
+import scala.collection.immutable.ArraySeq
 
 class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
   override def onClassValidated(td: ClassDeclaration): Unit = {
     if (td.outerTypeName.isEmpty)
-      td.unused().foreach(td.module.pkg.org.issues.add)
+      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
   }
 
   override def onEnumValidated(td: EnumDeclaration): Unit = {
     if (td.outerTypeName.isEmpty)
-      td.unused().foreach(td.module.pkg.org.issues.add)
+      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
   }
 
   override def onInterfaceValidated(td: InterfaceDeclaration): Unit = {
     if (td.outerTypeName.isEmpty)
-      td.unused().foreach(td.module.pkg.org.issues.add)
+      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
   }
 
   override def onBlockValidated(block: Block, isStatic: Boolean, context: BlockVerifyContext): Unit = {
@@ -44,4 +52,103 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
             Diagnostic(UNUSED_CATEGORY, definition.location.location, s"Unused local variable '${v._1}'")))
       })
   }
+
+  private implicit class DeclarationOps(td: FullDeclaration) {
+
+    def unusedIssues: ArraySeq[Issue] = {
+      // Block at class level
+      if (td.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || td.isPageController)
+        return Issue.emptyArray
+
+      // Hack: Unused calculation requires a methodMap as it establishes shadow relationships
+      td.methodMap
+
+      val issues =
+        td.nestedTypes.flatMap(ad => ad.unusedIssues) ++
+          td.unusedFields ++
+          td.unusedMethods
+
+      if (!td.hasNonTestHolders && issues.length == td.nestedTypes.length + td.localFields.length + td.localMethods.length) {
+        val nature = td match {
+          case _: ClassDeclaration => "class"
+          case _: InterfaceDeclaration => "interface"
+          case _: EnumDeclaration => "enum"
+          case _ => "type"
+        }
+
+        val suffix =
+          if (td.hasHolders || (issues.nonEmpty && issues.forall(_.diagnostic.message.contains(onlyTestCodeReferenceText))))
+            s", $onlyTestCodeReferenceText"
+          else
+            ""
+        ArraySeq(new Issue(td.location.path, Diagnostic(UNUSED_CATEGORY, td.idLocation, s"Unused $nature '${td.typeName}'$suffix")))
+      } else {
+        issues
+      }
+    }
+
+    def unusedFields: ArraySeq[Issue] = {
+      td.localFields.filterNot(_.isUsed)
+        .map(field => {
+          val nature = field.nature match {
+            case FIELD_NATURE => "field"
+            case PROPERTY_NATURE => "property"
+            case _ => "field or property"
+          }
+          val suffix = if (field.hasHolders) s", $onlyTestCodeReferenceText" else ""
+          new Issue(field.location.path,
+            Diagnostic(UNUSED_CATEGORY, field.idLocation, s"Unused $nature '${field.name}'$suffix"))
+        })
+    }
+
+    def unusedMethods: ArraySeq[Issue] = {
+      td.localMethods
+        .flatMap {
+          case am: ApexMethodLike if !am.isUsed(td.module) => Some(am)
+          case _ => None
+        }
+        .map(method => {
+          val suffix = if (method.hasHolders) s", $onlyTestCodeReferenceText" else ""
+          new Issue(method.location.path,
+            Diagnostic(UNUSED_CATEGORY, method.idLocation, s"Unused method '${method.signature}'$suffix"))
+        })
+    }
+
+    def isPageController: Boolean = {
+      td.getTypeDependencyHolders.toIterable.exists(tid =>
+        tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component)
+    }
+  }
+
+  private implicit class FieldOps(field: ApexFieldLike) {
+    def isUsed: Boolean = {
+      field.hasNonTestHolders ||
+        field.modifiers.contains(GLOBAL_MODIFIER) ||
+        field.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION)
+    }
+  }
+
+  private implicit class MethodOps(method: ApexMethodLike) {
+    def isEntry: Boolean = {
+      method.modifiers.contains(ISTEST_ANNOTATION) ||
+        method.modifiers.contains(TEST_SETUP_ANNOTATION) ||
+        method.modifiers.contains(TEST_METHOD_MODIFIER) ||
+        method.modifiers.contains(GLOBAL_MODIFIER)
+    }
+
+    /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
+    def isUsed(module: Module): Boolean = {
+      method.hasNonTestHolders || method.isEntry || method.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) ||
+        method.shadows.exists({
+          case am: ApexMethodLike => am.isUsed(module)
+          case _: MethodDeclaration => true
+          case _ => false
+        }) ||
+        method.parameters.exists(parameter => module.isGhostedType(parameter.typeName))
+    }
+  }
+}
+
+object UnusedPlugin {
+  val onlyTestCodeReferenceText = "only referenced by test code"
 }

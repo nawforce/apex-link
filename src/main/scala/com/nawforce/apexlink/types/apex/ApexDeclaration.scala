@@ -18,13 +18,12 @@ import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
-import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.core._
-import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
+import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.{IdLocatable, Locatable, PathLocation}
 
 import scala.collection.immutable.ArraySeq
@@ -49,7 +48,7 @@ trait ApexConstructorLike extends ConstructorDeclaration with IdLocatable {
   }
 }
 
-/** Unifying trait for ApexMethodLike and CustomMethodDeclaration. Both need to be appears to be visible from a
+/** Unifying trait for ApexMethodLike and CustomMethodDeclaration. Both need to appear to be visible from a
   * a type but have little in common beyond allowing for constructions of a summary. */
 trait ApexVisibleMethodLike extends MethodDeclaration {
   def summary: MethodSummary
@@ -60,7 +59,7 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   val outerTypeId: TypeId
 
   // Populated by type MethodMap construction
-  private var shadows: List[MethodDeclaration] = Nil
+  var shadows: List[MethodDeclaration] = Nil
 
   def resetShadows(): Unit = {
     shadows = Nil
@@ -70,24 +69,6 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
     if (method ne this) {
       shadows = method :: shadows
     }
-  }
-
-  def isEntry: Boolean = {
-    modifiers.contains(ISTEST_ANNOTATION) ||
-    modifiers.contains(TEST_SETUP_ANNOTATION) ||
-    modifiers.contains(TEST_METHOD_MODIFIER) ||
-    modifiers.contains(GLOBAL_MODIFIER)
-  }
-
-  /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
-  def isUsed(module: Module): Boolean = {
-    isEntry || hasHolders || modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) ||
-    shadows.exists({
-      case am: ApexMethodLike   => am.isUsed(module)
-      case _: MethodDeclaration => true
-      case _                    => false
-    }) ||
-    parameters.exists(parameter => module.isGhostedType(parameter.typeName))
   }
 
   def summary: MethodSummary = {
@@ -105,25 +86,19 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
 /** Apex defined fields core features, be they full or summary style */
 trait ApexFieldLike extends FieldDeclaration with IdLocatable {
   val outerTypeId: TypeId
+  val nature: Nature
   val idTarget: Option[TypeName] = None
-
-  def isEntry: Boolean = {
-    modifiers.contains(GLOBAL_MODIFIER)
-  }
-
-  def isUsed: Boolean = {
-    isEntry || hasHolders || modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION)
-  }
 
   def summary: FieldSummary = {
     FieldSummary(location.location,
-                 idLocation,
-                 name.toString,
-                 modifiers.map(_.toString).sorted,
-                 typeName,
-                 readAccess.toString,
-                 writeAccess.toString,
-                 dependencySummary())
+      idLocation,
+      name.toString,
+      nature,
+      modifiers.map(_.toString).sorted,
+      typeName,
+      readAccess.toString,
+      writeAccess.toString,
+      dependencySummary())
   }
 }
 
@@ -255,48 +230,6 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
                           staticContext: Option[Boolean],
                           verifyContext: VerifyContext): Option[MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
-  }
-
-  private lazy val isController: Boolean = {
-    getTypeDependencyHolders.toIterable.exists(tid =>
-      tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component)
-  }
-
-  def unused(): ArraySeq[Issue] = {
-    // Block at class level
-    if (modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || isController)
-      return Issue.emptyArray
-
-    // Hack: Unused calculation requires a methodMap as its establishes shadow relationships
-    methodMap
-
-    val unused = {
-      nestedTypes
-        .collect { case ad: ApexClassDeclaration => ad }
-        .flatMap(ad => ad.unused()) ++
-        localFields
-          .flatMap {
-            case af: ApexFieldLike if !af.isUsed => Some(af)
-            case _                               => None
-          }
-          .map(field =>
-            new Issue(field.location.path,
-                      Diagnostic(UNUSED_CATEGORY, field.idLocation, s"Unused Field or Property '${field.name}'"))) ++
-        localMethods
-          .flatMap {
-            case am: ApexMethodLike if !am.isUsed(module) => Some(am)
-            case _                                        => None
-          }
-          .map(method =>
-            new Issue(method.location.path,
-                      Diagnostic(UNUSED_CATEGORY, method.idLocation, s"Unused Method '${method.signature}'")))
-    }
-
-    if (!hasHolders && unused.length == nestedTypes.length + localFields.length + localMethods.length) {
-      ArraySeq(new Issue(location.path, Diagnostic(UNUSED_CATEGORY, idLocation, s"Type '$typeName' is unused")))
-    } else {
-      unused
-    }
   }
 
   def bombScore(total: Int): (Int, Int, Double) = {

@@ -14,12 +14,7 @@
 
 package com.nawforce.apexlink.types.core
 
-import com.nawforce.apexlink.api.{
-  DependentSummary,
-  FieldDependentSummary,
-  MethodDependentSummary,
-  TypeDependentSummary
-}
+import com.nawforce.apexlink.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
 import com.nawforce.apexlink.memory.SkinnyWeakSet
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.other._
@@ -39,6 +34,14 @@ trait Dependent extends IdentityEquality {
   def hasHolders: Boolean =
     Option(dependencyHolders).exists(_.nonEmpty)
 
+  // Has a holder from non-test code
+  def hasNonTestHolders: Boolean = {
+    if (dependencyHolders == null)
+      return false
+
+    dependencyHolders.toIterator.exists(holder => !holder.inTest)
+  }
+
   // The set of current holders
   def getDependencyHolders: Set[DependencyHolder] =
     Option(dependencyHolders).map(_.toSet).getOrElse(DependencyHolder.emptySet)
@@ -53,6 +56,9 @@ trait Dependent extends IdentityEquality {
 
 /** Holder of a dependencies. */
 trait DependencyHolder {
+
+  // Is this a holder from test code, we assume false so requires override as needed
+  def inTest: Boolean = false
 
   // Get Dependents being held, default to empty for holders who do not use this, override as needed
   // TODO: Narrow where we introduce this so default not needed
