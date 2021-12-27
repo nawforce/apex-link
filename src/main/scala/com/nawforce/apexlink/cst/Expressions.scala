@@ -302,10 +302,9 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
              context: ExpressionVerifyContext): ExprContext = {
 
     val args = arguments.map(_.verify(input, context))
-    if (args.exists(!_.isDefined))
-      return ExprContext.empty
 
-    val argTypes = args.map(_.typeName)
+    // If we failed to get argument type (maybe due to ghosting), use null as assignable to anything
+    val argTypes = args.map(arg => if (arg.isDefined) arg.typeName else TypeNames.Null)
     callee
       .findMethod(target.name, argTypes, staticContext, context)
       .map(method => {
