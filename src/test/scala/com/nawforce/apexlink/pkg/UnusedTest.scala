@@ -15,6 +15,7 @@ package com.nawforce.apexlink.pkg
 
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.org.{OrgImpl, PackageImpl}
+import com.nawforce.apexlink.plugins.UnusedPlugin.onlyTestCodeReferenceText
 import com.nawforce.apexlink.types.apex.{FullDeclaration, SummaryDeclaration}
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, TypeName}
@@ -298,7 +299,16 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrgWithUnused(root)
       assert(
         orgIssuesFor(org, root.join("Dummy.cls"))
-          == "Unused: line 1 at 39-42: Unused method 'void foo()', only referenced by test code\n")
+          == s"Unused: line 1 at 39-42: Unused method 'void foo()', $onlyTestCodeReferenceText\n")
+    }
+  }
+
+  test("Unused method suppress by @TestVisible") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@TestVisible public static void foo() {}}",
+        "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")) == "")
     }
   }
 
@@ -310,7 +320,16 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrgWithUnused(root)
       assert(
         orgIssuesFor(org, root.join("Dummy.cls"))
-          == "Unused: line 1 at 41-44: Unused field 'foo', only referenced by test code\n")
+          == s"Unused: line 1 at 41-44: Unused field 'foo', $onlyTestCodeReferenceText\n")
+    }
+  }
+
+  test("Unused field suppress by @TestVisible") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@TestVisible public static String foo;}",
+        "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")) == "")
     }
   }
 
@@ -326,6 +345,15 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Unused inner class suppress by @TestVisible") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@TestVisible public class foo {}}",
+        "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")) == "")
+    }
+  }
+
   test("Unused method only referenced in test class rolls up") {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {public static void foo() {}}",
@@ -333,7 +361,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrgWithUnused(root)
       assert(
         orgIssuesFor(org, root.join("Dummy.cls"))
-          == "Unused: line 1 at 13-18: Unused class 'Dummy', only referenced by test code\n")
+          == s"Unused: line 1 at 13-18: Unused class 'Dummy', $onlyTestCodeReferenceText\n")
     }
   }
 
@@ -344,7 +372,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrgWithUnused(root)
       assert(
         orgIssuesFor(org, root.join("Dummy.cls"))
-          == "Unused: line 1 at 13-18: Unused class 'Dummy', only referenced by test code\n")
+          == s"Unused: line 1 at 13-18: Unused class 'Dummy', $onlyTestCodeReferenceText\n")
     }
   }
 
@@ -355,7 +383,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       val org = createOrgWithUnused(root)
       assert(
         orgIssuesFor(org, root.join("Dummy.cls"))
-          == "Unused: line 1 at 13-18: Unused class 'Dummy', only referenced by test code\n")
+          == s"Unused: line 1 at 13-18: Unused class 'Dummy', $onlyTestCodeReferenceText\n")
     }
   }
 

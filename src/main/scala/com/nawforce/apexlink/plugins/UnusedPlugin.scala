@@ -16,7 +16,7 @@ package com.nawforce.apexlink.plugins
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.plugins.UnusedPlugin.onlyTestCodeReferenceText
+import com.nawforce.apexlink.plugins.UnusedPlugin.{excludedClassModifiers, excludedFieldModifiers, excludedMethodModifiers, onlyTestCodeReferenceText}
 import com.nawforce.apexlink.types.apex.{ApexFieldLike, ApexMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, MethodDeclaration}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
@@ -57,7 +57,7 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
     def unusedIssues: ArraySeq[Issue] = {
       // Block at class level
-      if (td.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || td.isPageController)
+      if (td.modifiers.exists(excludedClassModifiers.contains) || td.isPageController)
         return Issue.emptyArray
 
       // Hack: Unused calculation requires a methodMap as it establishes shadow relationships
@@ -122,23 +122,16 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
   private implicit class FieldOps(field: ApexFieldLike) {
     def isUsed: Boolean = {
-      field.hasNonTestHolders ||
-        field.modifiers.contains(GLOBAL_MODIFIER) ||
-        field.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION)
+      field.hasNonTestHolders || field.modifiers.exists(excludedFieldModifiers)
     }
   }
 
   private implicit class MethodOps(method: ApexMethodLike) {
-    def isEntry: Boolean = {
-      method.modifiers.contains(ISTEST_ANNOTATION) ||
-        method.modifiers.contains(TEST_SETUP_ANNOTATION) ||
-        method.modifiers.contains(TEST_METHOD_MODIFIER) ||
-        method.modifiers.contains(GLOBAL_MODIFIER)
-    }
 
     /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
     def isUsed(module: Module): Boolean = {
-      method.hasNonTestHolders || method.isEntry || method.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) ||
+      method.hasNonTestHolders ||
+        method.modifiers.exists(excludedMethodModifiers.contains) ||
         method.shadows.exists({
           case am: ApexMethodLike => am.isUsed(module)
           case _: MethodDeclaration => true
@@ -150,5 +143,10 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 }
 
 object UnusedPlugin {
-  val onlyTestCodeReferenceText = "only referenced by test code"
+  val onlyTestCodeReferenceText = "only referenced by test code, make @TestVisible to suppress warning"
+  val excludedClassModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedMethodModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION,
+    TEST_METHOD_MODIFIER, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedFieldModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+
 }
