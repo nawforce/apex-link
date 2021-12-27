@@ -220,10 +220,12 @@ object MethodDeclaration {
 
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
+
   def findMethod(name: Name,
                  params: ArraySeq[TypeName],
                  staticContext: Option[Boolean],
-                 verifyContext: VerifyContext): Option[MethodDeclaration]
+                 verifyContext: VerifyContext): Either[String, MethodDeclaration]
+
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
@@ -308,11 +310,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isEmpty && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
+    if (found.isLeft && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
       findMethod(name, params, Some(false), verifyContext)
     } else {
       found

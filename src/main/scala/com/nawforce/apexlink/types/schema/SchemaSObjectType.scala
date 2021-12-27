@@ -116,7 +116,7 @@ final case class SchemaSObjectType(module: Module)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -154,7 +154,7 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     PlatformTypes.sObjectTypeType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -198,11 +198,11 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     if (staticContext.contains(false)) {
       val method = methodMap.get((name, params.length))
       if (method.nonEmpty)
-        return method
+        return Right(method.get)
     }
     super.findMethod(name, params, staticContext, verifyContext)
   }
@@ -266,7 +266,7 @@ final case class SObjectFields(baseType: TypeName, module: Module)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     PlatformTypes.sObjectFieldType.findMethod(name, params, staticContext, verifyContext)
   }
 }
@@ -306,7 +306,7 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     PlatformTypes.sObjectTypeFieldSets.findMethod(name, params, staticContext, verifyContext)
   }
 }

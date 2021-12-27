@@ -29,8 +29,12 @@ class MethodTest extends AnyFunSuite with TestHelper {
           |}""".stripMargin,
       "force-app/Dummy.cls" -> "public class Dummy { {ext.Something a; String.escapeSingleQuotes(a); } }"
     )) { root: PathLike =>
-      val org = createHappyOrg(root)
+      createHappyOrg(root)
     }
   }
 
+  test("Method call with ambiguous target") {
+    typeDeclaration("public class Dummy { {EventBus.publish(null); } }")
+    assert(dummyIssues == "Error: line 1 at 22-44: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'null'\n")
+  }
 }

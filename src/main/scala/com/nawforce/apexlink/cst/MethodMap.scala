@@ -47,7 +47,7 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
 
   /** Find a method, suitable for use from the given context */
   def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
-                 context: VerifyContext): Option[MethodDeclaration] = {
+                 context: VerifyContext): Either[String, MethodDeclaration] = {
     val matches = methodsByName.getOrElse((name, params.length), Array())
     val filteredMatches = staticContext match {
       case None => matches
@@ -56,11 +56,11 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
 
     val exactMatches = filteredMatches.filter(_.hasParameters(params))
     if (exactMatches.nonEmpty)
-      return Some(exactMatches.head)
+      return Right(exactMatches.head)
 
     val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.nonEmpty)
-      return Some(erasedMatches.head)
+      return Right(erasedMatches.head)
 
     val assignableMatches = filteredMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -71,10 +71,14 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
 
     if (assignableMatches.nonEmpty) {
       val maxIdentical = assignableMatches.map(_._1).max
-      assignableMatches.filter(_._1 == maxIdentical).map(_._2).headOption
-    } else {
-      None
+      val priorityMatches = assignableMatches.filter(_._1 == maxIdentical).map(_._2)
+      if (priorityMatches.length == 1)
+        return Right(priorityMatches.head)
+      else
+        return Left("Ambiguous method call")
     }
+
+    Left("No matching method found")
   }
 }
 

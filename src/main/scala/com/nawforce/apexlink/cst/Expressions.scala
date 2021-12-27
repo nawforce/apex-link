@@ -305,9 +305,8 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
 
     // If we failed to get argument type (maybe due to ghosting), use null as assignable to anything
     val argTypes = args.map(arg => if (arg.isDefined) arg.typeName else TypeNames.Null)
-    callee
-      .findMethod(target.name, argTypes, staticContext, context)
-      .map(method => {
+    callee.findMethod(target.name, argTypes, staticContext, context) match {
+      case Right(method) =>
         context.addDependency(method)
         if (method.typeName != TypeNames.Void) {
           val td = context.getTypeAndAddDependency(method.typeName, context.thisType)
@@ -315,7 +314,9 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
             case Left(error) =>
               if (!context.module.isGhostedType(method.typeName))
                 context.log(error.asIssue(location))
-              context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
+              context.saveResult(this, target.location.location) {
+                ExprContext(None, None, method)
+              }
             case Right(td) =>
               context.saveResult(this, target.location.location) {
                 ExprContext(isStatic = Some(false), Some(td), method)
@@ -323,10 +324,12 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
           }
         } else {
           // TODO: How to error if attempt to use return
-          context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
+          context.saveResult(this, target.location.location) {
+            ExprContext(None, None, method)
+          }
         }
-      })
-      .getOrElse({
+
+      case Left(err) =>
         if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
           if (argTypes.isEmpty)
             context.logError(
@@ -334,11 +337,11 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
               s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
           else
             context.logError(location,
-                             s"No matching method found for '${target.name}' on '${callee.typeName}' " +
-                               s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+              s"$err for '${target.name}' on '${callee.typeName}' " +
+                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
         }
         ExprContext.empty
-      })
+    }
   }
 }
 

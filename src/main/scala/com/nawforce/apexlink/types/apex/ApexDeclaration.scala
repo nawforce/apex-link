@@ -228,7 +228,7 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 

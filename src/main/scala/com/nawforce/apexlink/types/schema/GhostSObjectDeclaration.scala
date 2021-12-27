@@ -60,9 +60,12 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     if (staticContext.contains(true)) {
-      SObjectDeclaration.sObjectMethodMap.get((name, params.length))
+      SObjectDeclaration.sObjectMethodMap.get((name, params.length)) match {
+        case None => Left("No matching method found")
+        case Some(m) => Right(m)
+      }
     } else {
       defaultFindMethod(name, params, staticContext, verifyContext)
     }
