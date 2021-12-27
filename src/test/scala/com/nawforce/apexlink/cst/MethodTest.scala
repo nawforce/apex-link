@@ -20,6 +20,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class MethodTest extends AnyFunSuite with TestHelper {
 
+  test("Method call with ambiguous target") {
+    typeDeclaration("public class Dummy { {EventBus.publish(null); } }")
+    assert(dummyIssues == "Error: line 1 at 22-44: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'null'\n")
+  }
+
   test("Method call with ghosted type") {
     FileSystemHelper.run(Map(
       "sfdx-project.json" ->
@@ -33,8 +38,20 @@ class MethodTest extends AnyFunSuite with TestHelper {
     }
   }
 
-  test("Method call with ambiguous target") {
-    typeDeclaration("public class Dummy { {EventBus.publish(null); } }")
-    assert(dummyIssues == "Error: line 1 at 22-44: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'null'\n")
+  test("Ambiguous Method call with ghosted type") {
+    FileSystemHelper.run(Map(
+      "sfdx-project.json" ->
+        """{
+          |"packageDirectories": [{"path": "force-app"}],
+          |"plugins": {"dependencies": [{"namespace": "ext"}]}
+          |}""".stripMargin,
+      "force-app/Dummy.cls" -> "public class Dummy { {ext.Something a; EventBus.publish(a); } }"
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("force-app").join("Dummy.cls")) ==
+          "Warning: line 1 at 39-58: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'any', likely due to unknown type\n")
+    }
   }
+
 }

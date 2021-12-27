@@ -24,6 +24,7 @@ import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.{Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.{Locatable, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
@@ -304,7 +305,7 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
     val args = arguments.map(_.verify(input, context))
 
     // If we failed to get argument type (maybe due to ghosting), use null as assignable to anything
-    val argTypes = args.map(arg => if (arg.isDefined) arg.typeName else TypeNames.Null)
+    val argTypes = args.map(arg => if (arg.isDefined) arg.typeName else TypeNames.Any)
     callee.findMethod(target.name, argTypes, staticContext, context) match {
       case Right(method) =>
         context.addDependency(method)
@@ -330,15 +331,21 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
         }
 
       case Left(err) =>
-        if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
-          if (argTypes.isEmpty)
+        if (callee.isComplete) {
+          if (argTypes.contains(TypeNames.Any)) {
+            context.log(Issue(location.path, WARNING_CATEGORY, location.location,
+              s"$err for '${target.name}' on '${callee.typeName}' " +
+                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}', likely due to unknown type"))
+          }
+          else if (argTypes.isEmpty) {
             context.logError(
               location,
               s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
-          else
+          } else {
             context.logError(location,
               s"$err for '${target.name}' on '${callee.typeName}' " +
                 s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+          }
         }
         ExprContext.empty
     }

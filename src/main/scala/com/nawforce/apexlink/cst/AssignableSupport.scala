@@ -8,8 +8,9 @@ import com.nawforce.pkgforce.names.TypeName
 object AssignableSupport {
   def isAssignable(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (fromType.typeName == TypeNames.Null ||
-      (fromType.typeName == toType) ||
-      (toType == TypeNames.InternalObject) ||
+      fromType.typeName == TypeNames.Any ||
+      fromType.typeName == toType ||
+      toType == TypeNames.InternalObject ||
       context.module.isGhostedType(toType)) {
       true
     } else if (fromType.typeName.isRecordSet) {
