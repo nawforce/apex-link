@@ -123,7 +123,8 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
 
   override def nestedTypes: ArraySeq[ApexClassDeclaration]
 
-  def isTest: Boolean = modifiers.intersect(ApexClassDeclaration.testModifiers).nonEmpty
+  /** Override to resolve conflict, TypeDeclaration & DependencyHolder both default false */
+  override val inTest: Boolean = false
 
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit

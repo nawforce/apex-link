@@ -66,10 +66,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   def components: ComponentDeclaration =
     types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
   def nonTestClasses: Iterable[ApexClassDeclaration] = types.values.collect {
-    case ac: ApexClassDeclaration if !ac.isTest => ac
+    case ac: ApexClassDeclaration if !ac.inTest => ac
   }
   def testClasses: Iterable[ApexClassDeclaration] = types.values.collect {
-    case ac: ApexClassDeclaration if ac.isTest => ac
+    case ac: ApexClassDeclaration if ac.inTest => ac
   }
 
   /** Count of loaded types, for debug info */

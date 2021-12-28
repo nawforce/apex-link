@@ -64,6 +64,7 @@ final case class TriggerDeclaration(source: Source,
   override val nature: Nature = TRIGGER_NATURE
   override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
   override val isComplete: Boolean = true
+  override val inTest: Boolean = false
 
   override val superClass: Option[TypeName] = None
   override val interfaces: ArraySeq[TypeName] = ArraySeq()

@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMeth
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, ISTEST_ANNOTATION, PRIVATE_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
@@ -57,18 +57,24 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
     val exactMatches = contextMatches.filter(_.hasParameters(params))
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
+    else if (exactMatches.length > 1)
+      return Left("Ambiguous method call")
 
+    // TODO: Explain what this is doing
     val erasedMatches = contextMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.length == 1)
       return Right(erasedMatches.head)
+    else if (erasedMatches.length > 1)
+      return Left("Ambiguous method call")
 
     val strictAssignableMatches = contextMatches.filter(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
       argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = true, context))
     })
-    if (strictAssignableMatches.length == 1) {
+    if (strictAssignableMatches.length == 1)
       return Right(strictAssignableMatches.head)
-    }
+    else if (strictAssignableMatches.length > 1)
+      return Left("Ambiguous method call")
 
     val looseAssignableMatches = contextMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -91,7 +97,7 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
 }
 
 object MethodMap {
-  type WorkingMap = mutable.Map[(Name, Int), Array[MethodDeclaration]]
+  type WorkingMap = mutable.HashMap[(Name, Int), Array[MethodDeclaration]]
 
   private val specialOverrideMethodSignatures = Set[String] (
     "system.boolean equals(object)",
@@ -109,20 +115,28 @@ object MethodMap {
             newMethods: ArraySeq[MethodDeclaration], outerStaticMethods: ArraySeq[MethodDeclaration],
             interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
-    val workingMap = collection.mutable.Map[(Name, Int), Array[MethodDeclaration]]() ++= superClassMap.methodsByName
-    val errors = mutable.Buffer[Issue]()
-    val localMethodsByType = newMethods.groupBy(_.isStatic)
-
-    localMethodsByType.get(false).foreach(methods => methods.foreach {
-      case am: ApexMethodLike => am.resetShadows()
-      case _ =>
+    // Create a starting working map from super class map
+    val workingMap = new WorkingMap()
+    superClassMap.methodsByName.foreach(superMethodGroup => {
+      val superMethods = superMethodGroup._2.filter(
+        // Allow test visible if in a test as you can override them
+        method => method.visibility != PRIVATE_MODIFIER ||
+          (td.inTest && method.modifiers.contains(TEST_VISIBLE_ANNOTATION))
+      )
+      if (superMethods.nonEmpty)
+        workingMap.put(superMethodGroup._1, superMethods)
     })
+    val errors = mutable.Buffer[Issue]()
+    val (staticLocals, instanceLocals) = newMethods.partition(_.isStatic)
 
     // Add instance methods first with validation checks
-    val isTest = td.outermostTypeDeclaration.modifiers.contains(ISTEST_ANNOTATION)
-    val isComplete = td.isComplete
-    localMethodsByType.get(false).foreach(methods =>
-      methods.foreach(method => applyInstanceMethod(workingMap, method, isTest, isComplete, errors)))
+    instanceLocals.foreach {
+      case am: ApexMethodLike => am.resetShadows()
+      case _ =>
+    }
+    instanceLocals.foreach(method =>
+      applyInstanceMethod(workingMap, method, td.inTest, td.isComplete, errors)
+    )
 
     // For interfaces make sure we have all methods
     if (td.nature == INTERFACE_NATURE) {
@@ -134,19 +148,20 @@ object MethodMap {
 
     // Add local statics, de-duped
     val ignorableStatics = mutable.Set[MethodDeclaration]()
-    localMethodsByType.get(true)
-      .foreach(methods => methods.toIterable.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
-        duplicates._2.foreach(duplicate => {
-          ignorableStatics.add(duplicate)
-          setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
-        })
-      }))
-    localMethodsByType.get(true).foreach(methods =>
-      methods.filterNot(ignorableStatics.contains).foreach(method => applyStaticMethod(workingMap, method)))
+    staticLocals.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
+      duplicates._2.foreach(duplicate => {
+        ignorableStatics.add(duplicate)
+        setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
+      })
+    })
+    staticLocals
+      .filterNot(ignorableStatics.contains)
+      .foreach(method => applyStaticMethod(workingMap, method))
 
     // Validate any interface use in classes
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
-      workingMap.put((Names.Clone, 0), Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, CustomMethodDeclaration.emptyParameters)))
+      workingMap.put((Names.Clone, 0),
+        Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, CustomMethodDeclaration.emptyParameters)))
       checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
@@ -236,7 +251,7 @@ object MethodMap {
     if (matched.isEmpty)
       workingMap.put(key, method +: methods)
     else if (matched.get.isStatic)
-      workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+      workingMap.put(key, method +: methods.filterNot(_.hasSameParameters(method)))
   }
 
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
@@ -244,14 +259,7 @@ object MethodMap {
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
 
-    // Find a match, FUTURE: the use of isTest is over general for allowing private matches but there is a problem with
-    // using @TestVisible instead with Cumulus codebase that I don't yet understand.
-    val matched = methods.find(_.hasSameParameters(method)) match {
-      case Some(am: MethodDeclaration)
-        if am.visibility != PRIVATE_MODIFIER || sameFile(method, am) || isTest => Some(am)
-      case _ => None
-    }
-
+    val matched = methods.find(_.hasSameParameters(method))
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
       lazy val isSpecial = {
@@ -290,7 +298,7 @@ object MethodMap {
       case _ => ()
     }
 
-    workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+    workingMap.put(key, method +: methods.filterNot(_.hasSameParameters(method)))
   }
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {

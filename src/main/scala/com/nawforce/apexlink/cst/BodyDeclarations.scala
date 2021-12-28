@@ -30,7 +30,7 @@ import com.nawforce.runtime.parsers.CodeParser
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-abstract class ClassBodyDeclaration(modifierResults: ModifierResults, override val inTest: Boolean)
+abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
   extends CST
     with DependencyHolder
     with ApexNode {
@@ -200,15 +200,16 @@ object ClassBodyDeclaration {
 }
 
 final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block, _inTest: Boolean)
-  extends ClassBodyDeclaration(_modifiers, _inTest)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexBlockLike {
+
+  override def idLocation: Location = location.location
 
   override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
   override val nature: Nature = INIT_NATURE
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val name: Name = Name.empty
-
-  override def idLocation: Location = location.location
+  override val inTest: Boolean = _inTest
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val blockContext = new OuterBlockVerifyContext(context, isStatic)
@@ -237,7 +238,7 @@ final class ApexMethodDeclaration(thisType: ThisType,
                                   id: Id,
                                   override val parameters: ArraySeq[ParameterDeclaration],
                                   val block: Option[Block])
-  extends ClassBodyDeclaration(_modifiers, thisType.inTest)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
 
   override def idLocation: Location = id.location.location
@@ -249,6 +250,7 @@ final class ApexMethodDeclaration(thisType: ThisType,
   override val nature: Nature = METHOD_NATURE
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override lazy val signature: String = super[ApexMethodLike].signature
+  override val inTest: Boolean = thisType.inTest
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }
@@ -334,7 +336,7 @@ final case class ApexFieldDeclaration(thisType: ThisType,
                                       _modifiers: ModifierResults,
                                       typeName: TypeName,
                                       variableDeclarator: VariableDeclarator
-                                     ) extends ClassBodyDeclaration(_modifiers, thisType.inTest)
+                                     ) extends ClassBodyDeclaration(_modifiers)
   with ApexFieldLike {
 
   def id: Id = variableDeclarator.id
@@ -348,6 +350,7 @@ final case class ApexFieldDeclaration(thisType: ThisType,
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val nature: Nature = FIELD_NATURE
   override val outerTypeId: TypeId = thisType.typeId
+  override val inTest: Boolean = thisType.inTest
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val staticContext = if (isStatic) Some(true) else None
@@ -383,7 +386,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
                                             parameters: ArraySeq[ParameterDeclaration],
                                             _inTest: Boolean,
                                             block: Block)
-  extends ClassBodyDeclaration(_modifiers, _inTest)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexConstructorLike {
 
   override def idLocation: Location = qualifiedName.location.location
@@ -391,6 +394,7 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
   override val name: Name = Name(qualifiedName.names.mkString("."))
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val nature: Nature = CONSTRUCTOR_NATURE
+  override val inTest: Boolean = _inTest
 
   /* All parameters are FormalParameters but we need to bypass Array being invariant */
   def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }

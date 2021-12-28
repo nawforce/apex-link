@@ -44,6 +44,7 @@ final case class Component(module: Module,
 
   private var depends: Option[Set[Dependent]] = None
 
+  override val inTest: Boolean = false
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
   override val fields: ArraySeq[FieldDeclaration] = {

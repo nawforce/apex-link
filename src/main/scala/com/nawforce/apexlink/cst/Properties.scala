@@ -30,13 +30,14 @@ final case class ApexPropertyDeclaration(thisType: ThisType,
                                          typeName: TypeName,
                                          id: Id,
                                          propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers, thisType.inTest)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexFieldLike {
 
   override val name: Name = id.name
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val nature: Nature = PROPERTY_NATURE
   override val outerTypeId: TypeId = thisType.typeId
+  override val inTest: Boolean = thisType.inTest
 
   override def idLocation: Location = id.location.location
 

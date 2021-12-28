@@ -340,7 +340,7 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
           else if (argTypes.isEmpty) {
             context.logError(
               location,
-              s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
+              s"$err for '${target.name}' on '${callee.typeName}' taking no arguments")
           } else {
             context.logError(location,
               s"$err for '${target.name}' on '${callee.typeName}' " +

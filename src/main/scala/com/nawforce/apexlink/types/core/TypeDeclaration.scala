@@ -230,9 +230,10 @@ trait AbstractTypeDeclaration {
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
-  def paths: ArraySeq[PathLike]
+  def paths: ArraySeq[PathLike]           // Metadata paths that contributed to this type
+  def inTest: Boolean = false             // Is type defined only for test code
 
-  val moduleDeclaration: Option[Module]
+  val moduleDeclaration: Option[Module]   // Module that owns this types, None for none-adopted platform types
 
   val name: Name
   val typeName: TypeName

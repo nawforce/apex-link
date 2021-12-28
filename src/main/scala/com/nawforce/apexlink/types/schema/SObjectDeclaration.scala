@@ -87,6 +87,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     with Dependent {
 
   override def location: PathLocation = sources.headOption.map(_.location).orNull
+  override val inTest: Boolean = false
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 

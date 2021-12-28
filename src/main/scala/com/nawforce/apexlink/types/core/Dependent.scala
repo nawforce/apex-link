@@ -54,10 +54,9 @@ trait Dependent extends IdentityEquality {
   }
 }
 
-/** Holder of a dependencies. */
+/** Holder of a dependencies,  */
 trait DependencyHolder {
 
-  // Is this a holder from test code, we assume false so requires override as needed
   def inTest: Boolean = false
 
   // Get Dependents being held, default to empty for holders who do not use this, override as needed

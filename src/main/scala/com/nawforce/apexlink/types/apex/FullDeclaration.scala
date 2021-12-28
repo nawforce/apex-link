@@ -47,7 +47,7 @@ abstract class FullDeclaration(val source: Source,
                                val superClass: Option[TypeName],
                                val interfaces: ArraySeq[TypeName],
                                val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
-  extends ClassBodyDeclaration(_modifiers, _inTest)
+  extends ClassBodyDeclaration(_modifiers)
     with ApexClassDeclaration
     with ApexFullDeclaration {
 
@@ -59,7 +59,10 @@ abstract class FullDeclaration(val source: Source,
   override val name: Name = typeName.name
   override val idLocation: Location = id.location.location
   override val nature: Nature
-  var flushedToCache = false
+  override val inTest: Boolean = _inTest
+
+  // Track if this has been flushed to cache yet
+  private var flushedToCache = false
 
   // For ApexNode compatibility
   override val children: ArraySeq[ApexNode] = bodyDeclarations

@@ -35,6 +35,68 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Static method private override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { static Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { static Extend getInstance() {return null;} { getInstance();} }"
+    )) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Static method protected override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { static protected Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { static protected Extend getInstance() {return null;} { getInstance();} }"
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(dummyIssues.isEmpty)
+    }
+  }
+
+  test("Static method public override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { static public Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { static public Extend getInstance() {return null;} { getInstance();} }"
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(dummyIssues.isEmpty)
+    }
+  }
+
+  test("Instance method private override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { Extend getInstance() {return null;} { this.getInstance();} }"
+    )) { root: PathLike =>
+      createHappyOrg(root)
+    }
+  }
+
+  test("Instance method protected override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { protected virtual Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { protected override Extend getInstance() {return null;} { this.getInstance();} }"
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Extend.cls")) ==
+          "Error: line 1 at 61-72: Method 'getInstance' has wrong return type to override, should be 'Base'\n")
+    }
+  }
+
+  test("Instance method public override different return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { public virtual Base getInstance() {return null;} }",
+      "Extend.cls" -> "public class Extend extends Base { public override Extend getInstance() {return null;} { this.getInstance();} }"
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        org.issues.getMessages(root.join("Extend.cls")) ==
+          "Error: line 1 at 58-69: Method 'getInstance' has wrong return type to override, should be 'Base'\n")
+    }
+  }
+
   test("Method call with ghosted type") {
     FileSystemHelper.run(Map(
       "sfdx-project.json" ->
