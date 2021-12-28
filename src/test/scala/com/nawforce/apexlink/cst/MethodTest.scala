@@ -30,6 +30,11 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Method call for possible synthetic platform method") {
+    typeDeclaration("public class Dummy { {Database.QueryLocatorIterator it; it.next(); } }")
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Method call with ghosted type") {
     FileSystemHelper.run(Map(
       "sfdx-project.json" ->
