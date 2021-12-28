@@ -127,8 +127,7 @@ trait MethodDeclaration extends DependencyHolder with Dependent{
   val parameters: ArraySeq[ParameterDeclaration]
   def hasBlock: Boolean
 
-  def visibility: Modifier =
-    modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
+  def visibility: Modifier = modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
 
   def signature: String = s"$typeName $nameAndParameterTypes"
   def nameAndParameterTypes: String = s"$name($parameterTypes)"
@@ -138,6 +137,7 @@ trait MethodDeclaration extends DependencyHolder with Dependent{
   def isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
   def isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
   def isOverride: Boolean = modifiers.contains(OVERRIDE_MODIFIER)
+  def isTestVisible: Boolean = modifiers.contains(TEST_VISIBLE_ANNOTATION)
   def isVirtualOrOverride: Boolean = isVirtual || isOverride
   def isVirtualOrAbstract: Boolean = isVirtual || isAbstract
 

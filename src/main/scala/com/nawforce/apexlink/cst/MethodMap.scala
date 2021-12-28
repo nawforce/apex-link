@@ -22,7 +22,7 @@ import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMeth
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
 import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION}
+import com.nawforce.pkgforce.modifiers.{ABSTRACT_MODIFIER, PRIVATE_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
@@ -30,7 +30,14 @@ import com.nawforce.pkgforce.path.{Location, PathLocation}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
+final case class MethodMap(td: Option[ApexClassDeclaration],
+                           methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
+  val deepHash: Int = td.map(_.deepHash).getOrElse(0)
+
+  // Cache private methods that are always accessible, we need this when filtering out inherited test visible privates
+  private lazy val allowablePrivateMethods =
+    (td.map(_.localMethods).getOrElse(ArraySeq()).filter(_.visibility == PRIVATE_MODIFIER) ++
+      td.map(_.outerStaticMethods).getOrElse(ArraySeq()).filter(_.visibility == PRIVATE_MODIFIER)).toSet
 
   /** Return all available methods */
   def allMethods: ArraySeq[MethodDeclaration] = {
@@ -48,26 +55,38 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
   /** Find a method, suitable for use from the given context */
   def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Either[String, MethodDeclaration] = {
+
     val matches = methodsByName.getOrElse((name, params.length), Array())
-    val contextMatches = staticContext match {
+
+    // Filter for right static context
+    val staticContextMatches = staticContext match {
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
     }
 
-    val exactMatches = contextMatches.filter(_.hasParameters(params))
+    val testMatches =
+      if (context.thisType.inTest) {
+        staticContextMatches
+      } else {
+        // If not in test code, filter out inherited private test visible methods that we allowed in
+        staticContextMatches.filterNot(method =>
+          method.visibility == PRIVATE_MODIFIER && !allowablePrivateMethods.contains(method))
+      }
+
+    val exactMatches = testMatches.filter(_.hasParameters(params))
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
     else if (exactMatches.length > 1)
       return Left("Ambiguous method call")
 
     // TODO: Explain what this is doing
-    val erasedMatches = contextMatches.filter(_.hasCallErasedParameters(context.module, params))
+    val erasedMatches = testMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.length == 1)
       return Right(erasedMatches.head)
     else if (erasedMatches.length > 1)
       return Left("Ambiguous method call")
 
-    val strictAssignableMatches = contextMatches.filter(m => {
+    val strictAssignableMatches = testMatches.filter(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
       argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = true, context))
     })
@@ -76,7 +95,7 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
     else if (strictAssignableMatches.length > 1)
       return Left("Ambiguous method call")
 
-    val looseAssignableMatches = contextMatches.map(m => {
+    val looseAssignableMatches = testMatches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
       (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = false, context)),
         argZip.count(argPair => argPair._1 == argPair._2),
@@ -108,7 +127,7 @@ object MethodMap {
   private val batchOverrideMethodSignature = "database.querylocator start(database.batchablecontext)"
 
   def empty(): MethodMap = {
-    new MethodMap(0, Map(), Nil)
+    new MethodMap(None, Map(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
@@ -119,9 +138,8 @@ object MethodMap {
     val workingMap = new WorkingMap()
     superClassMap.methodsByName.foreach(superMethodGroup => {
       val superMethods = superMethodGroup._2.filter(
-        // Allow test visible if in a test as you can override them
-        method => method.visibility != PRIVATE_MODIFIER ||
-          (td.inTest && method.modifiers.contains(TEST_VISIBLE_ANNOTATION))
+        // Allow test visible as you can override them from a test
+        method => method.visibility != PRIVATE_MODIFIER || method.isTestVisible
       )
       if (superMethods.nonEmpty)
         workingMap.put(superMethodGroup._1, superMethods)
@@ -167,8 +185,8 @@ object MethodMap {
 
     // Only Apex class types are replaceable and hence have deep hashes
     td match {
-      case td: ApexClassDeclaration => new MethodMap(td.deepHash, workingMap.toMap, errors.toList)
-      case _: TypeDeclaration => new MethodMap(0, workingMap.toMap, errors.toList)
+      case td: ApexClassDeclaration => new MethodMap(Some(td), workingMap.toMap, errors.toList)
+      case _: TypeDeclaration => new MethodMap(None, workingMap.toMap, errors.toList)
     }
   }
 
@@ -306,13 +324,6 @@ object MethodMap {
       case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
       case am: ApexMethodLike => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
       case _ => ()
-    }
-  }
-
-  private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
-    (m1, m2) match {
-      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.location.path == am2.location.path
-      case _ => false
     }
   }
 
