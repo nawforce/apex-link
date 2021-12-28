@@ -14,11 +14,11 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.cst.AssignableSupport.{couldBeEqual, isAssignable}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.pkgforce.names.TypeName
-import com.nawforce.apexlink.cst.AssignableSupport.{isAssignable, couldBeEqual}
 
 abstract class Operation {
   def verify(leftType: ExprContext,
@@ -177,10 +177,9 @@ case object AssignmentOperation extends Operation {
                       context: VerifyContext): Either[String, ExprContext] = {
     if (rightContext.typeName == TypeNames.Null) {
       Right(leftContext)
-    } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
+    } else if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, strict = false, context)) {
       Right(leftContext)
     } else {
-      isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)
       Left(s"Incompatible types in assignment, from '${rightContext.typeName}' to '${leftContext.typeName}'")
     }
   }
@@ -191,9 +190,9 @@ case object LogicalOperation extends Operation {
                       rightContext: ExprContext,
                       op: String,
                       context: VerifyContext): Either[String, ExprContext] = {
-    if (!isAssignable(TypeNames.Boolean, rightContext.typeDeclaration, context)) {
+    if (!isAssignable(TypeNames.Boolean, rightContext.typeDeclaration, strict = false, context)) {
       Left(s"Right expression of logical $op must a boolean, not '${rightContext.typeName}'")
-    } else if (!isAssignable(TypeNames.Boolean, leftContext.typeDeclaration, context)) {
+    } else if (!isAssignable(TypeNames.Boolean, leftContext.typeDeclaration, strict = false, context)) {
       Left(s"Left expression of logical $op must a boolean, not '${leftContext.typeName}'")
     } else {
       Right(leftContext)
@@ -361,9 +360,9 @@ case object ConditionalOperation extends Operation {
                       context: VerifyContext): Either[String, ExprContext] = {
 
     // Future: How does this really function, Java mechanics are very complex
-    if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, context)) {
+    if (isAssignable(leftContext.typeName, rightContext.typeDeclaration, strict = false, context)) {
       Right(leftContext)
-    } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, context)) {
+    } else if (isAssignable(rightContext.typeName, leftContext.typeDeclaration, strict = false, context)) {
       Right(rightContext)
     } else {
       getCommonBase(leftContext.typeDeclaration, rightContext.typeDeclaration, context)

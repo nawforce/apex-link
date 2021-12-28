@@ -25,6 +25,11 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues == "Error: line 1 at 22-44: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'null'\n")
   }
 
+  test("Method call ambiguous target strict match") {
+    typeDeclaration("public class Dummy { {Decimal.valueOf(1); } }")
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Method call with ghosted type") {
     FileSystemHelper.run(Map(
       "sfdx-project.json" ->

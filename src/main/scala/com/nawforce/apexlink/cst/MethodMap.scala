@@ -49,29 +49,37 @@ final case class MethodMap(deepHash: Int, methodsByName: Map[(Name, Int), Array[
   def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Either[String, MethodDeclaration] = {
     val matches = methodsByName.getOrElse((name, params.length), Array())
-    val filteredMatches = staticContext match {
+    val contextMatches = staticContext match {
       case None => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
     }
 
-    val exactMatches = filteredMatches.filter(_.hasParameters(params))
-    if (exactMatches.nonEmpty)
+    val exactMatches = contextMatches.filter(_.hasParameters(params))
+    if (exactMatches.length == 1)
       return Right(exactMatches.head)
 
-    val erasedMatches = filteredMatches.filter(_.hasCallErasedParameters(context.module, params))
-    if (erasedMatches.nonEmpty)
+    val erasedMatches = contextMatches.filter(_.hasCallErasedParameters(context.module, params))
+    if (erasedMatches.length == 1)
       return Right(erasedMatches.head)
 
-    val assignableMatches = filteredMatches.map(m => {
+    val strictAssignableMatches = contextMatches.filter(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
-      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, context)),
+      argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = true, context))
+    })
+    if (strictAssignableMatches.length == 1) {
+      return Right(strictAssignableMatches.head)
+    }
+
+    val looseAssignableMatches = contextMatches.map(m => {
+      val argZip = m.parameters.map(_.typeName).zip(params)
+      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = false, context)),
         argZip.count(argPair => argPair._1 == argPair._2),
         m)
     }).filter(_._1).map(m => (m._2, m._3))
 
-    if (assignableMatches.nonEmpty) {
-      val maxIdentical = assignableMatches.map(_._1).max
-      val priorityMatches = assignableMatches.filter(_._1 == maxIdentical).map(_._2)
+    if (looseAssignableMatches.nonEmpty) {
+      val maxIdentical = looseAssignableMatches.map(_._1).max
+      val priorityMatches = looseAssignableMatches.filter(_._1 == maxIdentical).map(_._2)
       if (priorityMatches.length == 1)
         return Right(priorityMatches.head)
       else
