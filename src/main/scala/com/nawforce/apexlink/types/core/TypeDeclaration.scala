@@ -120,16 +120,18 @@ object ConstructorDeclaration {
   val emptyConstructorDeclarations: ArraySeq[ConstructorDeclaration] = ArraySeq()
 }
 
-trait MethodDeclaration extends DependencyHolder with Dependent{
+trait MethodDeclaration extends DependencyHolder with Dependent {
   val name: Name
   val modifiers: ArraySeq[Modifier]
   val typeName: TypeName
   val parameters: ArraySeq[ParameterDeclaration]
+
   def hasBlock: Boolean
 
   def visibility: Modifier = modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
 
   def signature: String = s"$typeName $nameAndParameterTypes"
+
   def nameAndParameterTypes: String = s"$name($parameterTypes)"
   def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
 
@@ -216,6 +218,7 @@ trait MethodDeclaration extends DependencyHolder with Dependent{
 
 object MethodDeclaration {
   val emptyMethodDeclarations: ArraySeq[MethodDeclaration] = ArraySeq()
+  val emptyMethodDeclarationsSet: Set[MethodDeclaration] = Set()
 }
 
 trait AbstractTypeDeclaration {

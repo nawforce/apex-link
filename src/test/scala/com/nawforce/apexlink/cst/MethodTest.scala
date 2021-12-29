@@ -69,7 +69,7 @@ class MethodTest extends AnyFunSuite with TestHelper {
       "Base.cls" -> "public virtual class Base { Base getInstance() {return null;} }",
       "Extend.cls" -> "public class Extend extends Base { Extend getInstance() {return null;} { this.getInstance();} }"
     )) { root: PathLike =>
-      createHappyOrg(root)
+      createOrg(root)
     }
   }
 

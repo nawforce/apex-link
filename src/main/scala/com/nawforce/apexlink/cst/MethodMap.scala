@@ -17,6 +17,7 @@ import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
+import com.nawforce.apexlink.types.core.MethodDeclaration.{emptyMethodDeclarations, emptyMethodDeclarationsSet}
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
@@ -31,13 +32,10 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 final case class MethodMap(td: Option[ApexClassDeclaration],
-                           methodsByName: Map[(Name, Int), Array[MethodDeclaration]], errors: List[Issue]) {
+                           methodsByName: Map[(Name, Int), Array[MethodDeclaration]],
+                           testVisiblePrivateMethods: Set[MethodDeclaration],
+                           errors: List[Issue]) {
   val deepHash: Int = td.map(_.deepHash).getOrElse(0)
-
-  // Cache private methods that are always accessible, we need this when filtering out inherited test visible privates
-  private lazy val allowablePrivateMethods =
-    (td.map(_.localMethods).getOrElse(ArraySeq()).filter(_.visibility == PRIVATE_MODIFIER) ++
-      td.map(_.outerStaticMethods).getOrElse(ArraySeq()).filter(_.visibility == PRIVATE_MODIFIER)).toSet
 
   /** Return all available methods */
   def allMethods: ArraySeq[MethodDeclaration] = {
@@ -65,12 +63,11 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
     }
 
     val testMatches =
-      if (context.thisType.inTest) {
-        staticContextMatches
-      } else {
+      if (!context.thisType.inTest && testVisiblePrivateMethods.nonEmpty) {
         // If not in test code, filter out inherited private test visible methods that we allowed in
-        staticContextMatches.filterNot(method =>
-          method.visibility == PRIVATE_MODIFIER && !allowablePrivateMethods.contains(method))
+        staticContextMatches.filterNot(testVisiblePrivateMethods.contains)
+      } else {
+        staticContextMatches
       }
 
     val exactMatches = testMatches.filter(_.hasParameters(params))
@@ -127,23 +124,38 @@ object MethodMap {
   private val batchOverrideMethodSignature = "database.querylocator start(database.batchablecontext)"
 
   def empty(): MethodMap = {
-    new MethodMap(None, Map(), Nil)
+    new MethodMap(None, Map(), Set(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
             newMethods: ArraySeq[MethodDeclaration], outerStaticMethods: ArraySeq[MethodDeclaration],
             interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
-    // Create a starting working map from super class map
+    // Find private methods to include to workaround a bug where one Inner class that extends another Inner with
+    // the same outer can access the private methods of the base class. Yeah, well screwed up stuff.
+    val innerPeerSuperclassPrivateMethods = extendsInnerPeerSuperclassPrivateMethods(td)
+
+    // Create a starting working map from super class map, we want to carry forward privates that are either test
+    // visible (because they can be extended) or are visible due to the bug (see above)
     val workingMap = new WorkingMap()
+    val testVisiblePrivate = mutable.Set[MethodDeclaration]()
     superClassMap.methodsByName.foreach(superMethodGroup => {
       val superMethods = superMethodGroup._2.filter(
-        // Allow test visible as you can override them from a test
-        method => method.visibility != PRIVATE_MODIFIER || method.isTestVisible
+        method => {
+          if (innerPeerSuperclassPrivateMethods.contains(method) || method.visibility != PRIVATE_MODIFIER) {
+            true
+          } else {
+            if (method.isTestVisible)
+              testVisiblePrivate.add(method)
+            method.isTestVisible
+          }
+        }
       )
       if (superMethods.nonEmpty)
         workingMap.put(superMethodGroup._1, superMethods)
     })
+
+    // Now build the rest of the map with the new methods
     val errors = mutable.Buffer[Issue]()
     val (staticLocals, instanceLocals) = newMethods.partition(_.isStatic)
 
@@ -184,9 +196,22 @@ object MethodMap {
     }
 
     // Only Apex class types are replaceable and hence have deep hashes
+    val testVisiblePrivateSet = if (testVisiblePrivate.isEmpty) emptyMethodDeclarationsSet else testVisiblePrivate.toSet
     td match {
-      case td: ApexClassDeclaration => new MethodMap(Some(td), workingMap.toMap, errors.toList)
-      case _: TypeDeclaration => new MethodMap(None, workingMap.toMap, errors.toList)
+      case td: ApexClassDeclaration =>
+        new MethodMap(Some(td), workingMap.toMap, testVisiblePrivateSet, errors.toList)
+      case _: TypeDeclaration =>
+        new MethodMap(None, workingMap.toMap, testVisiblePrivateSet, errors.toList)
+    }
+  }
+
+  private def extendsInnerPeerSuperclassPrivateMethods(td: TypeDeclaration): ArraySeq[MethodDeclaration] = {
+    lazy val superClass = td.superClassDeclaration
+    if (td.outerTypeName.nonEmpty && td.superClass.nonEmpty &&
+      superClass.nonEmpty && superClass.get.outerTypeName == td.outerTypeName) {
+      superClass.get.methods.filter(method => method.visibility == PRIVATE_MODIFIER && !method.isStatic)
+    } else {
+      emptyMethodDeclarations
     }
   }
 
