@@ -13,7 +13,7 @@ object AssignableSupport {
       (!strict && toType == TypeNames.InternalObject) ||
       context.module.isGhostedType(toType)) {
       true
-    } else if (strict && fromType.typeName.isRecordSet) {
+    } else if (!strict && fromType.typeName.isRecordSet) {
       isRecordSetAssignable(toType, context)
     } else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty) {
       isAssignableGeneric(toType, fromType, context)

@@ -35,6 +35,11 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Method call basic database query") {
+    typeDeclaration("public class Dummy { {List<SObject> a = Database.query(''); } }")
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Static method private override different return") {
     FileSystemHelper.run(Map(
       "Base.cls" -> "public virtual class Base { static Base getInstance() {return null;} }",
@@ -125,5 +130,4 @@ class MethodTest extends AnyFunSuite with TestHelper {
           "Warning: line 1 at 39-58: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'any', likely due to unknown type\n")
     }
   }
-
 }
