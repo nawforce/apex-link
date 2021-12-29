@@ -86,32 +86,32 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
     else if (erasedMatches.length > 1)
       return Left("Ambiguous method call")
 
-    val strictAssignableMatches = testMatches.filter(m => {
-      val argZip = m.parameters.map(_.typeName).zip(params)
-      argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = true, context))
-    })
-    if (strictAssignableMatches.length == 1)
-      return Right(strictAssignableMatches.head)
-    else if (strictAssignableMatches.length > 1)
-      return Left("Ambiguous method call")
+    assignableMatch(strict = true, testMatches, params, context)
+      .getOrElse(
+        assignableMatch(strict = false, testMatches, params, context)
+          .getOrElse(Left("No matching method found"))
+      )
+  }
 
-    val looseAssignableMatches = testMatches.map(m => {
+  private def assignableMatch(strict: Boolean, matches: Array[MethodDeclaration], params: ArraySeq[TypeName],
+                              context: VerifyContext): Option[Either[String, MethodDeclaration]] = {
+    val assignableMatches = matches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
-      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict = false, context)),
+      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict, context)),
         argZip.count(argPair => argPair._1 == argPair._2),
         m)
     }).filter(_._1).map(m => (m._2, m._3))
 
-    if (looseAssignableMatches.nonEmpty) {
-      val maxIdentical = looseAssignableMatches.map(_._1).max
-      val priorityMatches = looseAssignableMatches.filter(_._1 == maxIdentical).map(_._2)
+    if (assignableMatches.nonEmpty) {
+      val maxIdentical = assignableMatches.map(_._1).max
+      val priorityMatches = assignableMatches.filter(_._1 == maxIdentical).map(_._2)
       if (priorityMatches.length == 1)
-        return Right(priorityMatches.head)
+        Some(Right(priorityMatches.head))
       else
-        return Left("Ambiguous method call")
+        Some(Left("Ambiguous method call"))
+    } else {
+      None
     }
-
-    Left("No matching method found")
   }
 }
 
