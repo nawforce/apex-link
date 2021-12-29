@@ -209,10 +209,10 @@ class SummaryTest extends AnyFunSuite {
     assert(method.name == Name("Foo"))
     assert(method.idLocation == Location(1, 30, 1, 33))
     assert(method.children.isEmpty)
-    assert(method.modifiers == ArraySeq(VIRTUAL_MODIFIER))
+    assert(method.modifiers == ArraySeq(VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(method.parseIssues.isEmpty)
-    assert(method.signature == "virtual void Foo(final String bar)")
-    assert(method.description == "void (final String bar) virtual")
+    assert(method.signature == "virtual public void Foo(final String bar)")
+    assert(method.description == "void (final String bar) virtual public")
   }
 
   test("Enum with constant summary") {
