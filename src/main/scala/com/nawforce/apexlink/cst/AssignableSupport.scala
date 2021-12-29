@@ -10,13 +10,13 @@ object AssignableSupport {
     if (fromType.typeName == TypeNames.Null ||
       fromType.typeName == TypeNames.Any ||
       fromType.typeName == toType ||
-      toType == TypeNames.InternalObject ||
+      (!strict && toType == TypeNames.InternalObject) ||
       context.module.isGhostedType(toType)) {
       true
-    } else if (fromType.typeName.isRecordSet) {
+    } else if (strict && fromType.typeName.isRecordSet) {
       isRecordSetAssignable(toType, context)
     } else if (toType.params.nonEmpty || fromType.typeName.params.nonEmpty) {
-      isAssignableGeneric(toType, fromType, strict, context)
+      isAssignableGeneric(toType, fromType, context)
     } else {
       (if (strict)
         strictAssignable.contains(toType, fromType.typeName)
@@ -38,7 +38,7 @@ object AssignableSupport {
       isAssignable(fromType.typeName, toType, strict = false, context)
   }
 
-  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, strict: Boolean, context: VerifyContext): Boolean = {
+  private def isAssignableGeneric(toType: TypeName, fromType: TypeDeclaration, context: VerifyContext): Boolean = {
     if (toType == fromType.typeName) {
       true
     } else if (toType.params.size == fromType.typeName.params.size) {
@@ -48,7 +48,7 @@ object AssignableSupport {
         (fromType.typeName == sameParams || fromType.extendsOrImplements(sameParams)) &&
           toType.params
             .zip(fromType.typeName.params)
-            .map(p => isAssignable(p._1, p._2, strict, context))
+            .map(p => isAssignable(p._1, p._2, strict = false, context))
             .forall(b => b)
       }
     } else if (toType.params.isEmpty || fromType.typeName.params.isEmpty) {
