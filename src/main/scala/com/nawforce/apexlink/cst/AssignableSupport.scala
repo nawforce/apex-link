@@ -88,6 +88,8 @@ object AssignableSupport {
   private lazy val strictAssignable: Set[(TypeName, TypeName)] =
     Set(
       (TypeNames.Long, TypeNames.Integer),
+      (TypeNames.Decimal, TypeNames.Integer),
+      (TypeNames.Decimal, TypeNames.Long),
       (TypeNames.IdType, TypeNames.String),
       (TypeNames.String, TypeNames.IdType),
       (TypeNames.Datetime, TypeNames.Date)
