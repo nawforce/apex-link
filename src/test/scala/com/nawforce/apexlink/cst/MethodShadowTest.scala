@@ -50,7 +50,18 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
           "SuperClass.cls" -> "public virtual class SuperClass { private virtual void func() {}}"),
-      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+      "Error: line 1 at 61-65: Method 'func' can not override a private method\n")
+  }
+
+  test("Override of private virtual (same file bug)") {
+    testMethods(
+      Map("Dummy.cls" ->
+        """public virtual class Dummy {
+          | private virtual void func() {}
+          | public class Other extends Dummy {public override void func() {} }
+          |}
+          |""".stripMargin),
+      "")
   }
 
   test("Override of protected virtual") {
@@ -86,7 +97,7 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
           "SuperClass.cls" -> "public abstract class SuperClass { private abstract void func();}"),
-      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+      "Error: line 1 at 61-65: Method 'func' can not override a private method\n")
   }
 
   test("Override of protected abstract") {

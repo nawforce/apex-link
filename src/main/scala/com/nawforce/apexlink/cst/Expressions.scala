@@ -31,6 +31,12 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 
+/* Context used during expression verification to indicate focus & return state. Declaration provides the
+ * current context TypeDeclaration. isStatic=None is used as a marker that we have yet to enter an explicit
+ * static/instance context as you find on the outermost expression used in an instance method. In this state
+ * declaration == this & both static/instance resolution is allowed. If isStatic is set the specific expression
+ * should become restricted to either static or instance resolution.
+ */
 final case class ExprContext(isStatic: Option[Boolean],
                              declaration: Option[TypeDeclaration],
                              locatable: Option[Locatable] = None) {

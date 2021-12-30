@@ -31,6 +31,12 @@ import com.nawforce.pkgforce.path.{Location, PathLocation}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
+sealed abstract class MethodCallError(final val value: String)
+
+case object NO_MATCH_ERROR extends MethodCallError("No matching method found")
+
+case object AMBIGUOUS_ERROR extends MethodCallError("Ambiguous method call")
+
 final case class MethodMap(td: Option[ApexClassDeclaration],
                            methodsByName: Map[(Name, Int), Array[MethodDeclaration]],
                            testVisiblePrivateMethods: Set[MethodDeclaration],
@@ -53,6 +59,14 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
   /** Find a method, suitable for use from the given context */
   def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Either[String, MethodDeclaration] = {
+    findMethodCall(name, params, staticContext, context) match {
+      case Left(err) => Left(err.value)
+      case Right(method) => Right(method)
+    }
+  }
+
+  private def findMethodCall(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
+                             context: VerifyContext): Either[MethodCallError, MethodDeclaration] = {
 
     val matches = methodsByName.getOrElse((name, params.length), Array())
 
@@ -74,24 +88,45 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
     else if (exactMatches.length > 1)
-      return Left("Ambiguous method call")
+      return Left(AMBIGUOUS_ERROR)
 
     // TODO: Explain what this is doing
     val erasedMatches = testMatches.filter(_.hasCallErasedParameters(context.module, params))
     if (erasedMatches.length == 1)
       return Right(erasedMatches.head)
     else if (erasedMatches.length > 1)
-      return Left("Ambiguous method call")
+      return Left(AMBIGUOUS_ERROR)
 
-    assignableMatch(strict = true, testMatches, params, context)
-      .getOrElse(
-        assignableMatch(strict = false, testMatches, params, context)
-          .getOrElse(Left("No matching method found"))
-      )
+    var found =
+      assignableMatch(strict = true, testMatches, params, context)
+        .getOrElse(
+          assignableMatch(strict = false, testMatches, params, context)
+            .getOrElse(Left(NO_MATCH_ERROR))
+        )
+
+    // If not found locally search super & outer for statics
+    if (found == Left(NO_MATCH_ERROR) && !staticContext.contains(false)) {
+      found = findMethodOn(td.flatMap(_.superClassDeclaration), name, params, staticContext, context)
+      if (found == Left(NO_MATCH_ERROR)) {
+        found = findMethodOn(td.flatMap(_.outerTypeDeclaration), name, params, staticContext, context)
+      }
+    }
+
+    found
+  }
+
+  private def findMethodOn(td: Option[TypeDeclaration], name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
+                           context: VerifyContext): Either[MethodCallError, MethodDeclaration] = {
+    td match {
+      case Some(td: ApexClassDeclaration) =>
+        td.methodMap.findMethodCall(name, params, staticContext, context)
+      case _ =>
+        Left(NO_MATCH_ERROR)
+    }
   }
 
   private def assignableMatch(strict: Boolean, matches: Array[MethodDeclaration], params: ArraySeq[TypeName],
-                              context: VerifyContext): Option[Either[String, MethodDeclaration]] = {
+                              context: VerifyContext): Option[Either[MethodCallError, MethodDeclaration]] = {
     val assignableMatches = matches.map(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
       (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict, context)),
@@ -105,7 +140,7 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
       if (priorityMatches.length == 1)
         Some(Right(priorityMatches.head))
       else
-        Some(Left("Ambiguous method call"))
+        Some(Left(AMBIGUOUS_ERROR))
     } else {
       None
     }
@@ -133,27 +168,16 @@ object MethodMap {
 
     // Find private methods to include to workaround a bug where one Inner class that extends another Inner with
     // the same outer can access the private methods of the base class. Yeah, well screwed up stuff.
-    val innerPeerSuperclassPrivateMethods = extendsInnerPeerSuperclassPrivateMethods(td)
+    val innerPeerSuperclassPrivateMethods = findInnerPeerSuperclassPrivateMethods(td)
 
-    // Create a starting working map from super class map, we want to carry forward privates that are either test
-    // visible (because they can be extended) or are visible due to the bug (see above)
-    val workingMap = new WorkingMap()
+    // Create a starting working map from super class map, just removing statics initially
+    var workingMap = new WorkingMap()
     val testVisiblePrivate = mutable.Set[MethodDeclaration]()
     superClassMap.methodsByName.foreach(superMethodGroup => {
-      val superMethods = superMethodGroup._2.filter(
-        method => {
-          if (innerPeerSuperclassPrivateMethods.contains(method) || method.visibility != PRIVATE_MODIFIER) {
-            true
-          } else {
-            if (method.isTestVisible)
-              testVisiblePrivate.add(method)
-            method.isTestVisible
-          }
-        }
-      )
-      if (superMethods.nonEmpty)
-        workingMap.put(superMethodGroup._1, superMethods)
+      val superMethods = superMethodGroup._2.filterNot(_.isStatic)
+      workingMap.put(superMethodGroup._1, superMethods)
     })
+    workingMap = workingMap.filterNot(_._2.isEmpty)
 
     // Now build the rest of the map with the new methods
     val errors = mutable.Buffer[Issue]()
@@ -168,13 +192,23 @@ object MethodMap {
       applyInstanceMethod(workingMap, method, td.inTest, td.isComplete, errors)
     )
 
+    // Now strip out inherited privates that are neither test visible or impacted by the bug (see above)
+    workingMap.foreach(keyAndMethodGroup => {
+      val methods = keyAndMethodGroup._2.filterNot(method => {
+        method.visibility == PRIVATE_MODIFIER &&
+          !(
+            method.isTestVisible || isApexLocalMethod(td, method) ||
+              innerPeerSuperclassPrivateMethods.contains(method)
+            )
+      })
+      workingMap.put(keyAndMethodGroup._1, methods)
+    })
+    workingMap = workingMap.filterNot(_._2.isEmpty)
+
     // For interfaces make sure we have all methods
     if (td.nature == INTERFACE_NATURE) {
       mergeInterfaces(workingMap, interfaces)
     }
-
-    // Add outer statics
-    outerStaticMethods.foreach(method => applyStaticMethod(workingMap, method))
 
     // Add local statics, de-duped
     val ignorableStatics = mutable.Set[MethodDeclaration]()
@@ -205,7 +239,16 @@ object MethodMap {
     }
   }
 
-  private def extendsInnerPeerSuperclassPrivateMethods(td: TypeDeclaration): ArraySeq[MethodDeclaration] = {
+  private def isApexLocalMethod(td: TypeDeclaration, method: MethodDeclaration): Boolean = {
+    (td, method) match {
+      case (td: ApexClassDeclaration, method: ApexMethodLike) =>
+        method.outerTypeId == td.typeId
+      case _ =>
+        false
+    }
+  }
+
+  private def findInnerPeerSuperclassPrivateMethods(td: TypeDeclaration): ArraySeq[MethodDeclaration] = {
     lazy val superClass = td.superClassDeclaration
     if (td.outerTypeName.nonEmpty && td.superClass.nonEmpty &&
       superClass.nonEmpty && superClass.get.outerTypeName == td.outerTypeName) {
@@ -328,10 +371,14 @@ object MethodMap {
             errors, isWarning = true)
       } else if (!matchedMethod.isVirtualOrAbstract) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-      } else if (!method.isVirtualOrOverride && !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
+      } else if (!method.isVirtualOrOverride && !matchedMethod.isAbstract && !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
+      } else if (method.isOverride && matchedMethod.isVirtualOrAbstract && matchedMethod.visibility == PRIVATE_MODIFIER) {
+        // Some escapes from this being bad, don't ask why, know one knows :-(
+        if (!sameFile(method, matchedMethod) && !(method.inTest && matchedMethod.isTestVisible))
+          setMethodError(method, s"Method '${method.name}' can not override a private method", errors)
       }
     } else if (method.isOverride && isComplete) {
       setMethodError(method, s"Method '${method.name}' does not override a virtual or abstract method", errors)
@@ -344,11 +391,18 @@ object MethodMap {
     workingMap.put(key, method +: methods.filterNot(_.hasSameParameters(method)))
   }
 
-  private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean=false): Unit = {
+  private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean = false): Unit = {
     method match {
       case am: ApexMethodLike if !isWarning => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
       case am: ApexMethodLike => errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
       case _ => ()
+    }
+  }
+
+  private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
+    (m1, m2) match {
+      case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.location.path == am2.location.path
+      case _ => false
     }
   }
 
