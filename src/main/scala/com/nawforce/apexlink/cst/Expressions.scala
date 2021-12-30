@@ -15,11 +15,9 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
-import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.apex.ApexClassDeclaration
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
@@ -101,25 +99,17 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    // When we have a leading IdPrimary there are a couple of special cases to handle
+    // Handle possible leading namespace
     val intercept = getInterceptPrimary(input, context).flatMap(primary => {
-      // It might be a static reference to an outer class that failed normal analysis due to class name shadowing
-      TypeResolver(TypeName(primary.id.name), context.module).toOption match {
-        case Some(td: ApexClassDeclaration) =>
-          context.addDependency(td)
-          Some(verifyWithId(ExprContext(isStatic = Some(true), td), context))
-        case _ =>
-          // Else it might be a namespace
-          if (isNamespace(primary.id.name, input.declaration.get)) {
-            val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
-            val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-            td.map(td =>
-              context.saveResult(this) {
-                ExprContext(isStatic = Some(true), Some(td), td)
-            })
-          } else {
-            None
-          }
+      if (isNamespace(primary.id.name, input.declaration.get)) {
+        val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
+        val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+        td.map(td =>
+          context.saveResult(this) {
+            ExprContext(isStatic = Some(true), Some(td), td)
+          })
+      } else {
+        None
       }
     })
     intercept.map(result => context.saveResult(this)(result))
