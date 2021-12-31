@@ -40,6 +40,14 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Method call custom equals (bad param type)") {
+    typeDeclarations(Map(
+      "MyInterface.cls" -> "public interface MyInterface {}",
+      "Dummy.cls" -> "public class Dummy implements MyInterface { public Boolean equals(MyInterface other) {return true;} {Boolean b = equals(this);} }"
+    ))
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Static method private override different return") {
     FileSystemHelper.run(Map(
       "Base.cls" -> "public virtual class Base { static Base getInstance() {return null;} }",

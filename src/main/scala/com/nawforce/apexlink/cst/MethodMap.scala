@@ -274,9 +274,9 @@ object MethodMap {
       val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Array())
 
-      val matched = methods.find(m => m.hasSameParameters(method))
+      val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
       if (matched.isEmpty) {
-        workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+        workingMap.put(key, method +: methods)
       } else {
         matched.get match {
           case am: ApexMethodLike => am.addShadow(method)
@@ -305,8 +305,8 @@ object MethodMap {
       .foreach(method => {
       val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Array())
+      var matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
 
-      var matched = methods.find(m => m.hasSameParameters(method))
       if (matched.isEmpty)
         matched = methods.find(m => m.hasSameErasedParameters(module, method))
 
@@ -333,19 +333,19 @@ object MethodMap {
   private def applyStaticMethod(workingMap: WorkingMap, method: MethodDeclaration): Unit = {
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
-    val matched = methods.find(m => m.hasSameParameters(method))
+    val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
     if (matched.isEmpty)
       workingMap.put(key, method +: methods)
     else if (matched.get.isStatic)
-      workingMap.put(key, method +: methods.filterNot(_.hasSameParameters(method)))
+      workingMap.put(key, method +: methods.filterNot(_ eq matched.get))
   }
 
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
                                   isComplete: Boolean, errors: mutable.Buffer[Issue]): Unit = {
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
+    val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
 
-    val matched = methods.find(_.hasSameParameters(method))
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
       lazy val isSpecial = {
@@ -361,14 +361,14 @@ object MethodMap {
       lazy val isInterfaceMethod =
         !matchedMethod.hasBlock && !matchedMethod.modifiers.contains(ABSTRACT_MODIFIER)
 
-      if (isDuplicate(matchedMethod, method)) {
+      if (areInSameApexClass(matchedMethod, method)) {
         setMethodError(method,
           s"Method '${method.name}' is a duplicate of an existing method in this class", errors)
       }
       else if (matchedMethod.typeName != method.typeName && !isSpecial) {
-          setMethodError(method,
-            s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
-            errors, isWarning = true)
+        setMethodError(method,
+          s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
+          errors, isWarning = true)
       } else if (!matchedMethod.isVirtualOrAbstract) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
       } else if (!method.isVirtualOrOverride && !matchedMethod.isAbstract && !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
@@ -377,7 +377,7 @@ object MethodMap {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
       } else if (method.isOverride && matchedMethod.isVirtualOrAbstract && matchedMethod.visibility == PRIVATE_MODIFIER) {
         // Some escapes from this being bad, don't ask why, know one knows :-(
-        if (!sameFile(method, matchedMethod) && !(method.inTest && matchedMethod.isTestVisible))
+        if (!areInSameApexFile(method, matchedMethod) && !(method.inTest && matchedMethod.isTestVisible))
           setMethodError(method, s"Method '${method.name}' can not override a private method", errors)
       }
     } else if (method.isOverride && isComplete) {
@@ -388,7 +388,7 @@ object MethodMap {
       case _ => ()
     }
 
-    workingMap.put(key, method +: methods.filterNot(_.hasSameParameters(method)))
+    workingMap.put(key, method +: methods.filterNot(method => matched.contains(method)))
   }
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean = false): Unit = {
@@ -399,18 +399,33 @@ object MethodMap {
     }
   }
 
-  private def sameFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
+  /** Determine if two Apex defined methods are declared in the same Apex file. */
+  private def areInSameApexFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
     (m1, m2) match {
       case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.location.path == am2.location.path
       case _ => false
     }
   }
 
-  private def isDuplicate(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
+  /** Determine if two methods are declared in the same Apex class. The implementation is a bit awkward due to
+    * how apex defined and platform methods diff in representation. */
+  private def areInSameApexClass(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
     (m1, m2) match {
       case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.outerTypeId == am2.outerTypeId
+      case (pm1: PlatformMethod, pm2: PlatformMethod) => pm1.typeDeclaration eq pm2.typeDeclaration
       case _ => false
     }
   }
 
+  /** Determine if two methods are considered the same without looking at the return type. For 'equals' we
+    * consider them the same if they both have a single parameter even if that parameter differs. This is
+    * because defining equals in a class will hide the Object equals method if the arguments don't match. */
+  private def areSameMethodsIgnoringReturn(method: MethodDeclaration, other: MethodDeclaration): Boolean = {
+    method.name == other.name &&
+      (if (method.name == XNames.Equals && !method.isStatic && !other.isStatic) {
+        method.parameters.length == 1 && other.parameters.length == 1
+      } else {
+        method.hasSameParameters(other)
+      })
+  }
 }

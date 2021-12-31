@@ -74,6 +74,7 @@ object XNames {
   val Map$ : Name                = XNames("Map")
   val Iterator: Name             = XNames("Iterator")
   val Batchable: Name            = XNames("Batchable")
+  val Equals: Name               = XNames("equals")
 
   /** Name extensions */
   implicit class NameUtils(name: Name) {
