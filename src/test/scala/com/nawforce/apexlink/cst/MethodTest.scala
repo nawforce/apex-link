@@ -60,29 +60,36 @@ class MethodTest extends AnyFunSuite with TestHelper {
   test("Static method protected override different return") {
     FileSystemHelper.run(Map(
       "Base.cls" -> "public virtual class Base { static protected Base getInstance() {return null;} }",
-      "Extend.cls" -> "public class Extend extends Base { static protected Extend getInstance() {return null;} { getInstance();} }"
+      "Dummy.cls" -> "public class Dummy extends Base { static protected Dummy getInstance() {return null;} { getInstance();} }"
     )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(dummyIssues.isEmpty)
+      createHappyOrg(root)
     }
   }
 
   test("Static method public override different return") {
     FileSystemHelper.run(Map(
       "Base.cls" -> "public virtual class Base { static public Base getInstance() {return null;} }",
-      "Extend.cls" -> "public class Extend extends Base { static public Extend getInstance() {return null;} { getInstance();} }"
+      "Dummy.cls" -> "public class Dummy extends Base { static public Dummy getInstance() {return null;} { getInstance();} }"
     )) { root: PathLike =>
-      val org = createOrg(root)
-      assert(dummyIssues.isEmpty)
+      createHappyOrg(root)
     }
   }
 
-  test("Instance method private override different return") {
+  test("Instance method private none-override different return") {
     FileSystemHelper.run(Map(
       "Base.cls" -> "public virtual class Base { Base getInstance() {return null;} }",
-      "Extend.cls" -> "public class Extend extends Base { Extend getInstance() {return null;} { this.getInstance();} }"
+      "Dummy.cls" -> "public class Dummy extends Base { Dummy getInstance() {return null;} { this.getInstance();} }"
     )) { root: PathLike =>
-      createOrg(root)
+      createHappyOrg(root)
+    }
+  }
+
+  test("Instance method private none-override same return") {
+    FileSystemHelper.run(Map(
+      "Base.cls" -> "public virtual class Base { void getInstance() {} }",
+      "Dummy.cls" -> "public class Dummy extends Base { void getInstance() {return null;} { this.getInstance();} }"
+    )) { root: PathLike =>
+      createHappyOrg(root)
     }
   }
 

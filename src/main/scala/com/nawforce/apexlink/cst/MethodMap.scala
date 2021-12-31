@@ -340,8 +340,11 @@ object MethodMap {
       workingMap.put(key, method +: methods.filterNot(_ eq matched.get))
   }
 
+  /** Add an instance method into the working map. The is littered with very horrible conditional logic based on
+    * what we have been able to work out from testing. */
   private def applyInstanceMethod(workingMap: WorkingMap, method: MethodDeclaration, isTest: Boolean,
                                   isComplete: Boolean, errors: mutable.Buffer[Issue]): Unit = {
+    val errorCount = errors.length
     val key = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Array())
     val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
@@ -361,17 +364,21 @@ object MethodMap {
       lazy val isInterfaceMethod =
         !matchedMethod.hasBlock && !matchedMethod.modifiers.contains(ABSTRACT_MODIFIER)
 
+      lazy val reallyPrivateMethod =
+        matchedMethod.visibility == PRIVATE_MODIFIER && !areInSameApexFile(method, matchedMethod)
+
       if (areInSameApexClass(matchedMethod, method)) {
         setMethodError(method,
           s"Method '${method.name}' is a duplicate of an existing method in this class", errors)
       }
-      else if (matchedMethod.typeName != method.typeName && !isSpecial) {
+      else if (matchedMethod.typeName != method.typeName && !reallyPrivateMethod && !isSpecial) {
         setMethodError(method,
           s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
           errors, isWarning = true)
-      } else if (!matchedMethod.isVirtualOrAbstract) {
+      } else if (!matchedMethod.isVirtualOrAbstract && !reallyPrivateMethod) {
         setMethodError(method, s"Method '${method.name}' can not override non-virtual method", errors)
-      } else if (!method.isVirtualOrOverride && !matchedMethod.isAbstract && !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
+      } else if (!method.isVirtualOrOverride && !reallyPrivateMethod && !matchedMethod.isAbstract &&
+        !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (method.visibility.methodOrder < matchedMethod.visibility.methodOrder && !isSpecial) {
         setMethodError(method, s"Method '${method.name}' can not reduce visibility in override", errors)
@@ -383,12 +390,20 @@ object MethodMap {
     } else if (method.isOverride && isComplete) {
       setMethodError(method, s"Method '${method.name}' does not override a virtual or abstract method", errors)
     }
-    method match {
-      case am: ApexMethodLike => matched.foreach(am.addShadow)
-      case _ => ()
+
+    // Shadow if all looks OK
+    if (errors.length == errorCount) {
+      method match {
+        case am: ApexMethodLike => matched.foreach(am.addShadow)
+        case _ => ()
+      }
     }
 
-    workingMap.put(key, method +: methods.filterNot(method => matched.contains(method)))
+    // Update workingMap with new methods, regardless of if we error on it as probably was meant to be
+    matched match {
+      case None => workingMap.put(key, method +: methods)
+      case Some(matched) => workingMap.put(key, method +: methods.filterNot(_ eq matched))
+    }
   }
 
   private def setMethodError(method: MethodDeclaration, error: String, errors: mutable.Buffer[Issue], isWarning: Boolean = false): Unit = {
