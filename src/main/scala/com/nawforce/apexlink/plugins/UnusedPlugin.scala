@@ -16,7 +16,7 @@ package com.nawforce.apexlink.plugins
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.plugins.UnusedPlugin.{excludedClassModifiers, excludedFieldModifiers, excludedMethodModifiers, onlyTestCodeReferenceText}
+import com.nawforce.apexlink.plugins.UnusedPlugin._
 import com.nawforce.apexlink.types.apex.{ApexFieldLike, ApexMethodLike, FullDeclaration}
 import com.nawforce.apexlink.types.core.{DependentType, MethodDeclaration}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
@@ -88,7 +88,7 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
     }
 
     def unusedFields: ArraySeq[Issue] = {
-      td.localFields.filterNot(_.isUsed)
+      td.localFields.filterNot(_.isUsed(td.inTest))
         .map(field => {
           val nature = field.nature match {
             case FIELD_NATURE => "field"
@@ -104,7 +104,7 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
     def unusedMethods: ArraySeq[Issue] = {
       td.localMethods
         .flatMap {
-          case am: ApexMethodLike if !am.isUsed(td.module) => Some(am)
+          case am: ApexMethodLike if !am.isUsed(td.module, td.inTest) => Some(am)
           case _ => None
         }
         .map(method => {
@@ -121,19 +121,25 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
   }
 
   private implicit class FieldOps(field: ApexFieldLike) {
-    def isUsed: Boolean = {
-      field.hasNonTestHolders || field.modifiers.exists(excludedFieldModifiers)
+    def isUsed(inTest: Boolean): Boolean = {
+      if (inTest)
+        field.hasHolders || field.modifiers.exists(excludedTestFieldModifiers)
+      else
+        field.hasNonTestHolders || field.modifiers.exists(excludedFieldModifiers)
     }
   }
 
   private implicit class MethodOps(method: ApexMethodLike) {
 
     /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
-    def isUsed(module: Module): Boolean = {
-      method.hasNonTestHolders ||
-        method.modifiers.exists(excludedMethodModifiers.contains) ||
+    def isUsed(module: Module, inTest: Boolean): Boolean = {
+      (if (inTest)
+        method.hasHolders || method.modifiers.exists(excludedTestMethodModifiers.contains)
+      else
+        method.hasNonTestHolders || method.modifiers.exists(excludedMethodModifiers.contains)
+        ) ||
         method.shadows.exists({
-          case am: ApexMethodLike => am.isUsed(module)
+          case am: ApexMethodLike => am.isUsed(module, inTest)
           case _: MethodDeclaration => true
           case _ => false
         }) ||
@@ -145,8 +151,9 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 object UnusedPlugin {
   val onlyTestCodeReferenceText = "only referenced by test code, make @TestVisible to suppress warning"
   val excludedClassModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
-  val excludedMethodModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION,
-    TEST_METHOD_MODIFIER, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedMethodModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedTestMethodModifiers: Set[Modifier] = Set(ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION, TEST_METHOD_MODIFIER,
+    SUPPRESS_WARNINGS_ANNOTATION)
   val excludedFieldModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
-
+  val excludedTestFieldModifiers: Set[Modifier] = Set(SUPPRESS_WARNINGS_ANNOTATION)
 }
