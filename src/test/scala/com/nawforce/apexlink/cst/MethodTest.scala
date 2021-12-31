@@ -30,6 +30,17 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Method call with non-ambiguous target") {
+    FileSystemHelper.run(Map(
+      "A.cls" -> "public virtual class A {}",
+      "B.cls" -> "public virtual class B extends A {}",
+      "Dummy.cls" -> "public class Dummy extends B { {Dummy d; d.func(d);} void func(A a) {} void func(B b) {} }",
+    )) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.getMessages(root.join("Dummy.cls")) == "")
+    }
+  }
+
   test("Method call for possible synthetic platform method") {
     typeDeclaration("public class Dummy { {Database.QueryLocatorIterator it; it.next(); } }")
     assert(dummyIssues.isEmpty)

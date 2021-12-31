@@ -98,9 +98,9 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
       return Left(AMBIGUOUS_ERROR)
 
     var found =
-      assignableMatch(strict = true, testMatches, params, context)
+      mostSpecificMatch(strict = true, testMatches, params, context)
         .getOrElse(
-          assignableMatch(strict = false, testMatches, params, context)
+          mostSpecificMatch(strict = false, testMatches, params, context)
             .getOrElse(Left(NO_MATCH_ERROR))
         )
 
@@ -125,24 +125,24 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
     }
   }
 
-  private def assignableMatch(strict: Boolean, matches: Array[MethodDeclaration], params: ArraySeq[TypeName],
-                              context: VerifyContext): Option[Either[MethodCallError, MethodDeclaration]] = {
-    val assignableMatches = matches.map(m => {
-      val argZip = m.parameters.map(_.typeName).zip(params)
-      (argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict, context)),
-        argZip.count(argPair => argPair._1 == argPair._2),
-        m)
-    }).filter(_._1).map(m => (m._2, m._3))
+  /** Find the most specific method call match. This uses a most-specific selection model similar to that
+    * outlined in JLS6 15.12.2.5. */
+  private def mostSpecificMatch(strict: Boolean, matches: Array[MethodDeclaration], params: ArraySeq[TypeName],
+                                context: VerifyContext): Option[Either[MethodCallError, MethodDeclaration]] = {
 
-    if (assignableMatches.nonEmpty) {
-      val maxIdentical = assignableMatches.map(_._1).max
-      val priorityMatches = assignableMatches.filter(_._1 == maxIdentical).map(_._2)
-      if (priorityMatches.length == 1)
-        Some(Right(priorityMatches.head))
-      else
-        Some(Left(AMBIGUOUS_ERROR))
-    } else {
+    val assignable = matches.filter(m => {
+      val argZip = m.parameters.map(_.typeName).zip(params)
+      argZip.forall(argPair => isAssignable(argPair._1, argPair._2, strict, context))
+    })
+
+    if (assignable.isEmpty)
       None
+    else if (assignable.length == 1)
+      Some(Right(assignable.head))
+    else {
+      Some(assignable.find(method =>
+        assignable.forall(m => m == method || method.isMoreSpecific(m, context).contains(true)))
+        .map(Right(_)).getOrElse(Left(AMBIGUOUS_ERROR)))
     }
   }
 }

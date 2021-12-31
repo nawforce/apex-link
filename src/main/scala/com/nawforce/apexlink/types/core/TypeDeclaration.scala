@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.types.core
 
 import com.nawforce.apexlink.api._
+import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
@@ -206,13 +207,24 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
                   case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
                     TypeResolver(z._2, module) match {
                       case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
-                      case _                                                                 => false
+                      case _ => false
                     }
                   case _ => false
                 })))
     } else {
       false
     }
+  }
+
+  /** Determine if this method is a more specific version of the passed method. For this to be true all the parameters
+    * of this method must be assignable to the corresponding parameter of the other method. */
+  def isMoreSpecific(other: MethodDeclaration, context: VerifyContext): Option[Boolean] = {
+    if (parameters.length != other.parameters.length)
+      return None
+
+    Some(other.parameters.zip(parameters).forall(pair => {
+      isAssignable(pair._1.typeName, pair._2.typeName, strict = false, context)
+    }))
   }
 }
 
