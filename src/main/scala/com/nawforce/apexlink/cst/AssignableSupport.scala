@@ -28,8 +28,12 @@ object AssignableSupport {
 
   def isAssignable(toType: TypeName, fromType: TypeName, strict: Boolean, context: VerifyContext): Boolean = {
     context.getTypeFor(fromType, context.thisType) match {
-      case Left(_) => false
-      case Right(fromDeclaration) => isAssignable(toType, fromDeclaration, strict, context)
+      case Left(_) =>
+        // Allow some ghosted assignments to support Lists
+        (toType == TypeNames.SObject && context.module.isGhostedType(fromType) && fromType.outer.contains(TypeNames.Schema)) ||
+          (toType == TypeNames.InternalObject && context.module.isGhostedType(fromType))
+      case Right(fromDeclaration) =>
+        isAssignable(toType, fromDeclaration, strict, context)
     }
   }
 
