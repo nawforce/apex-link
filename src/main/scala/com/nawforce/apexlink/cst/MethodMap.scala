@@ -141,7 +141,7 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
       Some(Right(assignable.head))
     else {
       Some(assignable.find(method =>
-        assignable.forall(m => m == method || method.isMoreSpecific(m, context).contains(true)))
+        assignable.forall(m => m == method || method.isMoreSpecific(m, params, context).contains(true)))
         .map(Right(_)).getOrElse(Left(AMBIGUOUS_ERROR)))
     }
   }

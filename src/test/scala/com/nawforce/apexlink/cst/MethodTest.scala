@@ -51,6 +51,11 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("Method call for possible ambiguous database query") {
+    typeDeclaration("public class Dummy {void f1(List<SObject> a){} void f1(SObject a) {} {f1(Database.query('')); } }")
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Method call custom equals (bad param type)") {
     typeDeclarations(Map(
       "MyInterface.cls" -> "public interface MyInterface {}",

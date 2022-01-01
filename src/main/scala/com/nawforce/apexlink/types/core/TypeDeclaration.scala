@@ -217,14 +217,42 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
   }
 
   /** Determine if this method is a more specific version of the passed method. For this to be true all the parameters
-    * of this method must be assignable to the corresponding parameter of the other method. */
-  def isMoreSpecific(other: MethodDeclaration, context: VerifyContext): Option[Boolean] = {
-    if (parameters.length != other.parameters.length)
+    * of this method must be assignable to the corresponding parameter of the other method. However when dealing with
+    * RecordSets (SOQL results) we also prioritise degrees of specificness and use those to select as well. */
+  def isMoreSpecific(other: MethodDeclaration, params: ArraySeq[TypeName], context: VerifyContext): Option[Boolean] = {
+    if (parameters.length != other.parameters.length || parameters.length != params.length)
       return None
 
-    Some(other.parameters.zip(parameters).forall(pair => {
-      isAssignable(pair._1.typeName, pair._2.typeName, strict = false, context)
+    val zip = params.lazyZip(other.parameters).lazyZip(parameters).toList
+    Some(zip.forall(tuple => {
+      if (tuple._1.isRecordSet) {
+        val sObjectType = tuple._1.params.head
+        val otherScore = scoreRecordSetAssignability(tuple._2.typeName, sObjectType)
+        val thisScore = scoreRecordSetAssignability(tuple._3.typeName, sObjectType)
+        thisScore.nonEmpty && (otherScore.isEmpty || thisScore.get < otherScore.get)
+      } else {
+        isAssignable(tuple._2.typeName, tuple._3.typeName, strict = false, context)
+      }
     }))
+  }
+
+  /** Create a score for toType reflecting it's priority (low is high) when matching against a RecordSet of
+    * sObjectType. The ordering here was empirically derived, having all of these available as possible
+    * matches does not create an ambiguity error, although the single record conversion may fail at runtime. */
+  private def scoreRecordSetAssignability(toType: TypeName, sObjectType: TypeName): Option[Int] = {
+    if (toType == TypeNames.listOf(sObjectType))
+      Some(0)
+    else if (toType.isSObjectList)
+      Some(1)
+    else if (toType == sObjectType)
+      Some(2)
+    else if (toType == TypeNames.SObject)
+      Some(3)
+    else if (toType.isObjectList)
+      Some(4)
+    else if (toType == TypeNames.InternalObject)
+      Some(5)
+    else None
   }
 }
 
