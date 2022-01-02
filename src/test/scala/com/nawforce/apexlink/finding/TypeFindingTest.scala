@@ -136,8 +136,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
         "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy value;}}",
       )) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues
-        .getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
+      assert(getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
     }
   }
 
@@ -171,8 +170,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
         "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy.Inner value;}}",
       )) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues
-        .getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
+      assert(getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
     }
   }
 }

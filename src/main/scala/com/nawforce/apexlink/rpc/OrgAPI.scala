@@ -167,7 +167,7 @@ trait OrgAPI {
   def open(directory: String): Future[OpenResult]
 
   @api.JSONRPCMethod(name = "getIssues")
-  def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult]
+  def getIssues(includeWarnings: Boolean, maxIssuesPerFile: Int): Future[GetIssuesResult]
 
   @api.JSONRPCMethod(name = "hasUpdatedIssues")
   def hasUpdatedIssues: Future[Array[String]]

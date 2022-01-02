@@ -25,7 +25,8 @@ import org.scalatest.funsuite.AnyFunSuite
 class UnusedTest extends AnyFunSuite with TestHelper {
 
   def orgIssuesFor(org: OrgImpl, path: PathLike): String = {
-    org.issueManager.issuesForFile(path.toString).map(_.asString()).mkString("\n")
+    val messages = org.issueManager.issuesForFile(path.toString).map(_.asString()).mkString("\n")
+    if (messages.nonEmpty) messages + "\n" else ""
   }
 
   test("Unused method") {
@@ -237,16 +238,15 @@ class UnusedTest extends AnyFunSuite with TestHelper {
   test("Unused local var") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a;} }")) { root: PathLike =>
       val org = createOrgWithUnused(root)
-      assert(
-        org.issues.getMessages(root.join("Dummy.cls"), unused = true) ==
-          "Unused: line 1 at 13-18: Unused class 'Dummy'\nUnused: line 1 at 29-30: Unused local variable 'a'\n")
+      assert(getMessages(root.join("Dummy.cls")) ==
+        "Unused: line 1 at 13-18: Unused class 'Dummy'\nUnused: line 1 at 29-30: Unused local variable 'a'\n")
     }
   }
 
   test("Unused local var assignment") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a; a=null;} }")) { root: PathLike =>
       val org = createOrgWithUnused(root)
-      assert(org.issues.getMessages(root.join("Dummy.cls"), unused = true) ==
+      assert(getMessages(root.join("Dummy.cls")) ==
         "Unused: line 1 at 13-18: Unused class 'Dummy'\n"
       )
     }
@@ -286,7 +286,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy extends Base {public void execute(QueueableContext context) {} }")) { root: PathLike =>
       val org = createOrgWithUnused(root)
       OrgImpl.current.withValue(org) {
-        assert(org.issues.getMessages(root.join("Dummy.cls"), unused = true).isEmpty)
+        assert(getMessages(root.join("Dummy.cls")).isEmpty)
       }
     }
   }

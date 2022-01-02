@@ -23,7 +23,6 @@ import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
-import com.nawforce.pkgforce.diagnostics.LocalLogger
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
@@ -270,7 +269,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       val typeId = TypeId(this, doc.typeName(namespace))
 
       // Update internal document tracking
-      index.upsert(new LocalLogger(pkg.org.issueManager), doc)
+      index.upsert(pkg.org.issueManager, doc)
       if (sourceOpt.isEmpty)
         index.remove(doc)
 
@@ -384,7 +383,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       clearSObjectErrors(sObjectPath)
       val deployer = new SObjectDeployer(this)
       val sobjects = deployer.createSObjects(
-        SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issueManager), namespace, sObjectPath)).buffered)
+        SObjectGenerator.iterator(DocumentIndex(pkg.org.issueManager, namespace, sObjectPath)).buffered)
 
       sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
       sobjects.toIndexedSeq

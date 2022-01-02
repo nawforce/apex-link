@@ -32,9 +32,8 @@ class TriggerTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.trigger" -> "trigger Dummy on Stupid (before insert) { }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.trigger")) ==
-            "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
+        assert(getMessages(Path("/Dummy.trigger")) ==
+          "Missing: line 1 at 17-23: No type declaration found for 'Schema.Stupid'\n")
     }
   }
 
@@ -53,9 +52,8 @@ class TriggerTest extends AnyFunSuite with TestHelper {
       Map("Dummy.trigger" -> "trigger Dummy on Account (before insert, before insert) { }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.trigger")) ==
-            "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
+        assert(getMessages(Path("/Dummy.trigger")) ==
+          "Error: line 1 at 17-24: Duplicate trigger case for 'before insert'\n")
     }
   }
 

@@ -16,7 +16,7 @@ package com.nawforce.apexlink.api
 
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.rpc.{BombScore, CompletionItemLink, DependencyGraph, LocationLink}
-import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps}
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.pkgforce.workspace.Workspace
@@ -61,25 +61,10 @@ trait Org {
     */
   def isDirty(): Boolean
 
-  /** Check issue log for errors, ignores warning messages. */
-  def hasErrors(): Boolean
-
   /**
     * Collection of all current issues reported against this org.
     */
   def issues: IssuesCollection
-
-  /** Get current issue log as a possibly very large string.
-    *
-    * See IssueOptions for control over what is returned.
-    */
-  def getIssues(options: IssueOptions): String
-
-  /** Get file specific issues.
-    *
-    * See file issues.
-    */
-  def getFileIssues(path: String, options: FileIssueOptions): Array[Issue]
 
   /** Get the package containing the path.
     *

@@ -22,7 +22,6 @@ import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics.UNUSED_CATEGORY
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
-import com.nawforce.runtime.platform.Path
 
 trait TestHelper {
 
@@ -48,12 +47,9 @@ trait TestHelper {
     }
   }
 
-  def createHappyOrg(path: PathLike, ignoreUnused: Boolean = false): OrgImpl = {
+  def createHappyOrg(path: PathLike): OrgImpl = {
     createOrg(path)
-    if (ignoreUnused)
-      assert(!hasIssuesIgnoringUnused)
-    else
-      assert(!hasIssues)
+    assert(!hasIssues)
     defaultOrg
   }
 
@@ -168,10 +164,24 @@ trait TestHelper {
 
   def hasIssues: Boolean = defaultOrg.issues.nonEmpty
 
-  def hasIssuesIgnoringUnused: Boolean =
-    defaultOrg.issues.getIssues.values.exists(_.exists(_.diagnostic.category != UNUSED_CATEGORY))
+  def getMessages(org: OrgImpl = defaultOrg): String = {
+    val messages = org.issues.issuesForFilesInternal(paths = null, includeWarnings = true, maxIssuesPerFile = 10)
+      .mkString("\n")
+    // For backward compatability with earlier behaviour
+    if (messages.nonEmpty) messages + "\n" else ""
+  }
 
-  def dummyIssues: String = defaultOrg.issues.getMessages(Path("/Dummy.cls"))
+  def getMessages(path: String): String = {
+    val messages = defaultOrg.issues.issuesForFileInternal(path)
+      .map(_.asString())
+      .mkString("\n")
+    // For backward compatability with earlier behaviour
+    if (messages.nonEmpty) messages + "\n" else ""
+  }
+
+  def getMessages(path: PathLike): String = getMessages(path.toString)
+
+  def dummyIssues: String = getMessages("/Dummy.cls")
 
   def customObject(label: String,
                    fields: Seq[(String, Option[String], Option[String])],

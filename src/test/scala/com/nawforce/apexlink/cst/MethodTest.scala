@@ -37,7 +37,7 @@ class MethodTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy extends B { {Dummy d; d.func(d);} void func(A a) {} void func(B b) {} }",
     )) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(root.join("Dummy.cls")) == "")
+      assert(getMessages(root.join("Dummy.cls")) == "")
     }
   }
 
@@ -116,7 +116,7 @@ class MethodTest extends AnyFunSuite with TestHelper {
     )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Extend.cls")) ==
+        getMessages(root.join("Extend.cls")) ==
           "Error: line 1 at 61-72: Method 'getInstance' has wrong return type to override, should be 'Base'\n")
     }
   }
@@ -128,7 +128,7 @@ class MethodTest extends AnyFunSuite with TestHelper {
     )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("Extend.cls")) ==
+        getMessages(root.join("Extend.cls")) ==
           "Error: line 1 at 58-69: Method 'getInstance' has wrong return type to override, should be 'Base'\n")
     }
   }
@@ -157,7 +157,7 @@ class MethodTest extends AnyFunSuite with TestHelper {
     )) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(root.join("force-app").join("Dummy.cls")) ==
+        getMessages(root.join("force-app").join("Dummy.cls")) ==
           "Warning: line 1 at 39-58: Ambiguous method call for 'publish' on 'System.EventBus' taking arguments 'any', likely due to unknown type\n")
     }
   }

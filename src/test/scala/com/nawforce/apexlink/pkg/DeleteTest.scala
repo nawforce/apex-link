@@ -52,9 +52,8 @@ class DeleteTest extends AnyFunSuite with TestHelper {
           pkg.refresh(path)
           assert(org.flush())
 
-          assert(
-            org.issues.getMessages(Path("/pkg/Foo.cls"))
-              == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
+          assert(getMessages(Path("/pkg/Foo.cls")) ==
+            "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
       }
     }
   }
@@ -91,9 +90,8 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(
-          org.issues.getMessages(Path("/pkg/Foo.trigger"))
-            == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
+        assert(getMessages(Path("/pkg/Foo.trigger"))
+          == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
       }
     }
   }

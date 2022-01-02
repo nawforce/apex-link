@@ -70,9 +70,8 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n")
     }
   }
 }

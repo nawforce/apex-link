@@ -37,7 +37,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open("/silly")
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0 )
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -51,7 +51,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty)
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -62,7 +62,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open("samples/synthetic/sfdx-test")
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -74,7 +74,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("")))
       assert(issues.issues.forall(_.diagnostic.category != ERROR_CATEGORY))
@@ -85,7 +85,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open("samples/synthetic/sfdx-ns-test")
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test", "")))
       assert(!issues.issues.exists(_.diagnostic.category == ERROR_CATEGORY))
@@ -97,7 +97,7 @@ class OrgAPITest extends AsyncFunSuite {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      issues <- orgAPI.getIssues(includeWarnings = false, includeZombies = false)
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test", "")))
       assert(!issues.issues.exists(_.diagnostic.category == ERROR_CATEGORY))
@@ -113,7 +113,7 @@ class OrgAPITest extends AsyncFunSuite {
     }
 
     val issues: Future[Assertion] = pkg flatMap { _ =>
-      orgAPI.getIssues(includeWarnings = true, includeZombies = true) map { issuesResult =>
+      orgAPI.getIssues(includeWarnings = true, maxIssuesPerFile = 0) map { issuesResult =>
         assert(issuesResult.issues.length == 4)
         assert(issuesResult.issues.count(_.path.toString.contains("SingleError")) == 1)
         assert(issuesResult.issues.count(_.path.toString.contains("DoubleError")) == 2)

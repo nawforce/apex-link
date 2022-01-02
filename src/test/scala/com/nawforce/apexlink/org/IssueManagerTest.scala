@@ -26,7 +26,7 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
 
         assert(org.issues.hasUpdatedIssues.isEmpty)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).isEmpty)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 100).isEmpty)
       }
     }
   }
@@ -52,11 +52,11 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 17, 1, 19)) sameElements Array(expectedIssue))
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18, 2, 0)) sameElements Array(expectedIssue))
 
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100) sameElements
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 100) sameElements
           Array(expectedIssue))
-        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxErrorsPerFile = 100) sameElements
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxIssuesPerFile = 100) sameElements
           Array(expectedIssue))
-        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = false, maxErrorsPerFile = 0) sameElements
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = false, maxIssuesPerFile = 0) sameElements
           Array(expectedIssue))
       }
     }
@@ -91,13 +91,13 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 17, 1, 19)) sameElements Array(expectedIssues.head))
         assert(org.issues.issuesForFileLocation("/Dummy.cls", Location(1, 18, 2, 0)) sameElements Array(expectedIssues.head))
 
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100) sameElements
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 100) sameElements
           expectedIssues)
-        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxErrorsPerFile = 100) sameElements
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxIssuesPerFile = 100) sameElements
           expectedIssues)
-        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxErrorsPerFile = 1) sameElements
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = true, maxIssuesPerFile = 1) sameElements
           Array(expectedIssues.head))
-        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = false, maxErrorsPerFile = 0) sameElements
+        assert(org.issues.issuesForFiles(Array("/Dummy.cls"), includeWarnings = false, maxIssuesPerFile = 0) sameElements
           Array(expectedIssues.head))
       }
     }
@@ -113,11 +113,11 @@ class IssueManagerTest extends AnyFunSuite with TestHelper {
         assert(org.issues.hasUpdatedIssues sameElements Array("/Dummy.cls"))
 
         assert(org.issues.issuesForFile("/Dummy.cls").length == 2)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 100).length == 2)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = false, maxErrorsPerFile = 100).length == 1)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 1).length == 1)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxErrorsPerFile = 2).length == 2)
-        assert(org.issues.issuesForFiles(paths = null, includeWarnings = false, maxErrorsPerFile = 2).length == 1)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 100).length == 2)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = false, maxIssuesPerFile = 100).length == 1)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 1).length == 1)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = true, maxIssuesPerFile = 2).length == 2)
+        assert(org.issues.issuesForFiles(paths = null, includeWarnings = false, maxIssuesPerFile = 2).length == 1)
       }
     }
   }

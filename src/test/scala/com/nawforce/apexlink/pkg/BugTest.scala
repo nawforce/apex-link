@@ -13,7 +13,6 @@
  */
 package com.nawforce.apexlink.pkg
 
-import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
@@ -280,9 +279,8 @@ class BugTest extends AnyFunSuite with TestHelper {
   test("Interface missing formal argument") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public interface Dummy {void foo(Bar a);}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(
-          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 37-38: No type declaration found for 'Bar'\n")
+        createOrg(root)
+        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 37-38: No type declaration found for 'Bar'\n")
     }
   }
 

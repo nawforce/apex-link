@@ -46,7 +46,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")) {
       root: PathLike =>
-        createHappyOrg(root, ignoreUnused = true)
+        createHappyOrg(root)
     }
   }
 
@@ -55,7 +55,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
       root: PathLike =>
-        createHappyOrg(root, ignoreUnused = true)
+        createHappyOrg(root)
     }
   }
 

@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
+import com.nawforce.apexlink.api.{Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
 import com.nawforce.apexlink.plugins.PluginsManager
 import com.nawforce.apexlink.rpc._
@@ -140,27 +140,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Queue a metadata refresh request */
   def queueMetadataRefresh(request: RefreshRequest): Unit = {
     flusher.queue(request)
-  }
-
-  /** CHeck for errors in the log. */
-  override def hasErrors(): Boolean = issueManager.hasErrors
-
-  /** Collect all issues into a String log */
-  override def getIssues(options: IssueOptions): String = {
-    OrgImpl.current.withValue(this) {
-      issueManager.asString(options.includeWarnings,
-                                         options.includeZombies,
-                                         options.maxErrorsPerFile,
-                                         options.format)
-    }
-  }
-
-  /** Collect file specific issues */
-  def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
-    val path = Path(fileName)
-    OrgImpl.current.withValue(this) {
-      issueManager.getIssues.getOrElse(path, Nil).toArray
-    }
   }
 
   def getPackageForPath(path: String): Package = {

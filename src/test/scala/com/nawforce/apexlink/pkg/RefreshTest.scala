@@ -13,7 +13,6 @@
  */
 package com.nawforce.apexlink.pkg
 
-import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.org.PackageImpl
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.names.{Name, Names}
@@ -89,7 +88,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
         assert(
-          org.issues.getMessages(Path("/pkg/Foo.cls"))
+          getMessages(Path("/pkg/Foo.cls"))
             == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
       }
     }
@@ -102,9 +101,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
-          assert(
-            org.issues.getMessages(Path("/pkg/Foo.cls"))
-              == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+          assert(getMessages(Path("/pkg/Foo.cls"))
+            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
 
           refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
           assert(org.flush())
@@ -186,10 +184,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
 
         assert(org.flush())
-        assert(
-          org.issues
-            .getMessages(Path("/Dummy.cls"))
-            .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
+        assert(getMessages(Path("/Dummy.cls"))
+          .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
       }
     }
   }
@@ -242,9 +238,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
-        assert(
-          org.issues.getMessages(Path("/pkg/Foo.trigger"))
-            == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+        assert(getMessages(Path("/pkg/Foo.trigger"))
+          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
       }
     }
   }
@@ -256,9 +251,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(
-          org.issues.getMessages(Path("/pkg/Foo.trigger"))
-            == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+        assert(getMessages(Path("/pkg/Foo.trigger"))
+          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
         assert(org.flush())
@@ -452,8 +446,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
                 root.join("CustomLabels.labels"),
                 "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
         assert(org.flush())
-        assert(
-          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
       }
     }
   }
@@ -465,8 +458,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(
-          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
 
         refresh(pkg,
                 root.join("CustomLabels.labels"),

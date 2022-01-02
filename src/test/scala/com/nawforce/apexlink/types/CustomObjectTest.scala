@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.types
 
-import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.platform.Path
@@ -28,10 +27,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Silly"), None))))) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues
-            .getMessages(root.join("Foo__c.object")) ==
-            "Error: line 10: Unrecognised type 'Silly' on custom field 'Bar__c'\n")
+        assert(getMessages(root.join("Foo__c.object")) ==
+          "Error: line 10: Unrecognised type 'Silly' on custom field 'Bar__c'\n")
     }
   }
 
@@ -40,7 +37,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {SObject a = new Foo__c{'a' => 'b'};} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(Path("/Dummy.cls")) ==
+      assert(getMessages(Path("/Dummy.cls")) ==
         "Error: line 1 at 44-56: Expression pair list construction is only supported for Map types, not 'Schema.Foo__c'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
@@ -51,7 +48,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {SObject a = new Foo__c{'a', 'b'};} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(Path("/Dummy.cls")) ==
+      assert(getMessages(Path("/Dummy.cls")) ==
         "Error: line 1 at 44-54: Expression list construction is only supported for Set or List types, not 'Schema.Foo__c'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
@@ -82,9 +79,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Baz__c = 'A');} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 44-50: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 44-50: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
   }
@@ -108,9 +104,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c(Bar__c = 'A', Bar__c = 'A');} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Error: line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Error: line 1 at 58-64: Duplicate assignment to field 'Bar__c' on SObject type 'Schema.Foo__c'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
   }
@@ -120,7 +115,7 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
           "Dummy.cls" -> "public class Dummy { {Object a = new Foo__c('Silly');} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(Path("/Dummy.cls")) ==
+      assert(getMessages(Path("/Dummy.cls")) ==
         "Error: line 1 at 44-51: SObject type 'Schema.Foo__c' construction needs '<field name> = <value>' arguments\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
@@ -230,9 +225,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", new ofRef(Array(("Bar__c", Some("Text"), None)))),
           "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__c.Baz__c;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__c'\n")
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
   }
@@ -313,9 +307,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Missing: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 48-66: Unknown field or type 'Foo__c' on 'Schema.SObjectType'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
 
     }
@@ -360,9 +353,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.Fields.Baz__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Missing: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 48-80: Unknown field or type 'Baz__c' on 'Schema.SObjectType.Foo__c.Fields'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
   }
@@ -384,9 +376,8 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult a = SObjectType.Foo__c.FieldSets.OtherFS;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Missing: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 48-84: Unknown field or type 'OtherFS' on 'Schema.SObjectType.Foo__c.FieldSets'\n")
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(unmanagedSObject("Foo__c").get))
     }
   }
@@ -521,9 +512,9 @@ class CustomObjectTest extends AnyFunSuite with TestHelper {
              |  }
              |  }""".stripMargin)) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.getIssues(new IssueOptions) == "/Dummy.cls\n" +
-        "Missing: line 4 at 17-26: Unknown field 'OwnerId' on SObject 'Schema.Foo__c'\n" +
-        "Missing: line 5 at 17-24: Unknown field 'Owner' on SObject 'Schema.Foo__c'\n")
+      assert(getMessages() ==
+        "/Dummy.cls: Missing: line 4 at 17-26: Unknown field 'OwnerId' on SObject 'Schema.Foo__c'\n" +
+          "/Dummy.cls: Missing: line 5 at 17-24: Unknown field 'Owner' on SObject 'Schema.Foo__c'\n")
     }
   }
 

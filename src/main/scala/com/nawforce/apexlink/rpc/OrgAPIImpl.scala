@@ -14,13 +14,12 @@
 
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.apexlink.api.{IssueOptions, Org}
+import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
-import com.nawforce.pkgforce.diagnostics.{Issue, LoggerOps}
+import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.names.TypeIdentifier
 
 import java.util.concurrent.LinkedBlockingQueue
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
 
@@ -75,29 +74,22 @@ object OpenRequest {
   }
 }
 
-case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean, includeZombies: Boolean)
-    extends APIRequest {
+case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean, maxIssuesPerFile: Int)
+  extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
-    val buffer = new ArrayBuffer[Issue]()
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      val options = new IssueOptions
-      options.includeZombies = includeZombies
-      options.includeWarnings = includeWarnings
-      val issues = orgImpl.issueManager.getIssues
-      issues.keys.foreach(key => {
-        buffer.addAll(issues(key).sorted(Issue.ordering).take(10))
-      })
-      promise.success(GetIssuesResult(buffer.toArray))
+      promise.success(GetIssuesResult(
+        orgImpl.issueManager.issuesForFilesInternal(null, includeWarnings, maxIssuesPerFile).toArray))
     }
   }
 }
 
 object GetIssues {
-  def apply(queue: OrgQueue, includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult] = {
+  def apply(queue: OrgQueue, includeWarnings: Boolean, maxIssuesPerFile: Int): Future[GetIssuesResult] = {
     val promise = Promise[GetIssuesResult]()
-    queue.add(new GetIssues(promise, includeWarnings, includeZombies))
+    queue.add(new GetIssues(promise, includeWarnings, maxIssuesPerFile))
     promise.future
   }
 }
@@ -387,8 +379,8 @@ class OrgAPIImpl extends OrgAPI {
     OpenRequest(OrgQueue.instance())
   }
 
-  override def getIssues(includeWarnings: Boolean, includeZombies: Boolean): Future[GetIssuesResult] = {
-    GetIssues(OrgQueue.instance(), includeWarnings, includeZombies)
+  override def getIssues(includeWarnings: Boolean, maxIssuesPerFile: Int): Future[GetIssuesResult] = {
+    GetIssues(OrgQueue.instance(), includeWarnings, maxIssuesPerFile)
   }
 
   override def hasUpdatedIssues: Future[Array[String]] = {
