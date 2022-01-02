@@ -29,6 +29,7 @@
 package com.nawforce.pkgforce.diagnostics
 
 import com.nawforce.pkgforce.api.IssueLocation
+import com.nawforce.pkgforce.diagnostics.DiagnosticCategory.isErrorType
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.platform.Path
 import upickle.default.{macroRW, ReadWriter => RW}
@@ -46,6 +47,8 @@ final case class Issue(path: PathLike, diagnostic: Diagnostic)
   override def message(): String = diagnostic.message
 
   override def category(): String = diagnostic.category.value
+
+  override def isError(): java.lang.Boolean = isErrorType(diagnostic.category)
 }
 
 object Issue {

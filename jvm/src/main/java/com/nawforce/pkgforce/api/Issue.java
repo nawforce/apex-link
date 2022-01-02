@@ -24,11 +24,19 @@ public abstract class Issue {
     /* The category of the issue, one of "Syntax", "Error", "Missing", "Warning" or "Unused" */
     public abstract String category();
 
+    /* Is this considered an error issue, rather than a warning */
+    public abstract Boolean isError();
+
     /* The issue message */
     public abstract String message();
 
     /* Format as String, filePath is omitted to avoid duplicating over multiple Issues */
     public String asString() {
-        return category()+ ": " + fileLocation().displayPosition() + ": " + message() + "\n";
+        return category() + ": " + fileLocation().displayPosition() + ": " + message();
+    }
+
+    @Override
+    public String toString() {
+        return filePath() + ": " + asString();
     }
 }

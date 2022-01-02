@@ -37,7 +37,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /** Trait to assist with logging in a context specific way */
-sealed trait IssueLogger {
+trait IssueLogger {
   def log(issue: Issue): Unit
 
   def logAll(issues: ArraySeq[Issue]): Unit = issues.foreach(log)
@@ -54,14 +54,6 @@ sealed trait IssueLogger {
   def logWarning(path: PathLike, location: Location, message: String): Unit = {
     log(Issue(path, Diagnostic(WARNING_CATEGORY, location, message)))
   }
-}
-
-class LocalLogger(val log: IssueLog) extends IssueLogger {
-  override def log(issue: Issue): Unit = log.add(issue)
-}
-
-object LocalLogger {
-  def apply(): LocalLogger = new LocalLogger(new IssueLog)
 }
 
 class CatchingLogger extends IssueLogger {
