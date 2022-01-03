@@ -97,7 +97,7 @@ abstract class FullDeclaration(val source: Source,
 
   lazy val localMethods: ArraySeq[ApexVisibleMethodLike] = {
     bodyDeclarations.flatMap({
-      case m: ApexVisibleMethodLike => Some(m)
+      case m: ApexMethodLike => Some(m)
       case _ => None
     })
   }

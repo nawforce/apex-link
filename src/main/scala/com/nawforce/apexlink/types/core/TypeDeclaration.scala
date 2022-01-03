@@ -20,8 +20,8 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.diagnostics.IssueOps
 import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
+import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
@@ -148,22 +148,41 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
       parameters.map(_.toString).mkString(", ") + ")"
 
-  def hasSameSignature(other: MethodDeclaration): Boolean = {
+  def hasSameSignature(other: MethodDeclaration, allowPlatformGenericEquivalence: Boolean): Boolean = {
     name == other.name &&
-    typeName == other.typeName &&
-    hasSameParameters(other)
+      typeName == other.typeName &&
+      hasSameParameters(other, allowPlatformGenericEquivalence)
   }
 
-  def hasSameParameters(other: MethodDeclaration): Boolean = {
-    hasParameters(other.parameters.map(_.typeName))
+  /** Test if the passed method has params compatible with this method. Ideally this would just be a comparison of
+    * type names but there is a quirk in how platform generic interfaces are handled. */
+  def hasSameParameters(other: MethodDeclaration, allowPlatformGenericEquivalence: Boolean): Boolean = {
+    hasParameters(other.parameters.map(_.typeName), allowPlatformGenericEquivalence)
   }
 
-  def hasParameters(params: ArraySeq[TypeName]): Boolean = {
+  /** Test if this method has params compatible with those passed. Ideally this would just be a comparison of type names
+    * but there is a quirk in how platform generic interfaces are handled. */
+  def hasParameters(params: ArraySeq[TypeName], allowPlatformGenericEquivalence: Boolean): Boolean = {
     if (parameters.length == params.length) {
-      parameters.zip(params).forall(z => z._1.typeName == z._2)
+      parameters.zip(params).forall(paramPair => {
+        paramPair._1.typeName == paramPair._2 ||
+          (allowPlatformGenericEquivalence &&
+            paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(paramPair._1.typeName, paramPair._2))
+      })
     } else {
       false
     }
+  }
+
+  /** Determine if parameter type names are considered the same. During method calls some platform generics are
+    * considered equivalent regardless of the type parameters used. */
+  private def areSameGenericTypes(param: TypeName, other: TypeName): Boolean = {
+    param.equalsIgnoreParamTypes(other) &&
+      (// Ignore generic type params on these
+        (param.outer.contains(TypeNames.System) && param.name == XNames.Iterable) ||
+          (param.outer.contains(TypeNames.System) && param.name == XNames.Iterator) ||
+          (param.outer.contains(TypeNames.Database) && param.name == Names.Batchable)
+        )
   }
 
   def hasSameErasedParameters(module: Module, other: MethodDeclaration): Boolean = {
@@ -192,27 +211,6 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     TypeResolver(typeName, module) match {
       case Right(td) => td.isSObject
       case Left(_)   => false
-    }
-  }
-
-  def hasCallErasedParameters(module: Module, params: ArraySeq[TypeName]): Boolean = {
-    if (parameters.length == params.length) {
-      parameters
-        .zip(params)
-        .forall(
-          z =>
-            z._1.typeName == z._2 ||
-              (z._1.typeName.equalsIgnoreParams(z._2) &&
-                (TypeResolver(z._1.typeName, module) match {
-                  case Right(x: PlatformTypeDeclaration) if x.nature == INTERFACE_NATURE =>
-                    TypeResolver(z._2, module) match {
-                      case Right(y: PlatformTypeDeclaration) if y.nature == INTERFACE_NATURE => true
-                      case _ => false
-                    }
-                  case _ => false
-                })))
-    } else {
-      false
     }
   }
 

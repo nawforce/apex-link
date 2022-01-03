@@ -119,7 +119,7 @@ trait ApexTriggerDeclaration extends ApexDeclaration
 /** Apex defined classes, interfaces, enum of either full or summary type */
 trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   val localFields: ArraySeq[ApexFieldLike]
-  val localMethods: ArraySeq[MethodDeclaration]
+  val localMethods: ArraySeq[ApexVisibleMethodLike]
 
   override def nestedTypes: ArraySeq[ApexClassDeclaration]
 
@@ -209,11 +209,7 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
       case Some(at: ApexClassDeclaration) =>
         MethodMap(this, errorLocation, at.methodMap, localMethods, outerStaticMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(this,
-          errorLocation,
-          MethodMap(td, None, MethodMap.empty(), td.methods, ArraySeq(), TypeDeclaration.emptyTypeDeclarations),
-          localMethods, outerStaticMethods,
-          interfaceDeclarations)
+        MethodMap(this, errorLocation, MethodMap(td), localMethods, outerStaticMethods, interfaceDeclarations)
       case _ =>
         MethodMap(this, errorLocation, MethodMap.empty(), localMethods, outerStaticMethods, interfaceDeclarations)
     }

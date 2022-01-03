@@ -50,13 +50,13 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
     ArraySeq.unsafeWrapArray(buffer.toArray)
   }
 
-  /** Find a method, without concern for the calling context. */
+  /** Find a method, without concern for the calling context so must be an exact match. */
   def findMethod(name: Name, params: ArraySeq[TypeName]): Option[MethodDeclaration] = {
     methodsByName.getOrElse((name, params.length), Array()).find(method =>
       method.parameters.map(_.typeName) == params)
   }
 
-  /** Find a method, suitable for use from the given context */
+  /** Find a method using full rules for disambiguation */
   def findMethod(name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
                  context: VerifyContext): Either[String, MethodDeclaration] = {
     findMethodCall(name, params, staticContext, context) match {
@@ -84,42 +84,39 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
         staticContextMatches
       }
 
-    val exactMatches = testMatches.filter(_.hasParameters(params))
+    // Try for an exact match first
+    val exactMatches = testMatches.filter(_.hasParameters(params, allowPlatformGenericEquivalence = true))
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
     else if (exactMatches.length > 1)
       return Left(AMBIGUOUS_ERROR)
 
-    // TODO: Explain what this is doing
-    val erasedMatches = testMatches.filter(_.hasCallErasedParameters(context.module, params))
-    if (erasedMatches.length == 1)
-      return Right(erasedMatches.head)
-    else if (erasedMatches.length > 1)
-      return Left(AMBIGUOUS_ERROR)
-
+    // If no exact we need to search for possible in two stages, either using strict assignment or lax if
+    // we are still short of a possible match
     var found =
-      mostSpecificMatch(strict = true, testMatches, params, context)
-        .getOrElse(
-          mostSpecificMatch(strict = false, testMatches, params, context)
-            .getOrElse(Left(NO_MATCH_ERROR))
-        )
+    mostSpecificMatch(strict = true, testMatches, params, context)
+      .getOrElse(
+        mostSpecificMatch(strict = false, testMatches, params, context)
+          .getOrElse(Left(NO_MATCH_ERROR))
+      )
 
     // If not found locally search super & outer for statics
     if (found == Left(NO_MATCH_ERROR) && !staticContext.contains(false)) {
-      found = findMethodOn(td.flatMap(_.superClassDeclaration), name, params, staticContext, context)
+      found = findStaticMethodOn(td.flatMap(_.superClassDeclaration), name, params, context)
       if (found == Left(NO_MATCH_ERROR)) {
-        found = findMethodOn(td.flatMap(_.outerTypeDeclaration), name, params, staticContext, context)
+        found = findStaticMethodOn(td.flatMap(_.outerTypeDeclaration), name, params, context)
       }
     }
 
     found
   }
 
-  private def findMethodOn(td: Option[TypeDeclaration], name: Name, params: ArraySeq[TypeName], staticContext: Option[Boolean],
-                           context: VerifyContext): Either[MethodCallError, MethodDeclaration] = {
+  /** Helper for finding static methods on related type declarations */
+  private def findStaticMethodOn(td: Option[TypeDeclaration], name: Name, params: ArraySeq[TypeName],
+                                 context: VerifyContext): Either[MethodCallError, MethodDeclaration] = {
     td match {
       case Some(td: ApexClassDeclaration) =>
-        td.methodMap.findMethodCall(name, params, staticContext, context)
+        td.methodMap.findMethodCall(name, params, Some(true), context)
       case _ =>
         Left(NO_MATCH_ERROR)
     }
@@ -160,6 +157,17 @@ object MethodMap {
 
   def empty(): MethodMap = {
     new MethodMap(None, Map(), Set(), Nil)
+  }
+
+  /** Construct for an arbitrary type declaration, for Apex classes used the other apply function which builds
+    * up a proper MethodMap. This is just for other type declarations with non-complex needs. */
+  def apply(td: TypeDeclaration): MethodMap = {
+    val workingMap = new WorkingMap()
+    td.methods.foreach(method => {
+      val key = (method.name, method.parameters.length)
+      workingMap.put(key, method +: workingMap.getOrElse(key, Array()))
+    })
+    new MethodMap(None, workingMap.toMap, Set(), Nil)
   }
 
   def apply(td: TypeDeclaration, location: Option[PathLocation], superClassMap: MethodMap,
@@ -215,7 +223,7 @@ object MethodMap {
     staticLocals.duplicates(_.nameAndParameterTypes.toLowerCase).foreach(duplicates => {
       duplicates._2.foreach(duplicate => {
         ignorableStatics.add(duplicate)
-        setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method in this class", errors)
+        setMethodError(duplicate, s"Method '${duplicate.name}' is a duplicate of an existing method", errors)
       })
     })
     staticLocals
@@ -307,6 +315,7 @@ object MethodMap {
       val methods = workingMap.getOrElse(key, Array())
       var matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
 
+        // TODO: What is this about
       if (matched.isEmpty)
         matched = methods.find(m => m.hasSameErasedParameters(module, method))
 
@@ -316,7 +325,7 @@ object MethodMap {
             methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
 
         if (isAbstract) {
-          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method)))
+          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method, allowPlatformGenericEquivalence = true)))
         } else if (!hasGhostedMethods) {
           location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
@@ -368,8 +377,16 @@ object MethodMap {
         matchedMethod.visibility == PRIVATE_MODIFIER && !areInSameApexFile(method, matchedMethod)
 
       if (areInSameApexClass(matchedMethod, method)) {
-        setMethodError(method,
-          s"Method '${method.name}' is a duplicate of an existing method in this class", errors)
+        matchedMethod match {
+          case matchedMethod: ApexMethodLike =>
+            if (method.hasSameParameters(matchedMethod, allowPlatformGenericEquivalence = false))
+              setMethodError(method,
+                s"Method '${method.name}' is a duplicate of an existing method at ${matchedMethod.idLocation.displayPosition()}", errors)
+            else
+              setMethodError(method,
+                s"Method '${method.name}' can not use same platform generic interface as existing method at ${matchedMethod.idLocation.displayPosition()}", errors)
+          case _ => ()
+        }
       }
       else if (matchedMethod.typeName != method.typeName && !reallyPrivateMethod && !isSpecial) {
         setMethodError(method,
@@ -440,7 +457,7 @@ object MethodMap {
       (if (method.name == XNames.Equals && !method.isStatic && !other.isStatic) {
         method.parameters.length == 1 && other.parameters.length == 1
       } else {
-        method.hasSameParameters(other)
+        method.hasSameParameters(other, allowPlatformGenericEquivalence = true)
       })
   }
 }

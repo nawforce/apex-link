@@ -364,11 +364,11 @@ object TypeNames extends InternCache[TypeName] {
     def isNonGeneric: Boolean =
       typeName.params.isEmpty && typeName.outer.forall(_.isNonGeneric)
 
-    def equalsIgnoreParams(other: TypeName): Boolean = {
+    def equalsIgnoreParamTypes(other: TypeName): Boolean = {
       typeName.name == other.name &&
         typeName.params.size == other.params.size &&
         typeName.outer.nonEmpty == other.outer.nonEmpty &&
-        typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
+        typeName.outer.forall(_.equalsIgnoreParamTypes(other.outer.get))
     }
 
     def decodedExtendedGeneric(): Option[TypeName] = {

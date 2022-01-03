@@ -214,10 +214,6 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
 
-  override def toString: String =
-    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
-      parameters.map(_.toString).mkString(", ") + ")"
-
   private def decodeName(name: String): String = {
     if (name.endsWith("$"))
       name.substring(0, name.length - 1)

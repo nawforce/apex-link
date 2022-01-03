@@ -36,9 +36,26 @@ class MethodTest extends AnyFunSuite with TestHelper {
       "B.cls" -> "public virtual class B extends A {}",
       "Dummy.cls" -> "public class Dummy extends B { {Dummy d; d.func(d);} void func(A a) {} void func(B b) {} }",
     )) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(getMessages(root.join("Dummy.cls")) == "")
     }
+  }
+
+  test("Platform generic interface params duplicate") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy { void run(Database.Batchable<SObject> arg) {} void run(Database.Batchable<String> arg) {} }"
+    ))
+    assert(dummyIssues ==
+      "Error: line 1 at 71-74: Method 'run' can not use same platform generic interface as existing method at line 1 at 26-29\n")
+  }
+
+  test("Method call using platform generic interface with wrong type argument type") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy { void run(Database.Batchable<SObject> arg) {} {Database.Batchable<Object> a; run(a);} }"
+    ))
+    assert(dummyIssues.isEmpty)
   }
 
   test("Method call for possible synthetic platform method") {
