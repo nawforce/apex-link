@@ -174,10 +174,6 @@ object MethodMap {
             newMethods: ArraySeq[MethodDeclaration], outerStaticMethods: ArraySeq[MethodDeclaration],
             interfaces: ArraySeq[TypeDeclaration]): MethodMap = {
 
-    // Find private methods to include to workaround a bug where one Inner class that extends another Inner with
-    // the same outer can access the private methods of the base class. Yeah, well screwed up stuff.
-    val innerPeerSuperclassPrivateMethods = findInnerPeerSuperclassPrivateMethods(td)
-
     // Create a starting working map from super class map, just removing statics initially
     var workingMap = new WorkingMap()
     val testVisiblePrivate = mutable.Set[MethodDeclaration]()
@@ -200,14 +196,14 @@ object MethodMap {
       applyInstanceMethod(workingMap, method, td.inTest, td.isComplete, errors)
     )
 
-    // Now strip out inherited privates that are neither test visible or impacted by the bug (see above)
+    // Now strip out none test visible inherited privates excluding when a super class is in the same file as td,
+    // in that case the private methods are visible. Yeah, this is very odd behaviour, but might be related to how
+    // Java compiles inner classes as outers.
+    val sameFileSuperclassPrivateMethods = findSameFileSuperclassPrivateMethods(td)
     workingMap.foreach(keyAndMethodGroup => {
       val methods = keyAndMethodGroup._2.filterNot(method => {
         method.visibility == PRIVATE_MODIFIER &&
-          !(
-            method.isTestVisible || isApexLocalMethod(td, method) ||
-              innerPeerSuperclassPrivateMethods.contains(method)
-            )
+          !(method.isTestVisible || isApexLocalMethod(td, method) || sameFileSuperclassPrivateMethods.contains(method))
       })
       workingMap.put(keyAndMethodGroup._1, methods)
     })
@@ -250,20 +246,20 @@ object MethodMap {
   private def isApexLocalMethod(td: TypeDeclaration, method: MethodDeclaration): Boolean = {
     (td, method) match {
       case (td: ApexClassDeclaration, method: ApexMethodLike) =>
-        method.outerTypeId == td.typeId
+        td.typeId == method.outerTypeId
       case _ =>
         false
     }
   }
 
-  private def findInnerPeerSuperclassPrivateMethods(td: TypeDeclaration): ArraySeq[MethodDeclaration] = {
-    lazy val superClass = td.superClassDeclaration
-    if (td.outerTypeName.nonEmpty && td.superClass.nonEmpty &&
-      superClass.nonEmpty && superClass.get.outerTypeName == td.outerTypeName) {
-      superClass.get.methods.filter(method => method.visibility == PRIVATE_MODIFIER && !method.isStatic)
-    } else {
-      emptyMethodDeclarations
+  private def findSameFileSuperclassPrivateMethods(td: TypeDeclaration): ArraySeq[MethodDeclaration] = {
+    if (td.superClass.nonEmpty) {
+      val superClass = td.superClassDeclaration
+      if (superClass.nonEmpty && superClass.get.paths == td.paths) {
+        return superClass.get.methods.filter(method => method.visibility == PRIVATE_MODIFIER && !method.isStatic)
+      }
     }
+    emptyMethodDeclarations
   }
 
   private def mergeInterfaces(workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration]): Unit = {
