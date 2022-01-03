@@ -24,11 +24,11 @@ import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
-import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
+import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration, LocatableCustomFieldDeclaration}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
-import com.nawforce.pkgforce.parsers.{INTERFACE_NATURE, Nature}
+import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.{PathLike, UnsafeLocatable}
 
 import scala.collection.immutable.ArraySeq
@@ -174,6 +174,29 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     }
   }
 
+  /** Test if this method matches the provided params. This is more involved than a simple type name comparison as
+    * there is some liberal equivalence handled in Apex around List of SObjects and platform generic interfaces. */
+  def matchesParams(from: Option[TypeDeclaration], params: ArraySeq[TypeName]): Boolean = {
+    def isSObject(typeName: TypeName): Boolean = {
+      typeName == TypeNames.SObject ||
+        from.exists(from => from.moduleDeclaration.exists(_.getTypeFor(typeName, from).exists(_.isSObject)))
+    }
+
+    def isSObjectList(typeName: TypeName): Boolean = {
+      typeName.isList && isSObject(typeName.params.head)
+    }
+
+    if (parameters.length == params.length) {
+      parameters.zip(params).forall(paramPair => {
+        paramPair._1.typeName == paramPair._2 ||
+          (paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(paramPair._1.typeName, paramPair._2)) ||
+          (isSObjectList(paramPair._1.typeName) && isSObjectList(paramPair._2))
+      })
+    } else {
+      false
+    }
+  }
+
   /** Determine if parameter type names are considered the same. During method calls some platform generics are
     * considered equivalent regardless of the type parameters used. */
   private def areSameGenericTypes(param: TypeName, other: TypeName): Boolean = {
@@ -183,35 +206,6 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
           (param.outer.contains(TypeNames.System) && param.name == XNames.Iterator) ||
           (param.outer.contains(TypeNames.Database) && param.name == Names.Batchable)
         )
-  }
-
-  def hasSameErasedParameters(module: Module, other: MethodDeclaration): Boolean = {
-    hasErasedParameters(module, other.parameters.map(_.typeName))
-  }
-
-  private def hasErasedParameters(module: Module, params: ArraySeq[TypeName]): Boolean = {
-    if (parameters.length == params.length) {
-      // Future: This is very messy, we need to know the general rules
-      parameters
-        .zip(params)
-        .forall(
-          z =>
-            (z._1.typeName == z._2) ||
-              (z._1.typeName.isStringOrId && z._2.isStringOrId) ||
-              (z._2.isSObjectList && z._1.typeName.isList && isSObject(module, z._1.typeName.params.head)) ||
-              (z._1.typeName == TypeNames.SObject && isSObject(module, z._2)) ||
-              (z._1.typeName.isList && z._1.typeName.params.head == TypeNames.String &&
-                z._2.isList && z._2.params.head == TypeNames.IdType))
-    } else {
-      false
-    }
-  }
-
-  private def isSObject(module: Module, typeName: TypeName): Boolean = {
-    TypeResolver(typeName, module) match {
-      case Right(td) => td.isSObject
-      case Left(_)   => false
-    }
   }
 
   /** Determine if this method is a more specific version of the passed method. For this to be true all the parameters

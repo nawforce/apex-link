@@ -15,7 +15,6 @@ package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.{TypeNames, XNames}
-import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.MethodDeclaration.{emptyMethodDeclarations, emptyMethodDeclarationsSet}
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
@@ -85,7 +84,7 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
       }
 
     // Try for an exact match first
-    val exactMatches = testMatches.filter(_.hasParameters(params, allowPlatformGenericEquivalence = true))
+    val exactMatches = testMatches.filter(_.matchesParams(td, params))
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
     else if (exactMatches.length > 1)
@@ -230,7 +229,7 @@ object MethodMap {
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
       workingMap.put((Names.Clone, 0),
         Array(CustomMethodDeclaration(Location.empty, Names.Clone, td.typeName, CustomMethodDeclaration.emptyParameters)))
-      checkInterfaces(td.moduleDeclaration.get, location, td.isAbstract, workingMap, interfaces, errors)
+      checkInterfaces(td, location, td.isAbstract, workingMap, interfaces, errors)
     }
 
     // Only Apex class types are replaceable and hence have deep hashes
@@ -290,38 +289,36 @@ object MethodMap {
     })
   }
 
-  private def checkInterfaces(module: Module, location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterfaces(from: TypeDeclaration, location: Option[PathLocation], isAbstract: Boolean,
                               workingMap: WorkingMap, interfaces: ArraySeq[TypeDeclaration], errors: mutable.Buffer[Issue]): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
-        checkInterface(module, location, isAbstract, workingMap, i, errors)
+        checkInterface(from, location, isAbstract, workingMap, i, errors)
       case _ => ()
     })
   }
 
-  private def checkInterface(module: Module, location: Option[PathLocation], isAbstract: Boolean,
+  private def checkInterface(from: TypeDeclaration, location: Option[PathLocation], isAbstract: Boolean,
                              workingMap: WorkingMap, interface: TypeDeclaration, errors: mutable.Buffer[Issue]): Unit = {
     if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
-      checkInterfaces(module, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
+      checkInterfaces(from, location, isAbstract, workingMap, interface.interfaceDeclarations, errors)
 
     interface.methods
       .filterNot(_.isStatic)
       .foreach(method => {
       val key = (method.name, method.parameters.length)
       val methods = workingMap.getOrElse(key, Array())
-      var matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
-
-        // TODO: What is this about
-      if (matched.isEmpty)
-        matched = methods.find(m => m.hasSameErasedParameters(module, method))
+      val matched = methods.find(mapMethod => areSameInterfaceMethodsIgnoringReturn(Some(from), mapMethod, method))
 
       if (matched.isEmpty) {
+        val module = from.moduleDeclaration.get
         lazy val hasGhostedMethods =
           methods.exists(method => module.isGhostedType(method.typeName) ||
             methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
 
         if (isAbstract) {
-          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method, allowPlatformGenericEquivalence = true)))
+          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method,
+            allowPlatformGenericEquivalence = true)))
         } else if (!hasGhostedMethods) {
           location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
             s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
@@ -456,4 +453,17 @@ object MethodMap {
         method.hasSameParameters(other, allowPlatformGenericEquivalence = true)
       })
   }
+
+  /** A variant on areSameMethodsIgnoringReturn that uses a more flexible notion of param equivalence that is
+    * needed for checking if classes implement interfaces correctly. */
+  private def areSameInterfaceMethodsIgnoringReturn(from: Option[TypeDeclaration], method: MethodDeclaration,
+                                                    other: MethodDeclaration): Boolean = {
+    method.name == other.name &&
+      (if (method.name == XNames.Equals && !method.isStatic && !other.isStatic) {
+        method.parameters.length == 1 && other.parameters.length == 1
+      } else {
+        method.matchesParams(from, other.parameters.map(_.typeName))
+      })
+  }
+
 }

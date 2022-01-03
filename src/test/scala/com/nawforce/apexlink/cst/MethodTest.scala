@@ -58,6 +58,22 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("SObject generic params duplicate") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy { void run(List<SObject> arg) {} void run(List<Account> arg) {} }"
+    ))
+    assert(dummyIssues.isEmpty)
+  }
+
+  test("SObject generic params fulfills interface") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy implements API { public interface API {void run(List<SObject> arg);} void run(List<Account> arg) {} }"
+    ))
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Method call for possible synthetic platform method") {
     typeDeclaration("public class Dummy { {Database.QueryLocatorIterator it; it.next(); } }")
     assert(dummyIssues.isEmpty)
