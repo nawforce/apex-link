@@ -84,7 +84,7 @@ final case class MethodMap(td: Option[ApexClassDeclaration],
       }
 
     // Try for an exact match first
-    val exactMatches = testMatches.filter(_.matchesParams(td, params))
+    val exactMatches = testMatches.filter(_.hasParameters(params, allowPlatformGenericEquivalence = true))
     if (exactMatches.length == 1)
       return Right(exactMatches.head)
     else if (exactMatches.length > 1)
