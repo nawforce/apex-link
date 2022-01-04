@@ -74,6 +74,22 @@ class MethodTest extends AnyFunSuite with TestHelper {
     assert(dummyIssues.isEmpty)
   }
 
+  test("String params fulfills Id interface") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy implements API { public interface API {void run(Id arg);} void run(String arg) {} }"
+    ))
+    assert(dummyIssues.isEmpty)
+  }
+
+  test("Id params fulfills String interface") {
+    typeDeclarations(Map(
+      "Dummy.cls" ->
+        "public class Dummy implements API { public interface API {void run(String arg);} void run(Id arg) {} }"
+    ))
+    assert(dummyIssues.isEmpty)
+  }
+
   test("Method call for possible synthetic platform method") {
     typeDeclaration("public class Dummy { {Database.QueryLocatorIterator it; it.next(); } }")
     assert(dummyIssues.isEmpty)

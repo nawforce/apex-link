@@ -14,8 +14,9 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
+import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names.{TypeNames, XNames}
-import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexMethodLike}
+import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexMethodLike}
 import com.nawforce.apexlink.types.core.MethodDeclaration.{emptyMethodDeclarations, emptyMethodDeclarationsSet}
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
@@ -306,25 +307,25 @@ object MethodMap {
     interface.methods
       .filterNot(_.isStatic)
       .foreach(method => {
-      val key = (method.name, method.parameters.length)
-      val methods = workingMap.getOrElse(key, Array())
-      val matched = methods.find(mapMethod => areSameInterfaceMethodsIgnoringReturn(Some(from), mapMethod, method))
+        val key = (method.name, method.parameters.length)
+        val methods = workingMap.getOrElse(key, Array())
+        val matched = methods.find(mapMethod => isInterfaceMethod(from, method, mapMethod))
 
-      if (matched.isEmpty) {
-        val module = from.moduleDeclaration.get
-        lazy val hasGhostedMethods =
-          methods.exists(method => module.isGhostedType(method.typeName) ||
-            methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
+        if (matched.isEmpty) {
+          val module = from.moduleDeclaration.get
+          lazy val hasGhostedMethods =
+            methods.exists(method => module.isGhostedType(method.typeName) ||
+              methods.exists(method => method.parameters.map(_.typeName).exists(module.isGhostedType)))
 
-        if (isAbstract) {
-          workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method,
-            allowPlatformGenericEquivalence = true)))
-        } else if (!hasGhostedMethods) {
-          location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
-            s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
-        }
-      } else {
-        matched.get match {
+          if (isAbstract) {
+            workingMap.put(key, method +: methods.filterNot(_.hasSameSignature(method,
+              allowPlatformGenericEquivalence = true)))
+          } else if (!hasGhostedMethods) {
+            location.foreach(l => errors.append(new Issue(l.path, Diagnostic(ERROR_CATEGORY, l.location,
+              s"Method '${method.signature}' from interface '${interface.typeName}' must be implemented"))))
+          }
+        } else {
+          matched.get match {
           case am: ApexMethodLike => am.addShadow(method)
           case _ => ()
         }
@@ -446,24 +447,65 @@ object MethodMap {
     * consider them the same if they both have a single parameter even if that parameter differs. This is
     * because defining equals in a class will hide the Object equals method if the arguments don't match. */
   private def areSameMethodsIgnoringReturn(method: MethodDeclaration, other: MethodDeclaration): Boolean = {
-    method.name == other.name &&
-      (if (method.name == XNames.Equals && !method.isStatic && !other.isStatic) {
-        method.parameters.length == 1 && other.parameters.length == 1
-      } else {
-        method.hasSameParameters(other, allowPlatformGenericEquivalence = true)
-      })
+    if (method.name == other.name &&
+      method.hasSameParameters(other, allowPlatformGenericEquivalence = true))
+      true
+    else if (isEqualsLike(method) && isEqualsLike(other))
+      true
+    else
+      false
   }
 
-  /** A variant on areSameMethodsIgnoringReturn that uses a more flexible notion of param equivalence that is
-    * needed for checking if classes implement interfaces correctly. */
-  private def areSameInterfaceMethodsIgnoringReturn(from: Option[TypeDeclaration], method: MethodDeclaration,
-                                                    other: MethodDeclaration): Boolean = {
-    method.name == other.name &&
-      (if (method.name == XNames.Equals && !method.isStatic && !other.isStatic) {
-        method.parameters.length == 1 && other.parameters.length == 1
-      } else {
-        method.matchesParams(from, other.parameters.map(_.typeName))
-      })
+  /** Check if the implMethod fulfills the contract of the interfaceMethod. As usual there are plenty of oddities
+    * to handle to determine this. */
+  private def isInterfaceMethod(from: TypeDeclaration, interfaceMethod: MethodDeclaration,
+                                implMethod: MethodDeclaration): Boolean = {
+    if (implMethod.name == interfaceMethod.name &&
+      canAssign(interfaceMethod.typeName, implMethod.typeName, from) &&
+      interfaceMethod.fulfillsInterfaceMethodParams(from, implMethod.parameters.map(_.typeName))
+    )
+      true
+    else if (isEqualsLike(interfaceMethod) && isEqualsLike(implMethod))
+      true
+    else if (isDatabaseBatchableStart(interfaceMethod) && isDatabaseBatchableIterable(implMethod))
+      true
+    else
+      false
   }
 
+  /** A helper to invoke isAssignable which need a VerifyContext */
+  private def canAssign(toType: TypeName, fromType: TypeName, from: TypeDeclaration): Boolean = {
+    if (toType == fromType)
+      true
+    else {
+      from match {
+        case ad: ApexDeclaration =>
+          val context = new TypeVerifyContext(None, ad, None)
+          isAssignable(toType, fromType, strict = false, context)
+        case _ =>
+          false
+      }
+    }
+  }
+
+  private def isEqualsLike(method: MethodDeclaration): Boolean = {
+    method.name == XNames.Equals &&
+      method.typeName == TypeNames.Boolean &&
+      !method.isStatic &&
+      method.parameters.length == 1
+  }
+
+  private def isDatabaseBatchableStart(method: MethodDeclaration): Boolean = {
+    method.name == XNames.Start &&
+      method.typeName == TypeNames.QueryLocator &&
+      !method.isStatic &&
+      method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
+  }
+
+  private def isDatabaseBatchableIterable(method: MethodDeclaration): Boolean = {
+    method.name == XNames.Start &&
+      (method.typeName.isIterable || method.typeName.isList) &&
+      !method.isStatic &&
+      method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
+  }
 }

@@ -174,12 +174,12 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     }
   }
 
-  /** Test if this method matches the provided params. This is more involved than a simple type name comparison as
-    * there is some liberal equivalence handled in Apex around List of SObjects and platform generic interfaces. */
-  def matchesParams(from: Option[TypeDeclaration], params: ArraySeq[TypeName]): Boolean = {
+  /** Test if this method matches the provided params when fulfilling an interface method. This is more involved than
+    * a simple type name comparison as there is some rather shocking equivalence handling in Apex for interfaces.  */
+  def fulfillsInterfaceMethodParams(from: TypeDeclaration, params: ArraySeq[TypeName]): Boolean = {
     def isSObject(typeName: TypeName): Boolean = {
       typeName == TypeNames.SObject ||
-        from.exists(from => from.moduleDeclaration.exists(_.getTypeFor(typeName, from).exists(_.isSObject)))
+        from.moduleDeclaration.exists(_.getTypeFor(typeName, from).exists(_.isSObject))
     }
 
     def isSObjectList(typeName: TypeName): Boolean = {
@@ -189,6 +189,7 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     if (parameters.length == params.length) {
       parameters.zip(params).forall(paramPair => {
         paramPair._1.typeName == paramPair._2 ||
+          (paramPair._1.typeName.isStringOrId && paramPair._2.isStringOrId) ||
           (paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(paramPair._1.typeName, paramPair._2)) ||
           (isSObjectList(paramPair._1.typeName) && isSObjectList(paramPair._2))
       })
@@ -198,7 +199,7 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
   }
 
   /** Determine if parameter type names are considered the same. During method calls some platform generics are
-    * considered equivalent regardless of the type parameters used. */
+    * considered equivalent regardless of the type parameters used. Yeah, its a mess of a language.*/
   private def areSameGenericTypes(param: TypeName, other: TypeName): Boolean = {
     param.equalsIgnoreParamTypes(other) &&
       (// Ignore generic type params on these
