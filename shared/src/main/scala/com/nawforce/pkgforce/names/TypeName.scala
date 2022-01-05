@@ -38,7 +38,8 @@ final case class TypeName(name: Name, params: Seq[TypeName], outer: Option[TypeN
       case TypeName.Any                   => "any"
       case TypeName.InternalObject        => "Object"
       case TypeName.InternalInterface     => "Object"
-      case TypeName.RecordSet             => "[SOQL Results]"
+      case TypeName.RecordSet             => "[SOQL Records]"
+      case TypeName(Names.RecordSet$, Seq(arg), Some(TypeName.Internal)) => s"[$arg Records]"
       case TypeName.SObjectFieldRowCause$ => "SObjectField"
       case TypeName(
             Names.DescribeSObjectResult$,

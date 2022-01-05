@@ -25,4 +25,12 @@ trait Issue {
 
   /* The issue message */
   def message(): String
+
+  /* Is this considered an error issue, rather than a warning */
+  def isError(): java.lang.Boolean
+
+  /* Format as String, filePath is omitted to avoid duplicating over multiple Issues */
+  def asString: String = category() + ": " + fileLocation().displayPosition + ": " + message()
+
+  override def toString: String = filePath() + ": " + asString
 }

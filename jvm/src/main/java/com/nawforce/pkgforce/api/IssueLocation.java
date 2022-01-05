@@ -13,9 +13,39 @@
  */
 package com.nawforce.pkgforce.api;
 
-public interface IssueLocation {
-    Integer startLineNumber();
-    Integer startCharOffset();
-    Integer endLineNumber();
-    Integer endCharOffset();
+public abstract class IssueLocation {
+    public abstract int startLineNumber();
+    public abstract int startCharOffset();
+    public abstract int endLineNumber();
+    public abstract int endCharOffset();
+
+    public String displayPosition() {
+        if (startLineNumber() == 1 && endLineNumber() == Integer.MAX_VALUE && startCharOffset() == 0 && endCharOffset() == 0) {
+            return "line 1";
+        }
+        if (startLineNumber() == endLineNumber()) {
+            if (startCharOffset() == 0 && endCharOffset() == 0)
+                return "line " + startLineNumber();
+            else if (startCharOffset() == endCharOffset())
+                return "line " + startLineNumber() + " at " + startCharOffset();
+            else
+                return "line " + startLineNumber() + " at " + startCharOffset() + "-" + endCharOffset();
+        } else {
+            if (startCharOffset() == 0 && endCharOffset() == 0)
+                return "line " + startLineNumber() + " to " + endLineNumber();
+            else
+                return "line " + startLineNumber() + ":" + startCharOffset() + " to " + endLineNumber() + ":" + endCharOffset();
+        }
+    }
+
+    public boolean contains(int line, int offset) {
+        return !(line < startLineNumber() || line > endLineNumber() ||
+                (line == startLineNumber() && offset < startCharOffset()) ||
+                (line == endLineNumber() && offset > endCharOffset()));
+    }
+
+    public boolean contains(IssueLocation other) {
+        return contains(other.startLineNumber(), other.startCharOffset()) &&
+                contains(other.endLineNumber(), other.endCharOffset());
+    }
 }

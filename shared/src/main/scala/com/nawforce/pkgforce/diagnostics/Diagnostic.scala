@@ -45,17 +45,12 @@ object DiagnosticCategory {
     }
   }
 
-  def isErrorOrWarningType(category: DiagnosticCategory): Boolean =
-    category == WARNING_CATEGORY || isErrorType(category)
-
   implicit val rw: RW[DiagnosticCategory] = macroRW
 }
 
 /** A diagnostic message, category tells us what type of diagnostic this is while location and messages provide details */
 @upickle.implicits.key("Diagnostic")
-case class Diagnostic(category: DiagnosticCategory, location: Location, message: String) {
-  def asString: String = s"${location.displayPosition} ${category.value} $message"
-}
+case class Diagnostic(category: DiagnosticCategory, location: Location, message: String)
 
 object Diagnostic {
   implicit val rw: RW[Diagnostic] = macroRW

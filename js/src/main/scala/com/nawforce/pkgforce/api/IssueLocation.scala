@@ -14,11 +14,37 @@
 package com.nawforce.pkgforce.api
 
 trait IssueLocation {
-  def startLineNumber(): Integer
+  def startLineNumber(): Int
+  def startCharOffset(): Int
+  def endLineNumber(): Int
+  def endCharOffset(): Int
 
-  def startCharOffset(): Integer
+  def displayPosition: String = {
+    if (startLineNumber() == 1 && endLineNumber() == Int.MaxValue && startCharOffset() == 0 && endCharOffset() == 0) {
+      s"line 1"
+    } else if (startLineNumber() == endLineNumber()) {
+      if (startCharOffset() == 0 && endCharOffset() == 0)
+        s"line ${startLineNumber()}"
+      else if (startCharOffset() == endCharOffset())
+        s"line ${startLineNumber()} at ${startCharOffset()}"
+      else
+        s"line ${startLineNumber()} at ${startCharOffset()}-${endCharOffset()}"
+    } else {
+      if (startCharOffset() == 0 && endCharOffset() == 0)
+        s"line ${startLineNumber()} to ${endLineNumber()}"
+      else
+        s"line ${startLineNumber()}:${startCharOffset()} to ${endLineNumber()}:${endCharOffset()}"
+    }
+  }
 
-  def endLineNumber(): Integer
+  def contains(line: Int, offset: Int): Boolean = {
+    !(line < startLineNumber() || line > endLineNumber() ||
+      (line == startLineNumber() && offset < startCharOffset()) ||
+      (line == endLineNumber() && offset > endCharOffset()))
+  }
 
-  def endCharOffset(): Integer
+  def contains(other: IssueLocation): Boolean = {
+    contains(other.startLineNumber(), other.startCharOffset()) &&
+      contains(other.endLineNumber(), other.endCharOffset())
+  }
 }
