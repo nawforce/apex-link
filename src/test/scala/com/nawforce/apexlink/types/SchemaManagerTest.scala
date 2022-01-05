@@ -46,8 +46,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -56,8 +55,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
       Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
           "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -73,7 +71,7 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 }

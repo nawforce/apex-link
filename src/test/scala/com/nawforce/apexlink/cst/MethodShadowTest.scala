@@ -50,7 +50,18 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
           "SuperClass.cls" -> "public virtual class SuperClass { private virtual void func() {}}"),
-      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+      "Error: line 1 at 61-65: Method 'func' can not override a private method\n")
+  }
+
+  test("Override of private virtual (same file bug)") {
+    testMethods(
+      Map("Dummy.cls" ->
+        """public virtual class Dummy {
+          | private virtual void func() {}
+          | public class Other extends Dummy {public override void func() {} }
+          |}
+          |""".stripMargin),
+      "")
   }
 
   test("Override of protected virtual") {
@@ -71,7 +82,7 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} public override void func() {} }",
         "SuperClass.cls" -> "public virtual class SuperClass { public virtual void func() {}}"),
-      "Error: line 1 at 92-96: Method 'func' is a duplicate of an existing method in this class\n")
+      "Error: line 1 at 92-96: Method 'func' is a duplicate of an existing method at line 1 at 61-65\n")
   }
 
   test("Override of public virtual (with protected)") {
@@ -86,7 +97,7 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map("Dummy.cls" -> "public class Dummy extends SuperClass { public override void func() {} }",
           "SuperClass.cls" -> "public abstract class SuperClass { private abstract void func();}"),
-      "Error: line 1 at 61-65: Method 'func' does not override a virtual or abstract method\n")
+      "Error: line 1 at 61-65: Method 'func' can not override a private method\n")
   }
 
   test("Override of protected abstract") {
@@ -123,13 +134,13 @@ class MethodShadowTest extends AnyFunSuite with TestHelper {
     testMethods(
       Map(
         "Dummy.cls" -> "public class Dummy { public static void func() {} private static void fuNc() {}}"),
-      "Error: line 1 at 70-74: Method 'fuNc' is a duplicate of an existing method in this class\n")
+      "Error: line 1 at 70-74: Method 'fuNc' is a duplicate of an existing method\n")
   }
 
   test("Duplicate static methods (with args)") {
     testMethods(
       Map(
         "Dummy.cls" -> "public class Dummy { public static void func(String a) {} private static void fuNc(System.String b) {}}"),
-      "Error: line 1 at 78-82: Method 'fuNc' is a duplicate of an existing method in this class\n")
+      "Error: line 1 at 78-82: Method 'fuNc' is a duplicate of an existing method\n")
   }
 }

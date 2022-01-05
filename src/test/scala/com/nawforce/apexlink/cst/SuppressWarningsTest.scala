@@ -80,11 +80,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }
@@ -96,11 +92,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }
@@ -112,11 +104,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }
@@ -128,11 +116,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }
@@ -144,11 +128,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
       )) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }
@@ -157,11 +137,7 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings public class Dummy {}")) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
-        assert(
-          org.unmanaged.orderedModules.head
-            .reportUnused()
-            .getMessages(root.join("Dummy.cls"), unused = true)
-            .isEmpty)
+        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
       })
     }
   }

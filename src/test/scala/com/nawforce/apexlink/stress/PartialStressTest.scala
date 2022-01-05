@@ -38,7 +38,7 @@ object PartialStressTest {
     val org = Org.newOrg(args.head).asInstanceOf[OrgImpl]
     val issueOptions = new IssueOptions
     issueOptions.includeZombies = true
-    val baselineIssues = org.issues.getIssues.values.map(_.size).sum
+    val baselineIssues = org.issues.issuesForFiles(null, includeWarnings = false, 0).length
     println(s"Starting issue count $baselineIssues")
 
     val classFiles =

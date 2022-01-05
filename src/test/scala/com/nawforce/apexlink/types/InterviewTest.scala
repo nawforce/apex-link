@@ -27,7 +27,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = Flow.Interview.createInterview('', new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -35,7 +35,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.flow" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -44,7 +44,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       Map("Test.flow-meta.xml" -> "", "Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -52,9 +52,8 @@ class InterviewTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) { root: PathLike =>
       val org = createOrg(root)
       // TODO: This should be a missing issue
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n")
     }
   }
 
@@ -64,7 +63,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -80,7 +79,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
         "pkg/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -90,7 +89,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -106,7 +105,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
         "pkg/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.ghosted.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 
@@ -123,7 +122,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
         "pkg2/Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.pkg1.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
         val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
@@ -150,9 +149,8 @@ class InterviewTest extends AnyFunSuite with TestHelper {
       "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(
-          org.issues.getMessages(Path("/Dummy.cls")) ==
-            "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
+        assert(getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n")
     }
   }
 
@@ -162,7 +160,7 @@ class InterviewTest extends AnyFunSuite with TestHelper {
           "Dummy.cls" -> "public class Dummy { {new Flow.Interview.Test(new Map<String, Object>()).start();} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
     }
   }
 }

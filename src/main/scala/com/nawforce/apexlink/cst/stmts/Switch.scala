@@ -18,12 +18,7 @@ import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.core.TypeDeclaration
-import com.nawforce.apexparser.ApexParser.{
-  SwitchStatementContext,
-  WhenControlContext,
-  WhenLiteralContext,
-  WhenValueContext
-}
+import com.nawforce.apexparser.ApexParser.{SwitchStatementContext, WhenControlContext, WhenLiteralContext, WhenValueContext}
 import com.nawforce.pkgforce.names.{EncodedName, TypeName}
 import com.nawforce.pkgforce.parsers.ENUM_NATURE
 import com.nawforce.runtime.parsers.CodeParser
@@ -72,14 +67,14 @@ object WhenLiteral {
 sealed abstract class WhenValue extends CST {
   def checkMatchableTo(typeName: TypeName): Seq[String]
   def checkIsSObject(context: BlockVerifyContext): Seq[String]
-  def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String]
+  def checkEnumValue(typeDeclaration: TypeDeclaration, context: BlockVerifyContext): Seq[String]
   def verify(context: BlockVerifyContext): Unit = {}
 }
 
 final class WhenElseValue extends WhenValue {
   def checkMatchableTo(typeName: TypeName): Seq[String]             = Seq()
   def checkIsSObject(context: BlockVerifyContext): Seq[String]      = Seq()
-  def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = Seq()
+  def checkEnumValue(typeDeclaration: TypeDeclaration, context: BlockVerifyContext): Seq[String] = Seq()
 }
 
 final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue {
@@ -118,7 +113,7 @@ final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
     Seq()
   }
 
-  override def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = {
+  override def checkEnumValue(typeDeclaration: TypeDeclaration, context: BlockVerifyContext): Seq[String] = {
     val nonNull = literals.filterNot(_.isInstanceOf[WhenNullLiteral])
     val notEnum = nonNull.filter(!_.isInstanceOf[WhenIdLiteral])
     if (notEnum.nonEmpty) {
@@ -128,7 +123,9 @@ final case class WhenLiteralsValue(literals: Seq[WhenLiteral]) extends WhenValue
 
     nonNull.foreach {
       case iv: WhenIdLiteral =>
-        if (typeDeclaration.findField(iv.id.name, Some(true)).isEmpty) {
+        val field = typeDeclaration.findField(iv.id.name, Some(true))
+        field.foreach(context.addDependency)
+        if (field.isEmpty) {
           OrgImpl.logError(iv.id.location, "Value must be a enum constant")
           return Seq()
         }
@@ -149,7 +146,7 @@ final case class WhenIdsValue(ids: Seq[Id]) extends WhenValue {
     Seq(ids.head.name.value.toLowerCase())
   }
 
-  override def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = {
+  override def checkEnumValue(typeDeclaration: TypeDeclaration, context: BlockVerifyContext): Seq[String] = {
     ids.headOption.foreach(head => {
       OrgImpl.logError(head.location, "Expecting an enum constant value")
     })
@@ -183,10 +180,10 @@ object WhenValue {
 
 final case class WhenControl(whenValue: WhenValue, block: Block) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
-    context.withInnerBlockVerifyContext() { blockContext =>
-      whenValue.verify(blockContext)
-      block.verify(blockContext)
-    }
+    val blockContext = new InnerBlockVerifyContext(context)
+    whenValue.verify(blockContext)
+    block.verify(blockContext)
+    context.typePlugin.onBlockValidated(block, context.isStatic, blockContext)
   }
 }
 
@@ -210,7 +207,7 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
         case TypeNames.SObject =>
           checkIsSObject(context)
         case _ if result.typeDeclaration.nature == ENUM_NATURE =>
-          checkEnumValue(result.typeDeclaration)
+          checkEnumValue(result.typeDeclaration, context)
         case _ =>
           OrgImpl.logError(
             expression.location,
@@ -237,8 +234,8 @@ final case class SwitchStatement(expression: Expression, whenControls: List[When
     whenControls.flatMap(_.whenValue.checkIsSObject(context))
   }
 
-  private def checkEnumValue(typeDeclaration: TypeDeclaration): Seq[String] = {
-    whenControls.flatMap(_.whenValue.checkEnumValue(typeDeclaration))
+  private def checkEnumValue(typeDeclaration: TypeDeclaration, context: BlockVerifyContext): Seq[String] = {
+    whenControls.flatMap(_.whenValue.checkEnumValue(typeDeclaration, context))
   }
 
   private def checkWhenElseIsLast(): Unit = {

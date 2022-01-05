@@ -18,6 +18,7 @@ import com.nawforce.apexlink.names.TypeIdentifiers.TypeIdentifierUtils
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.pkgforce.diagnostics.Diagnostic
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
+import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.Location
 import upickle.default.{macroRW, ReadWriter => RW}
 
@@ -38,6 +39,7 @@ case class TypeSummary(sourceHash: Int,
                        typeName: TypeName,
                        nature: String,
                        modifiers: ArraySeq[String],
+                       inTest: Boolean,
                        superClass: Option[TypeName],
                        interfaces: ArraySeq[TypeName],
                        blocks: ArraySeq[BlockSummary],
@@ -71,9 +73,9 @@ case class TypeSummary(sourceHash: Int,
       this.superClass == other.superClass &&
       this.interfaces == other.interfaces &&
       this.blocks == other.blocks &&
-      this.fields.sameElements(other.fields) &&
+      this.fields == other.fields &&
       this.constructors == other.constructors &&
-      this.methods.sameElements(other.methods) &&
+      this.methods == other.methods &&
       this.nestedTypes == other.nestedTypes &&
       this.dependents.sameElements(other.dependents)
   }
@@ -101,6 +103,7 @@ case class BlockSummary(location: Location, isStatic: Boolean, dependents: Array
 case class FieldSummary(location: Location,
                         idLocation: Location,
                         name: String,
+                        nature: Nature,
                         modifiers: ArraySeq[String],
                         typeName: TypeName,
                         readAccess: String,
@@ -241,6 +244,7 @@ object BlockSummary {
 
 object FieldSummary {
   implicit val rw: RW[FieldSummary] = macroRW
+  implicit val rwNature: RW[Nature] = macroRW
 }
 
 object ConstructorSummary {

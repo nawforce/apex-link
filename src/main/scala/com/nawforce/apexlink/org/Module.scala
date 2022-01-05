@@ -14,7 +14,6 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.cst.UnusedLog
 import com.nawforce.apexlink.finding.TypeResolver.{TypeCache, TypeResponse}
 import com.nawforce.apexlink.finding.{TypeFinder, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames
@@ -24,7 +23,6 @@ import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
-import com.nawforce.pkgforce.diagnostics.{IssueLog, LocalLogger}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
@@ -67,10 +65,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
   def components: ComponentDeclaration =
     types(TypeNames.Component).asInstanceOf[ComponentDeclaration]
   def nonTestClasses: Iterable[ApexClassDeclaration] = types.values.collect {
-    case ac: ApexClassDeclaration if !ac.isTest => ac
+    case ac: ApexClassDeclaration if !ac.inTest => ac
   }
   def testClasses: Iterable[ApexClassDeclaration] = types.values.collect {
-    case ac: ApexClassDeclaration if ac.isTest => ac
+    case ac: ApexClassDeclaration if ac.inTest => ac
   }
 
   /** Count of loaded types, for debug info */
@@ -86,14 +84,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     namespace
       .map(_ => dependents.toSet ++ dependents.flatMap(_.transitiveBaseModules))
       .getOrElse(baseModules.toSet)
-  }
-
-  /** Check all summary types have propagated their dependencies */
-  def propagateAllDependencies(): Unit = {
-    types.values.foreach({
-      case ad: ApexClassDeclaration => ad.propagateAllDependencies()
-      case _                        => ()
-    })
   }
 
   /* Iterator over available types */
@@ -158,11 +148,6 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def removeMetadata(typeName: TypeName): Unit = {
     types.remove(typeName)
-  }
-
-  /** Obtain log with unused metadata warnings */
-  def reportUnused(): IssueLog = {
-    new UnusedLog(types.values)
   }
 
   // Add dependencies for Apex types to a map
@@ -284,12 +269,12 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       val typeId = TypeId(this, doc.typeName(namespace))
 
       // Update internal document tracking
-      index.upsert(new LocalLogger(pkg.org.issues), doc)
+      index.upsert(pkg.org.issueManager, doc)
       if (sourceOpt.isEmpty)
         index.remove(doc)
 
       // Clear errors as might fail to create type, SObjects are handled later due to multiple files
-      pkg.org.issues.pop(doc.path)
+      pkg.org.issueManager.pop(doc.path)
 
       // Create type & forward holders to limit need for invalidation chaining
       val newTypes = createTypes(doc, sourceOpt)
@@ -398,7 +383,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       clearSObjectErrors(sObjectPath)
       val deployer = new SObjectDeployer(this)
       val sobjects = deployer.createSObjects(
-        SObjectGenerator.iterator(DocumentIndex(new LocalLogger(pkg.org.issues), namespace, sObjectPath)).buffered)
+        SObjectGenerator.iterator(DocumentIndex(pkg.org.issueManager, namespace, sObjectPath)).buffered)
 
       sobjects.foreach(sobject => schemaSObjectType.add(sobject.typeName.name, hasFieldSets = true))
       sobjects.toIndexedSeq
@@ -409,10 +394,10 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   private def clearSObjectErrors(path: PathLike): Unit = {
     if (!path.isDirectory) {
-      pkg.org.issues.pop(path)
+      pkg.org.issueManager.pop(path)
     } else {
       val (files, directories) = path.splitDirectoryEntries()
-      files.foreach(file => pkg.org.issues.pop(file))
+      files.foreach(file => pkg.org.issueManager.pop(file))
       directories.foreach(clearSObjectErrors)
     }
   }

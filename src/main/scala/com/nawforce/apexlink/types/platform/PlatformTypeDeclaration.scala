@@ -104,7 +104,7 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     accum: mutable.Map[Name, PlatformField] = mutable.Map()): mutable.Map[Name, PlatformField] = {
     if (cls.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage)) {
       cls.getDeclaredFields
-        .filter(!_.isSynthetic)
+        .filterNot(_.isSynthetic)
         .foreach(f => {
           val name = Name(f.getName)
           if (!accum.contains(name))
@@ -132,7 +132,9 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   protected def getMethods: ArraySeq[PlatformMethod] = {
     val localMethods =
-      cls.getMethods.filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
+      cls.getMethods
+        .filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
+        .filterNot(_.isSynthetic)
     nature match {
       case ENUM_NATURE =>
         assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
@@ -211,10 +213,6 @@ class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: 
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
-
-  override def toString: String =
-    modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
-      parameters.map(_.toString).mkString(", ") + ")"
 
   private def decodeName(name: String): String = {
     if (name.endsWith("$"))

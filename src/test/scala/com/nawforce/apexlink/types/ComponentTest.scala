@@ -26,18 +26,16 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Missing root element") {
     FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Test.component")) ==
-          "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n")
+      assert(getMessages(Path("/Test.component")) ==
+        "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n")
     }
   }
 
   test("Bad root element") {
     FileSystemHelper.run(Map("Test.component" -> "<foo/>")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Test.component")) ==
-          "Error: line 1 at 0-11: Root element must be 'apex:component'\n")
+      assert(getMessages(Path("/Test.component")) ==
+        "Error: line 1 at 0-11: Root element must be 'apex:component'\n")
     }
   }
 
@@ -53,9 +51,8 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Missing component") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Component.Test;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n")
     }
   }
 
@@ -197,9 +194,8 @@ class ComponentTest extends AnyFunSuite with TestHelper {
   test("Missing controller") {
     FileSystemHelper.run(Map("Test.component" -> "<apex:component controller='Dummy'/>")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(root.join("Test.component")) ==
-          "Missing: line 1 at 16-34: No type declaration found for 'Dummy'\n")
+      assert(getMessages(root.join("Test.component")) ==
+        "Missing: line 1 at 16-34: No type declaration found for 'Dummy'\n")
     }
   }
 

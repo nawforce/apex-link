@@ -64,6 +64,7 @@ final case class TriggerDeclaration(source: Source,
   override val nature: Nature = TRIGGER_NATURE
   override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
   override val isComplete: Boolean = true
+  override val inTest: Boolean = false
 
   override val superClass: Option[TypeName] = None
   override val interfaces: ArraySeq[TypeName] = ArraySeq()
@@ -99,14 +100,16 @@ final case class TriggerDeclaration(source: Source,
           val tc = TriggerContext(module, triggerContext)
           module.upsertMetadata(tc)
 
-          try {
-            context.withOuterBlockVerifyContext(isStatic = false) { blockContext =>
-              blockContext.addVar(Names.Trigger, None, tc)
-              block.foreach(_.verify(blockContext))
+          block.foreach(block => {
+            try {
+              val triggerContext = new OuterBlockVerifyContext(context, isStaticContext = false)
+              triggerContext.addVar(Names.Trigger, None, tc)
+              block.verify(triggerContext)
+              context.typePlugin.onBlockValidated(block, isStatic = false, triggerContext)
+            } finally {
+              module.removeMetadata(tc)
             }
-          } finally {
-            module.removeMetadata(tc)
-          }
+          })
       }
 
       depends = Some(context.dependencies)
@@ -141,6 +144,7 @@ final case class TriggerDeclaration(source: Source,
       typeName,
       nature.value,
       modifiers.map(_.toString).sorted,
+      inTest = false,
       superClass,
       interfaces,
       ArraySeq(),
@@ -224,7 +228,7 @@ final case class TriggerContext(module: Module, baseType: TypeDeclaration)
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     baseType.findMethod(name, params, staticContext, verifyContext)
   }
 }

@@ -35,9 +35,8 @@ trait Block extends Statement
 // Standard eager block
 final case class EagerBlock(statements: Seq[Statement]) extends Block {
   override def verify(context: BlockVerifyContext): Unit = {
-    context.withInnerBlockVerifyContext() { blockContext =>
-      statements.foreach(s => s.verify(blockContext))
-    }
+    val blockContext = new InnerBlockVerifyContext(context)
+    statements.foreach(s => s.verify(blockContext))
   }
 }
 
@@ -48,9 +47,9 @@ final case class LazyBlock(source: Source, var blockContextRef: WeakReference[Bl
   private var reParsed = false
 
   override def verify(context: BlockVerifyContext): Unit = {
-    context.withInnerBlockVerifyContext() { blockContext =>
-      statements().foreach(s => s.verify(blockContext))
-    }
+    val blockContext = new InnerBlockVerifyContext(context)
+    statements().foreach(s => s.verify(blockContext))
+    context.typePlugin.onBlockValidated(this, context.isStatic, blockContext)
   }
 
   def statements(): Seq[Statement] = {
@@ -131,13 +130,14 @@ final case class IfStatement(expression: Expression, statements: Seq[Statement])
     // This is replicating a feature where non-block statements can pass declarations forward
     var stmtContext = new InnerBlockVerifyContext(context)
     statements.foreach(stmt => {
-      if (stmt.isInstanceOf[Block]) {
-        stmtContext.report()
+      val isBlock = stmt.isInstanceOf[Block]
+      if (isBlock) {
         stmtContext = new InnerBlockVerifyContext(stmtContext)
       }
       stmt.verify(stmtContext)
+      if (isBlock)
+        context.typePlugin.onBlockValidated(stmt.asInstanceOf[Block], context.isStatic, stmtContext)
     })
-    stmtContext.report()
   }
 }
 
@@ -152,13 +152,12 @@ object IfStatement {
 final case class ForStatement(control: Option[ForControl], statement: Option[Statement]) extends Statement {
   override def verify(context: BlockVerifyContext): Unit = {
     control.foreach(control => {
-      context.withInnerBlockVerifyContext() { forContext =>
-        control.verify(forContext)
-        forContext.withInnerBlockVerifyContext() { loopContext =>
-          control.addVars(loopContext)
-          statement.foreach(_.verify(loopContext))
-        }
-      }
+      val forContext = new InnerBlockVerifyContext(context)
+      control.verify(forContext)
+
+      val loopContext = new InnerBlockVerifyContext(forContext)
+      control.addVars(loopContext)
+      statement.foreach(_.verify(loopContext))
     })
   }
 }
@@ -340,15 +339,19 @@ object TryStatement {
 final case class CatchClause(modifiers: ModifierResults, qname: QualifiedName, id: String, block: Option[Block]) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
     modifiers.issues.foreach(context.log)
-    context.withInnerBlockVerifyContext() { blockContext =>
+
+    block.foreach(block => {
+      val blockContext = new InnerBlockVerifyContext(context)
       val exceptionTypeName = qname.asTypeName()
       blockContext.getTypeAndAddDependency(exceptionTypeName, context.thisType) match {
-        case Left(_) => context.missingType(qname.location, exceptionTypeName)
+        case Left(_) =>
+          context.missingType(qname.location, exceptionTypeName)
         case Right(exceptionType) =>
           blockContext.addVar(Name(id), None, exceptionType)
-          block.map(_.verify(blockContext))
+          block.verify(blockContext)
       }
-    }
+      context.typePlugin.onBlockValidated(block, context.isStatic, blockContext)
+    })
   }
 }
 

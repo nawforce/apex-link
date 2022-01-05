@@ -100,8 +100,8 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Trigger$ : TypeName = TypeName(Names.Trigger$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val Database: TypeName = TypeName(Names.Database).intern
-  lazy val BatchableContext: TypeName =
-    TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
+  lazy val BatchableContext: TypeName = TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
+  lazy val QueryLocator: TypeName = TypeName(XNames.QueryLocator, Nil, Some(TypeNames.Database)).intern
 
   lazy val User: TypeName = TypeName(Names.User).intern
   lazy val UserRecordAccess: TypeName = TypeName(Names.UserRecordAccess).intern
@@ -361,14 +361,17 @@ object TypeNames extends InternCache[TypeName] {
     def isBatchable: Boolean =
       typeName.name == Names.Batchable && typeName.outer.contains(TypeNames.Database)
 
+    def isIterable: Boolean =
+      typeName.name == XNames.Iterable && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
+
     def isNonGeneric: Boolean =
       typeName.params.isEmpty && typeName.outer.forall(_.isNonGeneric)
 
-    def equalsIgnoreParams(other: TypeName): Boolean = {
+    def equalsIgnoreParamTypes(other: TypeName): Boolean = {
       typeName.name == other.name &&
         typeName.params.size == other.params.size &&
         typeName.outer.nonEmpty == other.outer.nonEmpty &&
-        typeName.outer.forall(_.equalsIgnoreParams(other.outer.get))
+        typeName.outer.forall(_.equalsIgnoreParamTypes(other.outer.get))
     }
 
     def decodedExtendedGeneric(): Option[TypeName] = {

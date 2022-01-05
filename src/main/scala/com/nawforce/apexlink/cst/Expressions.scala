@@ -15,21 +15,26 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
-import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.{Module, OrgImpl}
-import com.nawforce.apexlink.types.apex.ApexClassDeclaration
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexparser.ApexParser._
+import com.nawforce.pkgforce.diagnostics.{Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.{Locatable, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 
+/* Context used during expression verification to indicate focus & return state. Declaration provides the
+ * current context TypeDeclaration. isStatic=None is used as a marker that we have yet to enter an explicit
+ * static/instance context as you find on the outermost expression used in an instance method. In this state
+ * declaration == this & both static/instance resolution is allowed. If isStatic is set the specific expression
+ * should become restricted to either static or instance resolution.
+ */
 final case class ExprContext(isStatic: Option[Boolean],
                              declaration: Option[TypeDeclaration],
                              locatable: Option[Locatable] = None) {
@@ -94,25 +99,17 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    // When we have a leading IdPrimary there are a couple of special cases to handle
+    // Handle possible leading namespace
     val intercept = getInterceptPrimary(input, context).flatMap(primary => {
-      // It might be a static reference to an outer class that failed normal analysis due to class name shadowing
-      TypeResolver(TypeName(primary.id.name), context.module).toOption match {
-        case Some(td: ApexClassDeclaration) =>
-          context.addDependency(td)
-          Some(verifyWithId(ExprContext(isStatic = Some(true), td), context))
-        case _ =>
-          // Else it might be a namespace
-          if (isNamespace(primary.id.name, input.declaration.get)) {
-            val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
-            val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
-            td.map(td =>
-              context.saveResult(this) {
-                ExprContext(isStatic = Some(true), Some(td), td)
-            })
-          } else {
-            None
-          }
+      if (isNamespace(primary.id.name, input.declaration.get)) {
+        val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
+        val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
+        td.map(td =>
+          context.saveResult(this) {
+            ExprContext(isStatic = Some(true), Some(td), td)
+          })
+      } else {
+        None
       }
     })
     intercept.map(result => context.saveResult(this)(result))
@@ -302,13 +299,11 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
              context: ExpressionVerifyContext): ExprContext = {
 
     val args = arguments.map(_.verify(input, context))
-    if (args.exists(!_.isDefined))
-      return ExprContext.empty
 
-    val argTypes = args.map(_.typeName)
-    callee
-      .findMethod(target.name, argTypes, staticContext, context)
-      .map(method => {
+    // If we failed to get argument type (maybe due to ghosting), use null as assignable to anything
+    val argTypes = args.map(arg => if (arg.isDefined) arg.typeName else TypeNames.Any)
+    callee.findMethod(target.name, argTypes, staticContext, context) match {
+      case Right(method) =>
         context.addDependency(method)
         if (method.typeName != TypeNames.Void) {
           val td = context.getTypeAndAddDependency(method.typeName, context.thisType)
@@ -316,7 +311,9 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
             case Left(error) =>
               if (!context.module.isGhostedType(method.typeName))
                 context.log(error.asIssue(location))
-              context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
+              context.saveResult(this, target.location.location) {
+                ExprContext(None, None, method)
+              }
             case Right(td) =>
               context.saveResult(this, target.location.location) {
                 ExprContext(isStatic = Some(false), Some(td), method)
@@ -324,22 +321,30 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
           }
         } else {
           // TODO: How to error if attempt to use return
-          context.saveResult(this, target.location.location) { ExprContext(None, None, method) }
+          context.saveResult(this, target.location.location) {
+            ExprContext(None, None, method)
+          }
         }
-      })
-      .getOrElse({
-        if (callee.isComplete && argTypes.forall(!context.module.isGhostedType(_))) {
-          if (argTypes.isEmpty)
+
+      case Left(err) =>
+        if (callee.isComplete) {
+          if (argTypes.contains(TypeNames.Any)) {
+            context.log(Issue(location.path, WARNING_CATEGORY, location.location,
+              s"$err for '${target.name}' on '${callee.typeName}' " +
+                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}', likely due to unknown type"))
+          }
+          else if (argTypes.isEmpty) {
             context.logError(
               location,
-              s"No matching method found for '${target.name}' on '${callee.typeName}' taking no arguments")
-          else
+              s"$err for '${target.name}' on '${callee.typeName}' taking no arguments")
+          } else {
             context.logError(location,
-                             s"No matching method found for '${target.name}' on '${callee.typeName}' " +
-                               s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+              s"$err for '${target.name}' on '${callee.typeName}' " +
+                s"taking arguments '${argTypes.map(_.toString).mkString(", ")}'")
+          }
         }
         ExprContext.empty
-      })
+    }
   }
 }
 

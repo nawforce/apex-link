@@ -30,10 +30,11 @@ trait SObjectMethods {
   def defaultFindMethod(name: Name,
                         params: ArraySeq[TypeName],
                         staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Option[MethodDeclaration] = {
-    cloneMethods
-      .get((name, params.length, staticContext.contains(true)))
-      .orElse(PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext))
+                        verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+    val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
+    if (clone.nonEmpty)
+      return Right(clone.get)
+    PlatformTypes.sObjectType.findMethod(name, params, staticContext, verifyContext)
   }
 
   private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {

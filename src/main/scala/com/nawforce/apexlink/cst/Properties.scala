@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.types.apex.ApexFieldLike
+import com.nawforce.apexlink.types.apex.{ApexFieldLike, ThisType}
 import com.nawforce.apexlink.types.core.{TypeDeclaration, TypeId}
 import com.nawforce.apexparser.ApexParser.{PropertyBlockContext, PropertyDeclarationContext}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, Modifier, ModifierResults, PRIVATE_MODIFIER}
@@ -25,7 +25,7 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 
-final case class ApexPropertyDeclaration(outerTypeId: TypeId,
+final case class ApexPropertyDeclaration(thisType: ThisType,
                                          _modifiers: ModifierResults,
                                          typeName: TypeName,
                                          id: Id,
@@ -36,6 +36,8 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
   override val name: Name = id.name
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
   override val nature: Nature = PROPERTY_NATURE
+  override val outerTypeId: TypeId = thisType.typeId
+  override val inTest: Boolean = thisType.inTest
 
   override def idLocation: Location = id.location.location
 
@@ -91,11 +93,11 @@ final case class ApexPropertyDeclaration(outerTypeId: TypeId,
 
 object ApexPropertyDeclaration {
   def construct(parser: CodeParser,
-                outerTypeId: TypeId,
+                thisType: ThisType,
                 modifiers: ModifierResults,
                 propertyDeclaration: PropertyDeclarationContext): ApexPropertyDeclaration = {
     val typeName = TypeReference.construct(propertyDeclaration.typeRef())
-    ApexPropertyDeclaration(outerTypeId,
+    ApexPropertyDeclaration(thisType,
       modifiers,
       typeName,
       Id.construct(propertyDeclaration.id()),
@@ -111,9 +113,10 @@ sealed abstract class PropertyBlock extends CST {
 
 final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
-    block.foreach(blk =>
-      context.withOuterBlockVerifyContext(isStatic) { blockContext =>
-        blk.verify(blockContext)
+    block.foreach(block => {
+      val blockContext = new OuterBlockVerifyContext(context, isStatic)
+      block.verify(blockContext)
+      context.typePlugin.onBlockValidated(block, isStatic, blockContext)
     })
   }
 }
@@ -121,10 +124,12 @@ final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[B
 final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block])
     extends PropertyBlock {
   override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
-    context.withOuterBlockVerifyContext(isStatic) { blockContext =>
+    block.foreach(block => {
+      val blockContext = new OuterBlockVerifyContext(context, isStatic)
       blockContext.addVar(Name("value"), None, propertyType)
-      block.foreach(_.verify(blockContext))
-    }
+      block.verify(blockContext)
+      context.typePlugin.onBlockValidated(block, isStatic, blockContext)
+    })
   }
 }
 

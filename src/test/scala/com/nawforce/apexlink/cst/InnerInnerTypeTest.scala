@@ -24,7 +24,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
     ) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(Path("/pkg/Outer.cls")) ==
+        getMessages(Path("/pkg/Outer.cls")) ==
           "Error: line 2 at 6-21: InnerInnerClass: Inner types of Inner types are not valid.\n" +
             "Error: line 3 at 10-29: InnerInnerInterface: Inner types of Inner types are not valid.\n" +
             "Error: line 4 at 5-19: InnerInnerEnum: Inner types of Inner types are not valid.\n"
@@ -47,7 +47,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
       )
     ) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 
@@ -68,7 +68,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
     ) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        org.issues.getMessages(Path("/pkg/Outer.cls")) ==
+        getMessages(Path("/pkg/Outer.cls")) ==
           "Error: line 2 at 6-21: InnerInnerClass: Inner types of Inner types are not valid.\n" +
             "Error: line 3 at 10-29: InnerInnerInterface: Inner types of Inner types are not valid.\n" +
             "Error: line 4 at 5-19: InnerInnerEnum: Inner types of Inner types are not valid.\n"
@@ -91,7 +91,7 @@ class InnerInnerTypeTest extends AnyFunSuite with TestHelper {
       )
     ) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 

@@ -14,14 +14,14 @@
 
 package com.nawforce.apexlink.cmds
 
-import com.nawforce.apexlink.api.{IssueOptions, Org, ServerOps}
+import com.nawforce.apexlink.api.{Org, ServerOps}
+import com.nawforce.pkgforce.api.IssueLocation
 import com.nawforce.pkgforce.diagnostics.LoggerOps
-import com.nawforce.pkgforce.documents.ParsedCache
-import com.nawforce.runtime.json.JSON
-import com.nawforce.runtime.platform.{Environment, Path}
+import com.nawforce.runtime.platform.Environment
 
 import scala.jdk.CollectionConverters._
 
+/** Basic command line for exercising the project analysis */
 object Check {
   final val STATUS_OK: Int = 0
   final val STATUS_ARGS: Int = 1
@@ -29,17 +29,16 @@ object Check {
   final val STATUS_ISSUES: Int = 4
 
   def usage(name: String) =
-    s"Usage: $name [-json] [-verbose] [-info|-debug] [-noflush] [-zombie] [-depends] <directory>"
+    s"Usage: $name [-json] [-verbose] [-info|-debug] [-nocache] [-depends] <directory>"
 
   def run(args: Array[String]): Int = {
-    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-zombie", "-depends")
+    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-depends")
 
     val json = args.contains("-json")
     val verbose = !json && args.contains("-verbose")
     val debug = !json && args.contains("-debug")
     val info = !json && !debug && args.contains("-info")
     val depends = args.contains("-depends")
-    val zombie = args.contains("-zombie")
     val noCache = args.contains("-nocache")
 
     ServerOps.setAutoFlush(false)
@@ -64,8 +63,6 @@ object Check {
         Environment.setCacheDir(Some(None))
       }
 
-      //Thread.sleep(20000)
-
       val org = Org.newOrg(dirs.head)
       org.flush()
       if (depends) {
@@ -76,7 +73,7 @@ object Check {
         }
         STATUS_OK
       } else {
-        writeIssues(org, if (json) "json" else "", verbose, zombie)
+        writeIssues(org, json, verbose)
       }
 
     } catch {
@@ -95,8 +92,8 @@ object Check {
         buffer ++= ",\n"
       first = false
 
-      buffer ++= s"""{ "name": "${JSON.encode(kv._1)}", "dependencies": ["""
-      buffer ++= kv._2.map("\"" + JSON.encode(_) + "\"").mkString(", ")
+      buffer ++= s"""{ "name": "${kv._1}", "dependencies": ["""
+      buffer ++= kv._2.map("\"" + _ + "\"").mkString(", ")
       buffer ++= s"]}"
     })
     buffer ++= "]}\n"
@@ -110,15 +107,125 @@ object Check {
   }
 
   private def writeIssues(org: Org,
-                          format: String,
+                          asJSON: Boolean,
                           includeWarnings: Boolean,
-                          includeZombies: Boolean): Int = {
-    val issueOptions = new IssueOptions()
-    issueOptions.format = format
-    issueOptions.includeWarnings = includeWarnings
-    issueOptions.includeZombies = includeZombies
-    print(org.getIssues(issueOptions))
+                         ): Int = {
+
+    val issues = org.issues.issuesForFiles(null, includeWarnings, 0)
+    val writer = if (asJSON) new JSONMessageWriter() else new TextMessageWriter()
+    writer.startOutput()
+    var hasErrors = false
+    var lastPath = ""
+
+    issues.foreach(issue => {
+      hasErrors |= issue.isError()
+      if (includeWarnings || issue.isError) {
+
+        if (issue.filePath() != lastPath) {
+          if (lastPath.nonEmpty)
+            writer.endDocument()
+          lastPath = issue.filePath()
+          writer.startDocument(lastPath)
+        }
+
+        writer.writeMessage(issue.category(), issue.fileLocation(), issue.message)
+
+      }
+    })
+    if (lastPath.nonEmpty)
+      writer.endDocument()
+
+    print(writer.output)
     System.out.flush()
-    if (org.hasErrors()) STATUS_ISSUES else STATUS_OK
+    if (hasErrors) STATUS_ISSUES else STATUS_OK
   }
+
+  private trait MessageWriter {
+    def startOutput(): Unit
+
+    def startDocument(path: String): Unit
+
+    def writeMessage(category: String, location: IssueLocation, message: String): Unit
+
+    def endDocument(): Unit
+
+    def output: String
+  }
+
+  private class TextMessageWriter(showPath: Boolean = true) extends MessageWriter {
+    private val buffer = new StringBuilder()
+
+    override def startOutput(): Unit = buffer.clear()
+
+    override def startDocument(path: String): Unit = if (showPath) buffer ++= path + '\n'
+
+    override def writeMessage(
+                               category: String,
+                               location: IssueLocation,
+                               message: String
+                             ): Unit =
+      buffer ++= s"$category: ${location.displayPosition}: $message\n"
+
+    override def endDocument(): Unit = {}
+
+    override def output: String = buffer.toString()
+  }
+
+  private class JSONMessageWriter extends MessageWriter {
+    private val buffer = new StringBuilder()
+    private var firstDocument: Boolean = _
+    private var firstMessage: Boolean = _
+
+    override def startOutput(): Unit = {
+      buffer.clear()
+      buffer ++= s"""{ "files": [\n"""
+      firstDocument = true
+    }
+
+    override def startDocument(path: String): Unit = {
+      buffer ++= (if (firstDocument) "" else ",\n")
+      buffer ++= s"""{ "path": "${JSON.encode(path)}", "messages": [\n"""
+      firstDocument = false
+      firstMessage = true
+    }
+
+    override def writeMessage(
+                               category: String,
+                               location: IssueLocation,
+                               message: String
+                             ): Unit = {
+      buffer ++= (if (firstMessage) "" else ",\n")
+      buffer ++= s"""{${locationAsJSON(location)}, "category": "$category", "message": "${JSON.encode(message)}"}"""
+      firstMessage = false
+    }
+
+    override def endDocument(): Unit = buffer ++= "\n]}"
+
+    override def output: String = {
+      buffer ++= "]}\n"
+      buffer.toString()
+    }
+
+    private def locationAsJSON(location: IssueLocation): String =
+      s""""start": {"line": ${location.startLineNumber()}, "offset": ${location.startCharOffset()} }, "end": {"line": ${location.endLineNumber()}, "offset": ${location.endCharOffset()} }"""
+  }
+
+  object JSON {
+    def encode(value: String): String = {
+      val buf = new StringBuilder()
+      value.foreach {
+        case '"' => buf.append("\\\"")
+        case '\\' => buf.append("\\\\")
+        case '\b' => buf.append("\\b")
+        case '\f' => buf.append("\\f")
+        case '\n' => buf.append("\\n")
+        case '\r' => buf.append("\\r")
+        case '\t' => buf.append("\\t")
+        case char if char < 0x20 => buf.append("\\u%04x".format(char: Int))
+        case char => buf.append(char)
+      }
+      buf.mkString
+    }
+  }
+
 }

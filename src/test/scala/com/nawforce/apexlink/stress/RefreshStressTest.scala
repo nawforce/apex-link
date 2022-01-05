@@ -38,7 +38,7 @@ object RefreshStressTest {
     val org = Org.newOrg(args.head).asInstanceOf[OrgImpl]
     val issueOptions = new IssueOptions
     issueOptions.includeZombies = true
-    val baselineIssues = org.issues.getIssues.values.map(_.size).sum
+    val baselineIssues = org.issues.issuesForFiles(null, includeWarnings = false, 0).length
     println(s"Starting issue count $baselineIssues")
 
     val classFiles =
@@ -62,7 +62,7 @@ object RefreshStressTest {
       org.packages.foreach(_.refresh(randoFile.toString))
       org.flush()
 
-      if (org.issues.getIssues.values.map(_.size).sum != baselineIssues) {
+      if (org.issues.issuesForFiles(null, includeWarnings = false, 0).length != baselineIssues) {
         println("Issue count has changed, quiting")
         return
       }

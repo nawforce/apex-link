@@ -13,7 +13,6 @@
  */
 package com.nawforce.apexlink.pkg
 
-import com.nawforce.apexlink.api.IssueOptions
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.path.PathLike
 import org.scalatest.funsuite.AnyFunSuite
@@ -34,8 +33,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  }
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -43,8 +41,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Dummy.cls" ->
       "public class Dummy {{ DescribeFieldResult a; List<Schema.PicklistEntry> b = a.getPicklistValues();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -52,8 +49,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy {{ DescribeFieldResult a; Integer b = a.getByteLength();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -61,8 +57,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.cls" ->
         "public class Dummy {{String b = Site.getName();}}")) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -70,8 +65,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {{Site a; SObjectType b = a.getSObjectType();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -79,16 +73,14 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {{SObjectType b = Account.getSobjectType();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
   test("Clone apex type") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{Dummy a,b; b = a.clone();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -96,8 +88,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {String Matcher; {Matcher.capitalize();}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -107,8 +98,7 @@ class BugTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy extends SuperClass {class Inner {public void func(){ func(); } }}",
         "SuperClass.cls" -> "public virtual class SuperClass {public static void func() {}}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -122,8 +112,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  private class Impl implements API { public void pop() {}}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -139,8 +128,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  }
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -152,8 +140,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  {DisplayType a,b; Boolean c = a.equals(b);}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -165,8 +152,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  {SObjectField f = Account.CreatedBy.Id;}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -180,16 +166,14 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  {Other.MyInterface.func();}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
   test("Add Double onto Decimal") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Decimal a; Double b; a+=b; } }")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -197,8 +181,7 @@ class BugTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map(
       "Dummy.cls" -> "public class Dummy { {Decimal a; Double b; Math.max(a * b, b).round(System.RoundingMode.DOWN); } }")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -213,8 +196,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  }
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -226,8 +208,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  public void func(List<Account> a) {Object o = Contact.SObjectType.AccountId.getDescribe();}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -240,8 +221,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  public Opportunity opportunity {get; set;}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -253,8 +233,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  public static Object a = Account.SObjectType.SObjectType.newSObject();
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -266,8 +245,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  public static Decimal a =  (true ? 0 : 0.1).setScale(2);
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -278,8 +256,7 @@ class BugTest extends AnyFunSuite with TestHelper {
           | public class Dummy implements Database.RaisesPlatformEvents {
           |}
           |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -295,18 +272,15 @@ class BugTest extends AnyFunSuite with TestHelper {
            |}
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
-      assert(!org.unmanaged.orderedModules.head.reportUnused().hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
   test("Interface missing formal argument") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public interface Dummy {void foo(Bar a);}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(
-          org.getIssues(new IssueOptions()) == "/Dummy.cls\nMissing: line 1 at 37-38: No type declaration found for 'Bar'\n")
+        createOrg(root)
+        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 37-38: No type declaration found for 'Bar'\n")
     }
   }
 
@@ -315,16 +289,14 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" -> "public class Dummy {{MyInterface a; Boolean b = a.equals(a);}} ",
           "MyInterface.cls" -> "public interface MyInterface {void foo(String a);}")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
   test("Outer static field") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {public final static String a;} ")) {
       root: PathLike =>
-        val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        createHappyOrg(root)
     }
   }
 
@@ -338,8 +310,7 @@ class BugTest extends AnyFunSuite with TestHelper {
            |  }
            |}
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 
@@ -348,8 +319,7 @@ class BugTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         s"""public class Dummy { { Iterable<Id> a; a = new List<Id>(); } }
            |""".stripMargin)) { root: PathLike =>
-      val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      createHappyOrg(root)
     }
   }
 

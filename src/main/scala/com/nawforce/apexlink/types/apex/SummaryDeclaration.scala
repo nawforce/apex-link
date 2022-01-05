@@ -193,11 +193,6 @@ trait SummaryDependencyHandler extends DependencyHolder {
     }
     _dependents.get
   }
-
-  /** For summary types we defer propagation of internal dependencies as they are only needed for unused analysis
-    * currently but we don't want to re-execute them every time. */
-  override def propagateDependencies(): Unit = propagated
-  private lazy val propagated: Boolean = { super.propagateDependencies(); true }
 }
 
 class SummaryParameter(parameterSummary: ParameterSummary) extends ParameterDeclaration {
@@ -206,8 +201,8 @@ class SummaryParameter(parameterSummary: ParameterSummary) extends ParameterDecl
   override val typeName: TypeName = parameterSummary.typeName.intern
 }
 
-class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId, methodSummary: MethodSummary)
-    extends ApexMethodLike
+class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId, override val inTest: Boolean, methodSummary: MethodSummary)
+  extends ApexMethodLike
     with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = methodSummary.dependents.map(_.intern)
@@ -218,21 +213,24 @@ class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId,
   override val modifiers: ArraySeq[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = methodSummary.typeName.intern
   override val parameters: ArraySeq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
+
   override def hasBlock: Boolean = methodSummary.hasBlock
+
 }
 
-class SummaryBlock(val module: Module, path: PathLike, blockSummary: BlockSummary)
-    extends ApexBlockLike
+class SummaryBlock(val module: Module, path: PathLike, override val inTest: Boolean, blockSummary: BlockSummary)
+  extends ApexBlockLike
     with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = blockSummary.dependents.map(_.intern)
 
   override def location: PathLocation = PathLocation(path, blockSummary.location)
+
   override val isStatic: Boolean = blockSummary.isStatic
 }
 
-class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, fieldSummary: FieldSummary)
-    extends ApexFieldLike
+class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, override val inTest: Boolean, fieldSummary: FieldSummary)
+  extends ApexFieldLike
     with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = fieldSummary.dependents.map(_.intern)
@@ -240,14 +238,15 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
   override val location: PathLocation = PathLocation(path, fieldSummary.location)
   override val idLocation: Location = fieldSummary.idLocation
   override val name: Name = Names(fieldSummary.name)
+  override val nature: Nature = fieldSummary.nature
   override val modifiers: ArraySeq[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
   override val typeName: TypeName = fieldSummary.typeName.intern
   override val readAccess: Modifier = ModifierOps(fieldSummary.readAccess).get
   override val writeAccess: Modifier = ModifierOps(fieldSummary.writeAccess).get
 }
 
-class SummaryConstructor(val module: Module, path: PathLike, constructorSummary: ConstructorSummary)
-    extends ApexConstructorLike
+class SummaryConstructor(val module: Module, path: PathLike, override val inTest: Boolean, constructorSummary: ConstructorSummary)
+  extends ApexConstructorLike
     with SummaryDependencyHandler {
 
   override val dependents: Array[DependentSummary] = constructorSummary.dependents.map(_.intern)
@@ -255,8 +254,7 @@ class SummaryConstructor(val module: Module, path: PathLike, constructorSummary:
   override val location: PathLocation = PathLocation(path, constructorSummary.location)
   override val idLocation: Location = constructorSummary.idLocation
   override val modifiers: ArraySeq[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
-  override val parameters: ArraySeq[ParameterDeclaration] =
-    constructorSummary.parameters.map(new SummaryParameter(_))
+  override val parameters: ArraySeq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 }
 
 class SummaryDeclaration(path: PathLike,
@@ -280,15 +278,20 @@ class SummaryDeclaration(path: PathLike,
   override val typeName: TypeName = typeSummary.typeName
   override val nature: Nature = Nature.forType(typeSummary.nature)
   override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
+  override val inTest: Boolean = typeSummary.inTest
 
   override val superClass: Option[TypeName] = typeSummary.superClass
   override val interfaces: ArraySeq[TypeName] = typeSummary.interfaces
   override val nestedTypes: ArraySeq[SummaryDeclaration] =
-    typeSummary.nestedTypes.map(nt => new SummaryDeclaration(path, module, Some(typeId.typeName.intern), nt))
-  override val blocks: ArraySeq[SummaryBlock] = typeSummary.blocks.map(new SummaryBlock(module, path, _))
-  override val localFields: ArraySeq[SummaryField] = typeSummary.fields.map(new SummaryField(module, path, typeId, _))
-  override val constructors: ArraySeq[SummaryConstructor] = typeSummary.constructors.map(new SummaryConstructor(module, path, _))
-  override val localMethods: ArraySeq[SummaryMethod] = typeSummary.methods.map(new SummaryMethod(module, path, typeId, _))
+    typeSummary.nestedTypes.map(new SummaryDeclaration(path, module, Some(typeId.typeName.intern), _))
+  override val blocks: ArraySeq[SummaryBlock] =
+    typeSummary.blocks.map(new SummaryBlock(module, path, inTest, _))
+  override val localFields: ArraySeq[SummaryField] =
+    typeSummary.fields.map(new SummaryField(module, path, typeId, inTest, _))
+  override val constructors: ArraySeq[SummaryConstructor] =
+    typeSummary.constructors.map(new SummaryConstructor(module, path, inTest, _))
+  override val localMethods: ArraySeq[SummaryMethod] =
+    typeSummary.methods.map(new SummaryMethod(module, path, typeId, inTest, _))
 
   override def summary: TypeSummary = {
     TypeSummary(sourceHash,
@@ -298,6 +301,7 @@ class SummaryDeclaration(path: PathLike,
       typeName,
       nature.value,
       modifiers.map(_.toString).sorted,
+      inTest,
       superClass,
       interfaces,
       blocks.map(_.summary),
@@ -319,18 +323,6 @@ class SummaryDeclaration(path: PathLike,
     propagateOuterDependencies(new TypeCache())
   }
 
-  override def propagateAllDependencies(): Unit = {
-    propagateDependencies()
-  }
-
-  private def propagateInnerDependencies(): Unit = {
-    blocks.foreach(_.propagateDependencies())
-    localFields.foreach(_.propagateDependencies())
-    constructors.foreach(_.propagateDependencies())
-    localMethods.foreach(_.propagateDependencies())
-    nestedTypes.foreach(_.propagateDependencies())
-  }
-
   def hasValidDependencies(typeCache: TypeCache): Boolean =
     areTypeDependenciesValid(typeCache) &&
       blocks.forall(b => b.areTypeDependenciesValid(typeCache)) &&
@@ -339,11 +331,14 @@ class SummaryDeclaration(path: PathLike,
       localMethods.forall(m => m.areTypeDependenciesValid(typeCache)) &&
       nestedTypes.collect { case x: SummaryDeclaration => x }.forall(_.hasValidDependencies(typeCache))
 
-  override def propagateDependencies(): Unit = propagated
-  private lazy val propagated: Boolean = {
+  override def propagateDependencies(): Unit = {
     super.propagateDependencies()
-    propagateInnerDependencies()
-    true
+
+    blocks.foreach(_.propagateDependencies())
+    localFields.foreach(_.propagateDependencies())
+    constructors.foreach(_.propagateDependencies())
+    localMethods.foreach(_.propagateDependencies())
+    nestedTypes.foreach(_.propagateDependencies())
   }
 
   override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],

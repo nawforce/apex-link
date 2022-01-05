@@ -60,6 +60,15 @@ final class SkinnyWeakSet[T <: AnyRef] {
     }
   }
 
+  def toIterator: Iterator[T] = {
+    if (setOf != null)
+      setOf.keys.iterator
+    else if (arrayOf != null)
+      arrayOf.filter(_.get != null).map(_.get).iterator
+    else
+      Iterator.empty
+  }
+
   def toSet: Set[T] = {
     if (setOf != null)
       setOf.keys.toSet

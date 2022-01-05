@@ -33,7 +33,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         assert(org.flush())
 
         assert(pkg.getTypeOfPath(path.toString) == null)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -45,16 +45,15 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
 
           val path = root.join("pkg/Bar.cls")
           path.delete()
           pkg.refresh(path)
           assert(org.flush())
 
-          assert(
-            org.issues.getMessages(Path("/pkg/Foo.cls"))
-              == "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
+          assert(getMessages(Path("/pkg/Foo.cls")) ==
+            "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
       }
     }
   }
@@ -73,7 +72,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
 
           val fooTypeId = pkg.getTypeOfPath(root.join("pkg/Foo.trigger").toString)
           assert(pkg.getPathsOfType(fooTypeId).isEmpty)
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
       }
     }
   }
@@ -85,15 +84,14 @@ class DeleteTest extends AnyFunSuite with TestHelper {
             "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("pkg/Bar.cls")
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(
-          org.issues.getMessages(Path("/pkg/Foo.trigger"))
-            == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
+        assert(getMessages(Path("/pkg/Foo.trigger"))
+          == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
       }
     }
   }
@@ -112,7 +110,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
             |""".stripMargin)) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("CustomLabels.labels")
         path.delete()
@@ -148,7 +146,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         )) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("CustomLabels.labels")
         path.delete()
@@ -167,7 +165,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.flow-meta.xml" -> "")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("Test.flow-meta.xml")
         path.delete()
@@ -184,7 +182,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
 
           val path = root.join("Test.flow-meta.xml")
           path.delete()
@@ -201,7 +199,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("TestPage.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("TestPage.page")
         path.delete()
@@ -217,7 +215,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.page" -> "<apex:page/>", "Test2.page" -> "<apex:page/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("Test.page")
         path.delete()
@@ -233,7 +231,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
       FileSystemHelper.run(Map("Test.component" -> "<apex:component/>")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val path = root.join("Test.component")
         path.delete()
@@ -254,7 +252,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         root: PathLike =>
           val org = createOrg(root)
           val pkg = org.unmanaged
-          assert(!org.issues.hasErrorsOrWarnings)
+          assert(org.issues.isEmpty)
 
           val path = root.join("Test.component")
           path.delete()
@@ -277,7 +275,7 @@ class DeleteTest extends AnyFunSuite with TestHelper {
             "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         removeAndRefresh(pkg, root.join("Foo__c.object"))
         assert(org.flush())

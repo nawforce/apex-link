@@ -24,7 +24,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
   test("Empty labels file") {
     FileSystemHelper.run(Map("CustomLabels.labels" -> "")) { root: PathLike =>
       val org = createOrg(root)
-      assert(org.issues.getMessages(root.join("CustomLabels.labels")).nonEmpty)
+      assert(getMessages(root.join("CustomLabels.labels")).nonEmpty)
       assert(org.unmanaged.getTypeOfPathInternal(root.join("CustomLabels.labels")).isEmpty)
     }
   }
@@ -34,7 +34,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
       Map("CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
 
         val typeId =
           org.unmanaged.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
@@ -51,7 +51,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           "CustomLabels2.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
       )) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
 
       val typeId1 =
         org.unmanaged.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
@@ -86,7 +86,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
 
       val labelsTypeId =
         org.unmanaged.getTypeOfPathInternal(root.join("CustomLabels.labels")).get.asTypeIdentifier
@@ -121,7 +121,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "Dummy.cls" -> "public class Dummy { {String a = laBel.TeStLaBel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 
@@ -142,9 +142,8 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n")
     }
   }
 
@@ -165,9 +164,8 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
+      assert(getMessages(Path("/Dummy.cls")) ==
+        "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n")
     }
   }
 
@@ -194,7 +192,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.pkg1.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
 
@@ -247,9 +245,8 @@ class LabelTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
-      assert(
-        org.issues.getMessages(Path("/pkg2/Dummy.cls")) ==
-          "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
+      assert(getMessages(Path("/pkg2/Dummy.cls")) ==
+        "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n")
 
       val labels1TypeId = pkg1
         .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
@@ -297,7 +294,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
             |""".stripMargin,
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = label.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
 
       val labelsTypeId = org.unmanaged
         .getTypeOfPathInternal(root.join("pkg1").join("CustomLabels.labels"))
@@ -335,7 +332,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "Dummy.cls" -> "public class Dummy { {String a = System.Label.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 
@@ -362,7 +359,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
     }
   }
 
@@ -393,7 +390,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
       )) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
 
@@ -458,7 +455,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
 
@@ -531,7 +528,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
           |""".stripMargin,
         "pkg2/Dummy.cls" -> "public class Dummy { {String a = System.label.pkg1.TestLabel2;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
 

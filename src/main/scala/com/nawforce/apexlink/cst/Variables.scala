@@ -14,12 +14,12 @@
 
 package com.nawforce.apexlink.cst
 
+import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexparser.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.TypeName
 import com.nawforce.runtime.parsers.CodeParser
-import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 
 final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Expression])
     extends CST {
@@ -32,16 +32,10 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
     init.foreach(e => {
       val rhsCtx = e.verify(input, exprContext)
       lhsType.foreach(lhsType => {
-        if (rhsCtx.isDefined && !isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, context)) {
-          context.log(
-            new Issue(
-              location.path,
-              new Diagnostic(
-                ERROR_CATEGORY,
-                location.location,
-                s"Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'"
-              )
-            )
+        if (rhsCtx.isDefined && !isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, strict = false, context)) {
+          context.log(Issue(location.path, ERROR_CATEGORY, location.location,
+            s"Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'"
+          )
           )
         }
       })

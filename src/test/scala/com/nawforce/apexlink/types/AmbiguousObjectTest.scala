@@ -24,7 +24,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectField a = BusinessHours.FridayEndTime;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
             unmanagedSObject("BusinessHours").get))
@@ -37,7 +37,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {SObjectField a = Site.AnalyticsTrackingCode;} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(
           unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
             unmanagedSObject("Site").get))
@@ -50,7 +50,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {Datetime a = BusinessHours.add(null, null, null);} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
@@ -60,7 +60,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {Id a = Site.getSiteId();} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
@@ -71,7 +71,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
         "public class Dummy { {Double a = Location.getDistance(null, null, null);} }")) {
       root: PathLike =>
         val org = createOrg(root)
-        assert(!org.issues.hasErrorsOrWarnings)
+        assert(org.issues.isEmpty)
         assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
@@ -81,7 +81,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {Boolean a = Approval.isLocked((Id)null);} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
@@ -91,7 +91,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {SObjectType a = BusinessHours.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
           unmanagedSObject("BusinessHours").get))
@@ -103,7 +103,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {SObjectType a = Site.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
           unmanagedSObject("Site").get))
@@ -115,9 +115,8 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {SObjectType a = Location.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(root.join("Dummy.cls")) ==
-          "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Location'\n")
+      assert(getMessages(root.join("Dummy.cls")) ==
+        "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Location'\n")
     }
   }
 
@@ -126,9 +125,8 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {SObjectType a = Approval.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(root.join("Dummy.cls")) ==
-          "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Approval'\n")
+      assert(getMessages(root.join("Dummy.cls")) ==
+        "Missing: line 1 at 38-58: Unknown field or type 'SObjectType' on 'System.Approval'\n")
     }
   }
 
@@ -137,9 +135,8 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {SObjectType a = Address.SObjectType;} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(
-        org.issues.getMessages(root.join("Dummy.cls")) ==
-          "Missing: line 1 at 38-57: Unknown field or type 'SObjectType' on 'System.Address'\n")
+      assert(getMessages(root.join("Dummy.cls")) ==
+        "Missing: line 1 at 38-57: Unknown field or type 'SObjectType' on 'System.Address'\n")
     }
   }
 
@@ -148,7 +145,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {BusinessHours a; System.debug(a.Id);} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
           unmanagedSObject("BusinessHours").get))
@@ -160,7 +157,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {Site a; System.debug(a.Id);} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(
         unmanagedClass("Dummy").get.blocks.head.dependencies().toSet == Set(
           unmanagedSObject("Site").get))
@@ -172,7 +169,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {Location a; System.debug(a.getLatitude());} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }
@@ -182,7 +179,7 @@ class AmbiguousObjectTest extends AnyFunSuite with TestHelper {
       Map("Dummy.cls" ->
         "public class Dummy { {Address a; System.debug(a.getCity());} }")) { root: PathLike =>
       val org = createOrg(root)
-      assert(!org.issues.hasErrorsOrWarnings)
+      assert(org.issues.isEmpty)
       assert(unmanagedClass("Dummy").get.blocks.head.dependencies().isEmpty)
     }
   }

@@ -14,15 +14,15 @@
 
 package com.nawforce.apexlink.org
 
-import com.nawforce.apexlink.api.{FileIssueOptions, IssueOptions, Org, Package, ServerOps, TypeSummary}
-import com.nawforce.apexlink.cst.UnusedLog
+import com.nawforce.apexlink.api.{Org, Package, ServerOps, TypeSummary}
 import com.nawforce.apexlink.deps.{DownWalker, TransitiveCollector}
+import com.nawforce.apexlink.plugins.PluginsManager
 import com.nawforce.apexlink.rpc._
 import com.nawforce.apexlink.types.apex.ApexDeclaration
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER, TEST_SETUP_ANNOTATION}
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
 import com.nawforce.pkgforce.path.PathLocation
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
@@ -47,7 +47,10 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
 
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
     * for which there is no natural type representation. */
-  private[nawforce] val issues = new IssueLog
+  private[nawforce] val issueManager = new IssuesManager
+
+  /** Manager for post validation plugins */
+  private[nawforce] val pluginsManager = new PluginsManager
 
   /** Parsed Apex data cache, the cache holds summary information about Apex types to speed startup */
   private[nawforce] val parsedCache =
@@ -86,7 +89,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
         val dependents = packageAndDependent._2
         dependents.foldLeft(acc)((acc, layer) => {
           val issuesAndIndex = workspace.indexes(layer)
-          issuesAndIndex.issues.foreach(issues.add)
+          issuesAndIndex.issues.foreach(issueManager.add)
           val module = new Module(pkg, issuesAndIndex.value, dependents.flatMap(acc.get))
           pkg.add(module)
           acc + (layer -> module)
@@ -120,6 +123,9 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   /** Get all loaded packages. */
   def getPackages(): Array[Package] = packages.toArray[Package]
 
+  /** Provide access to IssueManager for org */
+  override def issues: IssuesManager = issueManager
+
   /** Check to see if cache has been flushed */
   override def isDirty(): Boolean = flusher.isDirty
 
@@ -136,65 +142,8 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
     flusher.queue(request)
   }
 
-  /** CHeck for errors in the log. */
-  override def hasErrors(): Boolean = issues.hasErrors
-
-  /** Collect all issues into a String log */
-  override def getIssues(options: IssueOptions): String = {
-    OrgImpl.current.withValue(this) {
-      reportableIssues(options).asString(options.includeWarnings,
-                                         options.includeZombies,
-                                         options.maxErrorsPerFile,
-                                         options.format)
-    }
-  }
-
-  /** Collect file specific issues */
-  def getFileIssues(fileName: String, options: FileIssueOptions): Array[Issue] = {
-    val path = Path(fileName)
-    OrgImpl.current.withValue(this) {
-      val fileIssues = new IssueLog()
-      fileIssues.push(path, issues.getIssues.getOrElse(path, Nil))
-
-      if (options.includeZombies) {
-        propagateAllDependencies()
-        packagesByNamespace.values.foreach(pkg => {
-          pkg
-            .getTypeOfPathInternal(path)
-            .flatMap(typeId => typeId.module.findModuleType(typeId.typeName))
-            .foreach(typeDecl => fileIssues.merge(new UnusedLog(Iterable(typeDecl))))
-        })
-      }
-      fileIssues.getIssues.getOrElse(path, Nil).toArray
-    }
-  }
-
-  def reportableIssues(options: IssueOptions): IssueLog = {
-    if (options.includeZombies) {
-      propagateAllDependencies()
-      val allIssues = IssueLog(issues)
-      packages
-        .filterNot(_.isGhosted)
-        .foreach(pkg => {
-          pkg.orderedModules.foreach(module => {
-            allIssues.merge(module.reportUnused())
-          })
-        })
-      allIssues
-    } else {
-      issues
-    }
-  }
-
   def getPackageForPath(path: String): Package = {
     packages.find(_.isPackagePath(path)).orNull
-  }
-
-  private def propagateAllDependencies(): Unit = {
-    // This is lazy evaluated in classes so safe to call again
-    packages.foreach(pkg => {
-      pkg.propagateAllDependencies()
-    })
   }
 
   /** Get a array of type identifiers available across all packages. */
@@ -295,13 +244,11 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
-    propagateAllDependencies()
-
     val maxBombs = Math.max(0, count)
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.nonTestClasses.toSeq))
     val bombs = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
     allClasses.foreach(cls => {
-      if (!cls.isTest) {
+      if (!cls.inTest) {
         val score = cls.bombScore(allClasses.size)
         if (score._3 > 0)
           bombs.enqueue(BombScore(cls.typeId.asTypeIdentifier, score._2, score._1, score._3))
@@ -314,8 +261,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
-    propagateAllDependencies()
-
     def findPackageIdentifierAndSummary(path: String): Option[(Package, TypeIdentifier, TypeSummary)] = {
       packages.view
         .flatMap(pkg => {
@@ -397,7 +342,6 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
   }
 
   def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {
-    propagateAllDependencies()
 
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
@@ -420,7 +364,7 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
       }
   }
 
-  def getAllTestMethods(): Array[TestMethod] = {
+  def getAllTestMethods: Array[TestMethod] = {
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.testClasses.toSeq))
 
     allClasses.flatMap(c => c.methods
@@ -447,7 +391,7 @@ object OrgImpl {
   /** Log an issue against the in-scope org */
   private[nawforce] def log(issue: Issue): Unit = {
     if (issue.path != null)
-      OrgImpl.current.value.issues.add(issue)
+      OrgImpl.current.value.issueManager.add(issue)
   }
 
   /** Log a general error against the in-scope org */

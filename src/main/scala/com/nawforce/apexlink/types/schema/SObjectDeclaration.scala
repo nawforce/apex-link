@@ -87,6 +87,7 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
     with Dependent {
 
   override def location: PathLocation = sources.headOption.map(_.location).orNull
+  override val inTest: Boolean = false
   override val moduleDeclaration: Option[Module] = Some(module)
   override lazy val isComplete: Boolean = _isComplete
 
@@ -149,16 +150,16 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
   override def findMethod(name: Name,
                           params: ArraySeq[TypeName],
                           staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Option[MethodDeclaration] = {
+                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
     if (staticContext.contains(true)) {
       val customMethods = sobjectNature match {
         case HierarchyCustomSettingsNature => hierarchyCustomSettingsMethods
-        case ListCustomSettingNature       => listCustomSettingsMethods
-        case _                             => SObjectDeclaration.sObjectMethodMap
+        case ListCustomSettingNature => listCustomSettingsMethods
+        case _ => SObjectDeclaration.sObjectMethodMap
       }
       val customMethod = customMethods.get((name, params.length))
       if (customMethod.nonEmpty)
-        return customMethod
+        return Right(customMethod.get)
     }
     defaultFindMethod(name, params, staticContext, verifyContext)
   }

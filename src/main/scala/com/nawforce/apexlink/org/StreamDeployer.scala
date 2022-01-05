@@ -58,6 +58,10 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       pages.validate()
     }
 
+    // Run plugins over loaded types DependentTypes
+    // This has to be done post loading to allow dependencies to be established
+    module.pkg.org.pluginsManager.closePlugins()
+
     // Report progress and tidy up
     if (types.size > basicTypesSize) {
       val total = (java.lang.System.currentTimeMillis() - start).toDouble
@@ -172,8 +176,9 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     classes
       .filterNot(rejected.contains)
       .foreach(cls => {
-        // Re-establish outer dependencies, others are deferred until we need unused analysis
+        // Re-establish dependencies
         cls.declaration.propagateOuterDependencies(typeCache)
+        cls.declaration.propagateDependencies()
 
         // Report any (existing) diagnostics
         val path = cls.declaration.location.path
