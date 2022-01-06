@@ -36,7 +36,8 @@ import com.nawforce.runtime.platform.Path
 class ForceIgnore(rootPath: PathLike, ignoreRules: Seq[IgnoreRule]) {
   private val rootPathPrefix = {
     val path = rootPath.toString
-    if (path.endsWith(Path.separator)) path else path + Path.separator
+    // Separator for end of path needs to be unix format because it is being compared to paths in the forceignore which will have unix separator.
+    if (path.endsWith("/")) path else path + "/"
   }
   private val rootPathPrefixLength = rootPathPrefix.length
 
