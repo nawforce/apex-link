@@ -40,6 +40,24 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Unused global method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "global class Dummy {global void foo() {}}",
+        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Unused @AuraEnabled method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {@AuraEnabled public void foo() {}}",
+        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
   test("Nested unused method") {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {public class Inner {public void foo() {}} }",
@@ -48,6 +66,24 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(
         orgIssuesFor(org, root.join("Dummy.cls")) ==
           "Unused: line 1 at 52-55: Unused method 'void foo()'\n")
+    }
+  }
+
+  test("Nested global unused method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "global class Dummy {global class Inner {global void foo() {}} }",
+        "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Nested @AuraEnabled method") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public class Inner {public @AuraEnabled void foo() {}} }",
+        "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
     }
   }
 
@@ -79,6 +115,22 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Unused global field") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "global class Dummy {global Object a;}",
+      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Unused @AuraEnabled field") {
+    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {@AuraEnabled Object a;}",
+      "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
   test("Nested unused field") {
     FileSystemHelper.run(
       Map("Dummy.cls" -> "public class Dummy {public class Inner {Object a;} }",
@@ -87,6 +139,25 @@ class UnusedTest extends AnyFunSuite with TestHelper {
       assert(
         orgIssuesFor(org, root.join("Dummy.cls")) ==
           "Unused: line 1 at 47-48: Unused field 'a'\n")
+    }
+  }
+
+  test("Nested global unused field") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "global class Dummy {global class Inner {global Object a;} }",
+        "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(
+        orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Nested @AuraEnabled unused field") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public class Inner {public @AuraEnabled Object a;} }",
+        "Foo.cls" -> "public class Foo{ {Type t1 = Dummy.class; Type t2 = Dummy.Inner.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
     }
   }
 

@@ -150,10 +150,14 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
 object UnusedPlugin {
   val onlyTestCodeReferenceText = "only referenced by test code, make @TestVisible to suppress warning"
-  val excludedClassModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
-  val excludedMethodModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
-  val excludedTestMethodModifiers: Set[Modifier] = Set(ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION, TEST_METHOD_MODIFIER,
-    SUPPRESS_WARNINGS_ANNOTATION)
-  val excludedFieldModifiers: Set[Modifier] = Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
-  val excludedTestFieldModifiers: Set[Modifier] = Set(SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedClassModifiers: Set[Modifier] =
+    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedMethodModifiers: Set[Modifier] =
+    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, AURA_ENABLED_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedTestMethodModifiers: Set[Modifier] =
+    Set(ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION, TEST_METHOD_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedFieldModifiers: Set[Modifier] =
+    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, AURA_ENABLED_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION)
+  val excludedTestFieldModifiers: Set[Modifier] =
+    Set(SUPPRESS_WARNINGS_ANNOTATION)
 }
