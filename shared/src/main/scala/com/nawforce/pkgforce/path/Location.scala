@@ -87,18 +87,24 @@ trait UnsafeLocatable extends Locatable {
   */
 class Positionable extends UnsafeLocatable {
   private var locationPath: PathLike = _
-  private var startLine: Int         = _
-  private var startOffset: Int       = _
-  private var endLine: Int           = _
-  private var endOffset: Int         = _
+  private var startLine: Int = _
+  private var startOffset: Int = _
+  private var endLine: Int = _
+  private var endOffset: Int = _
+
+  def withLocation(location: PathLocation): this.type = {
+    val l = location.location
+    setLocation(location.path, l.startLine, l.startPosition, l.endLine, l.endPosition)
+    this
+  }
 
   def setLocation(
-    path: PathLike,
-    startLine: Int,
-    startOffset: Int,
-    endLine: Int,
-    endOffset: Int
-  ): Unit = {
+                   path: PathLike,
+                   startLine: Int,
+                   startOffset: Int,
+                   endLine: Int,
+                   endOffset: Int
+                 ): Unit = {
     this.locationPath = path
     this.startLine = startLine
     this.startOffset = startOffset
