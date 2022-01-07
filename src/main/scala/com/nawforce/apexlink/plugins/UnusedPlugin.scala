@@ -133,6 +133,7 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
     /** Is the method in use, NOTE: requires a MethodMap is constructed for shadow support first! */
     def isUsed(module: Module, inTest: Boolean): Boolean = {
+      method.isSynthetic ||
       (if (inTest)
         method.hasHolders || method.modifiers.exists(excludedTestMethodModifiers.contains)
       else

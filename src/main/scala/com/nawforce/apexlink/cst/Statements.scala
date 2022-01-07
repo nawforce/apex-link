@@ -40,6 +40,10 @@ final case class EagerBlock(statements: Seq[Statement]) extends Block {
   }
 }
 
+object EagerBlock {
+  val empty = new EagerBlock(Seq())
+}
+
 // Lazy block, will re-parse when needed
 final case class LazyBlock(source: Source, var blockContextRef: WeakReference[BlockContext], isTrigger: Boolean)
     extends Block {

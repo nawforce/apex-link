@@ -232,11 +232,11 @@ object ApexInitializerBlock {
   }
 }
 
-final class ApexMethodDeclaration(thisType: ThisType,
+class ApexMethodDeclaration(thisType: ThisType,
                                   _modifiers: ModifierResults,
                                   returnTypeName: RelativeTypeName,
                                   id: Id,
-                                  override val parameters: ArraySeq[ParameterDeclaration],
+                                  override val parameters: ArraySeq[FormalParameter],
                                   val block: Option[Block])
   extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
@@ -252,8 +252,8 @@ final class ApexMethodDeclaration(thisType: ThisType,
   override lazy val signature: String = super[ApexMethodLike].signature
   override val inTest: Boolean = thisType.inTest
 
-  /* All parameters are FormalParameters but we need to bypass Array being invariant */
-  def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }
+  // If using a fake block then consider synthetic, we need to use a block to avoid confusion with abstract
+  override def isSynthetic: Boolean = block.contains(EagerBlock.empty)
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
 
@@ -267,10 +267,10 @@ final class ApexMethodDeclaration(thisType: ThisType,
     }
 
     returnTypeName.dependOn(id.location, context)
-    formalParameters.foreach(_.verify(context))
+    parameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, modifiers.contains(STATIC_MODIFIER))
-    formalParameters.foreach(param => param.addVar(blockContext))
+    parameters.foreach(param => param.addVar(blockContext))
     block.foreach(block => {
       block.verify(blockContext)
     })
@@ -383,7 +383,7 @@ object ApexFieldDeclaration {
 
 final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
                                             qualifiedName: QualifiedName,
-                                            parameters: ArraySeq[ParameterDeclaration],
+                                            parameters: ArraySeq[FormalParameter],
                                             _inTest: Boolean,
                                             block: Block)
   extends ClassBodyDeclaration(_modifiers)
@@ -396,14 +396,11 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
   override val nature: Nature = CONSTRUCTOR_NATURE
   override val inTest: Boolean = _inTest
 
-  /* All parameters are FormalParameters but we need to bypass Array being invariant */
-  def formalParameters: ArraySeq[FormalParameter] = parameters.collect { case p: FormalParameter => p }
-
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
-    formalParameters.foreach(_.verify(context))
+    parameters.foreach(_.verify(context))
 
     val blockContext = new OuterBlockVerifyContext(context, isStaticContext = false)
-    formalParameters.foreach(param => blockContext.addVar(param.name, param.id, param.typeName))
+    parameters.foreach(param => blockContext.addVar(param.name, param.id, param.typeName))
     block.verify(blockContext)
     context.typePlugin.onBlockValidated(block, isStatic = false, blockContext)
 
@@ -460,7 +457,7 @@ object FormalParameter {
                  parser: CodeParser,
                  typeContext: RelativeTypeContext,
                  items: ArraySeq[FormalParameterContext]
-               ): ArraySeq[ParameterDeclaration] = {
+               ): ArraySeq[FormalParameter] = {
     items.map(x => FormalParameter.construct(parser, typeContext, x))
   }
 
@@ -482,13 +479,13 @@ object FormalParameter {
 }
 
 object FormalParameterList {
-  val noParams: ArraySeq[ParameterDeclaration] = ArraySeq()
+  val noParams: ArraySeq[FormalParameter] = ArraySeq()
 
   def construct(
                  parser: CodeParser,
                  typeContext: RelativeTypeContext,
                  from: FormalParameterListContext
-               ): ArraySeq[ParameterDeclaration] = {
+               ): ArraySeq[FormalParameter] = {
     if (from.formalParameter() != null) {
       FormalParameter.construct(
         parser,
@@ -502,15 +499,15 @@ object FormalParameterList {
 }
 
 object FormalParameters {
-  val noParams: ArraySeq[ParameterDeclaration] = ArraySeq()
+  val empty: ArraySeq[FormalParameter] = ArraySeq()
 
   def construct(parser: CodeParser,
                 typeContext: RelativeTypeContext,
-                from: FormalParametersContext): ArraySeq[ParameterDeclaration] = {
+                from: FormalParametersContext): ArraySeq[FormalParameter] = {
     Option(from).map(from => {
       CodeParser.toScala(from.formalParameterList())
         .map(x => FormalParameterList.construct(parser, typeContext, x))
-        .getOrElse(noParams)
-    }).getOrElse(noParams)
+        .getOrElse(empty)
+    }).getOrElse(empty)
   }
 }
