@@ -174,7 +174,7 @@ final case class MethodMap(
 }
 
 object MethodMap {
-  type WorkingMap = mutable.HashMap[(Name, Int), Array[MethodDeclaration]]
+  type WorkingMap = mutable.HashMap[(Name, Int), List[MethodDeclaration]]
 
   private val specialOverrideMethodSignatures = Set[String](
     "system.boolean equals(object)",
@@ -189,6 +189,10 @@ object MethodMap {
     new MethodMap(None, Map(), Set(), Nil)
   }
 
+  private def toMap(workingMap: WorkingMap): Map[(Name, Int), Array[MethodDeclaration]] = {
+    workingMap.map(kv => (kv._1, kv._2.toArray)).toMap
+  }
+
   /** Construct for an arbitrary type declaration, for Apex classes used the other apply function which builds
     * up a proper MethodMap. This is just for other type declarations with non-complex needs.
     */
@@ -196,9 +200,9 @@ object MethodMap {
     val workingMap = new WorkingMap()
     td.methods.foreach(method => {
       val key = (method.name, method.parameters.length)
-      workingMap.put(key, method +: workingMap.getOrElse(key, Array()))
+      workingMap.put(key, method :: workingMap.getOrElse(key, Nil))
     })
-    new MethodMap(None, workingMap.toMap, Set(), Nil)
+    new MethodMap(None, toMap(workingMap), Set(), Nil)
   }
 
   def apply(
@@ -215,7 +219,7 @@ object MethodMap {
     val testVisiblePrivate = mutable.Set[MethodDeclaration]()
     superClassMap.methodsByName.foreach(superMethodGroup => {
       val superMethods = superMethodGroup._2.filterNot(_.isStatic)
-      workingMap.put(superMethodGroup._1, superMethods)
+      workingMap.put(superMethodGroup._1, superMethods.toList)
     })
     workingMap = workingMap.filterNot(_._2.isEmpty)
 
@@ -232,17 +236,14 @@ object MethodMap {
       method => applyInstanceMethod(workingMap, method, td.inTest, td.isComplete, errors)
     )
 
-    // Now strip out none test visible inherited privates excluding when a super class is in the same file as td,
-    // in that case the private methods are visible. Yeah, this is very odd behaviour, but might be related to how
+    // Now strip out none test visible/abstract inherited privates excluding when a super class is in the same file as
+    // td, in that case the private methods are visible. Yeah, this is very odd behaviour, but might be related to how
     // Java compiles inner classes as outers.
     val sameFileSuperclassPrivateMethods = findSameFileSuperclassPrivateMethods(td)
     workingMap.foreach(keyAndMethodGroup => {
       val methods = keyAndMethodGroup._2.filterNot(method => {
-        method.visibility == PRIVATE_MODIFIER &&
-          !(method.isTestVisible || isApexLocalMethod(
-            td,
-            method
-          ) || sameFileSuperclassPrivateMethods.contains(method))
+        method.visibility == PRIVATE_MODIFIER && !method.isAbstract &&
+          !(method.isTestVisible || isApexLocalMethod(td, method) || sameFileSuperclassPrivateMethods.contains(method))
       })
       workingMap.put(keyAndMethodGroup._1, methods)
     })
@@ -275,7 +276,7 @@ object MethodMap {
     if (td.nature == CLASS_NATURE && td.moduleDeclaration.nonEmpty) {
       workingMap.put(
         (Names.Clone, 0),
-        Array(
+        List(
           CustomMethodDeclaration(
             Location.empty,
             Names.Clone,
@@ -292,9 +293,9 @@ object MethodMap {
       if (testVisiblePrivate.isEmpty) emptyMethodDeclarationsSet else testVisiblePrivate.toSet
     td match {
       case td: ApexClassDeclaration =>
-        new MethodMap(Some(td), workingMap.toMap, testVisiblePrivateSet, errors.toList)
+        new MethodMap(Some(td), toMap(workingMap), testVisiblePrivateSet, errors.toList)
       case _: TypeDeclaration =>
-        new MethodMap(None, workingMap.toMap, testVisiblePrivateSet, errors.toList)
+        new MethodMap(None, toMap(workingMap), testVisiblePrivateSet, errors.toList)
     }
   }
 
@@ -340,11 +341,11 @@ object MethodMap {
       .filterNot(_.isStatic)
       .foreach(method => {
         val key = (method.name, method.parameters.length)
-        val methods = workingMap.getOrElse(key, Array())
+        val methods = workingMap.getOrElse(key, Nil)
 
         val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
         if (matched.isEmpty) {
-          workingMap.put(key, method +: methods)
+          workingMap.put(key, method :: methods)
         } else {
           matched.get match {
             case am: ApexMethodLike => am.addShadow(method)
@@ -391,7 +392,7 @@ object MethodMap {
       .filterNot(_.isStatic)
       .foreach(method => {
         val key = (method.name, method.parameters.length)
-        val methods = workingMap.getOrElse(key, Array())
+        val methods = workingMap.getOrElse(key, Nil)
         val matched = methods.find(mapMethod => isInterfaceMethod(from, method, mapMethod))
 
         if (matched.isEmpty) {
@@ -408,7 +409,7 @@ object MethodMap {
           if (isAbstract) {
             workingMap.put(
               key,
-              method +: methods
+              method :: methods
                 .filterNot(_.hasSameSignature(method, allowPlatformGenericEquivalence = true))
             )
           } else if (!hasGhostedMethods) {
@@ -437,12 +438,12 @@ object MethodMap {
 
   private def applyStaticMethod(workingMap: WorkingMap, method: MethodDeclaration): Unit = {
     val key = (method.name, method.parameters.length)
-    val methods = workingMap.getOrElse(key, Array())
+    val methods = workingMap.getOrElse(key, Nil)
     val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
     if (matched.isEmpty)
-      workingMap.put(key, method +: methods)
+      workingMap.put(key, method :: methods)
     else if (matched.get.isStatic)
-      workingMap.put(key, method +: methods.filterNot(_ eq matched.get))
+      workingMap.put(key, method :: methods.filterNot(_ eq matched.get))
   }
 
   /** Add an instance method into the working map. The is littered with very horrible conditional logic based on
@@ -457,7 +458,7 @@ object MethodMap {
                                  ): Unit = {
     val errorCount = errors.length
     val key = (method.name, method.parameters.length)
-    val methods = workingMap.getOrElse(key, Array())
+    val methods = workingMap.getOrElse(key, Nil)
     val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
 
     if (matched.nonEmpty) {
@@ -562,8 +563,8 @@ object MethodMap {
 
     // Update workingMap with new methods, regardless of if we error on it as probably was meant to be
     matched match {
-      case None => workingMap.put(key, method +: methods)
-      case Some(matched) => workingMap.put(key, method +: methods.filterNot(_ eq matched))
+      case None => workingMap.put(key, method :: methods)
+      case Some(matched) => workingMap.put(key, method :: methods.filterNot(_ eq matched))
     }
   }
 
