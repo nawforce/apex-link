@@ -150,7 +150,7 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
 }
 
 object UnusedPlugin {
-  val onlyTestCodeReferenceText = "only referenced by test code, make @TestVisible to suppress warning"
+  val onlyTestCodeReferenceText = "only referenced by test code, remove or make private @TestVisible"
   val excludedClassModifiers: Set[Modifier] =
     Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)
   val excludedMethodModifiers: Set[Modifier] =
