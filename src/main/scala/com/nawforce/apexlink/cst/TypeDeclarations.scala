@@ -13,11 +13,10 @@
  */
 package com.nawforce.apexlink.cst
 
-import com.nawforce.apexlink.finding.RelativeTypeContext
+import com.nawforce.apexlink.finding.{RelativeTypeContext, RelativeTypeName}
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.apex.{ApexVisibleMethodLike, FullDeclaration, ThisType}
-import com.nawforce.apexlink.types.synthetic.{CustomMethodDeclaration, CustomParameterDeclaration}
+import com.nawforce.apexlink.types.apex.{FullDeclaration, ThisType}
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import com.nawforce.pkgforce.modifiers._
@@ -62,7 +61,7 @@ final case class ClassDeclaration(_source: Source, _module: Module, _typeContext
     localIssues.foreach(context.log)
 
     // This should likely be handled by method mapping, but constructors are not currently methods
-    constructors.duplicates(_.formalParameters.map(_.typeName.toString()).mkString(","))
+    constructors.duplicates(_.parameters.map(_.typeName.toString()).mkString(","))
       .foreach(duplicates => {
         duplicates._2.map(dup => {
           context.logError(dup.idPathLocation,
@@ -186,15 +185,29 @@ final case class EnumDeclaration(_source: Source, _module: Module, _typeContext:
     super.verify(new TypeVerifyContext(Some(context), this, None))
   }
 
-  override lazy val localMethods: ArraySeq[ApexVisibleMethodLike] =
+  override lazy val localMethods: ArraySeq[ApexMethodDeclaration] = {
+    val location = id.location
+
+    def fakeId(name: String): Id = Id(Name(name)).withLocation(location)
+
+    val thisType = ThisType(module, typeName, inTest)
+    val modifiers = ModifierResults(ArraySeq(PUBLIC_MODIFIER), ArraySeq())
+    val staticModifiers = ModifierResults(ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER), ArraySeq())
     ArraySeq(
-      CustomMethodDeclaration(id.location.location, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
-      CustomMethodDeclaration(id.location.location, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
-      CustomMethodDeclaration(id.location.location, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
-      CustomMethodDeclaration(id.location.location, Name("equals"), TypeNames.Boolean, ArraySeq(
-        CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(id.location.location, Name("hashCode"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters)
+      new ApexMethodDeclaration(thisType, modifiers, RelativeTypeName(typeContext, TypeNames.String),
+        fakeId("name"), FormalParameters.empty, Some(EagerBlock.empty)).withLocation(location),
+      new ApexMethodDeclaration(thisType, modifiers, RelativeTypeName(typeContext, TypeNames.Integer),
+        fakeId("ordinal"), FormalParameters.empty, Some(EagerBlock.empty)).withLocation(location),
+      new ApexMethodDeclaration(thisType, staticModifiers, RelativeTypeName(typeContext, TypeNames.listOf(typeName)),
+        fakeId("values"), FormalParameters.empty, Some(EagerBlock.empty)).withLocation(location),
+      new ApexMethodDeclaration(thisType, modifiers, RelativeTypeName(typeContext, TypeNames.Boolean),
+        fakeId("equals"),
+        ArraySeq(FormalParameter(ModifierResults.empty, RelativeTypeName(typeContext, TypeNames.InternalObject),
+          fakeId("other"))), Some(EagerBlock.empty)).withLocation(location),
+      new ApexMethodDeclaration(thisType, modifiers, RelativeTypeName(typeContext, TypeNames.Integer),
+        fakeId("hashCode"), FormalParameters.empty, Some(EagerBlock.empty)).withLocation(location),
     )
+  }
 }
 
 object EnumDeclaration {
@@ -208,7 +221,6 @@ object EnumDeclaration {
   def construct(parser: CodeParser, thisType: ThisType, outerTypeName: Option[TypeName],
                 typeModifiers: ModifierResults, enumDeclaration: EnumDeclarationContext): EnumDeclaration = {
 
-    // FUTURE: Add standard enum methods
     val id = Id.construct(enumDeclaration.id())
     val constants = CodeParser.toScala(enumDeclaration.enumConstants())
       .map(ec => CodeParser.toScala(ec.id())).getOrElse(ArraySeq())
@@ -222,7 +234,10 @@ object EnumDeclaration {
       ).withContext(constant)
     })
 
-    EnumDeclaration(parser.source, thisType.module, new RelativeTypeContext(), thisType.typeName, outerTypeName, id,
+    val typeContext = new RelativeTypeContext()
+    val td = EnumDeclaration(parser.source, thisType.module, typeContext, thisType.typeName, outerTypeName, id,
       typeModifiers, thisType.inTest, fields).withContext(enumDeclaration)
+    typeContext.freeze(td)
+    td
   }
 }
