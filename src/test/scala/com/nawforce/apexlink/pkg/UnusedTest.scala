@@ -209,6 +209,26 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Unused this call argument") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {public Dummy(Object a) {this(a, null);} public Dummy(Object a, Object b) {a = b;} }",
+        "Foo.cls" -> "public class Foo{ {Type t = Dummy.class;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(
+        orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Unused super call argument") {
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy extends Foo {public Dummy(Object a) {super(a, null);}  }",
+        "Foo.cls" -> "virtual public class Foo{ {Type t = Dummy.class;} public Foo(Object a, Object b) {a = b;} }")) { root: PathLike =>
+      val org = createOrgWithUnused(root)
+      assert(
+        orgIssuesFor(org, root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
   def assertIsFullDeclaration(pkg: PackageImpl, name: String, namespace: Option[Name] = None): Unit = {
     assert(
       pkg.orderedModules.head
@@ -308,7 +328,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
 
   test("Unused local var") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a;} }")) { root: PathLike =>
-      val org = createOrgWithUnused(root)
+      createOrgWithUnused(root)
       assert(getMessages(root.join("Dummy.cls")) ==
         "Unused: line 1 at 13-18: Unused class 'Dummy'\nUnused: line 1 at 29-30: Unused local variable 'a'\n")
     }
@@ -316,7 +336,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
 
   test("Unused local var assignment") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Object a; a=null;} }")) { root: PathLike =>
-      val org = createOrgWithUnused(root)
+      createOrgWithUnused(root)
       assert(getMessages(root.join("Dummy.cls")) ==
         "Unused: line 1 at 13-18: Unused class 'Dummy'\n"
       )
