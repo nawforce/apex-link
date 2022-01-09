@@ -617,7 +617,7 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(
       Map(
         "Dummy.cls" -> "public class Dummy {public enum A { B } {switch on a { when B {}} }}",
-        "Bar.cls"   -> "public class Bar{ {Type t = Dummy.class;} }"
+        "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }"
       )
     ) { root: PathLike =>
       val org = createOrgWithUnused(root)
@@ -625,4 +625,47 @@ class UnusedTest extends AnyFunSuite with TestHelper {
     }
   }
 
+  test("Local var not unused when bound in string literal") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy { {Object a; System.debug(':a');} }",
+      "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }"
+    )) {
+      root: PathLike =>
+        createOrgWithUnused(root)
+        assert(getMessages(root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Instance field not unused when bound in string literal") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {Object a; { System.debug(':a');} }",
+      "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }"
+    )) {
+      root: PathLike =>
+        createOrgWithUnused(root)
+        assert(getMessages(root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Static field not unused when bound in string literal") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {static Object a; { System.debug(':a');} }",
+      "Bar.cls" -> "public class Bar{ {Type t = Dummy.class;} }"
+    )) {
+      root: PathLike =>
+        createOrgWithUnused(root)
+        assert(getMessages(root.join("Dummy.cls")).isEmpty)
+    }
+  }
+
+  test("Outer static field not unused when bound in string literal") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" -> "public class Dummy {static Object a; class Foo { { System.debug(':a');} } }",
+      "Bar.cls" -> "public class Bar{ {Type t = Dummy.Foo.class;} }"
+    )) {
+      root: PathLike =>
+        createOrgWithUnused(root)
+        assert(getMessages(root.join("Dummy.cls")).isEmpty)
+    }
+  }
 }
