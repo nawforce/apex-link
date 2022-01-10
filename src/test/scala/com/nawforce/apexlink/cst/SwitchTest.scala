@@ -246,7 +246,7 @@ class SwitchTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{SObject a; switch on a {when Foo r {} }}}")
     assert(
       dummyIssues ==
-        "Missing: line 1 at 50-53: No type declaration found for 'Foo'\n")
+        "Missing: line 1 at 54-55: No type declaration found for 'Schema.Foo'\n")
   }
 
   test("SObject switch with Null") {
