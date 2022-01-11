@@ -24,7 +24,7 @@ import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.parsers.Nature
-import com.nawforce.pkgforce.path.{IdLocatable, Locatable, PathLocation}
+import com.nawforce.pkgforce.path.{IdLocatable, Locatable, Location, PathLocation}
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -111,7 +111,10 @@ trait ApexDeclaration extends DependentType with IdLocatable {
 }
 
 /** Apex defined type for parsed (aka Full) classes, interfaces, enums & triggers */
-trait ApexFullDeclaration extends ApexDeclaration
+trait ApexFullDeclaration extends ApexDeclaration {
+  def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult]
+  def findDeclarationFromSourceReference(searchTerm: String,location: Location): Option[ApexDeclaration]
+}
 
 /** Apex defined trigger of either full or summary type */
 trait ApexTriggerDeclaration extends ApexDeclaration

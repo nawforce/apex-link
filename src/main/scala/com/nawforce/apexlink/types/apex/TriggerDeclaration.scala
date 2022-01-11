@@ -16,6 +16,7 @@ package com.nawforce.apexlink.types.apex
 
 import com.nawforce.apexlink.api._
 import com.nawforce.apexlink.cst._
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.finding.TypeResolver.TypeCache
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
@@ -153,6 +154,26 @@ final case class TriggerDeclaration(source: Source,
       ArraySeq(),
       ArraySeq(),
       dependencySummary())
+  }
+  /** Locate an ApexDeclaration for the passed typeName that was extracted from location. */
+  override def findDeclarationFromSourceReference(searchTerm: String, location: Location): Option[ApexDeclaration] = {
+    TypeName(searchTerm).toOption match {
+      case Some(typeName: TypeName) =>
+        TypeResolver(typeName, this).toOption.collect {case td:ApexClassDeclaration => td}
+      case _ => None
+    }
+  }
+
+  override def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
+    val resultMap = mutable.Map[Location, ValidationResult]()
+    val typeContext = new TypeVerifyContext(None, this, Some(resultMap))
+    val context = new OuterBlockVerifyContext(typeContext, isStaticContext = false)
+    context.disableIssueReporting() {
+      block.foreach(block => {
+        block.verify(context)
+      })
+    }
+    resultMap.toMap
   }
 }
 

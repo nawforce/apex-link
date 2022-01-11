@@ -197,7 +197,7 @@ abstract class FullDeclaration(val source: Source,
   }
 
   /** Locate an ApexDeclaration for the passed typeName that was extracted from location. */
-  def findDeclarationFromSourceReference(searchTerm: String,
+  override def findDeclarationFromSourceReference(searchTerm: String,
                                          location: Location
                                         ): Option[ApexDeclaration] = {
     /** Find the outer or inner class that contains the passed cursor position */
@@ -223,7 +223,7 @@ abstract class FullDeclaration(val source: Source,
   }
 
   /** Get a validation result map for the body declaration at the specified location. */
-  def getBodyDeclarationValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
+  override def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
     try {
       getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
         // Validate the body declaration for the side-effect of being able to collect a map of expression results
