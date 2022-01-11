@@ -245,4 +245,60 @@ class DefinitionProviderTest extends AnyFunSuite with TestHelper {
             .isEmpty)
     }
   }
+
+  test("Trigger External Class") {
+    FileSystemHelper.run(
+      Map("Dummy.trigger" -> "trigger Dummy on Account(before insert) {/* Foo */}",
+        "Foo.cls" -> "public class Foo {}")
+    ) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        val path = root.join("Dummy.trigger")
+        assert(
+          org.unmanaged
+            .getDefinition(path, line = 1, offset = 46, None)
+            .contains(
+              LocationLink(Location(1, 44, 1, 47),
+                root.join("Foo.cls").toString,
+                Location(1, 0, 1, 19),
+                Location(1, 13, 1, 16))))
+    }
+  }
+
+  test("Trigger External Class Expression") {
+    FileSystemHelper.run(
+      Map("Dummy.trigger" -> "trigger Dummy on Account(before insert) {Foo f = new Foo();}",
+        "Foo.cls" -> "public class Foo {}")
+    ) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        val path = root.join("Dummy.trigger")
+        assert(
+          org.unmanaged
+            .getDefinition(path, line = 1, offset = 54, None)
+            .contains(
+              LocationLink(Location(1, 49, 1, 58),
+                root.join("Foo.cls").toString,
+                Location(1, 0, 1, 19),
+                Location(1, 13, 1, 16))))
+    }
+  }
+
+  test("Trigger with content and static field") {
+    FileSystemHelper.run(Map(
+        "Foo.cls" -> "public class Foo {static void method(Integer p) {}}")
+    ) {
+      root: PathLike =>
+        val org = createHappyOrg(root)
+        val path = root.join("Dummy.trigger")
+        assert(
+          org.unmanaged
+            .getDefinition(path, line = 1, offset = 48, Some("trigger Dummy on Account(before insert) {Foo.method(1)}"))
+            .contains(
+              LocationLink(Location(1, 45, 1, 51),
+                root.join("Foo.cls").toString,
+                Location(1, 25, 1, 50),
+                Location(1, 30, 1, 36))))
+    }
+  }
 }
