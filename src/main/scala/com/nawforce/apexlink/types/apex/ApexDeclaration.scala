@@ -58,6 +58,9 @@ trait ApexVisibleMethodLike extends MethodDeclaration {
 trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   val outerTypeId: TypeId
 
+  // Synthetic methods are generated locally & so can be excluded from issue reporting
+  def isSynthetic: Boolean = false
+
   // Populated by type MethodMap construction
   var shadows: List[MethodDeclaration] = Nil
 
@@ -122,7 +125,7 @@ trait ApexTriggerDeclaration extends ApexDeclaration
 /** Apex defined classes, interfaces, enum of either full or summary type */
 trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   val localFields: ArraySeq[ApexFieldLike]
-  val localMethods: ArraySeq[ApexVisibleMethodLike]
+  val localMethods: ArraySeq[ApexMethodLike]
 
   override def nestedTypes: ArraySeq[ApexClassDeclaration]
 

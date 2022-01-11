@@ -41,7 +41,6 @@ final case class ThisPrimary() extends Primary {
       context.logError(location, "")
     }
 
-    assert(input.declaration.nonEmpty)
     if (input.isStatic.contains(true)) {
       context.logError(location, s"'this' can not be used in a static context")
       ExprContext.empty
@@ -54,7 +53,6 @@ final case class ThisPrimary() extends Primary {
 
 final case class SuperPrimary() extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
     if (input.isStatic.contains(true)) {
       context.logError(location, s"'super' can not be used in a static context")
       ExprContext.empty
@@ -66,14 +64,13 @@ final case class SuperPrimary() extends Primary {
 
 final case class LiteralPrimary(literal: Literal) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    literal.verify(context)
     ExprContext(isStatic = Some(false), Some(literal.getType))
   }
 }
 
 final case class TypeReferencePrimary(typeName: TypeName) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
 
     // Workaround miss parsing of Foo__c.SObjectType.class as a typeRef
     val targetTypeName =
@@ -92,8 +89,6 @@ final case class TypeReferencePrimary(typeName: TypeName) extends Primary {
 
 final case class IdPrimary(id: Id) extends Primary {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
-
     isVarReference(context)
       .getOrElse(
         isFieldReference(input, context)
@@ -168,21 +163,22 @@ final case class IdPrimary(id: Id) extends Primary {
   }
 }
 
-final case class SOQL(query: QueryContext) extends Primary {
-
-  private val boundExpressions: ArraySeq[Expression] = {
-    val visitor = new BoundExprVisitor()
-    visitor.visit(query).map(ec => Expression.construct(ec))
-  }
+final case class SOQL(boundExpressions: ArraySeq[Expression]) extends Primary {
 
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
-
     boundExpressions.foreach(expr => {
       expr.verify(input, context)
     })
 
     ExprContext(isStatic = Some(false), context.module.any)
+  }
+}
+
+object SOQL {
+  def apply(query: QueryContext): SOQL = {
+    val visitor = new BoundExprVisitor()
+    val expressions = visitor.visit(query).map(ec => Expression.construct(ec))
+    SOQL(expressions)
   }
 }
 

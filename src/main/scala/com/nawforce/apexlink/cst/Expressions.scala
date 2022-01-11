@@ -350,6 +350,10 @@ final case class MethodCallWithId(target: Id, arguments: ArraySeq[Expression]) e
 
 final case class MethodCallCtor(isSuper: Boolean, arguments: ArraySeq[Expression]) extends MethodCall {
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
+
+    // Verify args so vars don't show as unused
+    arguments.map(_.verify(input, context))
+
     // TODO
     ExprContext.empty
   }

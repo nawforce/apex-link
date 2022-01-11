@@ -13,26 +13,26 @@
  */
 package com.nawforce.apexlink.types
 
-import com.nawforce.apexlink.cst.{CST, Literal}
+import com.nawforce.apexlink.cst.{BoundStringLiteral, CST, Literal}
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.runtime.parsers.{CodeParser, Source, SourceData}
 import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class LiteralTypeTest extends AnyFunSuite {
-  def typeLiteral(data: String): TypeDeclaration = {
+class LiteralTypeTest extends AnyFunSuite with Matchers {
+  def typeLiteral(data: String): Literal = {
     val source = Source(Path("Dummy.cls"), SourceData(""), 0, 0, None)
     CST.sourceContext.withValue(Some(source)) {
       val result = CodeParser(Path(""), SourceData(data)).parseLiteral()
       assert(result.issues.isEmpty)
-      Literal.construct(result.value).getType
+      Literal.construct(result.value)
     }
   }
 
   def compareLiteral(p: String, r: TypeName): Unit = {
-    val t = typeLiteral(p)
+    val t = typeLiteral(p).getType
     assert(t != null)
 
     if (t.typeName != r) {
@@ -65,5 +65,24 @@ class LiteralTypeTest extends AnyFunSuite {
     literal("0.123", TypeNames.Decimal)
     literal("0.123456789012345678901234567890123456789012345678", TypeNames.Decimal)
     literal("0.1234567890123456789012345678901234567890123456789", TypeNames.Double)
+  }
+
+  test("Bound string literal") {
+    val aSet = Set(Name("a"))
+    val abSet = Set(Name("a"), Name("b"))
+    val abcSet = Set(Name("a"), Name("b"), Name("c"))
+    val abJoinedSet = Set(Name("ab"))
+    val mixedSet = Set(Name("1a2b3"))
+    typeLiteral("':a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("' :a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("': a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("':a '") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("'  :  a  '") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("':ab'") should matchPattern { case BoundStringLiteral(bound) if bound == abJoinedSet => }
+    typeLiteral("':a b'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("'b:a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
+    typeLiteral("':1a2b3'") should matchPattern { case BoundStringLiteral(bound) if bound == mixedSet => }
+    typeLiteral("':a:b'") should matchPattern { case BoundStringLiteral(bound) if bound == abSet => }
+    typeLiteral("':a :b :c'") should matchPattern { case BoundStringLiteral(bound) if bound == abcSet => }
   }
 }
