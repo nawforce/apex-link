@@ -17,7 +17,7 @@ package com.nawforce.apexlink.org
 import com.nawforce.apexlink.cst.CompilationUnit
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names._
-import com.nawforce.apexlink.types.apex.FullDeclaration
+import com.nawforce.apexlink.types.apex.{FullDeclaration, TriggerDeclaration}
 import com.nawforce.apexlink.types.platform.PlatformTypeDeclaration
 import com.nawforce.apexparser.ApexParser
 import com.nawforce.pkgforce.diagnostics.LoggerOps
@@ -114,7 +114,6 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     * the class so that it can be inspected. */
   protected def loadClass(path: PathLike, source: String)
   : (Option[(ApexParser, ApexParser.CompilationUnitContext)], Option[FullDeclaration]) = {
-
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
         getPackageModule(path).map(module => {
@@ -124,6 +123,29 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
           try {
             (Some(result.value),
               CompilationUnit.construct(parser, module, doc.name, result.value._2).map(_.typeDeclaration))
+          } catch {
+            case ex: Throwable =>
+              LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+              (None, None)
+          } finally {
+            org.issueManager.push(path, existingIssues)
+          }
+        }).getOrElse((None, None))
+      case _ => (None, None)
+    }
+  }
+
+  protected def loadTrigger(path: PathLike, source: String)
+  : (Option[(ApexParser, ApexParser.TriggerUnitContext)], Option[TriggerDeclaration]) = {
+    MetadataDocument(path) match {
+      case Some(doc: ApexTriggerDocument) =>
+        getPackageModule(path).map(module => {
+          val existingIssues = org.issueManager.pop(path)
+          val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
+          val result = parser.parseTriggerReturningParser()
+          try {
+            (Some(result.value),
+              TriggerDeclaration.construct(parser, module, result.value._2))
           } catch {
             case ex: Throwable =>
               LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
