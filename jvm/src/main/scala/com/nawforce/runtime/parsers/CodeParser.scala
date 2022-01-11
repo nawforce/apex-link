@@ -39,6 +39,10 @@ class CodeParser(val source: Source) {
     parseReturningParser(parser => parser.compilationUnit())
   }
 
+  def parseTriggerReturningParser(): IssuesAnd[(ApexParser, ApexParser.TriggerUnitContext)] = {
+    parseReturningParser(parser => parser.triggerUnit())
+  }
+
   def parseTrigger(): IssuesAnd[ApexParser.TriggerUnitContext] = {
     parse(parser => parser.triggerUnit())
   }
