@@ -380,6 +380,7 @@ object PlatformTypeDeclaration {
     ArraySeq(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
       CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
+      CustomMethodDeclaration(Location.empty, Name("valueOf"), typeName, ArraySeq(CustomParameterDeclaration(Name("name"), TypeNames.String)), asStatic = true),
       CustomMethodDeclaration(Location.empty,
         Name("equals"),
         TypeNames.Boolean,
