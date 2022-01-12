@@ -48,7 +48,7 @@ trait CompletionProvider {
     lazy val validationResult: Option[ValidationResult] = {
       if (classDetails._2.nonEmpty && searchTerm.nonEmpty) {
         val searchEnd = searchTerm.get.location.endPosition
-        val resultMap = classDetails._2.get.getBodyDeclarationValidationMap(line, searchEnd)
+        val resultMap = classDetails._2.get.getValidationMap(line, searchEnd)
         val exprLocations = resultMap.keys.filter(_.contains(line, searchEnd))
         val targetExpression = exprLocations.find(exprLocation => exprLocations.forall(_.contains(exprLocation)))
         targetExpression.map(targetExpression => resultMap(targetExpression))
