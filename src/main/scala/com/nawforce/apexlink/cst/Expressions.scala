@@ -15,9 +15,11 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.diagnostics.IssueOps
+import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.{Module, OrgImpl}
+import com.nawforce.apexlink.types.apex.ApexClassDeclaration
 import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.other.AnyDeclaration
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
@@ -99,8 +101,10 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   override def verify(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
     assert(input.declaration.nonEmpty)
 
-    // Handle possible leading namespace
+    // When we have a leading IdPrimary there are a couple of special cases to handle, we could with a better
+    // understanding of how these are handled, likely it via some parser hack
     val intercept = getInterceptPrimary(input, context).flatMap(primary => {
+      // It might be a namespace
       if (isNamespace(primary.id.name, input.declaration.get)) {
         val typeName = TypeName(target.name, Nil, Some(TypeName(primary.id.name))).intern
         val td = context.getTypeAndAddDependency(typeName, context.thisType).toOption
@@ -109,7 +113,19 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
             ExprContext(isStatic = Some(true), Some(td), td)
           })
       } else {
-        None
+        // It might be a static reference to an outer class that failed normal analysis due to class name shadowing
+        // This occurs where say A has an inner of B and in C with an inner of A we reference 'A.B' which is valid.
+        TypeResolver(TypeName(primary.id.name), context.module).toOption match {
+          case Some(td: ApexClassDeclaration) =>
+            val result = verifyWithId(ExprContext(isStatic = Some(true), td), context)
+            if (result.isDefined) {
+              context.addDependency(td)
+              Some(result)
+            } else {
+              None
+            }
+          case _ => None
+        }
       }
     })
     intercept.map(result => context.saveResult(this)(result))
@@ -119,17 +135,11 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   private def getInterceptPrimary(input: ExprContext, context: ExpressionVerifyContext): Option[IdPrimary] = {
     expression match {
       case PrimaryExpression(primary: IdPrimary) if !safeNavigation =>
-        // Found one but we must check normal analysis would fail (quietly), it has priority
-        val result = context.disableIssueReporting() {
-          val inter = expression.verify(input, context)
-          if (inter.isDefined)
-            verifyWithId(inter, context)
-          else
-            inter
-        }
-        if (result.declaration.isEmpty)
+        // Found one but we must check can not be resolved as local var/field
+        if (context.isVar(primary.id.name).isEmpty &&
+          DotExpression.findField(primary.id.name, input.declaration.get, context.module, input.isStatic).isEmpty) {
           Some(primary)
-        else {
+        } else {
           None
         }
       case _ => None
@@ -160,46 +170,39 @@ final case class DotExpressionWithId(expression: Expression, safeNavigation: Boo
   }
 
   def verifyWithId(input: ExprContext, context: ExpressionVerifyContext): ExprContext = {
-    assert(input.declaration.nonEmpty)
+    val inputType = input.declaration.get
 
-    input.declaration.get match {
-      case inputType: TypeDeclaration =>
-        val name = target.name
-        val field: Option[FieldDeclaration] =
-          DotExpression.findField(name, inputType, context.module, input.isStatic)
-        if (field.nonEmpty) {
-          context.addDependency(field.get)
-          val target = context.getTypeAndAddDependency(field.get.typeName, inputType).toOption
-          if (target.isEmpty) {
-            context.missingType(location, field.get.typeName)
-            return ExprContext.empty
-          }
-          return ExprContext(isStatic = Some(false), target, field.get)
-        }
-
-        // TODO: Private/protected types?
-        if (input.isStatic.contains(true)) {
-          val nt = input.declaration.get.findLocalType(TypeName(name))
-          if (nt.nonEmpty) {
-            return ExprContext(isStatic = Some(true), nt.get)
-          }
-        }
-
-        if (inputType.isComplete) {
-          if (inputType.isSObject) {
-            if (!context.module.isGhostedFieldName(name)) {
-              context.log(IssueOps.unknownFieldOnSObject(location, name, inputType.typeName))
-            }
-          } else {
-            context.log(IssueOps.unknownFieldOrType(location, name, inputType.typeName))
-          }
-        }
-        ExprContext.empty
-
-      case _ =>
-        context.missingIdentifier(location, input.typeName, target.name)
-        ExprContext.empty
+    val name = target.name
+    val field: Option[FieldDeclaration] =
+      DotExpression.findField(name, inputType, context.module, input.isStatic)
+    if (field.nonEmpty) {
+      context.addDependency(field.get)
+      val target = context.getTypeAndAddDependency(field.get.typeName, inputType).toOption
+      if (target.isEmpty) {
+        context.missingType(location, field.get.typeName)
+        return ExprContext.empty
+      }
+      return ExprContext(isStatic = Some(false), target, field.get)
     }
+
+    // TODO: Private/protected types?
+    if (input.isStatic.contains(true)) {
+      val nt = input.declaration.get.findLocalType(TypeName(name))
+      if (nt.nonEmpty) {
+        return ExprContext(isStatic = Some(true), nt.get)
+      }
+    }
+
+    if (inputType.isComplete) {
+      if (inputType.isSObject) {
+        if (!context.module.isGhostedFieldName(name)) {
+          context.log(IssueOps.unknownFieldOnSObject(location, name, inputType.typeName))
+        }
+      } else {
+        context.log(IssueOps.unknownFieldOrType(location, name, inputType.typeName))
+      }
+    }
+    ExprContext.empty
   }
 }
 
