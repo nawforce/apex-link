@@ -173,4 +173,16 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
       assert(getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
     }
   }
+
+  test("Inner type reference resolves") {
+    FileSystemHelper.run(
+      Map(
+        "pkg1/Dummy.cls" -> "public class Dummy { public class Target {} {Target.TargetInner.func();} }",
+        "pkg2/Target.cls" -> "public class Target { public class TargetInner {} public static void func() {}}",
+      )) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+    }
+  }
+
 }
