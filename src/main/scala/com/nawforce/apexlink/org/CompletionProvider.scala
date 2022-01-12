@@ -87,11 +87,15 @@ trait CompletionProvider {
     }
 
     /* Now for rule matches. These are not distinct cases, they might combine to give the correct result. */
+    var haveTypes = false
     val rules = candidates.rules.asScala.collect(rule =>
       rule._1.toInt match {
         /* TypeRefs appear in lots of places, e.g. inside Primaries but we just handle once for simplicity. */
         case ApexParser.RULE_typeRef =>
-          module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
+          if (haveTypes) Array[CompletionItemLink]() else {
+            haveTypes = true
+            module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
+          }
 
         /* Primary will appear at the start of an expression (recursively) but this just handles the first primary as
          * dotCompletions covers over cases. At the point it is being handled it is indistinguishable from a MethodCall
@@ -103,7 +107,10 @@ trait CompletionProvider {
               localVars.keys.filter(_.value.take(1).toLowerCase == searchTerm.residualExpr.take(1).toLowerCase)
                 .map(name => CompletionItemLink(name.value, "Variable", localVars(name).declaration.typeName.toString())).toArray ++
                 classDetails._2.map(td => getAllCompletionItems(td, None, searchTerm.residualExpr, hasPrivateAccess = true)).getOrElse(Array()) ++
-                module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
+                (if (haveTypes) Array[CompletionItemLink]() else {
+                  haveTypes = true
+                  module.map(_.matchTypeName(terminatedContent._3, offset)).getOrElse(Array())
+                })
             } else {
               emptyCompletions
             }
