@@ -3,7 +3,7 @@ import sbt.url
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 ThisBuild / version := "2.3.0"
-ThisBuild / isSnapshot := true
+ThisBuild / isSnapshot := false
 
 ThisBuild / scalaVersion := "2.13.3"
 ThisBuild / parallelExecution := false
