@@ -19,25 +19,36 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class VarTest extends AnyFunSuite with TestHelper {
 
+  test("Reserved local var") {
+    typeDeclaration("public class Dummy { void func() {String package;}}")
+    assert(dummyIssues == "Error: line 1 at 41-48: 'package' is a reserved identifier in Apex\n")
+  }
+
   test("Duplicate local var") {
     typeDeclaration("public class Dummy { void func() {String a; String a;}}")
-    assert(
-      dummyIssues ==
-        "Error: line 1 at 51-52: Duplicate variable 'a'\n")
+    assert(dummyIssues == "Error: line 1 at 51-52: Duplicate variable 'a'\n")
   }
 
   test("Duplicate local var, same declaration") {
     typeDeclaration("public class Dummy { void func() {String a, a;}}")
-    assert(
-      dummyIssues ==
-        "Error: line 1 at 44-45: Duplicate variable 'a'\n")
+    assert(dummyIssues == "Error: line 1 at 44-45: Duplicate variable 'a'\n")
   }
 
   test("Duplicate local var, nested") {
     typeDeclaration("public class Dummy { void func() {String a; while (true) {String a;}}}")
-    assert(
-      dummyIssues ==
-        "Error: line 1 at 65-66: Duplicate variable 'a'\n")
+    assert(dummyIssues == "Error: line 1 at 65-66: Duplicate variable 'a'\n")
+  }
+
+  test("Reserved for var") {
+    typeDeclaration(
+      "public class Dummy { void func() {for (Integer package=0; package<0; package++){}}}")
+    assert(dummyIssues == "Error: line 1 at 47-54: 'package' is a reserved identifier in Apex\n")
+  }
+
+  test("Reserved for-each var") {
+    typeDeclaration(
+      "public class Dummy { void func() {for (Integer package: new List<Integer>{}){}}}")
+    assert(dummyIssues == "Error: line 1 at 47-54: 'package' is a reserved identifier in Apex\n")
   }
 
   test("Duplicate for vars") {
@@ -48,16 +59,12 @@ class VarTest extends AnyFunSuite with TestHelper {
 
   test("Shadow local var") {
     typeDeclaration("public class Dummy { String a; void func() {String a;}}")
-    assert(
-      dummyIssues.startsWith(
-        "Warning: line 1 at 44-52: Local variable is hiding class field 'a', see"))
+    assert(dummyIssues.startsWith("Warning: line 1 at 44-52: Local variable is hiding class field 'a', see"))
   }
 
   test("Shadow local var, inner class") {
     typeDeclaration("public class Dummy { class Dummy2 {String a; void func() {String a;}}}")
-    assert(
-      dummyIssues.startsWith(
-        "Warning: line 1 at 58-66: Local variable is hiding class field 'a', see"))
+    assert(dummyIssues.startsWith("Warning: line 1 at 58-66: Local variable is hiding class field 'a', see"))
   }
 
   test("Shadow local var, not extending") {
@@ -68,8 +75,6 @@ class VarTest extends AnyFunSuite with TestHelper {
   test("Shadow local var, extending") {
     typeDeclaration(
       "public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}")
-    assert(
-      dummyIssues.startsWith(
-        "Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
+    assert(dummyIssues.startsWith("Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
   }
 }

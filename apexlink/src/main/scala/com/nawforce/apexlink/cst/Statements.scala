@@ -191,6 +191,7 @@ object ForControl {
 
 final case class EnhancedForControl(typeName: TypeName, id: Id, expression: Expression) extends ForControl {
   override def verify(context: BlockVerifyContext): Unit = {
+    id.validate()
     val forType = context.getTypeAndAddDependency(typeName, context.thisType).toOption
     if (forType.isEmpty)
       context.missingType(id.location, typeName)
