@@ -1,5 +1,5 @@
 .idea/
-.bsp/*
+.bsp/
 .metals/
 .vscode
 **/target/
