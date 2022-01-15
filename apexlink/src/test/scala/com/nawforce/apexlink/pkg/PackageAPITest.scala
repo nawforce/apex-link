@@ -17,6 +17,7 @@ import com.nawforce.apexlink.rpc.BombScore
 import com.nawforce.apexlink.types.apex.SummaryDeclaration
 import com.nawforce.apexlink.{FileSystemHelper, TestHelper}
 import com.nawforce.pkgforce.documents.ParsedCache
+import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, PUBLIC_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import com.nawforce.runtime.platform.Path
@@ -175,7 +176,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "Dummy")
       assert(summary.idLocation == Location(1, 13, 1, 18))
-      assert(summary.modifiers == ArraySeq("public"))
+      assert(summary.modifiers == ArraySeq(PUBLIC_MODIFIER))
     }
   }
 
@@ -202,7 +203,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(summary.name == "Dummy")
       assert(summary.typeName.toString == "test.Dummy")
       assert(summary.idLocation == Location(1, 21, 1, 26))
-      assert(summary.modifiers == ArraySeq("@IsTest", "public"))
+      assert(summary.modifiers == ArraySeq(ISTEST_ANNOTATION, PUBLIC_MODIFIER))
     }
   }
 
@@ -240,7 +241,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         assert(summary.name == "Dummy")
         assert(summary.typeName.toString == "test.Dummy")
         assert(summary.idLocation == Location(1, 21, 1, 26))
-        assert(summary.modifiers == ArraySeq("@IsTest", "public"))
+        assert(summary.modifiers == ArraySeq(ISTEST_ANNOTATION, PUBLIC_MODIFIER))
 
       }
     }

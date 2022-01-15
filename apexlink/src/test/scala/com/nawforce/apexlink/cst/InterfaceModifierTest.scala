@@ -87,17 +87,17 @@ class InterfaceModifierTest extends AnyFunSuite with TestHelper {
   }
 
   test("SuppressWarnings annotation") {
-    val modifiers = typeDeclaration("@SuppressWarnings public interface Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+    val modifiers = typeDeclaration("@SuppressWarnings('PMD') public interface Dummy {}").modifiers
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD))
     assert(!hasIssues)
   }
 
   test("SuppressWarnings & TestVisible annotation class") {
     val modifiers =
-      typeDeclaration("@SuppressWarnings public @TestVisible class Dummy {}").modifiers
+      typeDeclaration("@SuppressWarnings('PMD') public @TestVisible class Dummy {}").modifiers
     assert(
       modifiers.toSet == Set(PUBLIC_MODIFIER,
-                             SUPPRESS_WARNINGS_ANNOTATION,
+                             SUPPRESS_WARNINGS_ANNOTATION_PMD,
                              TEST_VISIBLE_ANNOTATION))
     assert(!hasIssues)
   }

@@ -159,10 +159,16 @@ class FieldModifierTest extends AnyFunSuite {
         ArraySeq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
-  test("SuppressWarnings field") {
+  test("SuppressWarnings PMD field") {
     assert(
-      legalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION),
-        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+      legalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION_PMD),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD)))
+  }
+
+  test("SuppressWarnings UNUSED field") {
+    assert(
+      legalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION_UNUSED),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)))
   }
 
   test("Bad modifier field") {
@@ -323,10 +329,16 @@ class FieldModifierTest extends AnyFunSuite {
         ArraySeq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION)))
   }
 
-  test("Inner SuppressWarnings field") {
+  test("Inner SuppressWarnings PMD field") {
     assert(
-      innerLegalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION),
-        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION)))
+      innerLegalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION_PMD),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD)))
+  }
+
+  test("Inner SuppressWarnings Unused field") {
+    assert(
+      innerLegalFieldAccess(ArraySeq(SUPPRESS_WARNINGS_ANNOTATION_UNUSED),
+        ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)))
   }
 
   test("Inner Bad modifier field") {

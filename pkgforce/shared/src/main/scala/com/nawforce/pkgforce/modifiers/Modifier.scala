@@ -22,51 +22,82 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import scala.collection.compat.immutable.ArraySeq
 
 sealed abstract class Modifier(
-  final val name: String,
-  val order: Integer = 0,
-  val methodOrder: Integer = 0
-) {
+                                final val name: String,
+                                val order: Integer = 0,
+                                val methodOrder: Integer = 0
+                              ) {
   override def toString: String = name
 }
 
-case object WEBSERVICE_MODIFIER  extends Modifier("webservice", order = 4)
-case object GLOBAL_MODIFIER      extends Modifier("global", order = 3, methodOrder = 2)
-case object PUBLIC_MODIFIER      extends Modifier("public", order = 2, methodOrder = 2)
-case object PROTECTED_MODIFIER   extends Modifier("protected", order = 1, methodOrder = 1)
-case object PRIVATE_MODIFIER     extends Modifier("private", order = 0, methodOrder = 0)
+case object WEBSERVICE_MODIFIER extends Modifier("webservice", order = 4)
+
+case object GLOBAL_MODIFIER extends Modifier("global", order = 3, methodOrder = 2)
+
+case object PUBLIC_MODIFIER extends Modifier("public", order = 2, methodOrder = 2)
+
+case object PROTECTED_MODIFIER extends Modifier("protected", order = 1, methodOrder = 1)
+
+case object PRIVATE_MODIFIER extends Modifier("private", order = 0, methodOrder = 0)
+
 case object TEST_METHOD_MODIFIER extends Modifier("testmethod")
 
-case object WITH_SHARING_MODIFIER      extends Modifier("with sharing")
-case object WITHOUT_SHARING_MODIFIER   extends Modifier("without sharing")
+case object WITH_SHARING_MODIFIER extends Modifier("with sharing")
+
+case object WITHOUT_SHARING_MODIFIER extends Modifier("without sharing")
+
 case object INHERITED_SHARING_MODIFIER extends Modifier("inherited sharing")
 
-case object STATIC_MODIFIER    extends Modifier("static")
-case object ABSTRACT_MODIFIER  extends Modifier("abstract")
-case object FINAL_MODIFIER     extends Modifier("final")
-case object OVERRIDE_MODIFIER  extends Modifier("override")
-case object VIRTUAL_MODIFIER   extends Modifier("virtual")
+case object STATIC_MODIFIER extends Modifier("static")
+
+case object ABSTRACT_MODIFIER extends Modifier("abstract")
+
+case object FINAL_MODIFIER extends Modifier("final")
+
+case object OVERRIDE_MODIFIER extends Modifier("override")
+
+case object VIRTUAL_MODIFIER extends Modifier("virtual")
+
 case object TRANSIENT_MODIFIER extends Modifier("transient")
 
-case object AURA_ENABLED_ANNOTATION         extends Modifier("@AuraEnabled")
-case object DEPRECATED_ANNOTATION           extends Modifier("@Deprecated")
-case object FUTURE_ANNOTATION               extends Modifier("@Future")
-case object INVOCABLE_METHOD_ANNOTATION     extends Modifier("@InvocableMethod")
-case object INVOCABLE_VARIABLE_ANNOTATION   extends Modifier("@InvocableVariable")
-case object ISTEST_ANNOTATION               extends Modifier("@IsTest")
-case object READ_ONLY_ANNOTATION            extends Modifier("@ReadOnly")
-case object REMOTE_ACTION_ANNOTATION        extends Modifier("@RemoteAction")
-case object SUPPRESS_WARNINGS_ANNOTATION    extends Modifier("@SuppressWarnings")
-case object TEST_SETUP_ANNOTATION           extends Modifier("@TestSetup")
-case object TEST_VISIBLE_ANNOTATION         extends Modifier("@TestVisible")
+case object AURA_ENABLED_ANNOTATION extends Modifier("@AuraEnabled")
+
+case object DEPRECATED_ANNOTATION extends Modifier("@Deprecated")
+
+case object FUTURE_ANNOTATION extends Modifier("@Future")
+
+case object INVOCABLE_METHOD_ANNOTATION extends Modifier("@InvocableMethod")
+
+case object INVOCABLE_VARIABLE_ANNOTATION extends Modifier("@InvocableVariable")
+
+case object ISTEST_ANNOTATION extends Modifier("@IsTest")
+
+case object READ_ONLY_ANNOTATION extends Modifier("@ReadOnly")
+
+case object REMOTE_ACTION_ANNOTATION extends Modifier("@RemoteAction")
+
+case object SUPPRESS_WARNINGS_ANNOTATION_PMD extends Modifier("@SuppressWarnings('PMD')")
+
+case object SUPPRESS_WARNINGS_ANNOTATION_UNUSED extends Modifier("@SuppressWarnings('Unused')")
+
+case object TEST_SETUP_ANNOTATION extends Modifier("@TestSetup")
+
+case object TEST_VISIBLE_ANNOTATION extends Modifier("@TestVisible")
+
 case object NAMESPACE_ACCESSIBLE_ANNOTATION extends Modifier("@NamespaceAccessible")
-case object JSON_ACCESS_ANNOTATION          extends Modifier("@JsonAccess")
+
+case object JSON_ACCESS_ANNOTATION extends Modifier("@JsonAccess")
 
 case object REST_RESOURCE_ANNOTATION extends Modifier("@RestResource")
-case object HTTP_DELETE_ANNOTATION   extends Modifier("@HttpDelete")
-case object HTTP_GET_ANNOTATION      extends Modifier("@HttpGet")
-case object HTTP_PATCH_ANNOTATION    extends Modifier("@HttpPatch")
-case object HTTP_POST_ANNOTATION     extends Modifier("@HttpPost")
-case object HTTP_PUT_ANNOTATION      extends Modifier("@HttpPut")
+
+case object HTTP_DELETE_ANNOTATION extends Modifier("@HttpDelete")
+
+case object HTTP_GET_ANNOTATION extends Modifier("@HttpGet")
+
+case object HTTP_PATCH_ANNOTATION extends Modifier("@HttpPatch")
+
+case object HTTP_POST_ANNOTATION extends Modifier("@HttpPost")
+
+case object HTTP_PUT_ANNOTATION extends Modifier("@HttpPut")
 
 object ModifierOps {
   val emptyModifiers: ArraySeq[Modifier] = ArraySeq()
@@ -100,7 +131,8 @@ object ModifierOps {
       ISTEST_ANNOTATION,
       READ_ONLY_ANNOTATION,
       REMOTE_ACTION_ANNOTATION,
-      SUPPRESS_WARNINGS_ANNOTATION,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED,
       TEST_SETUP_ANNOTATION,
       TEST_VISIBLE_ANNOTATION,
       NAMESPACE_ACCESSIBLE_ANNOTATION,
@@ -119,8 +151,22 @@ object ModifierOps {
     .toMap
 
   /** Recover from name, use safeApply */
-  def apply(name: String): Option[Modifier] = {
-    byName.get(name.toLowerCase())
+  def apply(name: String, value: String): Array[Modifier] = {
+    if (name.startsWith("@suppresswarnings")) {
+      val trimmed = value.trim
+      if (trimmed.length > 2 && trimmed.head == '\'' && trimmed.last == '\'') {
+        val parts = trimmed.substring(1, trimmed.length - 1).trim.split(",").map(_.trim.toLowerCase())
+        parts.flatMap {
+          case "pmd" => Some(SUPPRESS_WARNINGS_ANNOTATION_PMD)
+          case "unused" => Some(SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
+          case _ => None
+        }
+      } else {
+        Array.empty
+      }
+    } else {
+      byName.get(name.toLowerCase()).toArray
+    }
   }
 }
 
@@ -137,7 +183,8 @@ object ApexModifiers {
     Set(
       DEPRECATED_ANNOTATION,
       TEST_VISIBLE_ANNOTATION,
-      SUPPRESS_WARNINGS_ANNOTATION,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED,
       NAMESPACE_ACCESSIBLE_ANNOTATION
     )
 
@@ -213,22 +260,23 @@ object ApexModifiers {
   ): ArraySeq[Modifier] = {
     modifierContexts.flatMap(modifierContext => {
       val annotation = CodeParser.toScala(modifierContext.annotation())
-      var modifier =
-        if (annotation.nonEmpty)
-          annotation.flatMap(
-            a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase)
-          )
-        else
-          ModifierOps(CodeParser.getText(modifierContext).toLowerCase)
-      if (!modifier.exists(allow.contains)) {
-        modifier = None
+      val modifiers =
+        annotation.map(
+          a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase,
+            Option(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
+        ).getOrElse(
+          ModifierOps(CodeParser.getText(modifierContext).toLowerCase, "")
+        )
+
+      val allowable = modifiers.partition(allow.contains)
+      if (allowable._2.nonEmpty) {
         val modifierType = if (annotation.nonEmpty) "Annotation" else "Modifier"
         logger.logError(
           modifierContext,
           s"$modifierType '${CodeParser.getText(modifierContext)}' is not supported on $pluralName"
         )
       }
-      modifier
+      allowable._1
     })
   }
 

@@ -276,14 +276,13 @@ class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
                                 typeId: TypeIdentifier,
                                 summary: TypeSummary,
                                 filterTypeId: TypeIdentifier): Array[String] = {
-      val testTag = "@IsTest"
-      if (summary.modifiers.contains(testTag)) return Array(summary.name)
+      if (summary.modifiers.contains(ISTEST_ANNOTATION)) return Array(summary.name)
       if (!findTests) return Array.empty
 
       Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap { dependentTypeId =>
         Option(pkg.getSummaryOfType(dependentTypeId)).toArray
           .filter { dependentSummary =>
-            dependentSummary.modifiers.contains(testTag)
+            dependentSummary.modifiers.contains(ISTEST_ANNOTATION)
           }
           .filter { _ =>
             pkg.hasDependency(dependentTypeId, filterTypeId)

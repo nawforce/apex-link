@@ -110,8 +110,8 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
   }
 
   test("SuppressWarnings annotation class") {
-    val modifiers = typeDeclaration("@SuppressWarnings public class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+    val modifiers = typeDeclaration("@SuppressWarnings('PMD') public class Dummy {}").modifiers
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD))
     assert(dummyIssues.isEmpty)
   }
 
@@ -129,8 +129,8 @@ class ClassModifierTest extends AnyFunSuite with TestHelper {
   }
 
   test("SuppressWarnings & isTest annotation class") {
-    val modifiers = typeDeclaration("@SuppressWarnings public @isTest class Dummy {}").modifiers
-    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION, ISTEST_ANNOTATION))
+    val modifiers = typeDeclaration("@SuppressWarnings('PMD') public @isTest class Dummy {}").modifiers
+    assert(modifiers.toSet == Set(PUBLIC_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD, ISTEST_ANNOTATION))
     assert(dummyIssues.isEmpty)
   }
 

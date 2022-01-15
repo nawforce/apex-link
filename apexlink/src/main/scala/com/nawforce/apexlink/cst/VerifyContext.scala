@@ -25,7 +25,7 @@ import com.nawforce.apexlink.types.core.{Dependent, TypeDeclaration}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
-import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION
+import com.nawforce.pkgforce.modifiers.SUPPRESS_WARNINGS_ANNOTATION_PMD
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeName}
 import com.nawforce.pkgforce.path.{Location, PathLocation}
 
@@ -205,7 +205,7 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
 
   override def suppressIssues: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(_.suppressIssues)
 
   def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext = {
     super.saveResult(cst, altLocation, None)(op)
@@ -238,7 +238,7 @@ final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
   override def typePlugin: Plugin = parentContext.typePlugin
 
   override def suppressIssues: Boolean =
-    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION) || parent().exists(_.suppressIssues)
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(_.suppressIssues)
 
   def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext = {
     super.saveResult(cst, altLocation, None)(op)

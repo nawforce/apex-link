@@ -210,7 +210,7 @@ class SummaryMethod(val module: Module, path: PathLike, val outerTypeId: TypeId,
   override val location: PathLocation = PathLocation(path, methodSummary.location)
   override val idLocation: Location = methodSummary.idLocation
   override val name: Name = Names(methodSummary.name)
-  override val modifiers: ArraySeq[Modifier] = methodSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = methodSummary.modifiers
   override val typeName: TypeName = methodSummary.typeName.intern
   override val parameters: ArraySeq[ParameterDeclaration] = methodSummary.parameters.map(new SummaryParameter(_))
 
@@ -239,10 +239,10 @@ class SummaryField(val module: Module, path: PathLike, val outerTypeId: TypeId, 
   override val idLocation: Location = fieldSummary.idLocation
   override val name: Name = Names(fieldSummary.name)
   override val nature: Nature = fieldSummary.nature
-  override val modifiers: ArraySeq[Modifier] = fieldSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = fieldSummary.modifiers
   override val typeName: TypeName = fieldSummary.typeName.intern
-  override val readAccess: Modifier = ModifierOps(fieldSummary.readAccess).get
-  override val writeAccess: Modifier = ModifierOps(fieldSummary.writeAccess).get
+  override val readAccess: Modifier = fieldSummary.readAccess
+  override val writeAccess: Modifier = fieldSummary.writeAccess
 }
 
 class SummaryConstructor(val module: Module, path: PathLike, override val inTest: Boolean, constructorSummary: ConstructorSummary)
@@ -253,7 +253,7 @@ class SummaryConstructor(val module: Module, path: PathLike, override val inTest
 
   override val location: PathLocation = PathLocation(path, constructorSummary.location)
   override val idLocation: Location = constructorSummary.idLocation
-  override val modifiers: ArraySeq[Modifier] = constructorSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = constructorSummary.modifiers
   override val parameters: ArraySeq[ParameterDeclaration] = constructorSummary.parameters.map(new SummaryParameter(_))
 }
 
@@ -277,7 +277,7 @@ class SummaryDeclaration(path: PathLike,
   override val name: Name = Names(typeSummary.name)
   override val typeName: TypeName = typeSummary.typeName
   override val nature: Nature = Nature.forType(typeSummary.nature)
-  override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers.flatMap(ModifierOps(_))
+  override val modifiers: ArraySeq[Modifier] = typeSummary.modifiers
   override val inTest: Boolean = typeSummary.inTest
 
   override val superClass: Option[TypeName] = typeSummary.superClass
@@ -300,7 +300,7 @@ class SummaryDeclaration(path: PathLike,
       name.toString,
       typeName,
       nature.value,
-      modifiers.map(_.toString).sorted,
+      modifiers,
       inTest,
       superClass,
       interfaces,

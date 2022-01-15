@@ -17,6 +17,7 @@ package com.nawforce.apexlink.api
 import com.nawforce.apexlink.names.TypeIdentifiers.TypeIdentifierUtils
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.pkgforce.diagnostics.Diagnostic
+import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.Location
@@ -38,7 +39,7 @@ case class TypeSummary(sourceHash: Int,
                        name: String,
                        typeName: TypeName,
                        nature: String,
-                       modifiers: ArraySeq[String],
+                       modifiers: ArraySeq[Modifier],
                        inTest: Boolean,
                        superClass: Option[TypeName],
                        interfaces: ArraySeq[TypeName],
@@ -104,10 +105,10 @@ case class FieldSummary(location: Location,
                         idLocation: Location,
                         name: String,
                         nature: Nature,
-                        modifiers: ArraySeq[String],
+                        modifiers: ArraySeq[Modifier],
                         typeName: TypeName,
-                        readAccess: String,
-                        writeAccess: String,
+                        readAccess: Modifier,
+                        writeAccess: Modifier,
                         dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
     that match {
@@ -133,7 +134,7 @@ case class FieldSummary(location: Location,
 /** Summary of a type constructor*/
 case class ConstructorSummary(location: Location,
                               idLocation: Location,
-                              modifiers: ArraySeq[String],
+                              modifiers: ArraySeq[Modifier],
                               parameters: ArraySeq[ParameterSummary],
                               dependents: Array[DependentSummary]) {
   override def equals(that: Any): Boolean = {
@@ -158,7 +159,7 @@ case class ConstructorSummary(location: Location,
 case class MethodSummary(location: Location,
                          idLocation: Location,
                          name: String,
-                         modifiers: ArraySeq[String],
+                         modifiers: ArraySeq[Modifier],
                          var typeName: TypeName,
                          parameters: ArraySeq[ParameterSummary],
                          hasBlock: Boolean,
@@ -236,6 +237,7 @@ object ApexSummary {
 
 object TypeSummary {
   implicit val rw: RW[TypeSummary] = macroRW
+  implicit val rwModifier: RW[Modifier] = macroRW
 }
 
 object BlockSummary {
@@ -245,14 +247,17 @@ object BlockSummary {
 object FieldSummary {
   implicit val rw: RW[FieldSummary] = macroRW
   implicit val rwNature: RW[Nature] = macroRW
+  implicit val rwModifier: RW[Modifier] = macroRW
 }
 
 object ConstructorSummary {
   implicit val rw: RW[ConstructorSummary] = macroRW
+  implicit val rwModifier: RW[Modifier] = macroRW
 }
 
 object MethodSummary {
   implicit val rw: RW[MethodSummary] = macroRW
+  implicit val rwModifier: RW[Modifier] = macroRW
 }
 
 object ParameterSummary {

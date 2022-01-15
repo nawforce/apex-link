@@ -22,7 +22,8 @@ object FieldModifiers {
       DEPRECATED_ANNOTATION,
       INVOCABLE_VARIABLE_ANNOTATION,
       TEST_VISIBLE_ANNOTATION,
-      SUPPRESS_WARNINGS_ANNOTATION
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED,
     )
 
   private val FieldModifiersAndAnnotations: Set[Modifier] = FieldAnnotations ++ FieldModifiers

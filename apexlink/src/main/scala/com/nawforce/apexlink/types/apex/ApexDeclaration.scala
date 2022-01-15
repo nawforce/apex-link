@@ -42,8 +42,8 @@ trait ApexConstructorLike extends ConstructorDeclaration with IdLocatable {
   def summary: ConstructorSummary = {
     ConstructorSummary(location.location,
                        idLocation,
-                       modifiers.map(_.toString).sorted,
-                       parameters.map(_.serialise).sortBy(_.name),
+                       modifiers,
+                       parameters.map(_.serialise),
                        dependencySummary())
   }
 }
@@ -78,7 +78,7 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
     MethodSummary(location.location,
                   idLocation,
                   name.toString,
-                  modifiers.map(_.toString).sorted,
+                  modifiers,
                   typeName,
                   parameters.map(_.serialise),
                   hasBlock,
@@ -97,10 +97,10 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
       idLocation,
       name.toString,
       nature,
-      modifiers.map(_.toString).sorted,
+      modifiers,
       typeName,
-      readAccess.toString,
-      writeAccess.toString,
+      readAccess,
+      writeAccess,
       dependencySummary())
   }
 }

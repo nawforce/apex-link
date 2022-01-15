@@ -313,8 +313,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
 
   test("SuppressWarnings property") {
     val property =
-      typeDeclaration("public class Dummy {@SuppressWarnings String foo{get; set;}}").fields.head
-    assert(property.modifiers == ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION))
+      typeDeclaration("public class Dummy {@SuppressWarnings('PMD') String foo{get; set;}}").fields.head
+    assert(property.modifiers == ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(!hasIssues)

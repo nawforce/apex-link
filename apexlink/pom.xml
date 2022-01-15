@@ -7,6 +7,12 @@
   <version>2.3.0</version>
   <packaging>jar</packaging>
 
+  <parent>
+    <groupId>com.github.nawforce</groupId>
+    <artifactId>apexlink-parent</artifactId>
+    <version>2.3.0</version>
+  </parent>
+
   <name>apexlink</name>
   <description>Salesforce Apex static analysis toolkit</description>
   <url>https://github.com/nawforce/ApexLink</url>
