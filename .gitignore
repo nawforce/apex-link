@@ -1,0 +1,13 @@
+.idea/
+.bsp/*
+.metals/
+.vscode
+**/target/
+**/node_modules/
+js/npm/package-lock.json
+js/npm/pkgforce-fastopt.js
+js/npm/pkgforce-fastopt.js.map
+js/npm/pkgforce-opt.js
+js/npm/pkgforce-opt.js.map
+js/npm/lib/
+

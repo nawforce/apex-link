@@ -1,0 +1,37 @@
+{
+  "name": "pkgforce",
+  "version": "2.3.0",
+  "description": "Salesforce Metadata Management Utility Library",
+  "publisher": "KevinJones",
+  "repository": "nawforce/pkgforce",
+  "author": "Kevin Jones <nawforce@gmail.com> (https://github.com/nawforce)",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/nawforce/pkgforce/issues",
+  "icon": "logo.png",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --config jestconfig.json lib"
+  },
+  "main": "lib/pkgforce.js",
+  "typings": "src/pkgforce.d.ts",
+  "files": [
+    "src/pkgforce.d.ts"
+  ],
+  "dependencies": {
+    "antlr4ts": "0.5.0-alpha.4",
+    "apex-parser": "2.11.0",
+    "vf-parser": "1.0.0",
+    "@xmldom/xmldom": "0.7.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "fs-monkey": "0.3.3",
+    "jest": "^27.2.5",
+    "memfs": "3.2.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.4"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
