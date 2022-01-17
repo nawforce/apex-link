@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{Org, ServerOps}
+import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.pkgforce.api.IssueLocation
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.runtime.platform.Environment
@@ -32,7 +33,7 @@ object Check {
     s"Usage: $name [-json] [-verbose] [-info|-debug] [-nocache] [-depends] <directory>"
 
   def run(args: Array[String]): Int = {
-    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-depends")
+    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-unused", "-depends")
 
     val json = args.contains("-json")
     val verbose = !json && args.contains("-verbose")
@@ -40,6 +41,7 @@ object Check {
     val info = !json && !debug && args.contains("-info")
     val depends = args.contains("-depends")
     val noCache = args.contains("-nocache")
+    val unused = args.contains("-unused")
 
     ServerOps.setAutoFlush(false)
     if (debug)
@@ -63,8 +65,13 @@ object Check {
         Environment.setCacheDir(Some(None))
       }
 
+      if (!unused) {
+        PluginsManager.removePlugins(Seq(classOf[UnusedPlugin]))
+      }
+
       val org = Org.newOrg(dirs.head)
       org.flush()
+
       if (depends) {
         if (json) {
           writeDependenciesAsJSON(org)
