@@ -21,6 +21,8 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
 import scala.collection.compat.immutable.ArraySeq
 
+import scala.scalajs.js.JSConverters._
+
 sealed abstract class Modifier(
                                 final val name: String,
                                 val order: Integer = 0,
@@ -263,7 +265,7 @@ object ApexModifiers {
       val modifiers =
         annotation.map(
           a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase,
-            Option(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
+            CodeParser.toScala(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
         ).getOrElse(
           ModifierOps(CodeParser.getText(modifierContext).toLowerCase, "")
         )
