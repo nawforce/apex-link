@@ -21,8 +21,6 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 
 import scala.collection.compat.immutable.ArraySeq
 
-import scala.scalajs.js.JSConverters._
-
 sealed abstract class Modifier(
                                 final val name: String,
                                 val order: Integer = 0,
