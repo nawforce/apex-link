@@ -61,7 +61,7 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
   }
 
   override def triggerDeclaration(ctx: TriggerUnitContext, visitChildren: VisitChildren): ArraySeq[ApexNode] = {
-    val ids = ctx.id().toArray
+    val ids = CodeParser.toScala(ctx.id())
     ArraySeq(
       new ApexLightNode(
         parser.getPathLocation(ctx),
