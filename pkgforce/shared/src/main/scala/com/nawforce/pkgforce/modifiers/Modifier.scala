@@ -263,7 +263,7 @@ object ApexModifiers {
       val modifiers =
         annotation.map(
           a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase,
-            Option(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
+            CodeParser.toScala(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
         ).getOrElse(
           ModifierOps(CodeParser.getText(modifierContext).toLowerCase, "")
         )
