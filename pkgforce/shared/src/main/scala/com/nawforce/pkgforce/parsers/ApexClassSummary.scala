@@ -160,6 +160,11 @@ object ApexNode {
     visitor.visit(ctx).headOption
   }
 
+  def apply(parser: CodeParser, ctx: TriggerUnitContext): Option[ApexNode] = {
+    val visitor = new ApexClassVisitor(parser)
+    visitor.visit(ctx).headOption
+  }
+
   def appendSpace(str: String): String = {
     if (str.nonEmpty)
       str + " "

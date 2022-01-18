@@ -39,6 +39,9 @@ abstract class TreeVisitor[T: ClassTag]
     : js.UndefOr[js.Function1[ClassDeclarationContext, ArraySeq[T]]] =
     js.defined(ctx => classDeclaration(ctx, super.visitChildren))
 
+  override val visitTriggerUnit: js.UndefOr[js.Function1[TriggerUnitContext, ArraySeq[T]]] =
+    js.defined(ctx => triggerDeclaration(ctx, super.visitChildren))
+
   override val visitInterfaceDeclaration
     : js.UndefOr[js.Function1[InterfaceDeclarationContext, ArraySeq[T]]] =
     js.defined(ctx => interfaceDeclaration(ctx, super.visitChildren))
@@ -70,6 +73,7 @@ abstract class TreeVisitor[T: ClassTag]
     js.defined(ctx => enumConstants(ctx, super.visitChildren))
 
   def classDeclaration(ctx: ClassDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def triggerDeclaration(ctx: TriggerUnitContext, visitChildren: VisitChildren): ArraySeq[T]
   def interfaceDeclaration(
     ctx: InterfaceDeclarationContext,
     visitChildren: VisitChildren

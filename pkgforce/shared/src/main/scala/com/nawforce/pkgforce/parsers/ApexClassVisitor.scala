@@ -60,6 +60,23 @@ class ApexClassVisitor(parser: CodeParser) extends TreeVisitor[ApexNode] {
     }
   }
 
+  override def triggerDeclaration(ctx: TriggerUnitContext, visitChildren: VisitChildren): ArraySeq[ApexNode] = {
+    val ids = ctx.id().toArray
+    ArraySeq(
+      new ApexLightNode(
+        parser.getPathLocation(ctx),
+        TRIGGER_NATURE,
+        Name(CodeParser.getText(ids.head)),
+        parser.getPathLocation(ids.head).location,
+        visitChildren(ctx),
+        ArraySeq(),
+        s"trigger ${CodeParser.getText(ids.head)} on ${CodeParser.getText(ids.tail.head)}",
+        "",
+        ArraySeq()
+      )
+    )
+  }
+
   override def interfaceDeclaration(
     ctx: InterfaceDeclarationContext,
     visitChildren: VisitChildren

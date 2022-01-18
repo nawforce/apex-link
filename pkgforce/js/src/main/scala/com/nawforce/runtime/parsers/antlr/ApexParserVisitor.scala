@@ -20,6 +20,8 @@ import scala.scalajs.js
 trait ApexParserVisitor[Result] extends js.Object {
   val visitCompilationUnit: js.UndefOr[js.Function1[CompilationUnitContext, Result]] = js.undefined
 
+  val visitTriggerUnit: js.UndefOr[js.Function1[TriggerUnitContext, Result]] = js.undefined
+
   val visitTypeDeclaration: js.UndefOr[js.Function1[TypeDeclarationContext, Result]] = js.undefined
 
   val visitClassDeclaration: js.UndefOr[js.Function1[ClassDeclarationContext, Result]] =
