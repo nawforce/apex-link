@@ -13,7 +13,7 @@
  */
 package com.nawforce.pkgforce.diagnostics
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{PrintStream, PrintWriter, StringWriter}
 
 /** Minimalistic logging, the best kind of logging system. */
 trait Logger {
@@ -23,15 +23,15 @@ trait Logger {
 }
 
 /** Default logger, sends all messages to stderr. */
-class DefaultLogger extends Logger {
+final class DefaultLogger(stream: PrintStream) extends Logger {
   override def info(message: String): Unit = {
-    System.err.println("[info] " + message)
+    stream.println("[info] " + message)
   }
   override def debug(message: String): Unit = {
-    System.err.println("[debug] " + message)
+    stream.println("[debug] " + message)
   }
   override def trace(message: String): Unit = {
-    System.err.println("[trace] " + message)
+    stream.println("[trace] " + message)
   }
 }
 
@@ -43,7 +43,7 @@ object LoggerOps {
   final val TRACE_LOGGING: Int = 3
 
   private var loggingLevel: Integer = NO_LOGGING
-  private var logger: Logger        = new DefaultLogger
+  private var logger: Logger        = new DefaultLogger(System.err)
 
   /** Set debug logging level, one of NO_LOGGING, INFO_LOGGING, DEBUG_LOGGING or TRACE_LOGGING */
   def setLoggingLevel(level: Integer): Integer = {
