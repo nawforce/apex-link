@@ -17,7 +17,7 @@ package com.nawforce.apexlink.cmds
 import com.nawforce.apexlink.api.{Org, ServerOps}
 import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.pkgforce.api.IssueLocation
-import com.nawforce.pkgforce.diagnostics.LoggerOps
+import com.nawforce.pkgforce.diagnostics.{DefaultLogger, LoggerOps}
 import com.nawforce.runtime.platform.Environment
 
 import scala.jdk.CollectionConverters._
@@ -44,6 +44,7 @@ object Check {
     val unused = args.contains("-unused")
 
     ServerOps.setAutoFlush(false)
+    LoggerOps.setLogger(new DefaultLogger(System.out))
     if (debug)
       LoggerOps.setLoggingLevel(LoggerOps.DEBUG_LOGGING)
     else if (info)
