@@ -24,9 +24,10 @@ import com.nawforce.apexlink.types.core.{FieldDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.schema.{SObjectNature, _}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, LocatableCustomFieldDeclaration}
+import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.names._
-import com.nawforce.pkgforce.path.PathLocation
+import com.nawforce.pkgforce.path.{Location, PathLocation}
 import com.nawforce.pkgforce.stream._
 
 import scala.collection.immutable.ArraySeq
@@ -200,7 +201,19 @@ class SObjectDeployer(module: Module) {
         case (false, false) =>
           createReplacementSObject(sources, typeName, nature, fields, fieldSets, sharingReasons)
         case (false, true) =>
-          OrgImpl.log(IssueOps.extendingUnknownSObject(sources.head.location, event.reportingPath))
+          //OrgImpl.log(IssueOps.extendingUnknownSObject(sources.head.location, event.reportingPath))
+          //Add additional debug for revman issue
+          val message =
+            s"""Extending unknown SObject error:
+              |  sources: ${sources.map(_.location.toString).mkString(",")}
+              |  event: $event
+              |  typeName: $typeName
+              |  nature: $nature
+              |  fields: ${fields.map(_.name).mkString(",")}
+              |  fieldSets: ${fieldSets.map(_.value).mkString(",")}
+              |  sharingReasons: ${fieldSets.map(_.value).mkString(",")}
+              |""".stripMargin
+          OrgImpl.log(Issue(module.pkg.org.path.join("sfdx-project.json"), Diagnostic(ERROR_CATEGORY, Location.empty, message)))
           Array.empty
         case (true, false) =>
           OrgImpl.log(IssueOps.redefiningSObject(sources.head.location, event.reportingPath))
