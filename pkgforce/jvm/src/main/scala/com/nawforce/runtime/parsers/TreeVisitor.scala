@@ -36,6 +36,9 @@ abstract class TreeVisitor[T: ClassTag] extends ApexParserBaseVisitor[ArraySeq[T
   override def visitClassDeclaration(ctx: ApexParser.ClassDeclarationContext): ArraySeq[T] =
     classDeclaration(ctx, super.visitChildren)
 
+  override def visitTriggerUnit(ctx: ApexParser.TriggerUnitContext): ArraySeq[T] =
+    triggerDeclaration(ctx, super.visitChildren)
+
   override def visitInterfaceDeclaration(ctx: ApexParser.InterfaceDeclarationContext): ArraySeq[T] =
     interfaceDeclaration(ctx, super.visitChildren)
 
@@ -65,6 +68,7 @@ abstract class TreeVisitor[T: ClassTag] extends ApexParserBaseVisitor[ArraySeq[T
     enumConstants(ctx, super.visitChildren)
 
   def classDeclaration(ctx: ClassDeclarationContext, visitChildren: VisitChildren): ArraySeq[T]
+  def triggerDeclaration(ctx: TriggerUnitContext, visitChildren: VisitChildren): ArraySeq[T]
   def interfaceDeclaration(
     ctx: InterfaceDeclarationContext,
     visitChildren: VisitChildren
