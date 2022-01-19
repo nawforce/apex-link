@@ -24,7 +24,7 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.{ISTEST_ANNOTATION, TEST_METHOD_MODIFIER}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
-import com.nawforce.pkgforce.path.PathLocation
+import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, Workspace}
 import com.nawforce.runtime.parsers.CodeParser
 import com.nawforce.runtime.platform.Path
@@ -42,7 +42,7 @@ import scala.util.hashing.MurmurHash3
   * the org being currently worked on. Typically only one org will be being used but some use cases might require
   * multiple. Problems with the metadata are recorded in the the associated issue log.
   */
-class OrgImpl(initWorkspace: Option[Workspace]) extends Org {
+class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org {
   val workspace: Workspace = initWorkspace.getOrElse(new Workspace(Seq()))
 
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files

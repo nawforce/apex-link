@@ -141,7 +141,7 @@ object Org {
                        show = true,
                        s" with autoFlush = ${ServerOps.getAutoFlush}, build = ${OrgImpl.implementationBuild}") {
       val ws = Workspace(path)
-      val org = new OrgImpl(ws.value)
+      val org = new OrgImpl(path, ws.value)
       ws.issues.foreach(org.issueManager.add)
       org
     }
