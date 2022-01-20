@@ -14,6 +14,7 @@
 
 package com.nawforce.apexlink.rpc
 
+import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.Location
@@ -47,6 +48,7 @@ class OrgAPITest extends AsyncFunSuite {
       _ <- orgAPI.setCacheDirectory(None)
     } yield {
       assert(Environment.cacheDir.isEmpty)
+      assert(!ServerOps.getAutoFlush)
     }
   }
 
@@ -57,7 +59,8 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       _ <- orgAPI.setCacheDirectory(Some(testPath.toString))
     } yield {
-      val result: Assertion = assert(Environment.cacheDir.contains(testPath))
+      val result: Assertion = assert(
+        Environment.cacheDir.contains(testPath) && ServerOps.getAutoFlush)
       result.onComplete(_ => {
         Environment.setCacheDirOverride(None)
         testPath.delete()

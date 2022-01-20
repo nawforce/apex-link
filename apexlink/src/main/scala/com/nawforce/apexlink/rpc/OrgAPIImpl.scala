@@ -14,7 +14,7 @@
 
 package com.nawforce.apexlink.rpc
 
-import com.nawforce.apexlink.api.Org
+import com.nawforce.apexlink.api.{Org, ServerOps}
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.names.TypeIdentifier
@@ -377,6 +377,7 @@ class OrgAPIImpl extends OrgAPI {
 
   override def setCacheDirectory(path: Option[String]): Future[Unit] = {
     Environment.setCacheDirOverride(Some(path.map(p => Path(p))))
+    ServerOps.setAutoFlush(path.nonEmpty)
     Future.successful(())
   }
 
