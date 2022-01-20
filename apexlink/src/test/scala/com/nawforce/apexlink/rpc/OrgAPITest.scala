@@ -17,7 +17,7 @@ package com.nawforce.apexlink.rpc
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.Location
-import com.nawforce.runtime.platform.Path
+import com.nawforce.runtime.platform.{Environment, Path}
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
 
@@ -38,6 +38,25 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.version()
     } yield {
       assert(result.nonEmpty)
+    }
+  }
+
+  test("Set cache dir empty") {
+    val orgAPI = OrgAPI()
+    for {
+      _ <- orgAPI.setCacheDirectory(None)
+    } yield {
+      assert(Environment.cacheDir.isEmpty)
+    }
+  }
+
+  test("Set cache dir pwd") {
+    val orgAPI = OrgAPI()
+    val pwd = Path("")
+    for {
+      _ <- orgAPI.setCacheDirectory(Some(pwd.toString))
+    } yield {
+      assert(Environment.cacheDir.contains(pwd))
     }
   }
 

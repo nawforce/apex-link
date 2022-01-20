@@ -43,7 +43,7 @@ object Environment {
   }
 
   // Only for test usage
-  def setCacheDir(value: Option[Option[PathLike]]): Unit = {
+  def setCacheDirOverride(value: Option[Option[PathLike]]): Unit = {
     cacheDirOverride = value
   }
 }

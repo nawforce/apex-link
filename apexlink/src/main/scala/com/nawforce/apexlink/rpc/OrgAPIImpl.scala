@@ -18,6 +18,7 @@ import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 import com.nawforce.pkgforce.names.TypeIdentifier
+import com.nawforce.runtime.platform.{Environment, Path}
 
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -371,6 +372,11 @@ class OrgAPIImpl extends OrgAPI {
 
   override def setLoggingLevel(level: String): Future[Unit] = {
     LoggerOps.setLoggingLevel(level)
+    Future.successful(())
+  }
+
+  override def setCacheDirectory(path: Option[String]): Future[Unit] = {
+    Environment.setCacheDirOverride(Some(path.map(p => Path(p))))
     Future.successful(())
   }
 
