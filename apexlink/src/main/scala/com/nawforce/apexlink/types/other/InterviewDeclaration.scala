@@ -81,9 +81,10 @@ final class InterviewDeclaration(sources: ArraySeq[SourceInfo],
     PlatformTypes.interviewType.findMethod(name, params, staticContext, verifyContext)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
+                                  apexOnly: Boolean,
+                                  outerTypesOnly: Boolean,
+                                  typeCache: TypeCache): Unit = {
     if (!apexOnly)
       nestedInterviews.foreach(ni => ni.interviewTypeId.foreach(dependsOn.add))
   }
@@ -92,8 +93,8 @@ final class InterviewDeclaration(sources: ArraySeq[SourceInfo],
   private var namespaceDeclaration = module.namespace.map(_ => new NamespaceDeclaration())
 
   class NamespaceDeclaration(nestedInterviews: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
-      extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                        module,
+    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
+      module,
                                         TypeName(module.namespace.get, Nil, Some(TypeNames.Interview))) {
     override def nestedTypes: ArraySeq[TypeDeclaration] = nestedInterviews
 

@@ -133,10 +133,11 @@ final case class SObjectDeclaration(sources: Array[SourceInfo],
 
   override def dependencies(): Iterable[Dependent] = depends
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
-    DependentType.dependentsToTypeIds(module, depends, apexOnly, dependsOn)
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
+                                  apexOnly: Boolean,
+                                  outerTypesOnly: Boolean,
+                                  typeCache: TypeCache): Unit = {
+    DependentType.dependentsToTypeIds(module, depends, apexOnly, outerTypesOnly, dependsOn)
   }
 
   override val fields: ArraySeq[FieldDeclaration] = baseFields

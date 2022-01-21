@@ -276,6 +276,16 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
                                 typeId: TypeIdentifier,
                                 summary: TypeSummary,
                                 filterTypeId: TypeIdentifier): Array[String] = {
+
+      val result = findReferencedTestPathsInternal(pkg, typeId, summary, filterTypeId)
+      LoggerOps.debug(s"$typeId $filterTypeId returns ${result.mkString("Array(", ", ", ")")}")
+      result
+    }
+
+    def findReferencedTestPathsInternal(pkg: Package,
+                                        typeId: TypeIdentifier,
+                                        summary: TypeSummary,
+                                        filterTypeId: TypeIdentifier): Array[String] = {
       if (summary.modifiers.contains(ISTEST_ANNOTATION)) return Array(summary.name)
       if (!findTests) return Array.empty
 
