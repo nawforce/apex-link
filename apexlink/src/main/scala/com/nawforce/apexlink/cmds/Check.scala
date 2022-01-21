@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{Org, ServerOps}
+import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.pkgforce.api.IssueLocation
 import com.nawforce.pkgforce.diagnostics.{DefaultLogger, LoggerOps}
@@ -79,6 +80,10 @@ object Check {
       if (!noCache) {
         org.flush()
       }
+
+      org.asInstanceOf[OrgImpl].getTestClassNames(
+        Array("/Users/kjones/ff/prds/bc/force-app/main/opportunities/classes/OpportunityToContractPostPlugin.cls"),
+        findTests = true)
 
       // Output issues
       if (depends) {

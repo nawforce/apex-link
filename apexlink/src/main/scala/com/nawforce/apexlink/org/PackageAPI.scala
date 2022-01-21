@@ -150,7 +150,7 @@ trait PackageAPI extends Package {
           } else {
             val typeCache = new TypeCache()
             val dependencies = mutable.Set[TypeId]()
-            td.collectDependenciesByTypeName(dependencies, apexOnly, typeCache)
+            td.gatherDependencies(dependencies, apexOnly, outerTypesOnly = true, typeCache)
             dependencies.map(_.asTypeIdentifier).toArray
           }
         })
@@ -192,7 +192,7 @@ trait PackageAPI extends Package {
       case Some(decl: ApexDeclaration) =>
         val typeCache = new TypeCache()
         val dependencies = mutable.Set[TypeId]()
-        decl.collectDependencies(dependencies, apexOnly = true, typeCache)
+        decl.gatherDependencies(dependencies, apexOnly = true, outerTypesOnly = false, typeCache)
         dependencies.map(_.asTypeIdentifier).toArray.contains(dependencyTypeId)
       case _ => false
     }

@@ -183,12 +183,13 @@ abstract class FullDeclaration(val source: Source,
     setDepends(context.dependencies)
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
+                                  apexOnly: Boolean,
+                                  outerTypesOnly: Boolean,
+                                  typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
-    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, outerTypesOnly, dependsOn)
   }
 
   override def collectDependencies(dependsOn: mutable.Set[Dependent]): Unit = {
