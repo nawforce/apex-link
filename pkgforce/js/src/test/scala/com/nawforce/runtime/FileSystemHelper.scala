@@ -34,7 +34,7 @@ object FileSystemHelper {
     // Make a cache directory so don't need home access
     if (setupCache) {
       Memfs.vol.mkdirSync("/tmpcache")
-      Environment.setCacheDir(Some(Some(Path("/tmpcache"))))
+      Environment.setCacheDirOverride(Some(Some(Path("/tmpcache"))))
     }
 
     val unpatch = FSMonkey.patchFs(Memfs.vol)
@@ -44,7 +44,7 @@ object FileSystemHelper {
       unpatch()
       Memfs.vol.reset()
       if (setupCache) {
-        Environment.setCacheDir(None)
+        Environment.setCacheDirOverride(None)
       }
     }
   }

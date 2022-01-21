@@ -66,7 +66,7 @@ object Check {
 
       // Disable loading from the cache
       if (noCache) {
-        Environment.setCacheDir(Some(None))
+        Environment.setCacheDirOverride(Some(None))
       }
 
       // Don't use unused analysis unless we have both verbose and unused flags
