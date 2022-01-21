@@ -273,16 +273,6 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
     }
 
     def findReferencedTestPaths(pkg: Package,
-                                typeId: TypeIdentifier,
-                                summary: TypeSummary,
-                                filterTypeId: TypeIdentifier): Array[String] = {
-
-      val result = findReferencedTestPathsInternal(pkg, typeId, summary, filterTypeId)
-      LoggerOps.debug(s"$typeId $filterTypeId returns ${result.mkString("Array(", ", ", ")")}")
-      result
-    }
-
-    def findReferencedTestPathsInternal(pkg: Package,
                                         typeId: TypeIdentifier,
                                         summary: TypeSummary,
                                         filterTypeId: TypeIdentifier): Array[String] = {
