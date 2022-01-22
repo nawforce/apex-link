@@ -13,7 +13,7 @@
  */
 package com.nawforce.apexlink.plugins
 
-import com.nawforce.apexlink.plugins.PluginsManager.activePlugins
+import com.nawforce.apexlink.plugins.PluginsManager.{activePlugins, plugins}
 import com.nawforce.apexlink.types.core.DependentType
 import com.nawforce.pkgforce.names.TypeName
 
@@ -45,8 +45,19 @@ object PluginsManager {
 
   def overridePlugins(newPlugins: Seq[Class[_ <: Plugin]]): Seq[Class[_ <: Plugin]] = {
     val current = plugins
-    plugins = newPlugins
-    pluginConstructors = newPlugins.map(_.getConstructor(classOf[DependentType]))
+    setPlugins(newPlugins)
     current
   }
+
+  def removePlugins(removePlugins: Seq[Class[_ <: Plugin]]): Seq[Class[_ <: Plugin]] = {
+    val current = plugins
+    setPlugins(plugins.filterNot(removePlugins.contains))
+    current
+  }
+
+  private def setPlugins(newPlugins: Seq[Class[_ <: Plugin]]): Unit = {
+    plugins = newPlugins
+    pluginConstructors = plugins.map(_.getConstructor(classOf[DependentType]))
+  }
+
 }

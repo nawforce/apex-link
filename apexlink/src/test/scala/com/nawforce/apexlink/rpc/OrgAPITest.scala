@@ -14,10 +14,11 @@
 
 package com.nawforce.apexlink.rpc
 
+import com.nawforce.apexlink.api.ServerOps
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.names.{Name, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.path.Location
-import com.nawforce.runtime.platform.Path
+import com.nawforce.runtime.platform.{Environment, Path}
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AsyncFunSuite
 
@@ -41,11 +42,38 @@ class OrgAPITest extends AsyncFunSuite {
     }
   }
 
+  test("Set cache dir empty") {
+    val orgAPI = OrgAPI()
+    for {
+      _ <- orgAPI.setCacheDirectory(None)
+    } yield {
+      assert(Environment.cacheDir.isEmpty)
+      assert(!ServerOps.getAutoFlush)
+    }
+  }
+
+  test("Set cache dir pwd") {
+    val orgAPI = OrgAPI()
+    Path("").createDirectory("cacheTest")
+    val testPath = Path("").join("cacheTest")
+    for {
+      _ <- orgAPI.setCacheDirectory(Some(testPath.toString))
+    } yield {
+      val result: Assertion = assert(
+        Environment.cacheDir.contains(testPath) && ServerOps.getAutoFlush)
+      result.onComplete(_ => {
+        Environment.setCacheDirOverride(None)
+        testPath.delete()
+      })
+      result
+    }
+  }
+
   test("Add package not bad directory") {
     val orgAPI = OrgAPI()
     for {
       result <- orgAPI.open("/silly")
-      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0 )
+      issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -153,7 +181,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 1, apexOnly = true,  IdentifiersRequest(Array()))
+        depth = 1, apexOnly = true, IdentifiersRequest(Array()))
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -184,7 +212,7 @@ class OrgAPITest extends AsyncFunSuite {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 1, apexOnly = true,  IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World"))))))
+        depth = 1, apexOnly = true, IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World"))))))
     } yield {
       assert(result.error.isEmpty)
       assert(
@@ -225,8 +253,8 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/HelloTest.cls"), false))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.length==1)
-      assert(classes.testClassNames(0)=="HelloTest")
+      assert(classes.testClassNames.length == 1)
+      assert(classes.testClassNames(0) == "HelloTest")
     }
   }
 
@@ -239,7 +267,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/Hello.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("HelloTest"))
+      assert(classes.testClassNames.toSet == Set("HelloTest"))
     }
   }
 
@@ -265,7 +293,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/ServiceImpl.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
+      assert(classes.testClassNames.toSet == Set("ServiceAPITest"))
     }
   }
 
@@ -278,7 +306,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/APIImpl.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("APITest"))
+      assert(classes.testClassNames.toSet == Set("APITest"))
     }
   }
 
@@ -291,7 +319,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/InnerServiceImpl.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("ServiceAPITest"))
+      assert(classes.testClassNames.toSet == Set("ServiceAPITest"))
     }
   }
 
@@ -304,7 +332,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/Service.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("ServiceAPITest", "ServiceTest"))
+      assert(classes.testClassNames.toSet == Set("ServiceAPITest", "ServiceTest"))
     }
   }
 
@@ -317,7 +345,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"), true))
     } yield {
       assert(result.error.isEmpty)
-      assert(classes.testClassNames.toSet==Set("DerivedTest", "BaseTest", "APITest"))
+      assert(classes.testClassNames.toSet == Set("DerivedTest", "BaseTest", "APITest"))
     }
   }
 
@@ -330,7 +358,7 @@ class OrgAPITest extends AsyncFunSuite {
         Array(
           workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
           workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
-          workspace.toString + "/force-app/main/default/classes/TransDep.cls" )))
+          workspace.toString + "/force-app/main/default/classes/TransDep.cls")))
     } yield {
       assert(result.error.isEmpty)
       assert(dependencyCounts.counts.length == 3)

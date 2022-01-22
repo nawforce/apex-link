@@ -20,6 +20,8 @@ import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
 import ujson.Value
 
+import scala.util.{Failure, Success, Try}
+
 class SFDXProjectError(val line: Int, val offset: Int, message: String) extends Throwable(message)
 
 object SFDXProjectError {
@@ -89,18 +91,6 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       case _: NoSuchElementException => Map()
     }
 
-  val xcls: Option[XApex] =
-    plugins.get("xcls").flatMap {
-      case value: ujson.Obj =>
-        Some(XApex(projectPath, config, value))
-      case value =>
-        config
-          .lineAndOffsetOf(value)
-          .map(lineAndOffset => {
-            throw SFDXProjectError(lineAndOffset, "plugins 'xcls' should be an object")
-          })
-    }
-
   val dependencies: Seq[PackageDependent] =
     plugins.getOrElse("dependencies", ujson.Arr()) match {
       case value: ujson.Arr =>
@@ -114,10 +104,39 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
           .getOrElse(Seq.empty)
     }
 
+  val maxDependencyCount: Option[Int] = {
+    plugins.get("maxDependencyCount") match {
+      case None => None
+      case Some(value: ujson.Num) if value.toString.matches("[0-9]+") =>
+        Try(value.toString().toInt) match {
+          case Success(value) => Some(value)
+          case Failure(_) =>
+            config
+              .lineAndOffsetOf(value)
+              .map(lineAndOffset => {
+                throw SFDXProjectError(
+                  lineAndOffset,
+                  s"'maxDependencyCount' value '${value.toString}' is not an integer"
+                )
+              })
+              .getOrElse(None)
+        }
+      case Some(value) =>
+        config
+          .lineAndOffsetOf(value)
+          .map(lineAndOffset => {
+            throw SFDXProjectError(
+              lineAndOffset,
+              s"'maxDependencyCount' value '${value.toString}' should be a positive integer"
+            )
+          })
+          .getOrElse(None)
+    }
+  }
+
   def metadataGlobs: Seq[String] = {
     val glob = MetadataDocument.extensionsGlob
-    packageDirectories.map(directory => s"${directory.relativePath}/**/*.$glob") ++
-      xcls.map(xcls => Seq(s"${xcls.relPath}/**/*.$glob")).getOrElse(Seq())
+    packageDirectories.map(directory => s"${directory.relativePath}/**/*.$glob")
   }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
@@ -139,16 +158,14 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       return Seq.empty
     }
 
-    val xclsLayer = xcls.map(tl => ModuleLayer(projectPath, tl.path, Seq.empty)).toSeq
     val localPackage = NamespaceLayer(
       namespace,
-      xclsLayer ++
-        packageDirectories
-          .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
-            foldPackageDirectory(logger)
-          )
-          ._2
-          .reverse
+      packageDirectories
+        .foldLeft((Map[String, VersionedPackageLayer](), List[ModuleLayer]()))(
+          foldPackageDirectory(logger)
+        )
+        ._2
+        .reverse
     )
 
     if (!validatePackagePathsLocal(localPackage.layers, logger))

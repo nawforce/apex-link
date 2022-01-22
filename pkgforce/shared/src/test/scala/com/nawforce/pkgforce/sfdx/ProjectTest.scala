@@ -104,7 +104,6 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(logger.issues.isEmpty)
         assert(project.nonEmpty)
         assert(project.get.packageDirectories.isEmpty)
-        assert(project.get.xcls.isEmpty)
     }
   }
 
@@ -513,84 +512,12 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
-  test("Templates wrong type") {
-    FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": []
-          | }
-          |}""".stripMargin)) { root: PathLike =>
-      val project = SFDXProject(root, logger)
-      assert(project.isEmpty)
-      assert(
-        logger.issues == ArraySeq(
-          Issue(root.join("sfdx-project.json"),
-                diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location(4, 11),
-                                       "plugins 'xcls' should be an object"))))
-    }
-  }
-
-  test("Templates no path") {
-    FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": {}
-          | }
-          |}""".stripMargin)) { root: PathLike =>
-      val project = SFDXProject(root, logger)
-      assert(project.isEmpty)
-      assert(
-        logger.issues == ArraySeq(
-          Issue(root.join("sfdx-project.json"),
-                diagnostics.Diagnostic(ERROR_CATEGORY,
-                                       Location(4, 11),
-                                       "'path' is required"))))
-    }
-  }
-
-  test("Templates no target") {
-    FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": {"path": "path"}
-          | }
-          |}""".stripMargin)) { root: PathLike =>
-      val project = SFDXProject(root, logger)
-      assert(project.nonEmpty)
-    }
-  }
-
-  test("Template with optional target") {
-    FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": {"path": "path", "target": "target"}
-          | }
-          |}""".stripMargin)) { root: PathLike =>
-      val project = SFDXProject(root, logger)
-      assert(project.get.xcls.get.path == root.join("path"))
-      assert(project.get.xcls.get.target.contains(root.join("target")))
-    }
-  }
-
   test("sourceApiVersion") {
     FileSystemHelper.run(
       Map("sfdx-project.json" ->
         """{
           | "sourceApiVersion": "Hello",
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": {"path": "path", "target": "target"}
-          | }
+          | "packageDirectories": []
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.get.sourceApiVersion.contains("Hello"))
@@ -602,10 +529,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       Map("sfdx-project.json" ->
         """{
           | "sourceApiVersion": 23.4,
-          | "packageDirectories": [],
-          | "plugins": {
-          |   "xcls": {"path": "path", "target": "target"}
-          | }
+          | "packageDirectories": []
           |}""".stripMargin)) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
@@ -618,4 +542,89 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
     }
   }
 
+  test("max dependency count valid") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "maxDependencyCount": 123
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.get.maxDependencyCount.contains(123))
+    }
+  }
+
+  test("max dependency count zero valid") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "maxDependencyCount": 0
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.get.maxDependencyCount.contains(0))
+    }
+  }
+
+  test("max dependency count negative invalid") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "maxDependencyCount": -2
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(logger.issues == ArraySeq(
+        Issue(root.join("sfdx-project.json"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(4, 25),
+            "'maxDependencyCount' value '-2' should be a positive integer"))))
+
+    }
+  }
+
+  test("max dependency count too big invalid") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "maxDependencyCount": 2147483648
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(logger.issues == ArraySeq(
+        Issue(root.join("sfdx-project.json"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(4, 25),
+            "'maxDependencyCount' value '2147483648' is not an integer"))))
+    }
+  }
+
+  test("max dependency count not number") {
+    FileSystemHelper.run(
+      Map("sfdx-project.json" ->
+        """{
+          | "packageDirectories": [],
+          | "plugins": {
+          |   "maxDependencyCount": "foo"
+          | }
+          |}""".stripMargin)) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(logger.issues == ArraySeq(
+        Issue(root.join("sfdx-project.json"),
+          Diagnostic(ERROR_CATEGORY,
+            Location(4, 25),
+            "'maxDependencyCount' value '\"foo\"' should be a positive integer"))))
+    }
+  }
 }

@@ -15,8 +15,9 @@
 package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{Org, ServerOps}
+import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.pkgforce.api.IssueLocation
-import com.nawforce.pkgforce.diagnostics.LoggerOps
+import com.nawforce.pkgforce.diagnostics.{DefaultLogger, LoggerOps}
 import com.nawforce.runtime.platform.Environment
 
 import scala.jdk.CollectionConverters._
@@ -29,10 +30,10 @@ object Check {
   final val STATUS_ISSUES: Int = 4
 
   def usage(name: String) =
-    s"Usage: $name [-json] [-verbose] [-info|-debug] [-nocache] [-depends] <directory>"
+    s"Usage: $name [-json] [-verbose [-unused]] [-info|-debug] [-nocache] [-depends] <directory>"
 
   def run(args: Array[String]): Int = {
-    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-depends")
+    val flags = Set("-json", "-verbose", "-info", "-debug", "-nocache", "-unused", "-depends")
 
     val json = args.contains("-json")
     val verbose = !json && args.contains("-verbose")
@@ -40,13 +41,9 @@ object Check {
     val info = !json && !debug && args.contains("-info")
     val depends = args.contains("-depends")
     val noCache = args.contains("-nocache")
+    val unused = args.contains("-unused")
 
-    ServerOps.setAutoFlush(false)
-    if (debug)
-      LoggerOps.setLoggingLevel(LoggerOps.DEBUG_LOGGING)
-    else if (info)
-      LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
-
+    // Check we have some metadata directories to work with
     val dirs = args.filterNot(flags.contains)
     if (dirs.isEmpty) {
       System.err.println(s"No workspace directory argument provided.")
@@ -59,12 +56,31 @@ object Check {
     }
 
     try {
+      // Setup cache flushing and logging defaults
+      ServerOps.setAutoFlush(false)
+      LoggerOps.setLogger(new DefaultLogger(System.out))
+      if (debug)
+        LoggerOps.setLoggingLevel(LoggerOps.DEBUG_LOGGING)
+      else if (info)
+        LoggerOps.setLoggingLevel(LoggerOps.INFO_LOGGING)
+
+      // Disable loading from the cache
       if (noCache) {
-        Environment.setCacheDir(Some(None))
+        Environment.setCacheDirOverride(Some(None))
       }
 
+      // Don't use unused analysis unless we have both verbose and unused flags
+      if (!verbose || !unused) {
+        PluginsManager.removePlugins(Seq(classOf[UnusedPlugin]))
+      }
+
+      // Load org and flush to cache if we are using it
       val org = Org.newOrg(dirs.head)
-      org.flush()
+      if (!noCache) {
+        org.flush()
+      }
+
+      // Output issues
       if (depends) {
         if (json) {
           writeDependenciesAsJSON(org)
