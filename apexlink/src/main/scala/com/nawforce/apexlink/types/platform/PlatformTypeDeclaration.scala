@@ -87,11 +87,19 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
   override lazy val constructors: ArraySeq[PlatformConstructor] = {
-    ArraySeq.unsafeWrapArray(cls.getConstructors).map(c => new PlatformConstructor(c, this))
+    ArraySeq.unsafeWrapArray(cls.getConstructors)
+      .filterNot(_.isSynthetic)
+      .map(c => new PlatformConstructor(c, this))
   }
 
-  override lazy val nestedTypes: ArraySeq[TypeDeclaration] =
-    ArraySeq.unsafeWrapArray(cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this))))
+  override lazy val nestedTypes: ArraySeq[TypeDeclaration] = {
+    // JVM12 is adding a nested class to enums so we restrict nesting just to classes
+    if (nature == CLASS_NATURE) {
+      ArraySeq.unsafeWrapArray(cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this))))
+    } else {
+      TypeDeclaration.emptyTypeDeclarations
+    }
+  }
 
   override lazy val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
 
