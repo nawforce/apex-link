@@ -81,10 +81,6 @@ object Check {
         org.flush()
       }
 
-      org.asInstanceOf[OrgImpl].getTestClassNames(
-        Array("/Users/kjones/ff/prds/bc/force-app/main/opportunities/classes/OpportunityToContractPostPlugin.cls"),
-        findTests = true)
-
       // Output issues
       if (depends) {
         if (json) {
