@@ -4,7 +4,7 @@ Class-Path:
   antlr4-runtime-4.8-1.jar
   apex-parser-2.11.0.jar
   geny_2.13-0.6.2.jar
-  pkgforce_2.13-2.3.1-SNAPSHOT.jar
+  pkgforce_2.13-2.3.1.jar
   runforce-53.1.2.jar
   scala-collection-compat_2.13-2.1.4.jar
   scala-json-rpc-upickle-json-serializer_2.13-1.0.1.jar

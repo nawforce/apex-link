@@ -104,9 +104,11 @@ trait Package {
     */
   def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
-  /** Returns true if the type identified by typeId depends in the type identified dependencyTypeId
-    *
-    */
+  /** Returns true if the type identified by typeId depends in the type identified by dependencyTypeId.
+   *
+   * This will return true where the type depends on an inner class of dependencyTypeId. All dependencies of typeId
+   * are considered including those of any inner class.
+   */
   def hasDependency(typeId: TypeIdentifier, dependencyTypeId: TypeIdentifier): Boolean
 
   /** Refresh a type in the package.

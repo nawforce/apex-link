@@ -15,6 +15,7 @@
 package com.nawforce.apexlink.cmds
 
 import com.nawforce.apexlink.api.{Org, ServerOps}
+import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.plugins.{PluginsManager, UnusedPlugin}
 import com.nawforce.pkgforce.api.IssueLocation
 import com.nawforce.pkgforce.diagnostics.{DefaultLogger, LoggerOps}

@@ -24,7 +24,7 @@ import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{Modifier, ModifierOps}
+import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
@@ -341,31 +341,20 @@ class SummaryDeclaration(path: PathLike,
     nestedTypes.foreach(_.propagateDependencies())
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
-    val localDependencies = mutable.Set[TypeId]()
-
-    collectDependencies(localDependencies, apexOnly, typeCache)
-
-    // Use outermost of each to get top-level dependencies
-    localDependencies.foreach(dependentTypeName => {
-      getOutermostDeclaration(dependentTypeName.typeName, typeCache).foreach(dependsOn.add)
-    })
-  }
-
-  override def collectDependencies(dependsOn: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit = {
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId], apexOnly: Boolean, outerTypesOnly: Boolean, typeCache: TypeCache): Unit = {
     val localDependencies = mutable.Set[TypeId]()
 
     def collect(dependents: Seq[Dependent]): Unit = {
       dependents.foreach({
-        case d: ApexClassDeclaration              => localDependencies.add(d.typeId)
-        case d: LabelDeclaration if !apexOnly     => localDependencies.add(d.typeId)
+        case d: ApexClassDeclaration =>
+          localDependencies.add(d.outerTypeId)
+          if (!outerTypesOnly) localDependencies.add(d.typeId)
+        case d: LabelDeclaration if !apexOnly => localDependencies.add(d.typeId)
         case d: InterviewDeclaration if !apexOnly => localDependencies.add(d.typeId)
-        case d: PageDeclaration if !apexOnly      => localDependencies.add(d.typeId)
+        case d: PageDeclaration if !apexOnly => localDependencies.add(d.typeId)
         case d: ComponentDeclaration if !apexOnly => localDependencies.add(d.typeId)
-        case d: SObjectDeclaration if !apexOnly   => localDependencies.add(d.typeId)
-        case _                                    => ()
+        case d: SObjectDeclaration if !apexOnly => localDependencies.add(d.typeId)
+        case _ => ()
       })
     }
 
@@ -377,23 +366,9 @@ class SummaryDeclaration(path: PathLike,
     localMethods.foreach(x => collect(x.populateDependencies(typeCache)))
     nestedTypes
       .collect { case x: SummaryDeclaration => x }
-      .foreach(_.collectDependencies(dependsOn, apexOnly, typeCache))
+      .foreach(_.gatherDependencies(dependsOn, apexOnly, outerTypesOnly, typeCache))
 
     dependsOn.addAll(localDependencies)
-  }
-
-  private def getOutermostDeclaration(typeName: TypeName, typeCache: TypeCache): Option[TypeId] = {
-    typeCache.getOrElseUpdate((typeName, module), TypeResolver(typeName, module)) match {
-      case Right(d: ApexClassDeclaration) =>
-        d.outerTypeName.map(typeName => getOutermostDeclaration(typeName, typeCache)).getOrElse(Some(d.typeId))
-      case Right(d: LabelDeclaration)     => Some(d.typeId)
-      case Right(d: InterviewDeclaration) => Some(d.typeId)
-      case Right(d: PageDeclaration)      => Some(d.typeId)
-      case Right(d: ComponentDeclaration) => Some(d.typeId)
-      case Right(d: SObjectDeclaration)   => Some(d.typeId)
-      case Right(_)                       => assert(false); None
-      case Left(_)                        => None
-    }
   }
 }
 

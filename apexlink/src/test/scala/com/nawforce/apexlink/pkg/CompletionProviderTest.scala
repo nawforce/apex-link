@@ -271,4 +271,116 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         )
     }
   }
+
+  test("Empty Trigger Declaration Completion") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = ""
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("trigger"))
+    }
+  }
+
+  test("Trigger Declaration Completion") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "trigger Dummy "
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("on"))
+    }
+  }
+
+  test("Trigger Declaration Completion (Trigger Cases)") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "trigger Dummy on Account( "
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("after", "before"))
+    }
+  }
+
+  test("Trigger Declaration Completion (Trigger Cases Keywords)") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "trigger Dummy on Account(before "
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .map(_.label) sameElements Array("insert", "delete", "undelete", "update"))
+    }
+  }
+
+  test("Triggers Primary Completions (variable type)") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "trigger Dummy on Account(before insert) { Boolean testVar = false; te"
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .toSet contains CompletionItemLink("testVar", "Variable", "System.Boolean"))
+    }
+  }
+
+  test("Trigger Context Variable Completions") {
+    FileSystemHelper.run(Map("Dummy.trigger" -> "")) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val testSrc = "trigger Dummy on Account(before insert){Trigger."
+        assert(
+          org
+            .getCompletionItems(root.join("Dummy.trigger").toString, line = 1, offset = testSrc.length, testSrc)
+            .toSet == Set(
+            CompletionItemLink("newMap", "Field", "public static System.Map<System.Id, System.SObject> newMap"),
+            CompletionItemLink("isAfter", "Field", "public static System.Boolean isAfter"),
+            CompletionItemLink("New", "Field", "public static System.List<System.SObject> New"),
+            CompletionItemLink("old", "Field", "public static System.List<System.SObject> old"),
+            CompletionItemLink("operationType", "Field", "public static System.TriggerOperation operationType"),
+            CompletionItemLink("isBefore", "Field", "public static System.Boolean isBefore"),
+            CompletionItemLink("isExecuting", "Field", "public static System.Boolean isExecuting"),
+            CompletionItemLink("isUndelete", "Field", "public static System.Boolean isUndelete"),
+            CompletionItemLink("size", "Field", "public static System.Integer size"),
+            CompletionItemLink("isDelete", "Field", "public static System.Boolean isDelete"),
+            CompletionItemLink("isInsert", "Field", "public static System.Boolean isInsert"),
+            CompletionItemLink("isUpdate", "Field", "public static System.Boolean isUpdate"),
+            CompletionItemLink("oldMap", "Field", "public static System.Map<System.Id, System.SObject> oldMap")))
+    }
+  }
+
+  test("Triggers Static Completions") {
+    FileSystemHelper.run(Map(
+      "Dummy.cls" ->
+        """public class Dummy {
+          |public String methodA(){}
+          |public String methodB(String a, String b){}
+          |public static String methodStatic(){}
+          |private String methodPrivate(){}
+          |public String myField;
+          |public static String myStaticField;
+          |private String myPrivateField;
+          |public class MyInner{};
+          |private interface MyPrivateInner{};
+          |}""".stripMargin)) {
+      root: PathLike =>
+        val org = createOrg(root)
+        val path = root.join("Completion.trigger")
+        val content = "trigger Completion on Account(before insert) { Dummy.m"
+        assert(
+          org
+            .getCompletionItems(path.toString, line = 1, offset = content.length, content).toSet ==
+            Set(CompletionItemLink("methodStatic()", "Method", "public static System.String methodStatic()"),
+              CompletionItemLink("myStaticField", "Field", "public static String myStaticField"),
+              CompletionItemLink("MyInner", "Class", "public")))
+    }
+  }
 }

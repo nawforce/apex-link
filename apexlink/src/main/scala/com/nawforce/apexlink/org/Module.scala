@@ -156,7 +156,7 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
     types.values.foreach {
       case td: ApexClassDeclaration =>
         val depends = mutable.Set[TypeId]()
-        td.collectDependenciesByTypeName(depends, apexOnly = false, typeCache)
+        td.gatherDependencies(depends, apexOnly = false, outerTypesOnly = true, typeCache)
         depends.remove(td.typeId)
         if (depends.nonEmpty)
           dependencies.put(td.typeName.toString, depends.map(_.typeName.toString).toArray)

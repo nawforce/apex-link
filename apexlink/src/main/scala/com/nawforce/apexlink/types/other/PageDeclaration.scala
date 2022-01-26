@@ -90,12 +90,13 @@ final case class PageDeclaration(sources: ArraySeq[SourceInfo], override val mod
     propagateOuterDependencies(new TypeCache())
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
+                                  apexOnly: Boolean,
+                                  outerTypesOnly: Boolean,
+                                  typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     pages.foreach(page => page.dependencies().foreach(dependents.add))
-    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, outerTypesOnly, dependsOn)
     if (!apexOnly)
       module.baseModules.foreach(bp => dependsOn.add(bp.pages.typeId))
   }

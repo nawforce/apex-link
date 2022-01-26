@@ -109,14 +109,15 @@ final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
     propagateOuterDependencies(new TypeCache())
   }
 
-  override def collectDependenciesByTypeName(dependsOn: mutable.Set[TypeId],
-                                             apexOnly: Boolean,
-                                             typeCache: TypeCache): Unit = {
+  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
+                                  apexOnly: Boolean,
+                                  outerTypesOnly: Boolean,
+                                  typeCache: TypeCache): Unit = {
     val dependents = mutable.Set[Dependent]()
     components
       .collect { case component: DependencyHolder => component }
       .foreach(component => component.dependencies().foreach(dependents.add))
-    DependentType.dependentsToTypeIds(module, dependents, apexOnly, dependsOn)
+    DependentType.dependentsToTypeIds(module, dependents, apexOnly, outerTypesOnly, dependsOn)
     if (!apexOnly)
       nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }

@@ -53,13 +53,14 @@ trait DependentType extends TypeDeclaration {
     typeDependencyHolders = holders
   }
 
-  /** Collect set of TypeNames that this declaration is dependent on */
-  def collectDependenciesByTypeName(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache): Unit
-
-  /** Collect set of TypeNames that this declaration is dependent, don't resolve to outer type */
-  def collectDependencies(dependents: mutable.Set[TypeId], apexOnly: Boolean, typeCache: TypeCache) : Unit = {
-    collectDependenciesByTypeName(dependents, apexOnly, typeCache)
-  }
+  /** Collect set of TypeIds that this declaration is dependent on.
+   *
+   * You can filter to include only Apex dependencies and only outer classes of those. If outerTypesOnly is false
+   * then a dependency on an inner class will add both the TypeId for the inner class and it's outer class to
+   * make determining if a class is a dependency easier for callers.
+   */
+  def gatherDependencies(dependents: mutable.Set[TypeId], apexOnly: Boolean,
+                         outerTypesOnly: Boolean, typeCache: TypeCache): Unit
 
   def addTypeDependencyHolder(typeId: TypeId): Unit = {
     if (typeId != this.typeId) {
@@ -72,7 +73,7 @@ trait DependentType extends TypeDeclaration {
   // Update holders on outer dependencies
   def propagateOuterDependencies(typeCache: TypeCache): Unit = {
     val dependsOn = mutable.Set[TypeId]()
-    collectDependenciesByTypeName(dependsOn, apexOnly = false, typeCache)
+    gatherDependencies(dependsOn, apexOnly = false, outerTypesOnly = true, typeCache)
     dependsOn.foreach(dependentTypeName =>
       getOutermostDeclaration(dependentTypeName).map(_.addTypeDependencyHolder(this.typeId)))
   }
@@ -92,19 +93,22 @@ trait DependentType extends TypeDeclaration {
 object DependentType {
   val emptyTypeDependencyHolders: SkinnySet[TypeId] = new SkinnySet[TypeId]()
 
-  // FUTURE: Replace this tmp helper by a simpler mechanism
+  /** Helper for converting a set of Dependents into a set of TypeIds */
   def dependentsToTypeIds(module: Module,
                           dependents: mutable.Set[Dependent],
                           apexOnly: Boolean,
+                          outerTypesOnly: Boolean,
                           dependsOn: mutable.Set[TypeId]): Unit = {
     dependents.foreach {
-      case ad: ApexClassDeclaration            => dependsOn.add(ad.outerTypeId)
+      case ad: ApexClassDeclaration =>
+        dependsOn.add(ad.outerTypeId)
+        if (!outerTypesOnly) dependsOn.add(ad.typeId)
       case co: SObjectDeclaration if !apexOnly => dependsOn.add(co.typeId)
-      case _: Label if !apexOnly               => dependsOn.add(TypeId(module, TypeNames.Label))
-      case _: Interview if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Interview))
-      case _: Page if !apexOnly                => dependsOn.add(TypeId(module, TypeNames.Page))
-      case _: Component if !apexOnly           => dependsOn.add(TypeId(module, TypeNames.Component))
-      case _                                   => ()
+      case _: Label if !apexOnly => dependsOn.add(TypeId(module, TypeNames.Label))
+      case _: Interview if !apexOnly => dependsOn.add(TypeId(module, TypeNames.Interview))
+      case _: Page if !apexOnly => dependsOn.add(TypeId(module, TypeNames.Page))
+      case _: Component if !apexOnly => dependsOn.add(TypeId(module, TypeNames.Component))
+      case _ => ()
     }
   }
 

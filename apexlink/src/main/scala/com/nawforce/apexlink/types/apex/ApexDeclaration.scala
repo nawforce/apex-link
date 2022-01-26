@@ -240,7 +240,7 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
 
     val typeCache = new TypeCache()
     val dependencies = mutable.Set[TypeId]()
-    collectDependenciesByTypeName(dependencies, apexOnly = true, typeCache)
+    gatherDependencies(dependencies, apexOnly = true, outerTypesOnly = true, typeCache)
     dependencies.remove(typeId)
     val uses = dependencies.size
     val usedBy = getTypeDependencyHolders.size

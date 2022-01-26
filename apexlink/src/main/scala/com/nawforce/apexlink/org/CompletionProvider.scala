@@ -19,6 +19,7 @@ import com.nawforce.apexlink.org.TextOps.TestOpsUtils
 import com.nawforce.apexlink.rpc.CompletionItemLink
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.{ApexLexer, ApexParser}
+import com.nawforce.pkgforce.documents.{ApexClassDocument, ApexTriggerDocument, MetadataDocument}
 import com.nawforce.pkgforce.modifiers.PUBLIC_MODIFIER
 import com.nawforce.pkgforce.path.PathLike
 import com.vmware.antlr4c3.CodeCompletionCore
@@ -35,7 +36,11 @@ trait CompletionProvider {
     // Get basic context of what we are looking at
     val module = getPackageModule(path)
     val terminatedContent = injectStatementTerminator(line, offset, content)
-    val classDetails = loadClass(path, terminatedContent._1)
+    val classDetails = MetadataDocument(path).collect {
+      case _: ApexClassDocument => loadClass(path, terminatedContent._1)
+      case _: ApexTriggerDocument => loadTrigger(path, terminatedContent._1)
+    }.getOrElse((None,None))
+
     if (classDetails._1.isEmpty) /* Bail if we did not at least parse the content */
       return emptyCompletions
     val parserAndCU = classDetails._1.get

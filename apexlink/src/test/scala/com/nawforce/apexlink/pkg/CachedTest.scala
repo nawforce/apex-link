@@ -373,7 +373,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
                                             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
               outerInheritanceOnly = false,
               apexOnly = false)
-            .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Interview))))
+            .sameElements(Array(TypeIdentifier(Some(Name("pkg1")), TypeNames.Interview))))
 
         root.join("pkg1/Test.flow-meta.xml").delete()
 
@@ -506,7 +506,7 @@ class CachedTest extends AnyFunSuite with TestHelper with BeforeAndAfter {
                                           TypeName(Name("Dummy"), Nil, Some(TypeName(Name("pkg2"))))),
             outerInheritanceOnly = false,
             apexOnly = false)
-          .sameElements(Array(TypeIdentifier(Some(Name("pkg2")), TypeNames.Component))))
+          .sameElements(Array(TypeIdentifier(Some(Name("pkg1")), TypeNames.Component))))
 
       root.join("pkg1/Test.component").delete()
 
