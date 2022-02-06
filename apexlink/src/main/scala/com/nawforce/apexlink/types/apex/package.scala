@@ -41,9 +41,11 @@ package object apex {
     }
 
     private def intern(dependency: MethodDependentSummary): MethodDependentSummary = {
-      MethodDependentSummary(dependency.typeId.intern,
-                             Names(dependency.name).value,
-                             dependency.parameterTypes.map(_.intern))
+      MethodDependentSummary(
+        dependency.typeId.intern,
+        Names(dependency.name).value,
+        dependency.parameterTypes.map(_.intern)
+      )
     }
   }
 
@@ -51,8 +53,11 @@ package object apex {
   implicit class TypeIdentifierOps(typeIdentifier: TypeIdentifier) {
     def intern: TypeIdentifier = {
       TypeIdentifierOps.intern(
-        TypeIdentifier(typeIdentifier.namespace.map(n => Names(n.value)),
-                       typeIdentifier.typeName.intern))
+        TypeIdentifier(
+          typeIdentifier.namespace.map(n => Names(n.value)),
+          typeIdentifier.typeName.intern
+        )
+      )
     }
   }
 

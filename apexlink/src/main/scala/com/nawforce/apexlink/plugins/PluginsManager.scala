@@ -22,7 +22,7 @@ import scala.collection.mutable
 
 class PluginsManager {
   private val availablePlugins = activePlugins()
-  private val livePlugins = new mutable.HashMap[TypeName, Plugin]()
+  private val livePlugins      = new mutable.HashMap[TypeName, Plugin]()
 
   def createPlugin(td: DependentType): Plugin = {
     val plugin = PluginDispatcher(td, availablePlugins)
@@ -37,8 +37,8 @@ class PluginsManager {
 }
 
 object PluginsManager {
-  private val defaultPlugins = Seq[Class[_ <: Plugin]](classOf[UnusedPlugin])
-  private var plugins = defaultPlugins
+  private val defaultPlugins     = Seq[Class[_ <: Plugin]](classOf[UnusedPlugin])
+  private var plugins            = defaultPlugins
   private var pluginConstructors = defaultPlugins.map(_.getConstructor(classOf[DependentType]))
 
   def activePlugins(): Seq[Constructor[_ <: Plugin]] = pluginConstructors

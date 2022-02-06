@@ -17,7 +17,13 @@ package com.nawforce.apexlink.cst
 import com.nawforce.apexlink.finding.{RelativeTypeContext, RelativeTypeName}
 import com.nawforce.apexlink.memory.SkinnySet
 import com.nawforce.apexlink.names.TypeNames
-import com.nawforce.apexlink.types.apex.{ApexBlockLike, ApexConstructorLike, ApexFieldLike, ApexMethodLike, ThisType}
+import com.nawforce.apexlink.types.apex.{
+  ApexBlockLike,
+  ApexConstructorLike,
+  ApexFieldLike,
+  ApexMethodLike,
+  ThisType
+}
 import com.nawforce.apexlink.types.core._
 import com.nawforce.apexparser.ApexParser._
 import com.nawforce.pkgforce.diagnostics.Issue
@@ -31,7 +37,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
-  extends CST
+    extends CST
     with DependencyHolder
     with ApexNode {
 
@@ -41,7 +47,7 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
 
   // For ApexNode, not used yet used in CST
   override val parseIssues: ArraySeq[Issue] = null
-  override lazy val signature: String = null
+  override lazy val signature: String       = null
   override val description: String          = null
 
   lazy val isGlobal: Boolean =
@@ -74,14 +80,14 @@ abstract class ClassBodyDeclaration(modifierResults: ModifierResults)
 
 object ClassBodyDeclaration {
   def construct(
-                 parser: CodeParser,
-                 thisType: ThisType,
-                 typeContext: RelativeTypeContext,
-                 methodOwnerNature: MethodOwnerNature,
-                 isOuter: Boolean,
-                 modifiers: ArraySeq[ModifierContext],
-                 memberDeclarationContext: MemberDeclarationContext
-               ): Seq[ClassBodyDeclaration] = {
+    parser: CodeParser,
+    thisType: ThisType,
+    typeContext: RelativeTypeContext,
+    methodOwnerNature: MethodOwnerNature,
+    isOuter: Boolean,
+    modifiers: ArraySeq[ModifierContext],
+    memberDeclarationContext: MemberDeclarationContext
+  ): Seq[ClassBodyDeclaration] = {
 
     val declarations: Seq[ClassBodyDeclaration] =
       CodeParser
@@ -200,16 +206,16 @@ object ClassBodyDeclaration {
 }
 
 final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block, _inTest: Boolean)
-  extends ClassBodyDeclaration(_modifiers)
+    extends ClassBodyDeclaration(_modifiers)
     with ApexBlockLike {
 
   override def idLocation: Location = location.location
 
-  override val isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
-  override val nature: Nature = INIT_NATURE
+  override val isStatic: Boolean            = modifiers.contains(STATIC_MODIFIER)
+  override val nature: Nature               = INIT_NATURE
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
-  override val name: Name = Name.empty
-  override val inTest: Boolean = _inTest
+  override val name: Name                   = Name.empty
+  override val inTest: Boolean              = _inTest
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val blockContext = new OuterBlockVerifyContext(context, isStatic)
@@ -223,34 +229,36 @@ final case class ApexInitializerBlock(_modifiers: ModifierResults, block: Block,
 
 object ApexInitializerBlock {
   def construct(
-                 parser: CodeParser,
-                 thisType: ThisType,
-                 modifiers: ModifierResults,
-                 block: BlockContext
-               ): ApexInitializerBlock = {
-    ApexInitializerBlock(modifiers, Block.constructLazy(parser, block), thisType.inTest).withContext(block)
+    parser: CodeParser,
+    thisType: ThisType,
+    modifiers: ModifierResults,
+    block: BlockContext
+  ): ApexInitializerBlock = {
+    ApexInitializerBlock(modifiers, Block.constructLazy(parser, block), thisType.inTest)
+      .withContext(block)
   }
 }
 
-class ApexMethodDeclaration(thisType: ThisType,
-                                  _modifiers: ModifierResults,
-                                  returnTypeName: RelativeTypeName,
-                                  id: Id,
-                                  override val parameters: ArraySeq[FormalParameter],
-                                  val block: Option[Block])
-  extends ClassBodyDeclaration(_modifiers)
+class ApexMethodDeclaration(
+  thisType: ThisType,
+  _modifiers: ModifierResults,
+  returnTypeName: RelativeTypeName,
+  id: Id,
+  override val parameters: ArraySeq[FormalParameter],
+  val block: Option[Block]
+) extends ClassBodyDeclaration(_modifiers)
     with ApexMethodLike {
 
   override def idLocation: Location = id.location.location
 
-  override val name: Name = id.name
-  override val outerTypeId: TypeId = thisType.typeId
-  override val hasBlock: Boolean = block.nonEmpty
-  override lazy val typeName: TypeName = returnTypeName.typeName
-  override val nature: Nature = METHOD_NATURE
+  override val name: Name                   = id.name
+  override val outerTypeId: TypeId          = thisType.typeId
+  override val hasBlock: Boolean            = block.nonEmpty
+  override lazy val typeName: TypeName      = returnTypeName.typeName
+  override val nature: Nature               = METHOD_NATURE
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
-  override lazy val signature: String = super[ApexMethodLike].signature
-  override val inTest: Boolean = thisType.inTest
+  override lazy val signature: String       = super[ApexMethodLike].signature
+  override val inTest: Boolean              = thisType.inTest
 
   // If using a fake block then consider synthetic, we need to use a block to avoid confusion with abstract
   override def isSynthetic: Boolean = block.contains(EagerBlock.empty)
@@ -282,12 +290,12 @@ class ApexMethodDeclaration(thisType: ThisType,
 
 object ApexMethodDeclaration {
   def construct(
-                 parser: CodeParser,
-                 thisType: ThisType,
-                 typeContext: RelativeTypeContext,
-                 modifiers: ModifierResults,
-                 from: MethodDeclarationContext
-               ): ApexMethodDeclaration = {
+    parser: CodeParser,
+    thisType: ThisType,
+    typeContext: RelativeTypeContext,
+    modifiers: ModifierResults,
+    from: MethodDeclarationContext
+  ): ApexMethodDeclaration = {
     val block = CodeParser
       .toScala(from.block())
       .map(b => Block.constructLazy(parser, b))
@@ -297,22 +305,18 @@ object ApexMethodDeclaration {
       modifiers,
       RelativeTypeName(typeContext, TypeReference.construct(from.typeRef())),
       Id.construct(from.id()),
-      FormalParameters.construct(
-        parser,
-        typeContext,
-        from.formalParameters()
-      ),
+      FormalParameters.construct(parser, typeContext, from.formalParameters()),
       block
     ).withContext(from)
   }
 
   def construct(
-                 parser: CodeParser,
-                 thisType: ThisType,
-                 typeContext: RelativeTypeContext,
-                 modifiers: ModifierResults,
-                 from: InterfaceMethodDeclarationContext
-               ): ApexMethodDeclaration = {
+    parser: CodeParser,
+    thisType: ThisType,
+    typeContext: RelativeTypeContext,
+    modifiers: ModifierResults,
+    from: InterfaceMethodDeclarationContext
+  ): ApexMethodDeclaration = {
     val typeName = CodeParser
       .toScala(from.typeRef())
       .map(tr => TypeReference.construct(tr))
@@ -322,35 +326,33 @@ object ApexMethodDeclaration {
       modifiers,
       RelativeTypeName(typeContext, typeName),
       Id.construct(from.id()),
-      FormalParameters.construct(
-        parser,
-        typeContext,
-        from.formalParameters()
-      ),
+      FormalParameters.construct(parser, typeContext, from.formalParameters()),
       None
     ).withContext(from)
   }
 }
 
-final case class ApexFieldDeclaration(thisType: ThisType,
-                                      _modifiers: ModifierResults,
-                                      typeName: TypeName,
-                                      variableDeclarator: VariableDeclarator
-                                     ) extends ClassBodyDeclaration(_modifiers)
-  with ApexFieldLike {
+final case class ApexFieldDeclaration(
+  thisType: ThisType,
+  _modifiers: ModifierResults,
+  typeName: TypeName,
+  variableDeclarator: VariableDeclarator
+) extends ClassBodyDeclaration(_modifiers)
+    with ApexFieldLike {
 
   def id: Id = variableDeclarator.id
 
   override def idLocation: Location = id.location.location
 
   override val name: Name = id.name
-  private val visibility: Option[Modifier] = _modifiers.modifiers.find(ApexModifiers.visibilityModifiers.contains)
-  override val readAccess: Modifier = visibility.getOrElse(PRIVATE_MODIFIER)
-  override val writeAccess: Modifier = readAccess
+  private val visibility: Option[Modifier] =
+    _modifiers.modifiers.find(ApexModifiers.visibilityModifiers.contains)
+  override val readAccess: Modifier         = visibility.getOrElse(PRIVATE_MODIFIER)
+  override val writeAccess: Modifier        = readAccess
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
-  override val nature: Nature = FIELD_NATURE
-  override val outerTypeId: TypeId = thisType.typeId
-  override val inTest: Boolean = thisType.inTest
+  override val nature: Nature               = FIELD_NATURE
+  override val outerTypeId: TypeId          = thisType.typeId
+  override val inTest: Boolean              = thisType.inTest
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     val staticContext = if (isStatic) Some(true) else None
@@ -367,10 +369,10 @@ final case class ApexFieldDeclaration(thisType: ThisType,
 
 object ApexFieldDeclaration {
   def construct(
-                 thisType: ThisType,
-                 modifiers: ModifierResults,
-                 fieldDeclaration: FieldDeclarationContext
-               ): Seq[ApexFieldDeclaration] = {
+    thisType: ThisType,
+    modifiers: ModifierResults,
+    fieldDeclaration: FieldDeclarationContext
+  ): Seq[ApexFieldDeclaration] = {
     val typeName = TypeReference.construct(fieldDeclaration.typeRef())
     VariableDeclarators
       .construct(typeName, fieldDeclaration.variableDeclarators())
@@ -381,20 +383,21 @@ object ApexFieldDeclaration {
   }
 }
 
-final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
-                                            qualifiedName: QualifiedName,
-                                            parameters: ArraySeq[FormalParameter],
-                                            _inTest: Boolean,
-                                            block: Block)
-  extends ClassBodyDeclaration(_modifiers)
+final case class ApexConstructorDeclaration(
+  _modifiers: ModifierResults,
+  qualifiedName: QualifiedName,
+  parameters: ArraySeq[FormalParameter],
+  _inTest: Boolean,
+  block: Block
+) extends ClassBodyDeclaration(_modifiers)
     with ApexConstructorLike {
 
   override def idLocation: Location = qualifiedName.location.location
 
-  override val name: Name = Name(qualifiedName.names.mkString("."))
+  override val name: Name                   = Name(qualifiedName.names.mkString("."))
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
-  override val nature: Nature = CONSTRUCTOR_NATURE
-  override val inTest: Boolean = _inTest
+  override val nature: Nature               = CONSTRUCTOR_NATURE
+  override val inTest: Boolean              = _inTest
 
   override def verify(context: BodyDeclarationVerifyContext): Unit = {
     parameters.foreach(_.verify(context))
@@ -411,12 +414,12 @@ final case class ApexConstructorDeclaration(_modifiers: ModifierResults,
 
 object ApexConstructorDeclaration {
   def construct(
-                 parser: CodeParser,
-                 thisType: ThisType,
-                 typeContext: RelativeTypeContext,
-                 modifiers: ModifierResults,
-                 from: ConstructorDeclarationContext
-               ): Option[ApexConstructorDeclaration] = {
+    parser: CodeParser,
+    thisType: ThisType,
+    typeContext: RelativeTypeContext,
+    modifiers: ModifierResults,
+    from: ConstructorDeclarationContext
+  ): Option[ApexConstructorDeclaration] = {
 
     QualifiedName
       .construct(from.qualifiedName())
@@ -454,10 +457,10 @@ final case class FormalParameter(
 
 object FormalParameter {
   def construct(
-                 parser: CodeParser,
-                 typeContext: RelativeTypeContext,
-                 items: ArraySeq[FormalParameterContext]
-               ): ArraySeq[FormalParameter] = {
+    parser: CodeParser,
+    typeContext: RelativeTypeContext,
+    items: ArraySeq[FormalParameterContext]
+  ): ArraySeq[FormalParameter] = {
     items.map(x => FormalParameter.construct(parser, typeContext, x))
   }
 
@@ -467,11 +470,7 @@ object FormalParameter {
     from: FormalParameterContext
   ): FormalParameter = {
     FormalParameter(
-      ApexModifiers.parameterModifiers(
-        parser,
-        CodeParser.toScala(from.modifier()),
-        from
-      ),
+      ApexModifiers.parameterModifiers(parser, CodeParser.toScala(from.modifier()), from),
       RelativeTypeName(typeContext, TypeReference.construct(from.typeRef)),
       Id.construct(from.id())
     )
@@ -482,16 +481,12 @@ object FormalParameterList {
   val noParams: ArraySeq[FormalParameter] = ArraySeq()
 
   def construct(
-                 parser: CodeParser,
-                 typeContext: RelativeTypeContext,
-                 from: FormalParameterListContext
-               ): ArraySeq[FormalParameter] = {
+    parser: CodeParser,
+    typeContext: RelativeTypeContext,
+    from: FormalParameterListContext
+  ): ArraySeq[FormalParameter] = {
     if (from.formalParameter() != null) {
-      FormalParameter.construct(
-        parser,
-        typeContext,
-        CodeParser.toScala(from.formalParameter())
-      )
+      FormalParameter.construct(parser, typeContext, CodeParser.toScala(from.formalParameter()))
     } else {
       noParams
     }
@@ -501,13 +496,18 @@ object FormalParameterList {
 object FormalParameters {
   val empty: ArraySeq[FormalParameter] = ArraySeq()
 
-  def construct(parser: CodeParser,
-                typeContext: RelativeTypeContext,
-                from: FormalParametersContext): ArraySeq[FormalParameter] = {
-    Option(from).map(from => {
-      CodeParser.toScala(from.formalParameterList())
-        .map(x => FormalParameterList.construct(parser, typeContext, x))
-        .getOrElse(empty)
-    }).getOrElse(empty)
+  def construct(
+    parser: CodeParser,
+    typeContext: RelativeTypeContext,
+    from: FormalParametersContext
+  ): ArraySeq[FormalParameter] = {
+    Option(from)
+      .map(from => {
+        CodeParser
+          .toScala(from.formalParameterList())
+          .map(x => FormalParameterList.construct(parser, typeContext, x))
+          .getOrElse(empty)
+      })
+      .getOrElse(empty)
   }
 }

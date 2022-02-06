@@ -27,15 +27,18 @@ trait Limiter {
 
 /** A limiter that accepts identifier characters (and dot) */
 class IdentifierLimiter extends Limiter {
-  override def allow(char: Char, forward: Boolean): Boolean = IdentifierLimiter.allowedCharacters.contains(char)
+  override def allow(char: Char, forward: Boolean): Boolean =
+    IdentifierLimiter.allowedCharacters.contains(char)
 }
 
 object IdentifierLimiter {
-  final val allowedCharacters: Set[Char] = (('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z') ++ Seq('_', '.')).toSet
+  final val allowedCharacters: Set[Char] =
+    (('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z') ++ Seq('_', '.')).toSet
 }
 
 /** A limiter that accepts identifiers with matched parentheses for method calls. Inside parentheses it allows any
-  * character to allow for complex expressions used as method arguments. */
+  * character to allow for complex expressions used as method arguments.
+  */
 class IdentifierAndMethodLimiter extends IdentifierLimiter {
   private var bracketDepth = 0
 
@@ -60,60 +63,88 @@ object TextOps {
     /** Extract a dot delimited term constructed from only the characters allowed by the limiter searching in both
       * directions from the line and offset position provided. The term is split into two strings, the first contains
       * dot-delimited segments prior to the one containing the offset (if present). The second contains any residual
-      * text, which may be empty if the term ends with a dot. */
-    def extractDotTermExclusive(limiterFactory: () => Limiter, line: Int, offset: Int): Option[ExclusiveDotTerm] = {
-      text.getLine(line - 1).flatMap(lineText => {
-        // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
-        lineText.findLimit(limiterFactory(), forward = false, offset - 1).flatMap(start => {
-          lineText.findLimit(limiterFactory(), forward = true, start).map(end => {
-            // Split & rebuild so not so sensitive to cursor being close to a "."
-            val rawText = lineText.substring(start, end + 1)
-            val parts = rawText.split('.')
-            val searchTerm = new mutable.StringBuilder()
-            parts.foreach(part => {
-              val appendDot = searchTerm.nonEmpty
-              if (start + searchTerm.length + (if (appendDot) 1 else 0) + part.length < offset) {
-                if (appendDot) searchTerm.append(".")
-                searchTerm.append(part)
-              }
+      * text, which may be empty if the term ends with a dot.
+      */
+    def extractDotTermExclusive(
+      limiterFactory: () => Limiter,
+      line: Int,
+      offset: Int
+    ): Option[ExclusiveDotTerm] = {
+      text
+        .getLine(line - 1)
+        .flatMap(lineText => {
+          // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
+          lineText
+            .findLimit(limiterFactory(), forward = false, offset - 1)
+            .flatMap(start => {
+              lineText
+                .findLimit(limiterFactory(), forward = true, start)
+                .map(end => {
+                  // Split & rebuild so not so sensitive to cursor being close to a "."
+                  val rawText    = lineText.substring(start, end + 1)
+                  val parts      = rawText.split('.')
+                  val searchTerm = new mutable.StringBuilder()
+                  parts.foreach(part => {
+                    val appendDot = searchTerm.nonEmpty
+                    if (
+                      start + searchTerm.length + (if (appendDot) 1 else 0) + part.length < offset
+                    ) {
+                      if (appendDot) searchTerm.append(".")
+                      searchTerm.append(part)
+                    }
+                  })
+                  val residual =
+                    if (searchTerm.isEmpty)
+                      rawText
+                    else if (rawText.length > searchTerm.length())
+                      rawText.substring(searchTerm.length() + 1)
+                    else
+                      ""
+                  ExclusiveDotTerm(
+                    searchTerm.toString(),
+                    Location(line, start, line, start + searchTerm.length()),
+                    residual
+                  )
+                })
             })
-            val residual =
-              if (searchTerm.isEmpty)
-                rawText
-              else if (rawText.length > searchTerm.length())
-                rawText.substring(searchTerm.length() + 1)
-              else
-                ""
-            ExclusiveDotTerm(searchTerm.toString(), Location(line, start, line, start + searchTerm.length()), residual)
-          })
         })
-      })
     }
 
     /** Extract a dot delimited term constructed from only the characters allowed the limiter at the line and offset provided.
       * If inclusive is set the term encompasses the offset, if not the term includes all segments upto the preceding
-      * dot. */
-    def extractDotTermInclusive(limiterFactory: () => Limiter, line: Int, offset: Int): Option[(String, Location)] = {
-      text.getLine(line - 1).flatMap(lineText => {
-        // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
-        lineText.findLimit(limiterFactory(), forward = false, offset - 1).flatMap(start => {
-          lineText.findLimit(limiterFactory(), forward = true, start).map(end => {
-            // Split & rebuild so not so sensitive to cursor being close to a "."
-            val parts = lineText.substring(start, end + 1).split('.')
-            val searchTerm = new mutable.StringBuilder()
-            var canAppend = true
-            parts.foreach(part => {
-              if (canAppend) {
-                if (searchTerm.nonEmpty)
-                  searchTerm.append(".")
-                searchTerm.append(part)
-              }
-              canAppend = start + searchTerm.length < offset
+      * dot.
+      */
+    def extractDotTermInclusive(
+      limiterFactory: () => Limiter,
+      line: Int,
+      offset: Int
+    ): Option[(String, Location)] = {
+      text
+        .getLine(line - 1)
+        .flatMap(lineText => {
+          // Search backwards from -1 as selection cursor position is on next character which is possibly not legal
+          lineText
+            .findLimit(limiterFactory(), forward = false, offset - 1)
+            .flatMap(start => {
+              lineText
+                .findLimit(limiterFactory(), forward = true, start)
+                .map(end => {
+                  // Split & rebuild so not so sensitive to cursor being close to a "."
+                  val parts      = lineText.substring(start, end + 1).split('.')
+                  val searchTerm = new mutable.StringBuilder()
+                  var canAppend  = true
+                  parts.foreach(part => {
+                    if (canAppend) {
+                      if (searchTerm.nonEmpty)
+                        searchTerm.append(".")
+                      searchTerm.append(part)
+                    }
+                    canAppend = start + searchTerm.length < offset
+                  })
+                  (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
+                })
             })
-            (searchTerm.toString(), Location(line, start, line, start + searchTerm.length()))
-          })
         })
-      })
     }
 
     /** Search for last allowed character from a set either forwards or backwards from an offset */
@@ -134,7 +165,7 @@ object TextOps {
       Using(new BufferedReader(new StringReader(text))) { reader =>
         reader.lines().iterator().asScala.toArray
       } match {
-        case Success(array) => array
+        case Success(array)     => array
         case Failure(exception) => throw exception
       }
     }
@@ -148,7 +179,7 @@ object TextOps {
         else
           None
       } match {
-        case Success(line) => line
+        case Success(line)      => line
         case Failure(exception) => throw exception
       }
     }

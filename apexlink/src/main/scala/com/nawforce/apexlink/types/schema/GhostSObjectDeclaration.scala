@@ -43,28 +43,34 @@ final case class GhostSObjectDeclaration(module: Module, _typeName: TypeName)
     TypeResolver(superClass.get, this).toOption
   }
 
-  override def gatherDependencies(dependents: mutable.Set[TypeId],
-                                  apexOnly: Boolean,
-                                  outerTypesOnly: Boolean,
-                                  typeCache: TypeCache): Unit = {
+  override def gatherDependencies(
+    dependents: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    outerTypesOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     // TODO: Should you be able to depend on a ghost?
   }
 
   override val fields: ArraySeq[FieldDeclaration] = {
-    ArraySeq.unsafeWrapArray(SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray)
+    ArraySeq.unsafeWrapArray(
+      SObjectDeployer.standardCustomObjectFields.map(f => (f.name, f)).toMap.values.toArray
+    )
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
     findFieldSObject(name, staticContext)
   }
 
-  override def findMethod(name: Name,
-                          params: ArraySeq[TypeName],
-                          staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+  override def findMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     if (staticContext.contains(true)) {
       SObjectDeclaration.sObjectMethodMap.get((name, params.length)) match {
-        case None => Left("No matching method found")
+        case None    => Left("No matching method found")
         case Some(m) => Right(m)
       }
     } else {

@@ -25,7 +25,11 @@ import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.org.{Module, OrgImpl}
 import com.nawforce.apexlink.types.other.Component
 import com.nawforce.apexlink.types.platform.PlatformTypes
-import com.nawforce.apexlink.types.synthetic.{CustomField, CustomFieldDeclaration, LocatableCustomFieldDeclaration}
+import com.nawforce.apexlink.types.synthetic.{
+  CustomField,
+  CustomFieldDeclaration,
+  LocatableCustomFieldDeclaration
+}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.names.{Name, Names, TypeName}
 import com.nawforce.pkgforce.parsers.Nature
@@ -58,7 +62,10 @@ trait FieldDeclaration extends DependencyHolder with UnsafeLocatable with Depend
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString
 
   // Create an SObjectField version of this field
-  def getSObjectStaticField(shareTypeName: Option[TypeName], module: Option[Module]): CustomField = {
+  def getSObjectStaticField(
+    shareTypeName: Option[TypeName],
+    module: Option[Module]
+  ): CustomField = {
     def preloadSObject(typeName: TypeName): TypeResponse = {
       module.map(m => TypeResolver(typeName, m)).getOrElse(PlatformTypes.get(typeName, None))
     }
@@ -71,10 +78,24 @@ trait FieldDeclaration extends DependencyHolder with UnsafeLocatable with Depend
     } else if (CustomField.isSObjectPrimitive(typeName)) {
       // Primitives (including other Id types)
       if (shareTypeName.nonEmpty && name == Names.RowCause)
-        CustomFieldDeclaration(name, TypeNames.sObjectFieldRowCause$(shareTypeName.get), None, asStatic = true)
+        CustomFieldDeclaration(
+          name,
+          TypeNames.sObjectFieldRowCause$(shareTypeName.get),
+          None,
+          asStatic = true
+        )
       else {
         Option(location)
-          .map(l => LocatableCustomFieldDeclaration(l, name, TypeNames.SObjectField, None, asStatic = true))
+          .map(
+            l =>
+              LocatableCustomFieldDeclaration(
+                l,
+                name,
+                TypeNames.SObjectField,
+                None,
+                asStatic = true
+              )
+          )
           .getOrElse(CustomFieldDeclaration(name, TypeNames.SObjectField, None, asStatic = true))
       }
     } else if (name.value.endsWith("__r") && typeName.isRecordSet) {
@@ -114,7 +135,9 @@ trait ConstructorDeclaration extends DependencyHolder {
   val parameters: ArraySeq[ParameterDeclaration]
 
   override def toString: String =
-    modifiers.map(_.toString).mkString(" ") + " constructor(" + parameters.map(_.toString).mkString(", ") + ")"
+    modifiers.map(_.toString).mkString(" ") + " constructor(" + parameters
+      .map(_.toString)
+      .mkString(", ") + ")"
 }
 
 object ConstructorDeclaration {
@@ -129,18 +152,19 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
 
   def hasBlock: Boolean
 
-  def visibility: Modifier = modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
+  def visibility: Modifier =
+    modifiers.find(m => ApexModifiers.visibilityModifiers.contains(m)).getOrElse(PRIVATE_MODIFIER)
 
   def signature: String = s"$typeName $nameAndParameterTypes"
 
   def nameAndParameterTypes: String = s"$name($parameterTypes)"
-  def parameterTypes: String = parameters.map(_.typeName).mkString(", ")
+  def parameterTypes: String        = parameters.map(_.typeName).mkString(", ")
 
-  def isStatic: Boolean = modifiers.contains(STATIC_MODIFIER)
-  def isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
-  def isVirtual: Boolean = modifiers.contains(VIRTUAL_MODIFIER)
-  def isOverride: Boolean = modifiers.contains(OVERRIDE_MODIFIER)
-  def isTestVisible: Boolean = modifiers.contains(TEST_VISIBLE_ANNOTATION)
+  def isStatic: Boolean            = modifiers.contains(STATIC_MODIFIER)
+  def isAbstract: Boolean          = modifiers.contains(ABSTRACT_MODIFIER)
+  def isVirtual: Boolean           = modifiers.contains(VIRTUAL_MODIFIER)
+  def isOverride: Boolean          = modifiers.contains(OVERRIDE_MODIFIER)
+  def isTestVisible: Boolean       = modifiers.contains(TEST_VISIBLE_ANNOTATION)
   def isVirtualOrOverride: Boolean = isVirtual || isOverride
   def isVirtualOrAbstract: Boolean = isVirtual || isAbstract
 
@@ -148,38 +172,55 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     modifiers.map(_.toString).mkString(" ") + " " + typeName.toString + " " + name.toString + "(" +
       parameters.map(_.toString).mkString(", ") + ")"
 
-  def hasSameSignature(other: MethodDeclaration, allowPlatformGenericEquivalence: Boolean): Boolean = {
+  def hasSameSignature(
+    other: MethodDeclaration,
+    allowPlatformGenericEquivalence: Boolean
+  ): Boolean = {
     name == other.name &&
-      typeName == other.typeName &&
-      hasSameParameters(other, allowPlatformGenericEquivalence)
+    typeName == other.typeName &&
+    hasSameParameters(other, allowPlatformGenericEquivalence)
   }
 
   /** Test if the passed method has params compatible with this method. Ideally this would just be a comparison of
-    * type names but there is a quirk in how platform generic interfaces are handled. */
-  def hasSameParameters(other: MethodDeclaration, allowPlatformGenericEquivalence: Boolean): Boolean = {
+    * type names but there is a quirk in how platform generic interfaces are handled.
+    */
+  def hasSameParameters(
+    other: MethodDeclaration,
+    allowPlatformGenericEquivalence: Boolean
+  ): Boolean = {
     hasParameters(other.parameters.map(_.typeName), allowPlatformGenericEquivalence)
   }
 
   /** Test if this method has params compatible with those passed. Ideally this would just be a comparison of type names
-    * but there is a quirk in how platform generic interfaces are handled. */
-  def hasParameters(params: ArraySeq[TypeName], allowPlatformGenericEquivalence: Boolean): Boolean = {
+    * but there is a quirk in how platform generic interfaces are handled.
+    */
+  def hasParameters(
+    params: ArraySeq[TypeName],
+    allowPlatformGenericEquivalence: Boolean
+  ): Boolean = {
     if (parameters.length == params.length) {
-      parameters.zip(params).forall(paramPair => {
-        paramPair._1.typeName == paramPair._2 ||
-          (allowPlatformGenericEquivalence &&
-            paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(paramPair._1.typeName, paramPair._2))
-      })
+      parameters
+        .zip(params)
+        .forall(paramPair => {
+          paramPair._1.typeName == paramPair._2 ||
+            (allowPlatformGenericEquivalence &&
+              paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(
+              paramPair._1.typeName,
+              paramPair._2
+            ))
+        })
     } else {
       false
     }
   }
 
   /** Test if this method matches the provided params when fulfilling an interface method. This is more involved than
-    * a simple type name comparison as there is some rather shocking equivalence handling in Apex for interfaces.  */
+    * a simple type name comparison as there is some rather shocking equivalence handling in Apex for interfaces.
+    */
   def fulfillsInterfaceMethodParams(from: TypeDeclaration, params: ArraySeq[TypeName]): Boolean = {
     def isSObject(typeName: TypeName): Boolean = {
       typeName == TypeNames.SObject ||
-        from.moduleDeclaration.exists(_.getTypeFor(typeName, from).exists(_.isSObject))
+      from.moduleDeclaration.exists(_.getTypeFor(typeName, from).exists(_.isSObject))
     }
 
     def isSObjectList(typeName: TypeName): Boolean = {
@@ -187,32 +228,43 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     }
 
     if (parameters.length == params.length) {
-      parameters.zip(params).forall(paramPair => {
-        paramPair._1.typeName == paramPair._2 ||
-          (paramPair._1.typeName.isStringOrId && paramPair._2.isStringOrId) ||
-          (paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(paramPair._1.typeName, paramPair._2)) ||
-          (isSObjectList(paramPair._1.typeName) && isSObjectList(paramPair._2))
-      })
+      parameters
+        .zip(params)
+        .forall(paramPair => {
+          paramPair._1.typeName == paramPair._2 ||
+            (paramPair._1.typeName.isStringOrId && paramPair._2.isStringOrId) ||
+            (paramPair._1.typeName.params.nonEmpty && areSameGenericTypes(
+              paramPair._1.typeName,
+              paramPair._2
+            )) ||
+            (isSObjectList(paramPair._1.typeName) && isSObjectList(paramPair._2))
+        })
     } else {
       false
     }
   }
 
   /** Determine if parameter type names are considered the same. During method calls some platform generics are
-    * considered equivalent regardless of the type parameters used. Yeah, its a mess of a language.*/
+    * considered equivalent regardless of the type parameters used. Yeah, its a mess of a language.
+    */
   private def areSameGenericTypes(param: TypeName, other: TypeName): Boolean = {
     param.equalsIgnoreParamTypes(other) &&
-      (// Ignore generic type params on these
-        (param.outer.contains(TypeNames.System) && param.name == XNames.Iterable) ||
-          (param.outer.contains(TypeNames.System) && param.name == XNames.Iterator) ||
-          (param.outer.contains(TypeNames.Database) && param.name == Names.Batchable)
-        )
+    ( // Ignore generic type params on these
+      (param.outer.contains(TypeNames.System) && param.name == XNames.Iterable) ||
+      (param.outer.contains(TypeNames.System) && param.name == XNames.Iterator) ||
+      (param.outer.contains(TypeNames.Database) && param.name == Names.Batchable)
+    )
   }
 
   /** Determine if this method is a more specific version of the passed method. For this to be true all the parameters
     * of this method must be assignable to the corresponding parameter of the other method. However when dealing with
-    * RecordSets (SOQL results) we also prioritise degrees of specificness and use those to select as well. */
-  def isMoreSpecific(other: MethodDeclaration, params: ArraySeq[TypeName], context: VerifyContext): Option[Boolean] = {
+    * RecordSets (SOQL results) we also prioritise degrees of specificness and use those to select as well.
+    */
+  def isMoreSpecific(
+    other: MethodDeclaration,
+    params: ArraySeq[TypeName],
+    context: VerifyContext
+  ): Option[Boolean] = {
     if (parameters.length != other.parameters.length || parameters.length != params.length)
       return None
 
@@ -220,8 +272,8 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
     Some(zip.forall(tuple => {
       if (tuple._1.isRecordSet) {
         val sObjectType = tuple._1.params.head
-        val otherScore = scoreRecordSetAssignability(tuple._2.typeName, sObjectType)
-        val thisScore = scoreRecordSetAssignability(tuple._3.typeName, sObjectType)
+        val otherScore  = scoreRecordSetAssignability(tuple._2.typeName, sObjectType)
+        val thisScore   = scoreRecordSetAssignability(tuple._3.typeName, sObjectType)
         thisScore.nonEmpty && (otherScore.isEmpty || thisScore.get < otherScore.get)
       } else {
         isAssignable(tuple._2.typeName, tuple._3.typeName, strict = false, context)
@@ -231,7 +283,8 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
 
   /** Create a score for toType reflecting it's priority (low is high) when matching against a RecordSet of
     * sObjectType. The ordering here was empirically derived, having all of these available as possible
-    * matches does not create an ambiguity error, although the single record conversion may fail at runtime. */
+    * matches does not create an ambiguity error, although the single record conversion may fail at runtime.
+    */
   private def scoreRecordSetAssignability(toType: TypeName, sObjectType: TypeName): Option[Int] = {
     if (toType == TypeNames.listOf(sObjectType))
       Some(0)
@@ -251,25 +304,29 @@ trait MethodDeclaration extends DependencyHolder with Dependent {
 
 object MethodDeclaration {
   val emptyMethodDeclarations: ArraySeq[MethodDeclaration] = ArraySeq()
-  val emptyMethodDeclarationsSet: Set[MethodDeclaration] = Set()
+  val emptyMethodDeclarationsSet: Set[MethodDeclaration]   = Set()
 }
 
 trait AbstractTypeDeclaration {
   def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration]
 
-  def findMethod(name: Name,
-                 params: ArraySeq[TypeName],
-                 staticContext: Option[Boolean],
-                 verifyContext: VerifyContext): Either[String, MethodDeclaration]
+  def findMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration]
 
   def findNestedType(name: Name): Option[AbstractTypeDeclaration]
 }
 
 trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
-  def paths: ArraySeq[PathLike]           // Metadata paths that contributed to this type
-  def inTest: Boolean = false             // Is type defined only for test code
+  def paths: ArraySeq[PathLike] // Metadata paths that contributed to this type
+  def inTest: Boolean = false // Is type defined only for test code
 
-  val moduleDeclaration: Option[Module]   // Module that owns this types, None for none-adopted platform types
+  val moduleDeclaration: Option[
+    Module
+  ] // Module that owns this types, None for none-adopted platform types
 
   val name: Name
   val typeName: TypeName
@@ -279,14 +336,14 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
 
   lazy val namespace: Option[Name] = {
     val outermostType = outerTypeName.getOrElse(typeName).outer
-    if(outermostType.forall(_.outer.isEmpty)) outermostType.map(_.name)
+    if (outermostType.forall(_.outer.isEmpty)) outermostType.map(_.name)
     else None
   }
 
   val superClass: Option[TypeName]
   val interfaces: ArraySeq[TypeName]
 
-  def superClassDeclaration: Option[TypeDeclaration] = None
+  def superClassDeclaration: Option[TypeDeclaration]   = None
   def interfaceDeclarations: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
   def nestedTypes: ArraySeq[TypeDeclaration]
 
@@ -297,10 +354,10 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
   def methods: ArraySeq[MethodDeclaration]
 
   def isComplete: Boolean
-  lazy val isExternallyVisible: Boolean = modifiers.contains(GLOBAL_MODIFIER)
-  lazy val isAbstract: Boolean = modifiers.contains(ABSTRACT_MODIFIER)
-  lazy val isFieldConstructed: Boolean = isSObject || isApexPagesComponent
-  lazy val isSObject: Boolean = superClass.contains(TypeNames.SObject)
+  lazy val isExternallyVisible: Boolean  = modifiers.contains(GLOBAL_MODIFIER)
+  lazy val isAbstract: Boolean           = modifiers.contains(ABSTRACT_MODIFIER)
+  lazy val isFieldConstructed: Boolean   = isSObject || isApexPagesComponent
+  lazy val isSObject: Boolean            = superClass.contains(TypeNames.SObject)
   lazy val isApexPagesComponent: Boolean = superClass.contains(TypeNames.ApexPagesComponent)
 
   def outerTypeDeclaration: Option[TypeDeclaration] =
@@ -333,25 +390,32 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
     superClassDeclaration.foreach(
       td =>
         td.fieldsByName
-          .foreach(f => fieldsByName.getOrElseUpdate(f._1, f._2)))
+          .foreach(f => fieldsByName.getOrElseUpdate(f._1, f._2))
+    )
     outerTypeDeclaration.foreach(
       td =>
         td.fields
           .filter(_.isStatic)
-          .foreach(f => fieldsByName.getOrElseUpdate(f.name, f)))
+          .foreach(f => fieldsByName.getOrElseUpdate(f.name, f))
+    )
     fieldsByName
   }
 
-  private lazy val methodMap: MethodMap = MethodMap(this, None, MethodMap.empty(), methods, ArraySeq(), ArraySeq())
+  private lazy val methodMap: MethodMap =
+    MethodMap(this, None, MethodMap.empty(), methods, ArraySeq(), ArraySeq())
 
-  override def findMethod(name: Name,
-                          params: ArraySeq[TypeName],
-                          staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+  override def findMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     val found = methodMap.findMethod(name, params, staticContext, verifyContext)
 
     // Horrible skulduggery to support SObject.GetSObjectType()
-    if (found.isLeft && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)) {
+    if (
+      found.isLeft && name == Names.GetSObjectType && params.isEmpty && staticContext.contains(true)
+    ) {
       findMethod(name, params, Some(false), verifyContext)
     } else {
       found
@@ -365,9 +429,11 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
       moduleDeclaration.get.getLocalTypeFor(localName, this)
   }
 
-  def validateFieldConstructorArguments(input: ExprContext,
-                                        arguments: ArraySeq[Expression],
-                                        context: ExpressionVerifyContext): Unit = {
+  def validateFieldConstructorArguments(
+    input: ExprContext,
+    arguments: ArraySeq[Expression],
+    context: ExpressionVerifyContext
+  ): Unit = {
     assert(isFieldConstructed)
 
     // FUTURE: Disable this bypass once VF parsing supported
@@ -397,23 +463,27 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
           Some(id)
         }
       case argument =>
-        OrgImpl.logError(argument.location,
-                         s"SObject type '$typeName' construction needs '<field name> = <value>' arguments")
+        OrgImpl.logError(
+          argument.location,
+          s"SObject type '$typeName' construction needs '<field name> = <value>' arguments"
+        )
         None
     }
 
     if (validArgs.length == arguments.length) {
       val duplicates = validArgs.groupBy(_.name).collect { case (_, ArraySeq(_, y, _*)) => y }
       if (duplicates.nonEmpty) {
-        OrgImpl.logError(duplicates.head.location,
-                         s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'")
+        OrgImpl.logError(
+          duplicates.head.location,
+          s"Duplicate assignment to field '${duplicates.head.name}' on SObject type '$typeName'"
+        )
       }
     }
   }
 
   def extendsOrImplements(typeName: TypeName): Boolean = {
     val superclasses = superClassDeclaration
-    val interfaces = interfaceDeclarations
+    val interfaces   = interfaceDeclarations
     superClassDeclaration.exists(_.typeName == typeName) ||
     interfaces.exists(_.typeName == typeName) ||
     superclasses.exists(_.extendsOrImplements(typeName)) ||
@@ -422,7 +492,7 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
 
   def superTypes(): List[TypeName] = {
     lazy val superclasses = superClassDeclaration
-    lazy val interfaces = interfaceDeclarations
+    lazy val interfaces   = interfaceDeclarations
     superclasses.map(_.typeName).toList ++
       interfaces.map(_.typeName).toList ++
       superclasses.map(_.superTypes()).getOrElse(Nil) ++
@@ -432,6 +502,6 @@ trait TypeDeclaration extends AbstractTypeDeclaration with Dependent {
 }
 
 object TypeDeclaration {
-  val emptyTypeDeclarations: ArraySeq[TypeDeclaration] = ArraySeq()
+  val emptyTypeDeclarations: ArraySeq[TypeDeclaration]   = ArraySeq()
   val emptyTypeDeclarationsArray: Array[TypeDeclaration] = Array()
 }

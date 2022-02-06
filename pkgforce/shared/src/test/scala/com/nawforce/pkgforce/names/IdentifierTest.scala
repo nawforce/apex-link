@@ -30,15 +30,16 @@ package com.nawforce.pkgforce.names
 import org.scalatest.funsuite.AnyFunSuite
 
 class IdentifierTest extends AnyFunSuite {
-  private val illegalUnderscore = "can not start or end with '_'"
-  private val illegalDigit = "can not start with a digit"
-  private val illegalChar = "can only use characters A-Z, a-z, 0-9 or _"
+  private val illegalUnderscore       = "can not start or end with '_'"
+  private val illegalDigit            = "can not start with a digit"
+  private val illegalChar             = "can only use characters A-Z, a-z, 0-9 or _"
   private val illegalDoubleUnderscore = "can not use '__'"
-  private val illegalTriggerChars = "can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"
+  private val illegalTriggerChars =
+    "can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"
 
   implicit class NameUtils(name: Name) {
     def isLegalIdentifier: Option[String] = Identifier.isLegalIdentifier(name)
-    def isReservedIdentifier: Boolean = Identifier.isReservedIdentifier(name)
+    def isReservedIdentifier: Boolean     = Identifier.isReservedIdentifier(name)
   }
 
   test("Illegal identifiers") {

@@ -31,14 +31,14 @@ class RPCTerminatedException(msg: String) extends Exception(msg)
 
 class RPCServer {
   private val serializer = new UpickleJSONSerializer()
-  private val server = JSONRPCServer(serializer)
+  private val server     = JSONRPCServer(serializer)
 
   server.bindAPI[OrgAPI](new OrgAPIImpl())
 
   def run(): Unit = {
-    val input = new BufferedReader(new InputStreamReader(System.in))
+    val input   = new BufferedReader(new InputStreamReader(System.in))
     var message = new StringBuilder
-    val block = new Array[Char](1024)
+    val block   = new Array[Char](1024)
     while (true) {
       val read = input.read(block)
       if (read == -1)
@@ -77,4 +77,3 @@ class RPCServer {
     }
   }
 }
-

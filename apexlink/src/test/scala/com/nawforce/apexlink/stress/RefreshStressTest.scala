@@ -31,11 +31,13 @@ object RefreshStressTest {
       return
     }
     if (args.length > 1) {
-      System.err.println(s"Multiple arguments provided, expected workspace directory, '${args.mkString(", ")}'}")
+      System.err.println(
+        s"Multiple arguments provided, expected workspace directory, '${args.mkString(", ")}'}"
+      )
       return
     }
 
-    val org = Org.newOrg(args.head).asInstanceOf[OrgImpl]
+    val org          = Org.newOrg(args.head).asInstanceOf[OrgImpl]
     val issueOptions = new IssueOptions
     issueOptions.includeZombies = true
     val baselineIssues = org.issues.issuesForFiles(null, includeWarnings = false, 0).length

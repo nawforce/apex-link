@@ -23,8 +23,11 @@ class PageTest extends AnyFunSuite with TestHelper {
 
   test("Valid page") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "<apex:page/>",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.TestPage;} }")) { root: PathLike =>
+      Map(
+        "TestPage.page" -> "<apex:page/>",
+        "Dummy.cls"     -> "public class Dummy { {PageReference a = Page.TestPage;} }"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.isEmpty)
     }
@@ -32,8 +35,11 @@ class PageTest extends AnyFunSuite with TestHelper {
 
   test("Valid page (case insensitive)") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "<apex:page/>",
-          "Dummy.cls" -> "public class Dummy { {PageReference a = Page.tesTPage;} }")) { root: PathLike =>
+      Map(
+        "TestPage.page" -> "<apex:page/>",
+        "Dummy.cls"     -> "public class Dummy { {PageReference a = Page.tesTPage;} }"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.isEmpty)
     }
@@ -41,11 +47,16 @@ class PageTest extends AnyFunSuite with TestHelper {
 
   test("Missing page") {
     FileSystemHelper.run(
-      Map("TestPage.page" -> "", "Dummy.cls" -> "public class Dummy { {PageReference a = Page.AnotherPage;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n")
+      Map(
+        "TestPage.page" -> "",
+        "Dummy.cls"     -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n"
+      )
     }
   }
 
@@ -59,7 +70,9 @@ class PageTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/TestPage.page" -> "<apex:page/>",
-        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
+        "pkg2/Dummy.cls"     -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.isEmpty)
     }
@@ -74,7 +87,9 @@ class PageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg2"}],
           |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
           |}""".stripMargin,
-        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }")) { root: PathLike =>
+        "pkg2/Dummy.cls" -> "public class Dummy { {PageReference a = Page.pkg1__TestPage;} }"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(org.issues.isEmpty)
     }
@@ -83,54 +98,76 @@ class PageTest extends AnyFunSuite with TestHelper {
   test("Missing controller") {
     FileSystemHelper.run(Map("Test.page" -> "<apex:page controller='Dummy'/>")) { root: PathLike =>
       val org = createOrg(root)
-      assert(getMessages(root.join("Test.page")) ==
-        "Missing: line 1 at 11-29: No type declaration found for 'Dummy'\n")
+      assert(
+        getMessages(root.join("Test.page")) ==
+          "Missing: line 1 at 11-29: No type declaration found for 'Dummy'\n"
+      )
     }
   }
 
   test("Missing extension") {
     FileSystemHelper.run(
-      Map("Test.page" -> "<apex:page controller='Dummy' extensions='Extension'/>",
-          "Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
+      Map(
+        "Test.page" -> "<apex:page controller='Dummy' extensions='Extension'/>",
+        "Dummy.cls" -> "public class Dummy {}"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
-      assert(getMessages(root.join("Test.page")) ==
-        "Missing: line 1 at 30-52: No type declaration found for 'Extension'\n")
+      assert(
+        getMessages(root.join("Test.page")) ==
+          "Missing: line 1 at 30-52: No type declaration found for 'Extension'\n"
+      )
     }
   }
 
   test("Valid controller") {
     FileSystemHelper.run(
-      Map("Test.page" -> "<apex:page controller='Controller'/>", "Controller.cls" -> "public class Controller {}")) {
-      root: PathLike =>
-        val org = createHappyOrg(root)
+      Map(
+        "Test.page"      -> "<apex:page controller='Controller'/>",
+        "Controller.cls" -> "public class Controller {}"
+      )
+    ) { root: PathLike =>
+      val org = createHappyOrg(root)
 
-        val testPageTypeId =
-          org.unmanaged.getTypeOfPathInternal(root.join("Test.page")).get.asTypeIdentifier
-        assert(testPageTypeId.toString == "Page.Test")
-        assert(org.unmanaged.getPathsOfType(testPageTypeId).sameElements(Array("/Test.page")))
+      val testPageTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Test.page")).get.asTypeIdentifier
+      assert(testPageTypeId.toString == "Page.Test")
+      assert(org.unmanaged.getPathsOfType(testPageTypeId).sameElements(Array("/Test.page")))
 
-        val pageTypeId = TypeIdentifier(None, TypeName(Name("Page")))
-        val controllerTypeId =
-          org.unmanaged.getTypeOfPathInternal(root.join("Controller.cls")).get.asTypeIdentifier
+      val pageTypeId = TypeIdentifier(None, TypeName(Name("Page")))
+      val controllerTypeId =
+        org.unmanaged.getTypeOfPathInternal(root.join("Controller.cls")).get.asTypeIdentifier
 
-        assert(
-          org.unmanaged
-            .getDependencies(pageTypeId, outerInheritanceOnly = false, apexOnly = false) sameElements Array(
-            controllerTypeId))
+      assert(
+        org.unmanaged
+          .getDependencies(
+            pageTypeId,
+            outerInheritanceOnly = false,
+            apexOnly = false
+          ) sameElements Array(controllerTypeId)
+      )
 
-        assert(
-          org.unmanaged
-            .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
-            .isEmpty)
-        assert(org.unmanaged.getDependencyHolders(controllerTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
+      assert(
+        org.unmanaged
+          .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
+          .isEmpty
+      )
+      assert(
+        org.unmanaged
+          .getDependencyHolders(controllerTypeId, apexOnly = false)
+          .sameElements(Array(pageTypeId))
+      )
     }
   }
 
   test("Valid controller & extension") {
     FileSystemHelper.run(
-      Map("Test.page" -> "<apex:page controller='Controller' extensions='Extension'/>",
-          "Controller.cls" -> "public class Controller {}",
-          "Extension.cls" -> "public class Extension {}")) { root: PathLike =>
+      Map(
+        "Test.page"      -> "<apex:page controller='Controller' extensions='Extension'/>",
+        "Controller.cls" -> "public class Controller {}",
+        "Extension.cls"  -> "public class Extension {}"
+      )
+    ) { root: PathLike =>
       val org = createHappyOrg(root)
 
       val testPageTypeId =
@@ -146,21 +183,34 @@ class PageTest extends AnyFunSuite with TestHelper {
 
       assert(
         org.unmanaged
-          .getDependencies(pageTypeId, outerInheritanceOnly = false, apexOnly = false) sameElements Array(
-          extensionTypeId,
-          controllerTypeId))
+          .getDependencies(
+            pageTypeId,
+            outerInheritanceOnly = false,
+            apexOnly = false
+          ) sameElements Array(extensionTypeId, controllerTypeId)
+      )
 
       assert(
         org.unmanaged
           .getDependencies(controllerTypeId, outerInheritanceOnly = false, apexOnly = false)
-          .isEmpty)
+          .isEmpty
+      )
       assert(
         org.unmanaged
           .getDependencies(extensionTypeId, outerInheritanceOnly = false, apexOnly = false)
-          .isEmpty)
+          .isEmpty
+      )
 
-      assert(org.unmanaged.getDependencyHolders(controllerTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
-      assert(org.unmanaged.getDependencyHolders(extensionTypeId, apexOnly = false).sameElements(Array(pageTypeId)))
+      assert(
+        org.unmanaged
+          .getDependencyHolders(controllerTypeId, apexOnly = false)
+          .sameElements(Array(pageTypeId))
+      )
+      assert(
+        org.unmanaged
+          .getDependencyHolders(extensionTypeId, apexOnly = false)
+          .sameElements(Array(pageTypeId))
+      )
     }
   }
 

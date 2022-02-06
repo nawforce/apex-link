@@ -25,16 +25,22 @@ class PluginDispatcher(td: DependentType, plugins: Seq[Plugin]) extends Plugin(t
     plugins.foreach(_.onTypeValidated())
   }
 
-  override def onBlockValidated(block: Block, isStatic: Boolean, context: BlockVerifyContext): Unit = {
+  override def onBlockValidated(
+    block: Block,
+    isStatic: Boolean,
+    context: BlockVerifyContext
+  ): Unit = {
     plugins.foreach(_.onBlockValidated(block, isStatic, context))
   }
 }
 
 object PluginDispatcher {
   def apply(td: DependentType, plugins: Seq[Constructor[_ <: Plugin]]): PluginDispatcher = {
-    new PluginDispatcher(td,
+    new PluginDispatcher(
+      td,
       plugins.map(plugin => {
         plugin.newInstance(td)
-      }))
+      })
+    )
   }
 }

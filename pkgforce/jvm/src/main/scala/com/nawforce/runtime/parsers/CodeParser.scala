@@ -91,7 +91,7 @@ class CodeParser(val source: Source) {
     tokenStream.fill()
 
     val listener = new CollectingErrorListener(source.path)
-    val parser = new ApexParser(tokenStream)
+    val parser   = new ApexParser(tokenStream)
     parser.removeErrorListeners()
     parser.addErrorListener(listener)
 

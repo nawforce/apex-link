@@ -27,57 +27,67 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Outer Suppress") {
     typeDeclaration(
-      "@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+      "@SuppressWarnings public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}"
+    )
     assert(hasIssues)
   }
 
   test("Outer Suppress (PMD)") {
     typeDeclaration(
-      "@SuppressWarnings('PMD') public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+      "@SuppressWarnings('PMD') public class Dummy {class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}"
+    )
     assert(!hasIssues)
   }
 
   test("Inner Suppress") {
     typeDeclaration(
-      "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+      "public class Dummy {@SuppressWarnings class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}"
+    )
     assert(hasIssues)
   }
 
   test("Inner Suppress (PMD)") {
     typeDeclaration(
-      "public class Dummy {@SuppressWarnings('PMD') class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}")
+      "public class Dummy {@SuppressWarnings('PMD') class Inner {Integer b; List<Inner> a; {Integer b = a[null].b;}}}"
+    )
     assert(!hasIssues)
   }
 
   test("Method Suppress") {
     typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}")
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings void foo(){ Integer b = a[null].b;}}}"
+    )
     assert(hasIssues)
   }
 
   test("Method Suppress (PMD)") {
     typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') void foo(){ Integer b = a[null].b;}}}")
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') void foo(){ Integer b = a[null].b;}}}"
+    )
     assert(!hasIssues)
   }
 
   test("Field Suppress") {
     typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings Integer b = a[null].b;}}")
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings Integer b = a[null].b;}}"
+    )
     assert(hasIssues)
   }
 
   test("Field Suppress (PMD)") {
     typeDeclaration(
-      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') Integer b = a[null].b;}}")
+      "public class Dummy {class Inner {Integer b; List<Inner> a; @SuppressWarnings('PMD') Integer b = a[null].b;}}"
+    )
     assert(!hasIssues)
   }
 
   test("Unused method suppress") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {void foo() {}}",
-          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {void foo() {}}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -87,9 +97,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused method suppress (on method)") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') void foo() {}}",
-          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') void foo() {}}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -99,9 +111,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused field suppress") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {String foo;}",
-          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {String foo;}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -111,9 +125,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused field suppress (on field)") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') String foo;}",
-          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') String foo;}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -123,9 +139,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused inner class suppress") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') class Inner {} }",
-          "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('Unused') class Inner {} }",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -134,19 +152,22 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
   }
 
   test("Unused outer class suppress") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {}")) { root: PathLike =>
-      createOrg(root)
-      withOrg(org => {
-        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
-      })
+    FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings('Unused') public class Dummy {}")) {
+      root: PathLike =>
+        createOrg(root)
+        withOrg(org => {
+          assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
+        })
     }
   }
 
   test("Unused method suppress PMD") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {void foo() {}}",
-        "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {void foo() {}}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -156,9 +177,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused method suppress (on method) PMD") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') void foo() {}}",
-        "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') void foo() {}}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -168,9 +191,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused field suppress PMD") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {String foo;}",
-        "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {String foo;}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -180,9 +205,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused field suppress (on field) PMD") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') String foo;}",
-        "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') String foo;}",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -192,9 +219,11 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
 
   test("Unused inner class suppress PMD") {
     FileSystemHelper.run(
-      Map("Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') class Inner {} }",
-        "Foo.cls" -> "public class Foo { {Type t = Dummy.class;} }",
-      )) { root: PathLike =>
+      Map(
+        "Dummy.cls" -> "public class Dummy {@SuppressWarnings('PMD') class Inner {} }",
+        "Foo.cls"   -> "public class Foo { {Type t = Dummy.class;} }"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       withOrg(org => {
         assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
@@ -203,13 +232,13 @@ class SuppressWarningsTest extends AnyFunSuite with TestHelper {
   }
 
   test("Unused outer class suppress PMD") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {}")) { root: PathLike =>
-      createOrg(root)
-      withOrg(org => {
-        assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
-      })
+    FileSystemHelper.run(Map("Dummy.cls" -> "@SuppressWarnings('PMD') public class Dummy {}")) {
+      root: PathLike =>
+        createOrg(root)
+        withOrg(org => {
+          assert(org.issueManager.issuesForFile(root.join("Dummy.cls").toString).isEmpty)
+        })
     }
   }
-
 
 }

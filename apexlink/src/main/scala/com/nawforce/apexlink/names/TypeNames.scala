@@ -21,44 +21,47 @@ import scala.collection.immutable.ArraySeq
 
 object TypeNames extends InternCache[TypeName] {
 
-  lazy val Void: TypeName = TypeName(Name("void")).intern
+  lazy val Void: TypeName   = TypeName(Name("void")).intern
   lazy val Object: TypeName = TypeName(Name("Object")).intern
 
   lazy val Internal: TypeName = TypeName(Names.Internal).intern
-  lazy val Null: TypeName = TypeName(Names.Null$, Nil, Some(TypeNames.Internal)).intern
-  lazy val Any: TypeName = TypeName(Names.Any$, Nil, Some(TypeNames.Internal)).intern
+  lazy val Null: TypeName     = TypeName(Names.Null$, Nil, Some(TypeNames.Internal)).intern
+  lazy val Any: TypeName      = TypeName(Names.Any$, Nil, Some(TypeNames.Internal)).intern
   lazy val RecordSet: TypeName =
     TypeName(Names.RecordSet$, Seq(TypeNames.SObject), Some(TypeNames.Internal)).intern
   lazy val InternalObject: TypeName = TypeName(Names.Object$, Nil, Some(TypeNames.Internal)).intern
   lazy val InternalInterface: TypeName =
     TypeName(Names.Interface$, Nil, Some(TypeNames.Internal)).intern
 
-  lazy val System: TypeName = TypeName(Names.System).intern
-  lazy val Long: TypeName = TypeName(Names.Long, Nil, Some(TypeNames.System)).intern
-  lazy val Integer: TypeName = TypeName(Names.Integer, Nil, Some(TypeNames.System)).intern
-  lazy val Double: TypeName = TypeName(Names.Double, Nil, Some(TypeNames.System)).intern
-  lazy val Decimal: TypeName = TypeName(Names.Decimal, Nil, Some(TypeNames.System)).intern
-  lazy val String: TypeName = TypeName(Names.String, Nil, Some(TypeNames.System)).intern
-  lazy val Boolean: TypeName = TypeName(Names.Boolean, Nil, Some(TypeNames.System)).intern
-  lazy val Date: TypeName = TypeName(Names.Date, Nil, Some(TypeNames.System)).intern
+  lazy val System: TypeName   = TypeName(Names.System).intern
+  lazy val Long: TypeName     = TypeName(Names.Long, Nil, Some(TypeNames.System)).intern
+  lazy val Integer: TypeName  = TypeName(Names.Integer, Nil, Some(TypeNames.System)).intern
+  lazy val Double: TypeName   = TypeName(Names.Double, Nil, Some(TypeNames.System)).intern
+  lazy val Decimal: TypeName  = TypeName(Names.Decimal, Nil, Some(TypeNames.System)).intern
+  lazy val String: TypeName   = TypeName(Names.String, Nil, Some(TypeNames.System)).intern
+  lazy val Boolean: TypeName  = TypeName(Names.Boolean, Nil, Some(TypeNames.System)).intern
+  lazy val Date: TypeName     = TypeName(Names.Date, Nil, Some(TypeNames.System)).intern
   lazy val Datetime: TypeName = TypeName(Names.Datetime, Nil, Some(TypeNames.System)).intern
-  lazy val Time: TypeName = TypeName(Names.Time, Nil, Some(TypeNames.System)).intern
-  lazy val Blob: TypeName = TypeName(Names.Blob, Nil, Some(TypeNames.System)).intern
+  lazy val Time: TypeName     = TypeName(Names.Time, Nil, Some(TypeNames.System)).intern
+  lazy val Blob: TypeName     = TypeName(Names.Blob, Nil, Some(TypeNames.System)).intern
   lazy val Location: TypeName = TypeName(Names.Location, Nil, Some(TypeNames.System)).intern
-  lazy val Address: TypeName = TypeName(Names.Address, Nil, Some(TypeNames.System)).intern
+  lazy val Address: TypeName  = TypeName(Names.Address, Nil, Some(TypeNames.System)).intern
 
-  lazy val IdType: TypeName = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
+  lazy val IdType: TypeName   = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
   lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeNames.System)).intern
   lazy val PageReference: TypeName =
     TypeName(Names.PageReference, Nil, Some(TypeNames.System)).intern
   lazy val SObject: TypeName = TypeName(Names.SObject, Nil, Some(TypeNames.System)).intern
 
   lazy val RecordType: TypeName = TypeName(Name("RecordType"), Nil, Some(TypeNames.Schema)).intern
-  lazy val Note: TypeName = TypeName(Name("Note"), Nil, Some(TypeNames.Schema)).intern
-  lazy val NoteAndAttachment: TypeName = TypeName(Name("NoteAndAttachment"), Nil, Some(TypeNames.Schema)).intern
+  lazy val Note: TypeName       = TypeName(Name("Note"), Nil, Some(TypeNames.Schema)).intern
+  lazy val NoteAndAttachment: TypeName =
+    TypeName(Name("NoteAndAttachment"), Nil, Some(TypeNames.Schema)).intern
   lazy val Attachment: TypeName = TypeName(Name("Attachment"), Nil, Some(TypeNames.Schema)).intern
-  lazy val ContentDocumentLink: TypeName = TypeName(Name("ContentDocumentLink"), Nil, Some(TypeNames.Schema)).intern
-  lazy val ProcessInstanceHistory: TypeName = TypeName(Name("ProcessInstanceHistory"), Nil, Some(TypeNames.Schema)).intern
+  lazy val ContentDocumentLink: TypeName =
+    TypeName(Name("ContentDocumentLink"), Nil, Some(TypeNames.Schema)).intern
+  lazy val ProcessInstanceHistory: TypeName =
+    TypeName(Name("ProcessInstanceHistory"), Nil, Some(TypeNames.Schema)).intern
   lazy val NameSObject: TypeName = TypeName(Name("Name"), Nil, Some(TypeNames.Schema)).intern
 
   lazy val ApexPages: TypeName = TypeName(Names.ApexPages).intern
@@ -70,10 +73,10 @@ object TypeNames extends InternCache[TypeName] {
   lazy val ChatterComponent: TypeName =
     TypeName(Names.Chatter, Nil, Some(TypeNames.Component)).intern
 
-  lazy val Schema: TypeName = TypeName(Names.Schema).intern
-  lazy val SObjectType: TypeName = TypeName(Names.SObjectType, Nil, Some(TypeNames.Schema)).intern
+  lazy val Schema: TypeName       = TypeName(Names.Schema).intern
+  lazy val SObjectType: TypeName  = TypeName(Names.SObjectType, Nil, Some(TypeNames.Schema)).intern
   lazy val SObjectField: TypeName = TypeName(Names.SObjectField, Nil, Some(TypeNames.Schema)).intern
-  lazy val FieldSet: TypeName = TypeName(Names.FieldSet, Nil, Some(TypeNames.Schema)).intern
+  lazy val FieldSet: TypeName     = TypeName(Names.FieldSet, Nil, Some(TypeNames.Schema)).intern
   lazy val DescribeSObjectResult: TypeName =
     TypeName(Names.DescribeSObjectResult, Nil, Some(TypeNames.Schema)).intern
   lazy val DescribeFieldResult: TypeName =
@@ -81,9 +84,8 @@ object TypeNames extends InternCache[TypeName] {
   lazy val SObjectTypeFieldSets: TypeName =
     TypeName(Names.SObjectTypeFieldSets, Nil, Some(TypeNames.Schema)).intern
   lazy val Activity: TypeName = TypeName(Names.Activity, Nil, Some(TypeNames.Schema))
-  lazy val Task: TypeName = TypeName(Names.Task, Nil, Some(TypeNames.Schema))
-  lazy val Event: TypeName = TypeName(Names.Event, Nil, Some(TypeNames.Schema))
-
+  lazy val Task: TypeName     = TypeName(Names.Task, Nil, Some(TypeNames.Schema))
+  lazy val Event: TypeName    = TypeName(Names.Event, Nil, Some(TypeNames.Schema))
 
   lazy val DescribeSObjectResult$ : TypeName =
     TypeName(Names.DescribeSObjectResult$, Nil, Some(TypeNames.Internal)).intern
@@ -100,17 +102,19 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Trigger$ : TypeName = TypeName(Names.Trigger$, Nil, Some(TypeNames.Internal)).intern
 
   lazy val Database: TypeName = TypeName(Names.Database).intern
-  lazy val BatchableContext: TypeName = TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
-  lazy val QueryLocator: TypeName = TypeName(XNames.QueryLocator, Nil, Some(TypeNames.Database)).intern
+  lazy val BatchableContext: TypeName =
+    TypeName(Names.BatchableContext, Nil, Some(TypeNames.Database)).intern
+  lazy val QueryLocator: TypeName =
+    TypeName(XNames.QueryLocator, Nil, Some(TypeNames.Database)).intern
 
-  lazy val User: TypeName = TypeName(Names.User).intern
+  lazy val User: TypeName             = TypeName(Names.User).intern
   lazy val UserRecordAccess: TypeName = TypeName(Names.UserRecordAccess).intern
 
-  lazy val Label: TypeName = TypeName(Names.Label, Nil, Some(TypeNames.System)).intern
-  lazy val Flow: TypeName = TypeName(Names.Flow).intern
+  lazy val Label: TypeName     = TypeName(Names.Label, Nil, Some(TypeNames.System)).intern
+  lazy val Flow: TypeName      = TypeName(Names.Flow).intern
   lazy val Interview: TypeName = TypeName(Names.Interview, Nil, Some(TypeNames.Flow)).intern
   lazy val Component: TypeName = TypeName(Names.Component, Nil, None).intern
-  lazy val Page: TypeName = TypeName(Names.Page, Nil, None).intern
+  lazy val Page: TypeName      = TypeName(Names.Page, Nil, None).intern
 
   def describeSObjectResultOf(typeName: TypeName): TypeName =
     DescribeSObjectResult$.withParams(Seq(typeName)).intern
@@ -131,7 +135,8 @@ object TypeNames extends InternCache[TypeName] {
   def recordSetOf(typeName: TypeName): TypeName =
     TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
 
-  val standardShareNames = Set("AccountShare",
+  val standardShareNames = Set(
+    "AccountShare",
     "AssetShare",
     "AuthorizationFormConsentShare",
     "AuthorizationFormDataUseShare",
@@ -196,7 +201,7 @@ object TypeNames extends InternCache[TypeName] {
     "WorkRewardFundShare",
     "WorkRewardFundTypeShare",
     "WorkRewardShare",
-    "WorkThanksShare",
+    "WorkThanksShare"
   )
 
   def aliasOrReturn(typeName: TypeName): TypeName = {
@@ -206,10 +211,10 @@ object TypeNames extends InternCache[TypeName] {
   /** Mapping for Ambiguous type names which can resolve to SObject of platform classes. */
   val ambiguousAliasMap: Map[TypeName, TypeName] = Map(
     TypeName(Name("BusinessHours")) -> TypeName(Name("BusinessHours"), Nil, Some(TypeNames.Schema)),
-    TypeName(Name("Site")) -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
-    TypeName(Name("Location")) -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
-    TypeName(Name("Approval")) -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
-    TypeName(Name("Address")) -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
+    TypeName(Name("Site"))          -> TypeName(Name("Site"), Nil, Some(TypeNames.Schema)),
+    TypeName(Name("Location"))      -> TypeName(Name("Location"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Approval"))      -> TypeName(Name("Approval"), Nil, Some(TypeNames.System)),
+    TypeName(Name("Address"))       -> TypeName(Name("Address"), Nil, Some(TypeNames.System))
   )
 
   val emptyTypeNames: ArraySeq[TypeName] = ArraySeq[TypeName]()
@@ -219,9 +224,12 @@ object TypeNames extends InternCache[TypeName] {
     /** Interning support for TypeName, used to reduce memory load, mainly from cached data. */
     def intern: TypeName = {
       TypeNames.intern(
-        TypeName(Names(typeName.name.value),
+        TypeName(
+          Names(typeName.name.value),
           typeName.params.map(_.intern),
-          typeName.outer.map(_.intern)))
+          typeName.outer.map(_.intern)
+        )
+      )
     }
 
     // Check on if is a Schema Share type
@@ -274,9 +282,11 @@ object TypeNames extends InternCache[TypeName] {
     }
 
     def withNameReplace(regex: String, replacement: String): TypeName = {
-      TypeName(Name(typeName.name.value.replaceAll(regex, replacement)),
+      TypeName(
+        Name(typeName.name.value.replaceAll(regex, replacement)),
         typeName.params,
-        typeName.outer)
+        typeName.outer
+      )
     }
 
     def maybeNamespace: Option[Name] = {
@@ -316,10 +326,16 @@ object TypeNames extends InternCache[TypeName] {
     }
 
     def getArrayType: Option[TypeName] = {
-      if (typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1) {
+      if (
+        typeName.name == Names.List$ && typeName.outer.contains(
+          TypeNames.System
+        ) && typeName.params.size == 1
+      ) {
         typeName.params.headOption
-      } else if (typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) &&
-        typeName.params.size == 1) {
+      } else if (
+        typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) &&
+        typeName.params.size == 1
+      ) {
         typeName.params.headOption
       } else {
         None
@@ -327,9 +343,12 @@ object TypeNames extends InternCache[TypeName] {
     }
 
     def getSetOrListType: Option[TypeName] = {
-      if ((typeName.name == Names.Set$ || typeName.name == Names.List$) && typeName.outer.contains(
-        TypeNames.System) &&
-        typeName.params.size == 1) {
+      if (
+        (typeName.name == Names.Set$ || typeName.name == Names.List$) && typeName.outer.contains(
+          TypeNames.System
+        ) &&
+        typeName.params.size == 1
+      ) {
         typeName.params.headOption
       } else {
         None
@@ -337,7 +356,11 @@ object TypeNames extends InternCache[TypeName] {
     }
 
     def getMapType: Option[(TypeName, TypeName)] = {
-      if (typeName.name == Names.Map$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 2) {
+      if (
+        typeName.name == Names.Map$ && typeName.outer.contains(
+          TypeNames.System
+        ) && typeName.params.size == 2
+      ) {
         Some(typeName.params.head, typeName.params(1))
       } else {
         None
@@ -347,12 +370,16 @@ object TypeNames extends InternCache[TypeName] {
     def isStringOrId: Boolean = typeName == TypeNames.String || typeName == TypeNames.IdType
 
     def isList: Boolean =
-      typeName.name == Names.List$ && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
+      typeName.name == Names.List$ && typeName.outer.contains(
+        TypeNames.System
+      ) && typeName.params.size == 1
 
     def asListOf: TypeName = new TypeName(Names.List$, Seq(typeName), Some(TypeNames.System))
 
     def isRecordSet: Boolean =
-      typeName.name == Names.RecordSet$ && typeName.outer.contains(TypeNames.Internal) && typeName.params.size == 1
+      typeName.name == Names.RecordSet$ && typeName.outer.contains(
+        TypeNames.Internal
+      ) && typeName.params.size == 1
 
     def isSObjectList: Boolean = isList && typeName.params.head == TypeNames.SObject
 
@@ -362,21 +389,23 @@ object TypeNames extends InternCache[TypeName] {
       typeName.name == Names.Batchable && typeName.outer.contains(TypeNames.Database)
 
     def isIterable: Boolean =
-      typeName.name == XNames.Iterable && typeName.outer.contains(TypeNames.System) && typeName.params.size == 1
+      typeName.name == XNames.Iterable && typeName.outer.contains(
+        TypeNames.System
+      ) && typeName.params.size == 1
 
     def isNonGeneric: Boolean =
       typeName.params.isEmpty && typeName.outer.forall(_.isNonGeneric)
 
     def equalsIgnoreParamTypes(other: TypeName): Boolean = {
       typeName.name == other.name &&
-        typeName.params.size == other.params.size &&
-        typeName.outer.nonEmpty == other.outer.nonEmpty &&
-        typeName.outer.forall(_.equalsIgnoreParamTypes(other.outer.get))
+      typeName.params.size == other.params.size &&
+      typeName.outer.nonEmpty == other.outer.nonEmpty &&
+      typeName.outer.forall(_.equalsIgnoreParamTypes(other.outer.get))
     }
 
     def decodedExtendedGeneric(): Option[TypeName] = {
       val parts = typeName.name.value.split('_')
-      if (typeName.params.isEmpty && parts.length>1) {
+      if (typeName.params.isEmpty && parts.length > 1) {
         Some(new TypeName(Name(parts.head), Seq(), typeName.outer))
       } else {
         None

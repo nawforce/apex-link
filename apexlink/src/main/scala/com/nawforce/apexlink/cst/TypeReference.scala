@@ -16,7 +16,12 @@ package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
-import com.nawforce.apexparser.ApexParser.{TypeArgumentsContext, TypeListContext, TypeNameContext, TypeRefContext}
+import com.nawforce.apexparser.ApexParser.{
+  TypeArgumentsContext,
+  TypeListContext,
+  TypeNameContext,
+  TypeRefContext
+}
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.runtime.parsers.CodeParser
 
@@ -28,13 +33,16 @@ object TypeReference {
   }
 
   def construct(typeRef: TypeRefContext): TypeName = {
-    CodeParser.toScala(typeRef).map(typeRef => {
-      val arraySubs = CodeParser.getText(typeRef.arraySubscripts()).count(_ == '[')
-      val names = CodeParser.toScala(typeRef.typeName())
+    CodeParser
+      .toScala(typeRef)
+      .map(typeRef => {
+        val arraySubs = CodeParser.getText(typeRef.arraySubscripts()).count(_ == '[')
+        val names     = CodeParser.toScala(typeRef.typeName())
 
-      // Only decode head as rest can't legally be in EncodedName format
-      createTypeName(decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
-    }).getOrElse(TypeNames.Void)
+        // Only decode head as rest can't legally be in EncodedName format
+        createTypeName(decodeName(names.head), names.tail).withArraySubscripts(arraySubs)
+      })
+      .getOrElse(TypeNames.Void)
   }
 
   private def getName(name: TypeNameContext): Name = {
@@ -45,9 +53,9 @@ object TypeReference {
   }
 
   private def decodeName(name: TypeNameContext): TypeName = {
-    val params = createTypeParams(CodeParser.toScala(name.typeArguments()))
+    val params   = createTypeParams(CodeParser.toScala(name.typeArguments()))
     val typeName = getName(name)
-    val encType = EncodedName(typeName)
+    val encType  = EncodedName(typeName)
     if (encType.ext.nonEmpty)
       TypeName(encType.fullName, params, Some(TypeNames.Schema)).intern
     else
@@ -59,10 +67,14 @@ object TypeReference {
     names match {
       case Nil => outer
       case hd +: tl =>
-        createTypeName(TypeName(getName(hd),
-                                createTypeParams(CodeParser.toScala(hd.typeArguments())),
-                                Some(outer)).intern,
-                       tl)
+        createTypeName(
+          TypeName(
+            getName(hd),
+            createTypeParams(CodeParser.toScala(hd.typeArguments())),
+            Some(outer)
+          ).intern,
+          tl
+        )
     }
   }
 

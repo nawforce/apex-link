@@ -186,13 +186,14 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(nature: MetadataNature): Iterator[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.valuesIterator.flatten.flatMap(path => MetadataDocument(path))
+        case Some(byTypeName) =>
+          byTypeName.valuesIterator.flatten.flatMap(path => MetadataDocument(path))
         case None => Iterator.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
         case Some(byTypeName) => byTypeName.valuesIterator.flatMap(path => MetadataDocument(path))
-        case None => Iterator.empty
+        case None             => Iterator.empty
       }
     }
   }
@@ -200,12 +201,16 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(nature: MetadataNature, typeName: TypeName): Set[MetadataDocument] = {
     if (nature.partialType) {
       partialTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.getOrElse(typeName.rawStringLower, Set.empty).flatMap(path => MetadataDocument(path))
+        case Some(byTypeName) =>
+          byTypeName
+            .getOrElse(typeName.rawStringLower, Set.empty)
+            .flatMap(path => MetadataDocument(path))
         case None => Set.empty
       }
     } else {
       fullTypeDocuments.get(nature) match {
-        case Some(byTypeName) => byTypeName.get(typeName.rawStringLower).toSet.flatMap(path => MetadataDocument(path))
+        case Some(byTypeName) =>
+          byTypeName.get(typeName.rawStringLower).toSet.flatMap(path => MetadataDocument(path))
         case None => Set.empty
       }
     }
@@ -214,18 +219,17 @@ private class DocumentStore(namespace: Option[Name]) {
   def get(typeName: TypeName): Set[MetadataDocument] = {
     val rawTypeName = typeName.rawStringLower
     (partialTypeDocuments.values.flatMap(_.get(rawTypeName)).flatten ++
-      fullTypeDocuments.values.flatMap(_.get(rawTypeName)))
-      .toSet
+      fullTypeDocuments.values.flatMap(_.get(rawTypeName))).toSet
       .flatMap(path => MetadataDocument(path))
   }
 
   def add(logger: IssueLogger, document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap = safePartialDocumentMap(document.nature)
+      val docMap   = safePartialDocumentMap(document.nature)
       val typeName = document.typeName(namespace).rawStringLower
       docMap.put(typeName, docMap.getOrElse(typeName, Set()) + document.path)
     } else {
-      val docMap = safeFullDocumentMap(document.nature)
+      val docMap   = safeFullDocumentMap(document.nature)
       val typeName = document.typeName(namespace).rawStringLower
       docMap.put(typeName, document.path)
     }
@@ -234,12 +238,12 @@ private class DocumentStore(namespace: Option[Name]) {
   /** Remove a document from the store. */
   def remove(document: MetadataDocument): Unit = {
     if (document.nature.partialType) {
-      val docMap = safePartialDocumentMap(document.nature)
+      val docMap   = safePartialDocumentMap(document.nature)
       val typeName = document.typeName(namespace).rawStringLower
       if (docMap.contains(typeName))
         docMap.put(typeName, docMap(typeName).filterNot(_ == document.path))
     } else {
-      val docMap = safeFullDocumentMap(document.nature)
+      val docMap   = safeFullDocumentMap(document.nature)
       val typeName = document.typeName(namespace).rawStringLower
       if (docMap.get(typeName).contains(document.path))
         docMap.remove(typeName)
@@ -247,8 +251,8 @@ private class DocumentStore(namespace: Option[Name]) {
   }
 
   private def safePartialDocumentMap(
-                                      nature: MetadataNature
-                                    ): mutable.HashMap[String, Set[PathLike]] = {
+    nature: MetadataNature
+  ): mutable.HashMap[String, Set[PathLike]] = {
     partialTypeDocuments.getOrElseUpdate(
       nature, {
         mutable.HashMap[String, Set[PathLike]]()
@@ -256,12 +260,12 @@ private class DocumentStore(namespace: Option[Name]) {
     )
   }
 
-  private def safeFullDocumentMap(
-                                   nature: MetadataNature
-                                 ): mutable.HashMap[String, PathLike] = {
-    fullTypeDocuments.getOrElseUpdate(nature, {
-      mutable.HashMap[String, PathLike]()
-    })
+  private def safeFullDocumentMap(nature: MetadataNature): mutable.HashMap[String, PathLike] = {
+    fullTypeDocuments.getOrElseUpdate(
+      nature, {
+        mutable.HashMap[String, PathLike]()
+      }
+    )
   }
 
 }

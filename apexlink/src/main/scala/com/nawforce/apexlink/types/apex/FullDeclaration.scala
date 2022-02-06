@@ -36,18 +36,19 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /* Apex type declaration, a wrapper around the Apex parser output. This is the base for classes, interfaces & enums*/
-abstract class FullDeclaration(val source: Source,
-                               val module: Module,
-                               val typeContext: RelativeTypeContext,
-                               override val typeName: TypeName,
-                               override val outerTypeName: Option[TypeName],
-                               val id: Id,
-                               _modifiers: ModifierResults,
-                               _inTest: Boolean,
-                               val superClass: Option[TypeName],
-                               val interfaces: ArraySeq[TypeName],
-                               val bodyDeclarations: ArraySeq[ClassBodyDeclaration])
-  extends ClassBodyDeclaration(_modifiers)
+abstract class FullDeclaration(
+  val source: Source,
+  val module: Module,
+  val typeContext: RelativeTypeContext,
+  override val typeName: TypeName,
+  override val outerTypeName: Option[TypeName],
+  val id: Id,
+  _modifiers: ModifierResults,
+  _inTest: Boolean,
+  val superClass: Option[TypeName],
+  val interfaces: ArraySeq[TypeName],
+  val bodyDeclarations: ArraySeq[ClassBodyDeclaration]
+) extends ClassBodyDeclaration(_modifiers)
     with ApexClassDeclaration
     with ApexFullDeclaration {
 
@@ -56,8 +57,8 @@ abstract class FullDeclaration(val source: Source,
   override def paths: ArraySeq[PathLike] = ArraySeq(source.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
-  override val name: Name = typeName.name
-  override val idLocation: Location = id.location.location
+  override val name: Name                        = typeName.name
+  override val idLocation: Location              = id.location.location
   override val nature: Nature
   override val inTest: Boolean = _inTest
 
@@ -70,35 +71,35 @@ abstract class FullDeclaration(val source: Source,
   override def nestedTypes: ArraySeq[FullDeclaration] =
     bodyDeclarations.flatMap {
       case x: FullDeclaration => Some(x)
-      case _ => None
+      case _                  => None
     }
 
   override lazy val blocks: ArraySeq[ApexInitializerBlock] = {
     bodyDeclarations.flatMap {
       case x: ApexInitializerBlock => Some(x)
-      case _ => None
+      case _                       => None
     }
   }
 
   lazy val localFields: ArraySeq[ApexFieldLike] = {
     bodyDeclarations.flatMap {
-      case x: ApexFieldDeclaration => Some(x)
+      case x: ApexFieldDeclaration    => Some(x)
       case x: ApexPropertyDeclaration => Some(x)
-      case _ => None
+      case _                          => None
     }
   }
 
   override lazy val constructors: ArraySeq[ApexConstructorDeclaration] = {
     bodyDeclarations.flatMap {
       case x: ApexConstructorDeclaration => Some(x)
-      case _ => None
+      case _                             => None
     }
   }
 
   lazy val localMethods: ArraySeq[ApexMethodDeclaration] = {
     bodyDeclarations.flatMap({
       case m: ApexMethodDeclaration => Some(m)
-      case _ => None
+      case _                        => None
     })
   }
 
@@ -136,7 +137,10 @@ abstract class FullDeclaration(val source: Source,
     // Check for name/path mismatch on outer types
     val pathBasename = location.path.basename
     if (outerTypeName.isEmpty && !pathBasename.matches(s"(?i)${id.name}.x?cls")) {
-      context.logError(id.location, s"Type name '${id.name}' does not match file name '$pathBasename'")
+      context.logError(
+        id.location,
+        s"Type name '${id.name}' does not match file name '$pathBasename'"
+      )
     }
 
     // Check super class is visible
@@ -146,19 +150,24 @@ abstract class FullDeclaration(val source: Source,
         context.missingType(id.location, superClass.get)
       } else if (superClassDeclaration.get.nature != CLASS_NATURE) {
         OrgImpl.logError(id.location, s"Parent type '${superClass.get.asDotName}' must be a class")
-      } else if (superClassDeclaration.get.modifiers
-                   .intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER))
-                   .isEmpty) {
-        OrgImpl.logError(id.location,
-                         s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract")
+      } else if (
+        superClassDeclaration.get.modifiers
+          .intersect(Seq(VIRTUAL_MODIFIER, ABSTRACT_MODIFIER))
+          .isEmpty
+      ) {
+        OrgImpl.logError(
+          id.location,
+          s"Parent class '${superClass.get.asDotName}' must be declared virtual or abstract"
+        )
       }
     }
 
     // Check for duplicate nested types
     val duplicateNestedType =
       (this +: nestedTypes).groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
-    duplicateNestedType.foreach(td =>
-      OrgImpl.logError(td.location, s"Duplicate type name '${td.name.toString}'"))
+    duplicateNestedType.foreach(
+      td => OrgImpl.logError(td.location, s"Duplicate type name '${td.name.toString}'")
+    )
 
     // Check interfaces are visible
     interfaces.foreach(interface => {
@@ -173,9 +182,12 @@ abstract class FullDeclaration(val source: Source,
     // Detail check each body declaration
     bodyDeclarations.foreach(bd => bd.validate(new BodyDeclarationVerifyContext(context, bd, None)))
 
-    nestedTypes.filter(t => t.nestedTypes.nonEmpty)
+    nestedTypes
+      .filter(t => t.nestedTypes.nonEmpty)
       .foreach(_.nestedTypes.foreach {
-        case fd: FullDeclaration => OrgImpl.logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
+        case fd: FullDeclaration =>
+          OrgImpl
+            .logError(fd.id.location, s"${fd.id.name}: Inner types of Inner types are not valid.")
         case _ =>
       })
 
@@ -183,10 +195,12 @@ abstract class FullDeclaration(val source: Source,
     setDepends(context.dependencies)
   }
 
-  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
-                                  apexOnly: Boolean,
-                                  outerTypesOnly: Boolean,
-                                  typeCache: TypeCache): Unit = {
+  override def gatherDependencies(
+    dependsOn: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    outerTypesOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     val dependents = mutable.Set[Dependent]()
     collectDependencies(dependents)
     DependentType.dependentsToTypeIds(module, dependents, apexOnly, outerTypesOnly, dependsOn)
@@ -198,9 +212,11 @@ abstract class FullDeclaration(val source: Source,
   }
 
   /** Locate an ApexDeclaration for the passed typeName that was extracted from location. */
-  override def findDeclarationFromSourceReference(searchTerm: String,
-                                         location: Location
-                                        ): Option[ApexDeclaration] = {
+  override def findDeclarationFromSourceReference(
+    searchTerm: String,
+    location: Location
+  ): Option[ApexDeclaration] = {
+
     /** Find the outer or inner class that contains the passed cursor position */
     def findEnclosingClass(line: Int, offset: Int): Option[FullDeclaration] = {
       nestedTypes
@@ -226,16 +242,19 @@ abstract class FullDeclaration(val source: Source,
   /** Get a validation result map for the body declaration at the specified location. */
   override def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
     try {
-      getBodyDeclarationFromLocation(line, offset).map(typeAndBody => {
-        // Validate the body declaration for the side-effect of being able to collect a map of expression results
-        val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
-        val resultMap = mutable.Map[Location, ValidationResult]()
-        val context = new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
-        context.disableIssueReporting() {
-          typeAndBody._2.validate(context)
-        }
-        resultMap.toMap
-      }).getOrElse(Map.empty)
+      getBodyDeclarationFromLocation(line, offset)
+        .map(typeAndBody => {
+          // Validate the body declaration for the side-effect of being able to collect a map of expression results
+          val typeContext = new TypeVerifyContext(None, typeAndBody._1, None)
+          val resultMap   = mutable.Map[Location, ValidationResult]()
+          val context =
+            new BodyDeclarationVerifyContext(typeContext, typeAndBody._2, Some(resultMap))
+          context.disableIssueReporting() {
+            typeAndBody._2.validate(context)
+          }
+          resultMap.toMap
+        })
+        .getOrElse(Map.empty)
     } catch {
       case ex: Throwable =>
         val at = ex.getStackTrace.headOption.getOrElse("Unknown")
@@ -245,8 +264,9 @@ abstract class FullDeclaration(val source: Source,
   }
 
   private def getBodyDeclarationFromLocation(
-                                              line: Int,
-                                              offset: Int): Option[(FullDeclaration, ClassBodyDeclaration)] = {
+    line: Int,
+    offset: Int
+  ): Option[(FullDeclaration, ClassBodyDeclaration)] = {
     nestedTypes.view
       .collect { case nested: FullDeclaration => nested }
       .flatMap(td => td.getBodyDeclarationFromLocation(line, offset))
@@ -256,10 +276,10 @@ abstract class FullDeclaration(val source: Source,
       })
   }
 
-
   // Override to avoid super class access (use local fields & methods) & provide location information
   override def summary: TypeSummary = {
-    TypeSummary(sourceHash,
+    TypeSummary(
+      sourceHash,
       location.location,
       id.location.location,
       name.toString,
@@ -274,7 +294,8 @@ abstract class FullDeclaration(val source: Source,
       constructors.map(_.summary).sortBy(_.parameters.length),
       localMethods.map(_.summary).sortBy(_.name),
       nestedTypes.map(_.summary).sortBy(_.name),
-      dependencySummary())
+      dependencySummary()
+    )
   }
 }
 
@@ -290,10 +311,12 @@ final case class ThisType(module: Module, typeName: TypeName, inTest: Boolean) {
 
 object FullDeclaration {
 
-  def create(module: Module,
-             doc: ClassDocument,
-             data: SourceData,
-             forceConstruct: Boolean): Option[FullDeclaration] = {
+  def create(
+    module: Module,
+    doc: ClassDocument,
+    data: SourceData,
+    forceConstruct: Boolean
+  ): Option[FullDeclaration] = {
     val parser = CodeParser(doc.path, data)
     val result = parser.parseClass()
     val issues = result.issues
@@ -311,42 +334,56 @@ object FullDeclaration {
     }
   }
 
-  def construct(parser: CodeParser, module: Module, name: Name, typeDecl: TypeDeclarationContext): Option[FullDeclaration] = {
+  def construct(
+    parser: CodeParser,
+    module: Module,
+    name: Name,
+    typeDecl: TypeDeclarationContext
+  ): Option[FullDeclaration] = {
 
     val modifiers = ArraySeq.unsafeWrapArray(CodeParser.toScala(typeDecl.modifier()).toArray)
-    val thisType = TypeName(name).withNamespace(module.namespace)
+    val thisType  = TypeName(name).withNamespace(module.namespace)
 
     val cst: Option[FullDeclaration] = CodeParser
       .toScala(typeDecl.classDeclaration())
-      .map(
-        cd => {
-          val classModifiers = ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id())
-          ClassDeclaration.construct(parser,
-            ThisType(module, thisType, classModifiers.modifiers.contains(ISTEST_ANNOTATION)),
-            None,
-            classModifiers,
-            cd)
-        })
+      .map(cd => {
+        val classModifiers = ApexModifiers.classModifiers(parser, modifiers, outer = true, cd.id())
+        ClassDeclaration.construct(
+          parser,
+          ThisType(module, thisType, classModifiers.modifiers.contains(ISTEST_ANNOTATION)),
+          None,
+          classModifiers,
+          cd
+        )
+      })
       .orElse(
         CodeParser
           .toScala(typeDecl.interfaceDeclaration())
           .map(
             id =>
-              InterfaceDeclaration.construct(parser,
+              InterfaceDeclaration.construct(
+                parser,
                 ThisType(module, thisType, inTest = false),
                 None,
                 ApexModifiers.interfaceModifiers(parser, modifiers, outer = true, id.id()),
-                id)))
+                id
+              )
+          )
+      )
       .orElse(
         CodeParser
           .toScala(typeDecl.enumDeclaration())
           .map(
             ed =>
-              EnumDeclaration.construct(parser,
+              EnumDeclaration.construct(
+                parser,
                 ThisType(module, thisType, inTest = false),
                 None,
                 ApexModifiers.enumModifiers(parser, modifiers, outer = true, ed.id()),
-                ed)))
+                ed
+              )
+          )
+      )
 
     cst.foreach(Monitor.push(_))
     cst.map(_.withContext(typeDecl))

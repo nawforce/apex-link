@@ -37,11 +37,15 @@ import scala.jdk.CollectionConverters._
   *
   * FUTURE: Remove Module dependency.
   */
-class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: mutable.Map[TypeName, TypeDeclaration]) {
+class StreamDeployer(
+  module: Module,
+  events: Iterator[PackageEvent],
+  types: mutable.Map[TypeName, TypeDeclaration]
+) {
   load()
 
   private def load(): Unit = {
-    val start = java.lang.System.currentTimeMillis()
+    val start          = java.lang.System.currentTimeMillis()
     val basicTypesSize = types.size
 
     // Process package events, these must follow the publishing order from pkgforce
@@ -49,7 +53,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
       val bufferedIterator = events.buffered
       consumeLabels(bufferedIterator)
       val components = consumeComponents(bufferedIterator)
-      val pages = consumePages(bufferedIterator)
+      val pages      = consumePages(bufferedIterator)
       consumeFlows(bufferedIterator)
       consumeSObjects(bufferedIterator)
       consumeClasses(bufferedIterator)
@@ -65,22 +69,23 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
     // Report progress and tidy up
     if (types.size > basicTypesSize) {
       val total = (java.lang.System.currentTimeMillis() - start).toDouble
-      val avg = total / types.size
+      val avg   = total / types.size
       LoggerOps.info(f"$module loaded ${types.size} types in ${total}ms, average $avg%.1f ms/type")
     }
   }
 
   private def consumeLabels(events: BufferedIterator[PackageEvent]): Unit = {
     val labelRelatedEvents = bufferEvents(Set(classOf[LabelFileEvent], classOf[LabelEvent]), events)
-    val labelFileEvents = labelRelatedEvents.collect { case e: LabelFileEvent => e }
-    val labelEvents = labelRelatedEvents.collect { case e: LabelEvent         => e }
-    val labels = LabelDeclaration(module).merge(labelFileEvents, labelEvents)
+    val labelFileEvents    = labelRelatedEvents.collect { case e: LabelFileEvent => e }
+    val labelEvents        = labelRelatedEvents.collect { case e: LabelEvent => e }
+    val labels             = LabelDeclaration(module).merge(labelFileEvents, labelEvents)
     upsertMetadata(labels)
     upsertMetadata(labels, Some(TypeName(labels.name)))
   }
 
   private def consumeComponents(events: BufferedIterator[PackageEvent]): ComponentDeclaration = {
-    val componentDeclaration = ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events))
+    val componentDeclaration =
+      ComponentDeclaration(module).merge(bufferEvents[ComponentEvent](events))
     upsertMetadata(componentDeclaration)
     componentDeclaration
   }
@@ -106,7 +111,8 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   }
 
   /** Consume Apex class events, this is a bit more involved as we try and load first via cache and then fallback
-    * to reading the source and parsing.  */
+    * to reading the source and parsing.
+    */
   private def consumeClasses(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[ApexEvent](events).map(e => ApexClassDocument(e.path))
 
@@ -126,19 +132,21 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   private def parseAndValidateClasses(docs: ArraySeq[ClassDocument]): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
       val classTypes = docs
-        .flatMap(doc =>
-          doc.path.readSourceData() match {
-            case Left(_) => None
-            case Right(data) =>
-              LoggerOps.debugTime(s"Parsed ${doc.path}") {
-                FullDeclaration
-                  .create(module, doc, data, forceConstruct = false)
-                  .map(td => {
-                    types.put(td.typeName, td)
-                    td
-                  })
-              }
-        })
+        .flatMap(
+          doc =>
+            doc.path.readSourceData() match {
+              case Left(_) => None
+              case Right(data) =>
+                LoggerOps.debugTime(s"Parsed ${doc.path}") {
+                  FullDeclaration
+                    .create(module, doc, data, forceConstruct = false)
+                    .map(td => {
+                      types.put(td.typeName, td)
+                      td
+                    })
+                }
+            }
+        )
 
       // Validate the classes, this must be last due to mutual dependence
       classTypes.foreach(_.validate())
@@ -148,15 +156,17 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   /** Validate summary classes & log diagnostics, those with any invalid dependents are discarded. */
   private def validateSummaryClasses(summaryClasses: Iterator[SummaryApex]): Unit = {
 
-    val classes = summaryClasses.toArray
-    val rejected = mutable.Set[SummaryApex]()
-    val typeCache = new TypeCache()
+    val classes       = summaryClasses.toArray
+    val rejected      = mutable.Set[SummaryApex]()
+    val typeCache     = new TypeCache()
     var hasRejections = true
-    var rejectCycles = 0
+    var rejectCycles  = 0
 
     // Collect rejected in a set, we have to multi-pass to make sure all are found
     while (hasRejections) {
-      val rejects = classes.filterNot(cls => rejected.contains(cls) || cls.declaration.hasValidDependencies(typeCache))
+      val rejects = classes.filterNot(
+        cls => rejected.contains(cls) || cls.declaration.hasValidDependencies(typeCache)
+      )
 
       // Tidy up rejected so they can't be found
       rejects.foreach(reject => {
@@ -187,7 +197,8 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   }
 
   /** Load classes from the code cache as types returning TypeNames of those available. Benchmarking has shown
-    * running this in parallel helps performance quite a bit with SSDs. */
+    * running this in parallel helps performance quite a bit with SSDs.
+    */
   private def loadClassesFromCache(classes: ArraySeq[ApexClassDocument]): Iterator[SummaryApex] = {
     module.pkg.org.parsedCache
       .map(parsedCache => {
@@ -201,7 +212,7 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
             .toOption
             .map(data => {
               val value = parsedCache.get(pkgContext, doc.name.value, data)
-              val ad = value.map(v => SummaryApex(doc.path, module, v))
+              val ad    = value.map(v => SummaryApex(doc.path, module, v))
               if (ad.nonEmpty && !ad.get.diagnostics.exists(_.category == MISSING_CATEGORY)) {
                 localAccum.put(ad.get.declaration.typeName, ad.get)
               }
@@ -218,7 +229,8 @@ class StreamDeployer(module: Module, events: Iterator[PackageEvent], types: muta
   }
 
   /** Consume trigger events, these could be cached but they don't consume much time to for we load from disk and
-    * parse each time. */
+    * parse each time.
+    */
   private def consumeTriggers(events: BufferedIterator[PackageEvent]): Unit = {
     val docs = bufferEvents[TriggerEvent](events).map(e => ApexTriggerDocument(e.path))
     LoggerOps.debugTime(s"Parsed ${docs.length} triggers", docs.nonEmpty) {

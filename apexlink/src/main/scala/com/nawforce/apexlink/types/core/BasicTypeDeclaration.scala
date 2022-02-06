@@ -26,19 +26,20 @@ class BasicTypeDeclaration(val paths: ArraySeq[PathLike], module: Module, val ty
     extends TypeDeclaration {
 
   override val moduleDeclaration: Option[Module] = Some(module)
-  override val name: Name = typeName.name
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = CLASS_NATURE
-  override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
-  override lazy val isComplete: Boolean = true
+  override val name: Name                        = typeName.name
+  override val outerTypeName: Option[TypeName]   = None
+  override val nature: Nature                    = CLASS_NATURE
+  override val modifiers: ArraySeq[Modifier]     = ModifierOps.emptyModifiers
+  override lazy val isComplete: Boolean          = true
 
-  override val superClass: Option[TypeName] = None
-  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+  override val superClass: Option[TypeName]           = None
+  override val interfaces: ArraySeq[TypeName]         = ArraySeq()
   override def nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: ArraySeq[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
-  override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: ArraySeq[ConstructorDeclaration] =
+    ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   override def validate(): Unit = {}

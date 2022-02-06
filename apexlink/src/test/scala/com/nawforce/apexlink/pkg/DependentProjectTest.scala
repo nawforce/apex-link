@@ -31,10 +31,11 @@ class DependentProjectTest extends AnyFunSuite with TestHelper {
           |   ]
           | }
           |}""".stripMargin,
-        "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
+        "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 
@@ -51,10 +52,11 @@ class DependentProjectTest extends AnyFunSuite with TestHelper {
           | }
           |}""".stripMargin,
         "metadata/Dummy.cls" -> "public class Dummy {public void foo() {baz.MyClass.MyMethod();}}",
-        "pkg1/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
+        "pkg1/MyClass.cls"   -> "global class MyClass {global static void MyMethod() {}}"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 
@@ -76,10 +78,11 @@ class DependentProjectTest extends AnyFunSuite with TestHelper {
           | "namespace": "baz",
           | "packageDirectories": [{"path": "metadata"}]
           |}""".stripMargin,
-        "pkg1/metadata/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
+        "pkg1/metadata/MyClass.cls" -> "global class MyClass {global static void MyMethod() {}}"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
     }
   }
 }

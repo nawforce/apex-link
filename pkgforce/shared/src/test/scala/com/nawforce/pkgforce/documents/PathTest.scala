@@ -93,7 +93,7 @@ class PathTest extends AnyFunSuite {
   test("directory with file") {
     FileSystemHelper.run(Map[String, String]("Bar/Something.txt" -> "Hello")) { root: PathLike =>
       val file = root.join("Bar/Something.txt")
-      val dir = file.parent
+      val dir  = file.parent
       assert(dir.basename == "Bar")
       assert(dir.parent == root)
       assert(dir.exists)

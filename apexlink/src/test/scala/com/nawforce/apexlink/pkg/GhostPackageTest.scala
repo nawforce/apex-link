@@ -29,7 +29,9 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy extends ghosted.SuperClass {}")) { root: PathLike =>
+        "pkg/Dummy.cls" -> "public class Dummy extends ghosted.SuperClass {}"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
       assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
@@ -45,10 +47,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy extends package.SuperClass {}")) { root: PathLike =>
+        "pkg/Dummy.cls" -> "public class Dummy extends package.SuperClass {}"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-      assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n")
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 13-18: No type declaration found for 'package.SuperClass'\n"
+      )
     }
   }
 
@@ -61,7 +69,9 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy implements ghosted.MyThing {}")) { root: PathLike =>
+        "pkg/Dummy.cls" -> "public class Dummy implements ghosted.MyThing {}"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
       assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
@@ -77,10 +87,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy implements package.MyThing {}")) { root: PathLike =>
+        "pkg/Dummy.cls" -> "public class Dummy implements package.MyThing {}"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
       assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-      assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n")
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 13-18: No type declaration found for 'package.MyThing'\n"
+      )
     }
   }
 
@@ -93,11 +109,12 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = ghosted.A.class;} }")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = ghosted.A.class;} }"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
     }
   }
 
@@ -110,11 +127,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
             |"packageDirectories": [{"path": "pkg"}],
             |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
             |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-        assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n")
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = package.A.class;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 33-48: No type declaration found for 'package.A'\n"
+      )
     }
   }
 
@@ -127,11 +149,12 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__c();} }")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__c();} }"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
     }
   }
 
@@ -144,11 +167,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-        assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n")
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__c();} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__c'\n"
+      )
     }
   }
 
@@ -161,11 +189,12 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__mdt();} }")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__mdt();} }"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
     }
   }
 
@@ -178,11 +207,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-        assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n")
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__mdt();} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 37-54: No type declaration found for 'Schema.package__Foo__mdt'\n"
+      )
     }
   }
 
@@ -195,11 +229,12 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__e();} }")) {
-      root: PathLike =>
-        createOrg(root)
-        assert(!hasIssues)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new ghosted__Foo__e();} }"
+      )
+    ) { root: PathLike =>
+      createOrg(root)
+      assert(!hasIssues)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
     }
 
   }
@@ -213,11 +248,16 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
-        assert(getMessages(Path("/pkg/Dummy.cls")) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n")
+        "pkg/Dummy.cls" -> "public class Dummy { {Object a = new package__Foo__e();} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+      assert(
+        getMessages(
+          Path("/pkg/Dummy.cls")
+        ) == "Missing: line 1 at 37-52: No type declaration found for 'Schema.package__Foo__e'\n"
+      )
     }
   }
 
@@ -230,11 +270,12 @@ class GhostPackageTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg"}],
           |"plugins": {"dependencies": [{"namespace": "ghosted"}]}
           |}""".stripMargin,
-        "pkg/Dummy.cls" -> "public class Dummy extends ghosted.SuperClass { {Object a = b.foo();} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(!hasIssues)
-        assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
+        "pkg/Dummy.cls" -> "public class Dummy extends ghosted.SuperClass { {Object a = b.foo();} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(!hasIssues)
+      assert(packagedClass("pkg", "Dummy").get.dependencies().isEmpty)
     }
   }
 }

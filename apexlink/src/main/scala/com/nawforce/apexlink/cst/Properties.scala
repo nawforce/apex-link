@@ -25,26 +25,27 @@ import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.immutable.ArraySeq
 
-final case class ApexPropertyDeclaration(thisType: ThisType,
-                                         _modifiers: ModifierResults,
-                                         typeName: TypeName,
-                                         id: Id,
-                                         propertyBlocks: Seq[PropertyBlock])
-  extends ClassBodyDeclaration(_modifiers)
+final case class ApexPropertyDeclaration(
+  thisType: ThisType,
+  _modifiers: ModifierResults,
+  typeName: TypeName,
+  id: Id,
+  propertyBlocks: Seq[PropertyBlock]
+) extends ClassBodyDeclaration(_modifiers)
     with ApexFieldLike {
 
-  override val name: Name = id.name
+  override val name: Name                   = id.name
   override val children: ArraySeq[ApexNode] = ArraySeq.empty
-  override val nature: Nature = PROPERTY_NATURE
-  override val outerTypeId: TypeId = thisType.typeId
-  override val inTest: Boolean = thisType.inTest
+  override val nature: Nature               = PROPERTY_NATURE
+  override val outerTypeId: TypeId          = thisType.typeId
+  override val inTest: Boolean              = thisType.inTest
 
   override def idLocation: Location = id.location.location
 
   val setter: Option[SetterPropertyBlock] =
     propertyBlocks.flatMap {
       case x: SetterPropertyBlock => Some(x)
-      case _ => None
+      case _                      => None
     }.headOption
 
   val getter: Option[GetterPropertyBlock] =
@@ -75,7 +76,10 @@ final case class ApexPropertyDeclaration(thisType: ThisType,
     propertyType.foreach(td => getters.foreach(_.verify(context, isStatic, td)))
 
     if (setters.size > 1 || getters.size > 1 || propertyBlocks.isEmpty) {
-      context.logError(location, "Properties must have either a single 'get' and/or a single 'set' block")
+      context.logError(
+        location,
+        "Properties must have either a single 'get' and/or a single 'set' block"
+      )
     }
 
     if (visibility.nonEmpty && writeAccess.order > visibility.get.order) {
@@ -92,27 +96,40 @@ final case class ApexPropertyDeclaration(thisType: ThisType,
 }
 
 object ApexPropertyDeclaration {
-  def construct(parser: CodeParser,
-                thisType: ThisType,
-                modifiers: ModifierResults,
-                propertyDeclaration: PropertyDeclarationContext): ApexPropertyDeclaration = {
+  def construct(
+    parser: CodeParser,
+    thisType: ThisType,
+    modifiers: ModifierResults,
+    propertyDeclaration: PropertyDeclarationContext
+  ): ApexPropertyDeclaration = {
     val typeName = TypeReference.construct(propertyDeclaration.typeRef())
-    ApexPropertyDeclaration(thisType,
+    ApexPropertyDeclaration(
+      thisType,
       modifiers,
       typeName,
       Id.construct(propertyDeclaration.id()),
-      CodeParser.toScala(propertyDeclaration.propertyBlock())
-        .flatMap(pb => PropertyBlock.construct(parser, pb, typeName)),
+      CodeParser
+        .toScala(propertyDeclaration.propertyBlock())
+        .flatMap(pb => PropertyBlock.construct(parser, pb, typeName))
     ).withContext(propertyDeclaration)
   }
 }
 
 sealed abstract class PropertyBlock extends CST {
-  def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit
+  def verify(
+    context: BodyDeclarationVerifyContext,
+    isStatic: Boolean,
+    propertyType: TypeDeclaration
+  ): Unit
 }
 
-final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block]) extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
+final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[Block])
+    extends PropertyBlock {
+  override def verify(
+    context: BodyDeclarationVerifyContext,
+    isStatic: Boolean,
+    propertyType: TypeDeclaration
+  ): Unit = {
     block.foreach(block => {
       val blockContext = new OuterBlockVerifyContext(context, isStatic)
       block.verify(blockContext)
@@ -121,9 +138,16 @@ final case class GetterPropertyBlock(modifiers: ModifierResults, block: Option[B
   }
 }
 
-final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeName, block: Option[Block])
-    extends PropertyBlock {
-  override def verify(context: BodyDeclarationVerifyContext, isStatic: Boolean, propertyType: TypeDeclaration): Unit = {
+final case class SetterPropertyBlock(
+  modifiers: ModifierResults,
+  typeName: TypeName,
+  block: Option[Block]
+) extends PropertyBlock {
+  override def verify(
+    context: BodyDeclarationVerifyContext,
+    isStatic: Boolean,
+    propertyType: TypeDeclaration
+  ): Unit = {
     block.foreach(block => {
       val blockContext = new OuterBlockVerifyContext(context, isStatic)
       blockContext.addVar(Name("value"), None, propertyType)
@@ -134,19 +158,35 @@ final case class SetterPropertyBlock(modifiers: ModifierResults, typeName: TypeN
 }
 
 object PropertyBlock {
-  def construct(parser: CodeParser, propertyBlockContext: PropertyBlockContext, typeName: TypeName): Option[PropertyBlock] = {
+  def construct(
+    parser: CodeParser,
+    propertyBlockContext: PropertyBlockContext,
+    typeName: TypeName
+  ): Option[PropertyBlock] = {
     val modifiers: ModifierResults = ApexModifiers.propertyBlockModifiers(
       parser,
       CodeParser.toScala(propertyBlockContext.modifier()),
-      propertyBlockContext)
+      propertyBlockContext
+    )
     val cst = {
       val getter = CodeParser.toScala(propertyBlockContext.getter())
       val setter = CodeParser.toScala(propertyBlockContext.setter())
 
       if (getter.nonEmpty) {
-        Some(GetterPropertyBlock(modifiers, Block.constructOption(parser, CodeParser.toScala(getter.get.block()))))
+        Some(
+          GetterPropertyBlock(
+            modifiers,
+            Block.constructOption(parser, CodeParser.toScala(getter.get.block()))
+          )
+        )
       } else if (setter.nonEmpty) {
-        Some(SetterPropertyBlock(modifiers, typeName, Block.constructOption(parser, CodeParser.toScala(setter.get.block()))))
+        Some(
+          SetterPropertyBlock(
+            modifiers,
+            typeName,
+            Block.constructOption(parser, CodeParser.toScala(setter.get.block()))
+          )
+        )
       } else {
         None
       }

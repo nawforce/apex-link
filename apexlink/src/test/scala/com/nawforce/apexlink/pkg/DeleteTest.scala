@@ -25,8 +25,8 @@ class DeleteTest extends AnyFunSuite with TestHelper {
     withManualFlush {
       FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
         val path = root.join("pkg/Foo.cls")
-        val org = createOrg(root)
-        val pkg = org.unmanaged
+        val org  = createOrg(root)
+        val pkg  = org.unmanaged
 
         path.delete()
         pkg.refresh(path)
@@ -41,19 +41,21 @@ class DeleteTest extends AnyFunSuite with TestHelper {
   test("Delete creates missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.cls" -> "public class Foo {Bar b;}", "pkg/Bar.cls" -> "public class Bar {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          assert(org.issues.isEmpty)
+        Map("pkg/Foo.cls" -> "public class Foo {Bar b;}", "pkg/Bar.cls" -> "public class Bar {}")
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(org.issues.isEmpty)
 
-          val path = root.join("pkg/Bar.cls")
-          path.delete()
-          pkg.refresh(path)
-          assert(org.flush())
+        val path = root.join("pkg/Bar.cls")
+        path.delete()
+        pkg.refresh(path)
+        assert(org.flush())
 
-          assert(getMessages(Path("/pkg/Foo.cls")) ==
-            "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n")
+        assert(
+          getMessages(Path("/pkg/Foo.cls")) ==
+            "Missing: line 1 at 22-23: No type declaration found for 'Bar'\n"
+        )
       }
     }
   }
@@ -80,8 +82,11 @@ class DeleteTest extends AnyFunSuite with TestHelper {
   test("Delete creates trigger missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}",
-            "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
+        Map(
+          "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar b;}",
+          "pkg/Bar.cls"     -> "public class Bar {}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
@@ -90,8 +95,10 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         path.delete()
         pkg.refresh(path)
         assert(org.flush())
-        assert(getMessages(Path("/pkg/Foo.trigger"))
-          == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n")
+        assert(
+          getMessages(Path("/pkg/Foo.trigger"))
+            == "Missing: line 1 at 44-45: No type declaration found for 'Bar'\n"
+        )
       }
     }
   }
@@ -99,15 +106,18 @@ class DeleteTest extends AnyFunSuite with TestHelper {
   test("Delete label file") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" ->
-          """<?xml version="1.0" encoding="UTF-8"?>
+        Map(
+          "CustomLabels.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
             |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
             |    <labels>
             |        <fullName>TestLabel</fullName>
             |        <protected>false</protected>
             |    </labels>
             |</CustomLabels>
-            |""".stripMargin)) { root: PathLike =>
+            |""".stripMargin
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
@@ -125,8 +135,9 @@ class DeleteTest extends AnyFunSuite with TestHelper {
   test("Delete label file (multiple files)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" ->
-              """<?xml version="1.0" encoding="UTF-8"?>
+        Map(
+          "CustomLabels.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
               |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
               |    <labels>
               |        <fullName>TestLabel</fullName>
@@ -134,16 +145,17 @@ class DeleteTest extends AnyFunSuite with TestHelper {
               |    </labels>
               |</CustomLabels>
               |""".stripMargin,
-            "Alt.labels" ->
-              """<?xml version="1.0" encoding="UTF-8"?>
+          "Alt.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
               |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
               |    <labels>
               |        <fullName>TestLabel2</fullName>
               |        <protected>false</protected>
               |    </labels>
               |</CustomLabels>
-              |""".stripMargin,
-        )) { root: PathLike =>
+              |""".stripMargin
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
@@ -189,7 +201,8 @@ class DeleteTest extends AnyFunSuite with TestHelper {
           pkg.refresh(path)
           assert(org.flush())
           assert(
-            pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2")))
+            pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test2"))
+          )
       }
     }
   }
@@ -212,16 +225,17 @@ class DeleteTest extends AnyFunSuite with TestHelper {
 
   test("Delete page file (multiple)") {
     withManualFlush {
-      FileSystemHelper.run(Map("Test.page" -> "<apex:page/>", "Test2.page" -> "<apex:page/>")) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("Test.page" -> "<apex:page/>", "Test2.page" -> "<apex:page/>")) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          assert(org.issues.isEmpty)
 
-        val path = root.join("Test.page")
-        path.delete()
-        pkg.refresh(path)
-        assert(org.flush())
-        assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("Test2")))
+          val path = root.join("Test.page")
+          path.delete()
+          pkg.refresh(path)
+          assert(org.flush())
+          assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("Test2")))
       }
     }
   }
@@ -238,9 +252,10 @@ class DeleteTest extends AnyFunSuite with TestHelper {
         pkg.refresh(path)
         assert(org.flush())
         assert(
-          pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet == Set(Names.c,
-                                                                                  Names.Apex,
-                                                                                  Names.Chatter))
+          pkg.orderedModules.head.components.nestedTypes
+            .map(_.name)
+            .toSet == Set(Names.c, Names.Apex, Names.Chatter)
+        )
       }
     }
   }
@@ -248,21 +263,21 @@ class DeleteTest extends AnyFunSuite with TestHelper {
   test("Delete component file (multiple)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Test.component" -> "<apex:component/>", "Test2.component" -> "<apex:component/>")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          assert(org.issues.isEmpty)
+        Map("Test.component" -> "<apex:component/>", "Test2.component" -> "<apex:component/>")
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(org.issues.isEmpty)
 
-          val path = root.join("Test.component")
-          path.delete()
-          pkg.refresh(path)
-          assert(org.flush())
-          assert(
-            pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet == Set(Name("Test2"),
-                                                                                    Names.c,
-                                                                                    Names.Apex,
-                                                                                    Names.Chatter))
+        val path = root.join("Test.component")
+        path.delete()
+        pkg.refresh(path)
+        assert(org.flush())
+        assert(
+          pkg.orderedModules.head.components.nestedTypes
+            .map(_.name)
+            .toSet == Set(Name("Test2"), Names.c, Names.Apex, Names.Chatter)
+        )
       }
     }
   }

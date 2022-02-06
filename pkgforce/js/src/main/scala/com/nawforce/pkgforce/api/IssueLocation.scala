@@ -20,7 +20,9 @@ trait IssueLocation {
   def endCharOffset(): Int
 
   def displayPosition: String = {
-    if (startLineNumber() == 1 && endLineNumber() == Int.MaxValue && startCharOffset() == 0 && endCharOffset() == 0) {
+    if (
+      startLineNumber() == 1 && endLineNumber() == Int.MaxValue && startCharOffset() == 0 && endCharOffset() == 0
+    ) {
       s"line 1"
     } else if (startLineNumber() == endLineNumber()) {
       if (startCharOffset() == 0 && endCharOffset() == 0)
@@ -45,6 +47,6 @@ trait IssueLocation {
 
   def contains(other: IssueLocation): Boolean = {
     contains(other.startLineNumber(), other.startCharOffset()) &&
-      contains(other.endLineNumber(), other.endCharOffset())
+    contains(other.endLineNumber(), other.endCharOffset())
   }
 }

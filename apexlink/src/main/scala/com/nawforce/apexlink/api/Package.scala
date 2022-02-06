@@ -37,8 +37,7 @@ import com.nawforce.pkgforce.names.{TypeIdentifier, TypeName}
   *
   * Packages only handle metadata that is important to Apex class analysis, other forms of metadata that might
   * appear in the package directory are ignored.
-  *
-  **/
+  */
 trait Package {
 
   /** The namespace of the package or the package and its dependent packages.
@@ -95,7 +94,11 @@ trait Package {
     * If outerInheritanceOnly is true only extending and implementing dependencies are reported for the outer Type
     * of Apex defined types. If apexOnly is true then only Apex defined types are returned.
     */
-  def getDependencies(typeId: TypeIdentifier, outerInheritanceOnly: Boolean, apexOnly: Boolean): Array[TypeIdentifier]
+  def getDependencies(
+    typeId: TypeIdentifier,
+    outerInheritanceOnly: Boolean,
+    apexOnly: Boolean
+  ): Array[TypeIdentifier]
 
   /** Returns set of Types that depend on the passed Type.
     *
@@ -105,10 +108,10 @@ trait Package {
   def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier]
 
   /** Returns true if the type identified by typeId depends in the type identified by dependencyTypeId.
-   *
-   * This will return true where the type depends on an inner class of dependencyTypeId. All dependencies of typeId
-   * are considered including those of any inner class.
-   */
+    *
+    * This will return true where the type depends on an inner class of dependencyTypeId. All dependencies of typeId
+    * are considered including those of any inner class.
+    */
   def hasDependency(typeId: TypeIdentifier, dependencyTypeId: TypeIdentifier): Boolean
 
   /** Refresh a type in the package.

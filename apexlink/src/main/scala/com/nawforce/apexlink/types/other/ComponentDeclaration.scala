@@ -30,26 +30,34 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 /** An individual component being represented as a nested type. */
-final case class Component(module: Module,
-                           location: PathLocation,
-                           componentName: Name,
-                           attributes: Option[ArraySeq[Name]],
-                           vfContainer: Option[VFContainer])
-    extends InnerBasicTypeDeclaration(ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
+final case class Component(
+  module: Module,
+  location: PathLocation,
+  componentName: Name,
+  attributes: Option[ArraySeq[Name]],
+  vfContainer: Option[VFContainer]
+) extends InnerBasicTypeDeclaration(
+      ArraySeq.unsafeWrapArray(Option(location).map(_.path).toArray),
       module,
-      TypeName(componentName, Nil, Some(TypeName(Names.Component))))
-      with UnsafeLocatable
-      with Dependent
-      with DependencyHolder {
+      TypeName(componentName, Nil, Some(TypeName(Names.Component)))
+    )
+    with UnsafeLocatable
+    with Dependent
+    with DependencyHolder {
 
   private var depends: Option[Set[Dependent]] = None
 
-  override val inTest: Boolean = false
+  override val inTest: Boolean              = false
   override val superClass: Option[TypeName] = Some(TypeNames.ApexPagesComponent)
-  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(PlatformTypes.componentType)
+  override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(
+    PlatformTypes.componentType
+  )
   override val fields: ArraySeq[FieldDeclaration] = {
-    attributes.getOrElse(ArraySeq())
-      .map(a => CustomFieldDeclaration(a, TypeNames.Any, None)) ++ PlatformTypes.componentType.fields
+    attributes
+      .getOrElse(ArraySeq())
+      .map(
+        a => CustomFieldDeclaration(a, TypeNames.Any, None)
+      ) ++ PlatformTypes.componentType.fields
   }
 
   override def findField(name: Name, staticContext: Option[Boolean]): Option[FieldDeclaration] = {
@@ -59,7 +67,8 @@ final case class Component(module: Module,
       super.findField(name, staticContext)
   }
 
-  override def dependencies(): Iterable[Dependent] = depends.map(_.toIterable).getOrElse(Array().toIterable)
+  override def dependencies(): Iterable[Dependent] =
+    depends.map(_.toIterable).getOrElse(Array().toIterable)
 
   override def validate(): Unit = {
     super.validate()
@@ -74,18 +83,25 @@ object Component {
   def apply(module: Module, event: ComponentEvent): Component = {
     val location = event.sourceInfo.location
     val document = MetadataDocument(location.path)
-    new Component(module, location, document.get.name, Some(event.attributes), Some(new VFContainer(module, event)))
+    new Component(
+      module,
+      location,
+      document.get.name,
+      Some(event.attributes),
+      Some(new VFContainer(module, event))
+    )
   }
 
   val emptyComponents: Array[Component] = Array()
 }
 
 /** Component namespace handler */
-final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
-                                      module: Module,
-                                      components: Seq[TypeDeclaration],
-                                      nestedComponents: Seq[NestedComponents])
-  extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
+final case class ComponentDeclaration(
+  sources: ArraySeq[SourceInfo],
+  module: Module,
+  components: Seq[TypeDeclaration],
+  nestedComponents: Seq[NestedComponents]
+) extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.Component)
     with DependentType {
 
   val sourceHash: Int = MurmurHash3.unorderedHash(sources.map(_.hash), 0)
@@ -109,10 +125,12 @@ final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
     propagateOuterDependencies(new TypeCache())
   }
 
-  override def gatherDependencies(dependsOn: mutable.Set[TypeId],
-                                  apexOnly: Boolean,
-                                  outerTypesOnly: Boolean,
-                                  typeCache: TypeCache): Unit = {
+  override def gatherDependencies(
+    dependsOn: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    outerTypesOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     val dependents = mutable.Set[Dependent]()
     components
       .collect { case component: DependencyHolder => component }
@@ -122,15 +140,22 @@ final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
       nestedComponents.foreach(ni => ni.componentTypeId.foreach(dependsOn.add))
   }
 
-  class NamespaceDeclaration(name: Name,
-                             nestedComponents: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations)
-      extends InnerBasicTypeDeclaration(PathLike.emptyPaths, module, TypeName(name, Nil, Some(TypeNames.Component))) {
+  class NamespaceDeclaration(
+    name: Name,
+    nestedComponents: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
+  ) extends InnerBasicTypeDeclaration(
+        PathLike.emptyPaths,
+        module,
+        TypeName(name, Nil, Some(TypeNames.Component))
+      ) {
     override def nestedTypes: ArraySeq[TypeDeclaration] = nestedComponents
 
     def merge(events: ArraySeq[ComponentEvent]): NamespaceDeclaration = {
-      new NamespaceDeclaration(name,
+      new NamespaceDeclaration(
+        name,
         nestedComponents ++
-          events.map(ce => Component(module, ce)))
+          events.map(ce => Component(module, ce))
+      )
     }
   }
 
@@ -145,8 +170,9 @@ final case class ComponentDeclaration(sources: ArraySeq[SourceInfo],
     val sourceInfo = events.map(_.sourceInfo).distinct
     val componentDeclaration =
       new ComponentDeclaration(sourceInfo, module, components, nestedComponents)
-    componentDeclaration.namespaceDeclaration.foreach(td =>
-      componentDeclaration.namespaceDeclaration = Some(td.merge(events)))
+    componentDeclaration.namespaceDeclaration.foreach(
+      td => componentDeclaration.namespaceDeclaration = Some(td.merge(events))
+    )
     componentDeclaration.cDeclaration = componentDeclaration.cDeclaration.merge(events)
     componentDeclaration
   }
@@ -166,7 +192,8 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
     extends InnerBasicTypeDeclaration(
       PathLike.emptyPaths,
       module,
-      TypeName(componentDeclaration.module.pkg.namespace.get, Nil, Some(TypeNames.Component)))
+      TypeName(componentDeclaration.module.pkg.namespace.get, Nil, Some(TypeNames.Component))
+    )
     with NestedComponents {
 
   override val componentTypeId: Option[TypeId] = Some(componentDeclaration.typeId)
@@ -179,9 +206,11 @@ final class PackageComponents(module: Module, componentDeclaration: ComponentDec
 }
 
 final class GhostedComponents(module: Module, ghostedPackage: PackageImpl)
-    extends InnerBasicTypeDeclaration(PathLike.emptyPaths,
-                                      module,
-                                      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview)))
+    extends InnerBasicTypeDeclaration(
+      PathLike.emptyPaths,
+      module,
+      TypeName(ghostedPackage.namespace.get, Nil, Some(TypeNames.Interview))
+    )
     with NestedComponents {
 
   override val componentTypeId: Option[TypeId] = None

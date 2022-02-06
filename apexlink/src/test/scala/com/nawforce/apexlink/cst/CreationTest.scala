@@ -26,7 +26,8 @@ class CreationTest extends AnyFunSuite with TestHelper {
 
   test("Inner class") {
     typeDeclaration(
-      "public class Dummy {{Object a = new Messaging.InboundEmail.BinaryAttachment();}}")
+      "public class Dummy {{Object a = new Messaging.InboundEmail.BinaryAttachment();}}"
+    )
     assert(dummyIssues.isEmpty)
   }
 
@@ -34,14 +35,16 @@ class CreationTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Object a = new Address{1};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'System.Address'\n")
+        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'System.Address'\n"
+    )
   }
 
   test("Basic with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new Address{1 => 2};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'System.Address'\n")
+        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'System.Address'\n"
+    )
   }
 
   test("Basic SObject") {
@@ -58,14 +61,16 @@ class CreationTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Object a = new Account{1};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'Schema.Account'\n")
+        "Error: line 1 at 43-46: Expression list construction is only supported for Set or List types, not 'Schema.Account'\n"
+    )
   }
 
   test("Basic SObject with map constructor") {
     typeDeclaration("public class Dummy {{Object a = new Account{1 => 2};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'Schema.Account'\n")
+        "Error: line 1 at 43-51: Expression pair list construction is only supported for Map types, not 'Schema.Account'\n"
+    )
   }
 
   test("Empty Map") {
@@ -75,7 +80,8 @@ class CreationTest extends AnyFunSuite with TestHelper {
 
   test("Map with argument") {
     typeDeclaration(
-      "public class Dummy {{Object a = new Map<String, Address>{'1' => new Address()};}}")
+      "public class Dummy {{Object a = new Map<String, Address>{'1' => new Address()};}}"
+    )
     assert(dummyIssues.isEmpty)
   }
 
@@ -83,33 +89,38 @@ class CreationTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Object a = new Map<String, Address>{1, 2};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n")
+        "Error: line 1 at 56-62: Expression list construction is only supported for Set or List types, not 'System.Map<System.String, System.Address>'\n"
+    )
   }
 
   test("Map with any key type") {
     // SOQL currently produces an any result, this should break if we fix that as String != RecordSet<Account>
     typeDeclaration(
-      "public class Dummy {{Object a = new Map<String, String>{[Select Id From Account] => ''};}}")
+      "public class Dummy {{Object a = new Map<String, String>{[Select Id From Account] => ''};}}"
+    )
     assert(dummyIssues.isEmpty)
   }
 
   test("Map with any value type") {
     // SOQL currently produces an any result, this should break if we fix that as String != RecordSet<Account>
     typeDeclaration(
-      "public class Dummy {{Object a = new Map<String, String>{'' => [Select Id From Account]};}}")
+      "public class Dummy {{Object a = new Map<String, String>{'' => [Select Id From Account]};}}"
+    )
     assert(dummyIssues.isEmpty)
   }
 
   test("Map with incorrect key type") {
-    typeDeclaration(
-      "public class Dummy {{Object a = new Map<Id, String>{new Account() => null};}}")
-    assert(dummyIssues == "Error: line 1 at 51-74: Incompatible key type 'Schema.Account' for 'System.Id'\n")
+    typeDeclaration("public class Dummy {{Object a = new Map<Id, String>{new Account() => null};}}")
+    assert(
+      dummyIssues == "Error: line 1 at 51-74: Incompatible key type 'Schema.Account' for 'System.Id'\n"
+    )
   }
 
   test("Map with incorrect value type") {
-    typeDeclaration(
-      "public class Dummy {{Object a = new Map<Id, String>{null => new Account()};}}")
-    assert(dummyIssues == "Error: line 1 at 51-74: Incompatible value type 'Schema.Account' for 'System.String'\n")
+    typeDeclaration("public class Dummy {{Object a = new Map<Id, String>{null => new Account()};}}")
+    assert(
+      dummyIssues == "Error: line 1 at 51-74: Incompatible value type 'Schema.Account' for 'System.String'\n"
+    )
   }
 
   test("Empty List") {
@@ -126,7 +137,8 @@ class CreationTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Object a = new List<Address>{1 => 2};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 49-57: Expression pair list construction is only supported for Map types, not 'System.List<System.Address>'\n")
+        "Error: line 1 at 49-57: Expression pair list construction is only supported for Map types, not 'System.List<System.Address>'\n"
+    )
   }
 
   test("Empty Set") {
@@ -143,7 +155,8 @@ class CreationTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Object a = new Set<Address>{1 => 2};}}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 48-56: Expression pair list construction is only supported for Map types, not 'System.Set<System.Address>'\n")
+        "Error: line 1 at 48-56: Expression pair list construction is only supported for Map types, not 'System.Set<System.Address>'\n"
+    )
   }
 
   test("Array with Index") {

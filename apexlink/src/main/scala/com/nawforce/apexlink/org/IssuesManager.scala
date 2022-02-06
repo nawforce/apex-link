@@ -26,9 +26,9 @@ import scala.collection.mutable
   * clients to be more selective when pulling issues.
   */
 class IssuesManager extends IssuesCollection with IssueLogger {
-  private val log = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
+  private val log             = mutable.HashMap[PathLike, List[Issue]]() withDefaultValue List()
   private val possibleMissing = mutable.HashSet[PathLike]()
-  private val hasChanged = mutable.HashSet[PathLike]()
+  private val hasChanged      = mutable.HashSet[PathLike]()
 
   def isEmpty: Boolean = log.isEmpty
 
@@ -79,17 +79,31 @@ class IssuesManager extends IssuesCollection with IssueLogger {
   }
 
   override def issuesForFileLocation(path: String, location: IssueLocation): Array[APIIssue] = {
-    val loc = Location(location.startLineNumber(), location.startCharOffset(), location.endLineNumber(), location.endCharOffset())
-    log.getOrElse(Path(path), Nil)
+    val loc = Location(
+      location.startLineNumber(),
+      location.startCharOffset(),
+      location.endLineNumber(),
+      location.endCharOffset()
+    )
+    log
+      .getOrElse(Path(path), Nil)
       .filter(issue => loc.contains(issue.diagnostic.location))
       .toArray[APIIssue]
   }
 
-  override def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxIssuesPerFile: Int): Array[APIIssue] = {
+  override def issuesForFiles(
+    paths: Array[String],
+    includeWarnings: Boolean,
+    maxIssuesPerFile: Int
+  ): Array[APIIssue] = {
     issuesForFilesInternal(paths, includeWarnings, maxIssuesPerFile).toArray
   }
 
-  def issuesForFilesInternal(paths: Array[String], includeWarnings: Boolean, maxIssuesPerFile: Int): Seq[Issue] = {
+  def issuesForFilesInternal(
+    paths: Array[String],
+    includeWarnings: Boolean,
+    maxIssuesPerFile: Int
+  ): Seq[Issue] = {
     val files =
       if (paths == null || paths.isEmpty)
         log.keys.toSeq.sortBy(_.toString)
@@ -98,8 +112,11 @@ class IssuesManager extends IssuesCollection with IssueLogger {
 
     val buffer = mutable.ArrayBuffer[Issue]()
     files.foreach(file => {
-      var fileIssues = log.getOrElse(file, Nil)
-        .filter(issue => includeWarnings || DiagnosticCategory.isErrorType(issue.diagnostic.category))
+      var fileIssues = log
+        .getOrElse(file, Nil)
+        .filter(
+          issue => includeWarnings || DiagnosticCategory.isErrorType(issue.diagnostic.category)
+        )
         .sorted(Issue.ordering)
       if (maxIssuesPerFile > 0)
         fileIssues = fileIssues.take(maxIssuesPerFile)
@@ -125,4 +142,3 @@ class IssuesManager extends IssuesCollection with IssueLogger {
     missing.toSeq
   }
 }
-

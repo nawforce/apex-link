@@ -68,14 +68,16 @@ class SOSLParserTest extends AnyFunSuite with Matchers {
     assert(
       SOSLParser
         .parse("[Find :foo RETURNING Account (Name, Industry WHERE Name like 'test')]")
-        .isRight)
+        .isRight
+    )
   }
 
   test("Returning Listview") {
     assert(
       SOSLParser
         .parse("[Find :foo RETURNING Account(Id, Name USING ListView=MVPCustomers)]")
-        .isRight)
+        .isRight
+    )
   }
 
   test("Returning order by") {
@@ -84,31 +86,42 @@ class SOSLParserTest extends AnyFunSuite with Matchers {
 
   test("Returning limit and offset") {
     assert(
-      SOSLParser.parse("[Find :foo RETURNING Account (Name, Industry LIMIT 5 OFFSET 10)]").isRight)
+      SOSLParser.parse("[Find :foo RETURNING Account (Name, Industry LIMIT 5 OFFSET 10)]").isRight
+    )
   }
 
   test("With Division") {
     assert(
       SOSLParser
-        .parse("[FIND {test} RETURNING Account (id where name like '%test%'), " +
-          "Contact (id where name like '%test%') WITH DIVISION = 'Global']")
-        .isRight)
+        .parse(
+          "[FIND {test} RETURNING Account (id where name like '%test%'), " +
+            "Contact (id where name like '%test%') WITH DIVISION = 'Global']"
+        )
+        .isRight
+    )
   }
 
   test("With Data Category") {
     assert(
       SOSLParser
-        .parse("[FIND {tourism} RETURNING FAQ__kav(Id, Title WHERE PublishStatus='archived') " +
-          "WITH DATA CATEGORY Geography__c AT Iceland__c]")
-        .isRight)
+        .parse(
+          "[FIND {tourism} RETURNING FAQ__kav(Id, Title WHERE PublishStatus='archived') " +
+            "WITH DATA CATEGORY Geography__c AT Iceland__c]"
+        )
+        .isRight
+    )
   }
 
   test("With Snippet") {
-    assert(SOSLParser
-      .parse("[FIND {San Francisco} IN ALL FIELDS RETURNING " +
-        "KnowledgeArticleVersion(id, title WHERE PublishStatus = 'Online' AND Language = 'en_US') " +
-        "WITH SNIPPET(target_length=120)]")
-      .isRight)
+    assert(
+      SOSLParser
+        .parse(
+          "[FIND {San Francisco} IN ALL FIELDS RETURNING " +
+            "KnowledgeArticleVersion(id, title WHERE PublishStatus = 'Online' AND Language = 'en_US') " +
+            "WITH SNIPPET(target_length=120)]"
+        )
+        .isRight
+    )
   }
 
   test("With Network") {
@@ -117,41 +130,52 @@ class SOSLParserTest extends AnyFunSuite with Matchers {
         .parse(
           "[FIND {test} RETURNING User (id), FeedItem (id, ParentId WHERE " +
             "CreatedDate = THIS_YEAR Order by CreatedDate DESC) WITH NETWORK " +
-            "IN ('NetworkId1', 'NetworkId2', 'NetworkId3')]")
-        .isRight)
+            "IN ('NetworkId1', 'NetworkId2', 'NetworkId3')]"
+        )
+        .isRight
+    )
   }
 
   test("With Network =") {
     assert(
       SOSLParser
-        .parse("[FIND {test} RETURNING User (id), FeedItem (id, ParentId WHERE CreatedDate =  " +
-          "THIS_YEAR Order by CreatedDate DESC) WITH NETWORK = '00000000000000']")
-        .isRight)
+        .parse(
+          "[FIND {test} RETURNING User (id), FeedItem (id, ParentId WHERE CreatedDate =  " +
+            "THIS_YEAR Order by CreatedDate DESC) WITH NETWORK = '00000000000000']"
+        )
+        .isRight
+    )
   }
 
   test("With Pricebook") {
     assert(
       SOSLParser
         .parse("[Find {laptop} RETURNING Product2 WITH PricebookId = '01sxx0000002MffAAE']")
-        .isRight)
+        .isRight
+    )
   }
 
   test("With Metadata") {
     assert(
-      SOSLParser.parse("[FIND {Acme} RETURNING Account(Id, Name) WITH METADATA='LABELS']").isRight)
+      SOSLParser.parse("[FIND {Acme} RETURNING Account(Id, Name) WITH METADATA='LABELS']").isRight
+    )
   }
 
   test("Limit Clause") {
     assert(
-      SOSLParser.parse("[FIND {test} RETURNING Account(id LIMIT 20), Contact LIMIT 100]").isRight)
+      SOSLParser.parse("[FIND {test} RETURNING Account(id LIMIT 20), Contact LIMIT 100]").isRight
+    )
   }
 
   test("Update Tracking") {
     assert(
       SOSLParser
-        .parse("[FIND {Keyword} RETURNING KnowledgeArticleVersion (Title WHERE " +
-          "PublishStatus='Online' and language='en_US') UPDATE TRACKING ]")
-        .isRight)
+        .parse(
+          "[FIND {Keyword} RETURNING KnowledgeArticleVersion (Title WHERE " +
+            "PublishStatus='Online' and language='en_US') UPDATE TRACKING ]"
+        )
+        .isRight
+    )
   }
 }
 
@@ -167,9 +191,13 @@ object SOSLParser {
       Left(
         result.issues.toIndexedSeq.map(
           issue =>
-            ParserIssue(issue.diagnostic.location.startLine,
-                        issue.diagnostic.location.startPosition,
-                        issue.diagnostic.message)))
+            ParserIssue(
+              issue.diagnostic.location.startLine,
+              issue.diagnostic.location.startPosition,
+              issue.diagnostic.message
+            )
+        )
+      )
     } else {
       Right(result.value)
     }

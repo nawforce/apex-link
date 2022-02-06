@@ -49,7 +49,8 @@ class FieldTest extends AnyFunSuite with TestHelper {
     assert(fields.head.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 39-42: Duplicate field/property: 'foo'\n")
+        "Error: line 1 at 39-42: Duplicate field/property: 'foo'\n"
+    )
   }
 
   test("More than one duplicate field reports error on duplicates") {
@@ -61,6 +62,7 @@ class FieldTest extends AnyFunSuite with TestHelper {
     assert(fields.head.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 40-43: Duplicate field/property: 'foo'\nError: line 1 at 52-55: Duplicate field/property: 'foo'\n")
+        "Error: line 1 at 40-43: Duplicate field/property: 'foo'\nError: line 1 at 52-55: Duplicate field/property: 'foo'\n"
+    )
   }
 }

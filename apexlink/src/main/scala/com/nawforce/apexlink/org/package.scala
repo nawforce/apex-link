@@ -22,9 +22,13 @@ import scala.reflect.ClassTag
 package object org {
 
   /** Read the maximum events that are all from an accepting set into an Array. IssueEvents are silently consumed
-    * and logged against the active org. */
-  def bufferEvents(accept: Set[Class[_]], events: BufferedIterator[PackageEvent]): ArraySeq[PackageEvent] = {
-    val buffer = mutable.ArrayBuffer[PackageEvent]()
+    * and logged against the active org.
+    */
+  def bufferEvents(
+    accept: Set[Class[_]],
+    events: BufferedIterator[PackageEvent]
+  ): ArraySeq[PackageEvent] = {
+    val buffer   = mutable.ArrayBuffer[PackageEvent]()
     var continue = events.hasNext
     while (continue) {
       continue = events.head match {
@@ -41,15 +45,16 @@ package object org {
   }
 
   /** Read the maximum events that are all of the given type into an Array. IssueEvents are silently consumed
-    * and logged against the active org. */
+    * and logged against the active org.
+    */
   def bufferEvents[T: ClassTag](events: BufferedIterator[PackageEvent]): ArraySeq[T] = {
-    val buffer = mutable.ArrayBuffer[T]()
+    val buffer   = mutable.ArrayBuffer[T]()
     var continue = events.hasNext
     while (continue) {
       continue = events.head match {
-        case e: T => buffer.append(e); true
+        case e: T           => buffer.append(e); true
         case e: IssuesEvent => e.issues.foreach(OrgImpl.log); true
-        case _ => false
+        case _              => false
       }
       if (continue) {
         events.next()

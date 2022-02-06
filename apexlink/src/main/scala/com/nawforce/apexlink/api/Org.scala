@@ -69,7 +69,7 @@ trait Org {
   /** Get the package containing the path.
     *
     * Returns null if no package handling this file is found or the file is not a recognised metadata type.
-    **/
+    */
   def getPackageForPath(path: String): Package
 
   /** Get a list of type identifiers available in the org across all packages. This is not all available type
@@ -97,8 +97,14 @@ trait Org {
     *
     * Depth should be a positive integer that indicates how far to search from the starting node for the passed
     * TypeIdentifier. The root node of the search is always returned if it can be found. Depths > 0 will include
-    * additional nodes. */
-  def getDependencyGraph(identifier: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean, ignoring: Array[TypeIdentifier]): DependencyGraph
+    * additional nodes.
+    */
+  def getDependencyGraph(
+    identifier: Array[TypeIdentifier],
+    depth: Integer,
+    apexOnly: Boolean,
+    ignoring: Array[TypeIdentifier]
+  ): DependencyGraph
 
   /** Locate a type definition given source file position of the type name to search for.
     *
@@ -106,7 +112,8 @@ trait Org {
     * returned location provides information of the extent of the symbols used for the search as well as the file and
     * extent of the found definition. If no symbol can be found that links to a definition it returns an empty array.
     * If content is null, path will be used to load the source code. It is not necessary for the file being searched
-    * from to be free of errors, but errors may impact the ability to locate inner classes within that file. */
+    * from to be free of errors, but errors may impact the ability to locate inner classes within that file.
+    */
   def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink]
 
   /** Get a array of completion suggestion given a source file contents and a position.
@@ -117,7 +124,12 @@ trait Org {
     * is not current. It is not necessary for the source content to be free of errors, but errors may impact the
     * results.
     */
-  def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink]
+  def getCompletionItems(
+    path: String,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Array[CompletionItemLink]
 
   /** Calculate an ordered list of classes which are having a big impact on classes dependencies, aka the 'Bombs'.
     *
@@ -137,10 +149,12 @@ object Org {
 
   /** Create a new empty Org to which you can add packages for code analysis. */
   def newOrg(path: PathLike): Org = {
-    LoggerOps.infoTime(s"Org created",
-                       show = true,
-                       s" with autoFlush = ${ServerOps.getAutoFlush}, build = ${OrgImpl.implementationBuild}") {
-      val ws = Workspace(path)
+    LoggerOps.infoTime(
+      s"Org created",
+      show = true,
+      s" with autoFlush = ${ServerOps.getAutoFlush}, build = ${OrgImpl.implementationBuild}"
+    ) {
+      val ws  = Workspace(path)
       val org = new OrgImpl(path, ws.value)
       ws.issues.foreach(org.issueManager.add)
       org

@@ -21,11 +21,11 @@ class Plugin(td: DependentType) {
 
   def onTypeValidated(): Unit = {
     td match {
-      case td: ClassDeclaration => onClassValidated(td)
+      case td: ClassDeclaration     => onClassValidated(td)
       case td: InterfaceDeclaration => onInterfaceValidated(td)
-      case td: EnumDeclaration => onEnumValidated(td)
-      case td: TriggerDeclaration => onTriggerValidated(td)
-      case td: SummaryDeclaration => onSummaryValidated(td)
+      case td: EnumDeclaration      => onEnumValidated(td)
+      case td: TriggerDeclaration   => onTriggerValidated(td)
+      case td: SummaryDeclaration   => onSummaryValidated(td)
     }
   }
 

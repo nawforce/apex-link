@@ -51,11 +51,13 @@ trait PackageAPI extends Package {
 
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {
     orderedModules.headOption
-      .flatMap(module =>
-        TypeResolver(typeName, module) match {
-          case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
-          case _                          => None
-      })
+      .flatMap(
+        module =>
+          TypeResolver(typeName, module) match {
+            case Right(td: TypeDeclaration) => Some(TypeIdentifier(this.namespace, td.typeName))
+            case _                          => None
+          }
+      )
       .orNull
   }
 
@@ -100,7 +102,9 @@ trait PackageAPI extends Package {
               if (typeId.typeName.outer.contains(TypeNames.Page)) {
                 module.pages.fields
                   .find(_.name == typeId.typeName.name)
-                  .collect { case page: Page if page.location != null => Array(page.location.path.toString) }
+                  .collect {
+                    case page: Page if page.location != null => Array(page.location.path.toString)
+                  }
               } else {
                 None
               }
@@ -130,25 +134,28 @@ trait PackageAPI extends Package {
     Option(getSummaryOfType(typeId)).map(summary => write(summary)).orNull
   }
 
-  override def getDependencies(typeId: TypeIdentifier,
-                               outerInheritanceOnly: Boolean,
-                               apexOnly: Boolean): Array[TypeIdentifier] = {
+  override def getDependencies(
+    typeId: TypeIdentifier,
+    outerInheritanceOnly: Boolean,
+    apexOnly: Boolean
+  ): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(td => {
           if (outerInheritanceOnly) {
             td match {
               case declaration: ApexClassDeclaration =>
-                declaration.dependencies()
+                declaration
+                  .dependencies()
                   .flatMap({
                     case dt: ApexClassDeclaration => Some(dt.outerTypeId.asTypeIdentifier)
-                    case _ => None
+                    case _                        => None
                   })
                   .toArray
               case _ => Array[TypeIdentifier]()
             }
           } else {
-            val typeCache = new TypeCache()
+            val typeCache    = new TypeCache()
             val dependencies = mutable.Set[TypeId]()
             td.gatherDependencies(dependencies, apexOnly, outerTypesOnly = true, typeCache)
             dependencies.map(_.asTypeIdentifier).toArray
@@ -169,16 +176,22 @@ trait PackageAPI extends Package {
     }
   }
 
-  override def getDependencyHolders(typeId: TypeIdentifier, apexOnly: Boolean): Array[TypeIdentifier] = {
+  override def getDependencyHolders(
+    typeId: TypeIdentifier,
+    apexOnly: Boolean
+  ): Array[TypeIdentifier] = {
     if (typeId != null && typeId.namespace == namespace) {
       getDependentType(typeId.typeName)
         .map(
           _.getTypeDependencyHolders.toSet
-            .filter(id =>
-              !apexOnly || TypeResolver(id.typeName, orderedModules.head).toOption.exists(
-                _.isInstanceOf[ApexDeclaration]))
+            .filter(
+              id =>
+                !apexOnly || TypeResolver(id.typeName, orderedModules.head).toOption
+                  .exists(_.isInstanceOf[ApexDeclaration])
+            )
             .map(_.asTypeIdentifier)
-            .toArray)
+            .toArray
+        )
         .orNull
     } else {
       null
@@ -190,7 +203,7 @@ trait PackageAPI extends Package {
 
     getDependentType(typeId.typeName) match {
       case Some(decl: ApexDeclaration) =>
-        val typeCache = new TypeCache()
+        val typeCache    = new TypeCache()
         val dependencies = mutable.Set[TypeId]()
         decl.gatherDependencies(dependencies, apexOnly = true, outerTypesOnly = false, typeCache)
         dependencies.map(_.asTypeIdentifier).toArray.contains(dependencyTypeId)
@@ -201,7 +214,9 @@ trait PackageAPI extends Package {
   /** Get a array of type identifiers from this packages modules. */
   override def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier] = {
     modules
-      .foldLeft(Set[TypeIdentifier]())((acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers(apexOnly))
+      .foldLeft(Set[TypeIdentifier]())(
+        (acc, module) => acc ++ module.getMetadataDefinedTypeIdentifiers(apexOnly)
+      )
       .toArray
   }
 
@@ -233,14 +248,20 @@ trait PackageAPI extends Package {
     }
 
     @tailrec
-    def propagateLabelRefresh(toDo: Seq[TypeId], acc:Seq[(TypeId, Set[TypeId])]): Seq[(TypeId, Set[TypeId])] = {
+    def propagateLabelRefresh(
+      toDo: Seq[TypeId],
+      acc: Seq[(TypeId, Set[TypeId])]
+    ): Seq[(TypeId, Set[TypeId])] = {
       toDo match {
         case Seq() => acc
         case head +: remaining =>
           head.module.moduleType(head.typeName) match {
             case Some(labels: LabelDeclaration) =>
               val updates = refreshLabels(labels)
-              propagateLabelRefresh(remaining ++ updates.flatMap(t => t._2).toIndexedSeq, acc ++ updates)
+              propagateLabelRefresh(
+                remaining ++ updates.flatMap(t => t._2).toIndexedSeq,
+                acc ++ updates
+              )
             case _ => propagateLabelRefresh(remaining, acc)
           }
       }
@@ -261,7 +282,7 @@ trait PackageAPI extends Package {
 
     // Do removals first to avoid duplicate type issues if source is being moved
     val references = mutable.Set[TypeId]()
-    val removed = mutable.Set[TypeId]()
+    val removed    = mutable.Set[TypeId]()
     splitRequests
       .getOrElse(true, Seq())
       .foreach(r => {
@@ -305,18 +326,20 @@ trait PackageAPI extends Package {
    * be of the exact same shape as the summary it replaces. */
   private def reValidate(references: Set[TypeId]): Unit = {
 
-    val tds = references.flatMap(typeId =>
-      typeId.module.moduleType(typeId.typeName) match {
-        case Some(sobject: SObjectDeclaration) =>
-          // For SObjects, any file in module will trigger a refresh
-          sobject.paths.find(typeId.module.isVisibleFile).map(path => refreshInternal(path))
-          None
-        case Some(summary: SummaryDeclaration) =>
-          // Replace direct use summary types, no need to revalidate these
-          refreshInternal(summary.location.path)
-          None
-        case x => x
-    })
+    val tds = references.flatMap(
+      typeId =>
+        typeId.module.moduleType(typeId.typeName) match {
+          case Some(sobject: SObjectDeclaration) =>
+            // For SObjects, any file in module will trigger a refresh
+            sobject.paths.find(typeId.module.isVisibleFile).map(path => refreshInternal(path))
+            None
+          case Some(summary: SummaryDeclaration) =>
+            // Replace direct use summary types, no need to revalidate these
+            refreshInternal(summary.location.path)
+            None
+          case x => x
+        }
+    )
 
     // Everything else needs re-validation
     tds.foreach(td => {

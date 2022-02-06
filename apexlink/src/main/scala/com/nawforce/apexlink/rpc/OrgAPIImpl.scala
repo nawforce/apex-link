@@ -31,7 +31,7 @@ trait APIRequest {
 class OrgQueue(path: String) { self =>
   val org: Org = Org.newOrg(path)
 
-  private val queue = new LinkedBlockingQueue[APIRequest]()
+  private val queue      = new LinkedBlockingQueue[APIRequest]()
   private val dispatcher = new APIRequestDispatcher()
   new Thread(dispatcher).start()
 
@@ -75,20 +75,32 @@ object OpenRequest {
   }
 }
 
-case class GetIssues(promise: Promise[GetIssuesResult], includeWarnings: Boolean, maxIssuesPerFile: Int)
-  extends APIRequest {
+case class GetIssues(
+  promise: Promise[GetIssuesResult],
+  includeWarnings: Boolean,
+  maxIssuesPerFile: Int
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
 
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      promise.success(GetIssuesResult(
-        orgImpl.issueManager.issuesForFilesInternal(null, includeWarnings, maxIssuesPerFile).toArray))
+      promise.success(
+        GetIssuesResult(
+          orgImpl.issueManager
+            .issuesForFilesInternal(null, includeWarnings, maxIssuesPerFile)
+            .toArray
+        )
+      )
     }
   }
 }
 
 object GetIssues {
-  def apply(queue: OrgQueue, includeWarnings: Boolean, maxIssuesPerFile: Int): Future[GetIssuesResult] = {
+  def apply(
+    queue: OrgQueue,
+    includeWarnings: Boolean,
+    maxIssuesPerFile: Int
+  ): Future[GetIssuesResult] = {
     val promise = Promise[GetIssuesResult]()
     queue.add(new GetIssues(promise, includeWarnings, maxIssuesPerFile))
     promise.future
@@ -146,24 +158,39 @@ object IssuesForFile {
   }
 }
 
-case class IssuesForFiles(promise: Promise[IssuesResult], paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int) extends APIRequest {
+case class IssuesForFiles(
+  promise: Promise[IssuesResult],
+  paths: Array[String],
+  includeWarnings: Boolean,
+  maxErrorsPerFile: Int
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      promise.success(IssuesResult(orgImpl.issues.issuesForFilesInternal(paths, includeWarnings, maxErrorsPerFile).toArray))
+      promise.success(
+        IssuesResult(
+          orgImpl.issues.issuesForFilesInternal(paths, includeWarnings, maxErrorsPerFile).toArray
+        )
+      )
     }
   }
 }
 
 object IssuesForFiles {
-  def apply(queue: OrgQueue, paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Future[IssuesResult] = {
+  def apply(
+    queue: OrgQueue,
+    paths: Array[String],
+    includeWarnings: Boolean,
+    maxErrorsPerFile: Int
+  ): Future[IssuesResult] = {
     val promise = Promise[IssuesResult]()
     queue.add(new IssuesForFiles(promise, paths, includeWarnings, maxErrorsPerFile))
     promise.future
   }
 }
 
-case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult], apexOnly: Boolean) extends APIRequest {
+case class TypeIdentifiers(promise: Promise[GetTypeIdentifiersResult], apexOnly: Boolean)
+    extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
@@ -180,27 +207,36 @@ object TypeIdentifiers {
   }
 }
 
-case class DependencyGraphRequest(promise: Promise[DependencyGraph],
-                                  identifiers: Array[TypeIdentifier],
-                                  depth: Int,
-                                  apexOnly: Boolean,
-                                  ignoring: Array[TypeIdentifier])
-    extends APIRequest {
+case class DependencyGraphRequest(
+  promise: Promise[DependencyGraph],
+  identifiers: Array[TypeIdentifier],
+  depth: Int,
+  apexOnly: Boolean,
+  ignoring: Array[TypeIdentifier]
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(queue.org.getDependencyGraph(identifiers, depth, apexOnly, ignoring))
   }
 }
 
 object DependencyGraphRequest {
-  def apply(queue: OrgQueue, identifiers: Array[TypeIdentifier], depth: Int, apexOnly: Boolean,  ignoring: Array[TypeIdentifier]): Future[DependencyGraph] = {
+  def apply(
+    queue: OrgQueue,
+    identifiers: Array[TypeIdentifier],
+    depth: Int,
+    apexOnly: Boolean,
+    ignoring: Array[TypeIdentifier]
+  ): Future[DependencyGraph] = {
     val promise = Promise[DependencyGraph]()
     queue.add(new DependencyGraphRequest(promise, identifiers, depth, apexOnly, ignoring))
     promise.future
   }
 }
 
-case class IdentifierLocation(promise: Promise[IdentifierLocationResult], identifier: TypeIdentifier)
-    extends APIRequest {
+case class IdentifierLocation(
+  promise: Promise[IdentifierLocationResult],
+  identifier: TypeIdentifier
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     promise.success(IdentifierLocationResult(queue.org.getIdentifierLocation(identifier)))
   }
@@ -214,7 +250,8 @@ object IdentifierLocation {
   }
 }
 
-case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String) extends APIRequest {
+case class IdentifierForPath(promise: Promise[IdentifierForPathResult], path: String)
+    extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
@@ -232,12 +269,13 @@ object IdentifierForPath {
   }
 }
 
-case class GetDefinition(promise: Promise[Array[LocationLink]],
-                         path: String,
-                         line: Int,
-                         offset: Int,
-                         content: Option[String])
-    extends APIRequest {
+case class GetDefinition(
+  promise: Promise[Array[LocationLink]],
+  path: String,
+  line: Int,
+  offset: Int,
+  content: Option[String]
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     promise.success(orgImpl.getDefinition(path, line, offset, content.orNull))
@@ -245,11 +283,13 @@ case class GetDefinition(promise: Promise[Array[LocationLink]],
 }
 
 object GetDefinition {
-  def apply(queue: OrgQueue,
-            path: String,
-            line: Int,
-            offset: Int,
-            content: Option[String]): Future[Array[LocationLink]] = {
+  def apply(
+    queue: OrgQueue,
+    path: String,
+    line: Int,
+    offset: Int,
+    content: Option[String]
+  ): Future[Array[LocationLink]] = {
     val promise = Promise[Array[LocationLink]]()
     queue.add(new GetDefinition(promise, path, line, offset, content))
     promise.future
@@ -273,7 +313,11 @@ object GetDependencyBombs {
   }
 }
 
-case class GetTestClassNames(promise: Promise[GetTestClassNamesResult], paths: Array[String], findTests: Boolean) extends APIRequest {
+case class GetTestClassNames(
+  promise: Promise[GetTestClassNamesResult],
+  paths: Array[String],
+  findTests: Boolean
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
@@ -283,37 +327,53 @@ case class GetTestClassNames(promise: Promise[GetTestClassNamesResult], paths: A
 }
 
 object GetTestClassNames {
-  def apply(queue: OrgQueue, paths: Array[String], findTests: Boolean): Future[GetTestClassNamesResult] = {
+  def apply(
+    queue: OrgQueue,
+    paths: Array[String],
+    findTests: Boolean
+  ): Future[GetTestClassNamesResult] = {
     val promise = Promise[GetTestClassNamesResult]()
     queue.add(new GetTestClassNames(promise, paths, findTests))
     promise.future
   }
 }
 
-case class GetDependencyCounts(promise: Promise[GetDependencyCountsResult], request: GetDependencyCountsRequest) extends APIRequest {
+case class GetDependencyCounts(
+  promise: Promise[GetDependencyCountsResult],
+  request: GetDependencyCountsRequest
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     OrgImpl.current.withValue(orgImpl) {
-      promise.success(GetDependencyCountsResult(orgImpl.getDependencyCounts(request.paths)
-        .map( c => DependencyCount(c._1, c._2))))
+      promise.success(
+        GetDependencyCountsResult(
+          orgImpl
+            .getDependencyCounts(request.paths)
+            .map(c => DependencyCount(c._1, c._2))
+        )
+      )
     }
   }
 }
 
 object GetDependencyCounts {
-  def apply(queue: OrgQueue, request: GetDependencyCountsRequest): Future[GetDependencyCountsResult] = {
+  def apply(
+    queue: OrgQueue,
+    request: GetDependencyCountsRequest
+  ): Future[GetDependencyCountsResult] = {
     val promise = Promise[GetDependencyCountsResult]()
     queue.add(new GetDependencyCounts(promise, request))
     promise.future
   }
 }
 
-case class GetCompletionItems(promise: Promise[Array[CompletionItemLink]],
-                         path: String,
-                         line: Int,
-                         offset: Int,
-                         content: String)
-  extends APIRequest {
+case class GetCompletionItems(
+  promise: Promise[Array[CompletionItemLink]],
+  path: String,
+  line: Int,
+  offset: Int,
+  content: String
+) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     promise.success(orgImpl.getCompletionItems(path, line, offset, content))
@@ -321,19 +381,20 @@ case class GetCompletionItems(promise: Promise[Array[CompletionItemLink]],
 }
 
 object GetCompletionItems {
-  def apply(queue: OrgQueue,
-            path: String,
-            line: Int,
-            offset: Int,
-            content: String): Future[Array[CompletionItemLink]] = {
+  def apply(
+    queue: OrgQueue,
+    path: String,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Future[Array[CompletionItemLink]] = {
     val promise = Promise[Array[CompletionItemLink]]()
     queue.add(new GetCompletionItems(promise, path, line, offset, content))
     promise.future
   }
 }
 
-case class GetAllTestMethods(promise: Promise[Array[TestMethod]])
-  extends APIRequest {
+case class GetAllTestMethods(promise: Promise[Array[TestMethod]]) extends APIRequest {
   override def process(queue: OrgQueue): Unit = {
     val orgImpl = queue.org.asInstanceOf[OrgImpl]
     promise.success(orgImpl.getAllTestMethods)
@@ -386,7 +447,10 @@ class OrgAPIImpl extends OrgAPI {
     OpenRequest(OrgQueue.instance())
   }
 
-  override def getIssues(includeWarnings: Boolean, maxIssuesPerFile: Int): Future[GetIssuesResult] = {
+  override def getIssues(
+    includeWarnings: Boolean,
+    maxIssuesPerFile: Int
+  ): Future[GetIssuesResult] = {
     GetIssues(OrgQueue.instance(), includeWarnings, maxIssuesPerFile)
   }
 
@@ -402,7 +466,11 @@ class OrgAPIImpl extends OrgAPI {
     IssuesForFile(OrgQueue.instance(), path)
   }
 
-  override def issuesForFiles(paths: Array[String], includeWarnings: Boolean, maxErrorsPerFile: Int): Future[IssuesResult] = {
+  override def issuesForFiles(
+    paths: Array[String],
+    includeWarnings: Boolean,
+    maxErrorsPerFile: Int
+  ): Future[IssuesResult] = {
     IssuesForFiles(OrgQueue.instance(), paths, includeWarnings, maxErrorsPerFile)
   }
 
@@ -414,11 +482,19 @@ class OrgAPIImpl extends OrgAPI {
     TypeIdentifiers(OrgQueue.instance(), apexOnly)
   }
 
-  override def dependencyGraph(identifiers: IdentifiersRequest,
-                               depth: Int,
-                               apexOnly: Boolean,
-                               ignoring: IdentifiersRequest): Future[DependencyGraph] = {
-    DependencyGraphRequest(OrgQueue.instance(), identifiers.identifiers, depth, apexOnly, ignoring.identifiers)
+  override def dependencyGraph(
+    identifiers: IdentifiersRequest,
+    depth: Int,
+    apexOnly: Boolean,
+    ignoring: IdentifiersRequest
+  ): Future[DependencyGraph] = {
+    DependencyGraphRequest(
+      OrgQueue.instance(),
+      identifiers.identifiers,
+      depth,
+      apexOnly,
+      ignoring.identifiers
+    )
   }
 
   override def identifierLocation(request: IdentifierRequest): Future[IdentifierLocationResult] = {
@@ -429,10 +505,12 @@ class OrgAPIImpl extends OrgAPI {
     IdentifierForPath(OrgQueue.instance(), path)
   }
 
-  override def getDefinition(path: String,
-                             line: Int,
-                             offset: Int,
-                             content: Option[String]): Future[Array[LocationLink]] = {
+  override def getDefinition(
+    path: String,
+    line: Int,
+    offset: Int,
+    content: Option[String]
+  ): Future[Array[LocationLink]] = {
     GetDefinition(OrgQueue.instance(), path, line, offset, content)
   }
 
@@ -440,18 +518,24 @@ class OrgAPIImpl extends OrgAPI {
     GetDependencyBombs(OrgQueue.instance(), count)
   }
 
-  override def getTestClassNames(request: GetTestClassNamesRequest): Future[GetTestClassNamesResult] = {
+  override def getTestClassNames(
+    request: GetTestClassNamesRequest
+  ): Future[GetTestClassNamesResult] = {
     GetTestClassNames(OrgQueue.instance(), request.paths, request.findTests)
   }
 
-  override def getDependencyCounts(request: GetDependencyCountsRequest): Future[GetDependencyCountsResult] = {
+  override def getDependencyCounts(
+    request: GetDependencyCountsRequest
+  ): Future[GetDependencyCountsResult] = {
     GetDependencyCounts(OrgQueue.instance(), request)
   }
 
-  override def getCompletionItems(path: String,
-                             line: Int,
-                             offset: Int,
-                             content: String): Future[Array[CompletionItemLink]] = {
+  override def getCompletionItems(
+    path: String,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Future[Array[CompletionItemLink]] = {
     GetCompletionItems(OrgQueue.instance(), path, line, offset, content)
   }
 

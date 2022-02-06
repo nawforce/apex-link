@@ -95,44 +95,59 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
     assert(
       SOQLParser
         .parse("Select A, (Select COUNT(B) from Table2), (Select C from Table3) from Table1")
-        .isRight)
+        .isRight
+    )
   }
 
   test("Nested sub-query") {
-    SOQLParser.parse("Select A, (Select (Select C from Table3) from Table2) from Table1") should matchPattern {
+    SOQLParser.parse(
+      "Select A, (Select (Select C from Table3) from Table2) from Table1"
+    ) should matchPattern {
       case Left(Seq(SOQLParser.ParserIssue(1, 18, err)))
           if err.startsWith("extraneous input '(' expecting {") =>
     }
   }
 
   test("Simple typeof") {
-    assert(SOQLParser.parse("""Select
+    assert(
+      SOQLParser
+        .parse("""Select
         |   Typeof A
         |     When A Then B, C
         |   end
         |   from Table
-        |""".stripMargin).isRight)
+        |""".stripMargin)
+        .isRight
+    )
   }
 
   test("typeof when with else") {
-    assert(SOQLParser.parse("""Select
+    assert(
+      SOQLParser
+        .parse("""Select
         |   Typeof A
         |     When A Then B, C
         |     Else D
         |   end
         |   from Table
-        |""".stripMargin).isRight)
+        |""".stripMargin)
+        .isRight
+    )
   }
 
   test("typeof multiple when") {
-    assert(SOQLParser.parse("""Select
+    assert(
+      SOQLParser
+        .parse("""Select
         |   Typeof A
         |     When A Then B, C
         |     When B Then B, C
         |     Else D
         |   end
         |   from Table
-        |""".stripMargin).isRight)
+        |""".stripMargin)
+        .isRight
+    )
   }
 
   test("Simple scope use") {
@@ -140,7 +155,9 @@ class SOQLParserTest extends AnyFunSuite with Matchers {
   }
 
   test("Sub-query scope use") {
-    SOQLParser.parse("Select A, (Select B from Table2 Using Scope SomeScope) from Table1") should matchPattern {
+    SOQLParser.parse(
+      "Select A, (Select B from Table2 Using Scope SomeScope) from Table1"
+    ) should matchPattern {
       case Left(Seq(SOQLParser.ParserIssue(1, 32, err), _))
           if err.startsWith("missing ')' at 'Using'") =>
     }
@@ -219,9 +236,13 @@ object SOQLParser {
       Left(
         result.issues.toIndexedSeq.map(
           issue =>
-            ParserIssue(issue.diagnostic.location.startLine,
-                        issue.diagnostic.location.startPosition,
-                        issue.diagnostic.message)))
+            ParserIssue(
+              issue.diagnostic.location.startLine,
+              issue.diagnostic.location.startPosition,
+              issue.diagnostic.message
+            )
+        )
+      )
     } else {
       Right(result.value)
     }

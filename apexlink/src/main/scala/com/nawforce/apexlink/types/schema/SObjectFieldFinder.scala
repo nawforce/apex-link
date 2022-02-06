@@ -30,8 +30,10 @@ import com.nawforce.pkgforce.names.{Name, Names, _}
 trait SObjectFieldFinder {
   this: TypeDeclaration =>
 
-  protected def findFieldSObject(name: Name,
-                                 staticContext: Option[Boolean]): Option[FieldDeclaration] = {
+  protected def findFieldSObject(
+    name: Name,
+    staticContext: Option[Boolean]
+  ): Option[FieldDeclaration] = {
     val fieldOption = this.fieldsByName.get(name)
 
     // Handle the synthetic static SObjectField or abort
@@ -56,25 +58,32 @@ trait SObjectFieldFinder {
   }
 
   /** Construct a custom field declaration for the SObjectField of the passed field. If the field is for another
-    * SObject then we use a generic to carry the SObject type and also make sure that it is loaded. */
-  private def getSObjectField(field: FieldDeclaration,
-                              shareTypeName: Option[TypeName],
-                              module: Option[Module]): FieldDeclaration = {
+    * SObject then we use a generic to carry the SObject type and also make sure that it is loaded.
+    */
+  private def getSObjectField(
+    field: FieldDeclaration,
+    shareTypeName: Option[TypeName],
+    module: Option[Module]
+  ): FieldDeclaration = {
     field match {
       /* Relationship 'Id' fields can be used in place of the actual relationship field as must be typed as such */
       case field: PlatformField if isRelationshipField(field) =>
         val relationshipField = findFieldSObject(Name(field.name.value.dropRight(2)), Some(true))
         relationshipField match {
           case Some(
-              CustomFieldDeclaration(
-                _,
-                TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeNames.Internal)),
-                _,
-                _)) =>
-            CustomFieldDeclaration(field.name,
-                                   TypeNames.sObjectFields$(sObject),
-                                   None,
-                                   asStatic = true)
+                CustomFieldDeclaration(
+                  _,
+                  TypeName(Names.SObjectFields$, Seq(sObject), Some(TypeNames.Internal)),
+                  _,
+                  _
+                )
+              ) =>
+            CustomFieldDeclaration(
+              field.name,
+              TypeNames.sObjectFields$(sObject),
+              None,
+              asStatic = true
+            )
           case _ => field
         }
 
@@ -84,9 +93,10 @@ trait SObjectFieldFinder {
   }
 
   /** As general rule relationship fields are typed differently and can be recognised by having an Id suffix on the
-    * name, of course there has to be exceptions... **/
+    * name, of course there has to be exceptions... *
+    */
   private def isRelationshipField(field: PlatformField): Boolean = {
-    if (field.name.value.endsWith("Id") && field.name.value.length >2) {
+    if (field.name.value.endsWith("Id") && field.name.value.length > 2) {
       !SObjectFieldFinder.nonRelationshipIdFields.contains((typeName, field.name))
     } else {
       false

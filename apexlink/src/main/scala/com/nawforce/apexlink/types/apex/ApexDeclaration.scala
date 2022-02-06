@@ -40,16 +40,19 @@ trait ApexBlockLike extends BlockDeclaration with Locatable {
 /** Apex defined constructor core features, be they full or summary style */
 trait ApexConstructorLike extends ConstructorDeclaration with IdLocatable {
   def summary: ConstructorSummary = {
-    ConstructorSummary(location.location,
-                       idLocation,
-                       modifiers,
-                       parameters.map(_.serialise),
-                       dependencySummary())
+    ConstructorSummary(
+      location.location,
+      idLocation,
+      modifiers,
+      parameters.map(_.serialise),
+      dependencySummary()
+    )
   }
 }
 
 /** Unifying trait for ApexMethodLike and CustomMethodDeclaration. Both need to appear to be visible from a
-  * a type but have little in common beyond allowing for constructions of a summary. */
+  * a type but have little in common beyond allowing for constructions of a summary.
+  */
 trait ApexVisibleMethodLike extends MethodDeclaration {
   def summary: MethodSummary
 }
@@ -75,14 +78,16 @@ trait ApexMethodLike extends ApexVisibleMethodLike with IdLocatable {
   }
 
   def summary: MethodSummary = {
-    MethodSummary(location.location,
-                  idLocation,
-                  name.toString,
-                  modifiers,
-                  typeName,
-                  parameters.map(_.serialise),
-                  hasBlock,
-                  dependencySummary())
+    MethodSummary(
+      location.location,
+      idLocation,
+      name.toString,
+      modifiers,
+      typeName,
+      parameters.map(_.serialise),
+      hasBlock,
+      dependencySummary()
+    )
   }
 }
 
@@ -93,7 +98,8 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
   val idTarget: Option[TypeName] = None
 
   def summary: FieldSummary = {
-    FieldSummary(location.location,
+    FieldSummary(
+      location.location,
       idLocation,
       name.toString,
       nature,
@@ -101,7 +107,8 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
       typeName,
       readAccess,
       writeAccess,
-      dependencySummary())
+      dependencySummary()
+    )
   }
 }
 
@@ -116,7 +123,10 @@ trait ApexDeclaration extends DependentType with IdLocatable {
 /** Apex defined type for parsed (aka Full) classes, interfaces, enums & triggers */
 trait ApexFullDeclaration extends ApexDeclaration {
   def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult]
-  def findDeclarationFromSourceReference(searchTerm: String,location: Location): Option[ApexDeclaration]
+  def findDeclarationFromSourceReference(
+    searchTerm: String,
+    location: Location
+  ): Option[ApexDeclaration]
 }
 
 /** Apex defined trigger of either full or summary type */
@@ -153,8 +163,14 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
       accum.add(this)
       MurmurHash3.arrayHash(
         Array(this.sourceHash) ++
-          superClassDeclaration.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)).toArray ++
-          interfaceDeclarations.collect { case td: ApexClassDeclaration => td }.map(_.deepHash(accum)))
+          superClassDeclaration
+            .collect { case td: ApexClassDeclaration => td }
+            .map(_.deepHash(accum))
+            .toArray ++
+          interfaceDeclarations
+            .collect { case td: ApexClassDeclaration => td }
+            .map(_.deepHash(accum))
+      )
     }
   }
 
@@ -163,19 +179,21 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   }
 
   override lazy val fields: ArraySeq[FieldDeclaration] = {
-    ArraySeq.unsafeWrapArray(localFields
-      .groupBy(f => f.name)
-      .collect {
-        case (_, single) if single.length == 1 => single.head
-        case (_, duplicates) =>
-          duplicates.tail.foreach {
-            case af: ApexFieldLike =>
-              OrgImpl.logError(af.idPathLocation, s"Duplicate field/property: '${af.name}'")
-            case _ => assert(false)
-          }
-          duplicates.head
-      }
-      .toArray)
+    ArraySeq.unsafeWrapArray(
+      localFields
+        .groupBy(f => f.name)
+        .collect {
+          case (_, single) if single.length == 1 => single.head
+          case (_, duplicates) =>
+            duplicates.tail.foreach {
+              case af: ApexFieldLike =>
+                OrgImpl.logError(af.idPathLocation, s"Duplicate field/property: '${af.name}'")
+              case _ => assert(false)
+            }
+            duplicates.head
+        }
+        .toArray
+    )
   }
 
   lazy val staticMethods: ArraySeq[MethodDeclaration] = {
@@ -191,7 +209,7 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
   lazy val outerStaticMethods: ArraySeq[MethodDeclaration] = {
     outerTypeName.flatMap(ot => TypeResolver(ot, this).toOption) match {
       case Some(td: ApexClassDeclaration) => td.staticMethods
-      case _ => MethodDeclaration.emptyMethodDeclarations
+      case _                              => MethodDeclaration.emptyMethodDeclarations
     }
   }
 
@@ -213,11 +231,32 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
     val errorLocation = Some(idPathLocation)
     val methods = superClassDeclaration match {
       case Some(at: ApexClassDeclaration) =>
-        MethodMap(this, errorLocation, at.methodMap, localMethods, outerStaticMethods, interfaceDeclarations)
+        MethodMap(
+          this,
+          errorLocation,
+          at.methodMap,
+          localMethods,
+          outerStaticMethods,
+          interfaceDeclarations
+        )
       case Some(td: TypeDeclaration) =>
-        MethodMap(this, errorLocation, MethodMap(td), localMethods, outerStaticMethods, interfaceDeclarations)
+        MethodMap(
+          this,
+          errorLocation,
+          MethodMap(td),
+          localMethods,
+          outerStaticMethods,
+          interfaceDeclarations
+        )
       case _ =>
-        MethodMap(this, errorLocation, MethodMap.empty(), localMethods, outerStaticMethods, interfaceDeclarations)
+        MethodMap(
+          this,
+          errorLocation,
+          MethodMap.empty(),
+          localMethods,
+          outerStaticMethods,
+          interfaceDeclarations
+        )
     }
 
     methods.errors.foreach(OrgImpl.log)
@@ -228,25 +267,29 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
     methodMap.allMethods
   }
 
-  override def findMethod(name: Name,
-                          params: ArraySeq[TypeName],
-                          staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+  override def findMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     methodMap.findMethod(name, params, staticContext, verifyContext)
   }
 
   def bombScore(total: Int): (Int, Int, Double) = {
     val magicScale = 1.7306 // Places score 0-100
 
-    val typeCache = new TypeCache()
+    val typeCache    = new TypeCache()
     val dependencies = mutable.Set[TypeId]()
     gatherDependencies(dependencies, apexOnly = true, outerTypesOnly = true, typeCache)
     dependencies.remove(typeId)
-    val uses = dependencies.size
+    val uses   = dependencies.size
     val usedBy = getTypeDependencyHolders.size
     val score = magicScale * Math.log(1 + (uses * 2000).toDouble / total) * Math.log(
-      1 + (usedBy * 2000).toDouble / total)
-    val roundScore = BigDecimal(score.toString).setScale(2, BigDecimal.RoundingMode.HALF_UP).doubleValue
+      1 + (usedBy * 2000).toDouble / total
+    )
+    val roundScore =
+      BigDecimal(score.toString).setScale(2, BigDecimal.RoundingMode.HALF_UP).doubleValue
     (uses, usedBy, roundScore)
   }
 }

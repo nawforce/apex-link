@@ -2,7 +2,11 @@ package com.nawforce.pkgforce.modifiers
 
 import com.nawforce.apexparser.ApexParser.{IdContext, ModifierContext}
 import com.nawforce.pkgforce.diagnostics.CodeParserLogger
-import com.nawforce.pkgforce.modifiers.ApexModifiers.{asModifiers, deduplicateVisibility, visibilityModifiers}
+import com.nawforce.pkgforce.modifiers.ApexModifiers.{
+  asModifiers,
+  deduplicateVisibility,
+  visibilityModifiers
+}
 import com.nawforce.runtime.parsers.CodeParser
 
 import scala.collection.compat.immutable.ArraySeq
@@ -23,7 +27,7 @@ object FieldModifiers {
       INVOCABLE_VARIABLE_ANNOTATION,
       TEST_VISIBLE_ANNOTATION,
       SUPPRESS_WARNINGS_ANNOTATION_PMD,
-      SUPPRESS_WARNINGS_ANNOTATION_UNUSED,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED
     )
 
   private val FieldModifiersAndAnnotations: Set[Modifier] = FieldAnnotations ++ FieldModifiers

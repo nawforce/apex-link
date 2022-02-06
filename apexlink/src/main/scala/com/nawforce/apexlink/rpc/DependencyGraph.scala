@@ -20,22 +20,24 @@ import io.github.shogowada.scala.jsonrpc.serializers.JSONRPCPickler.{macroRW, Re
 case class DependencyGraph(nodeData: Array[DependencyNode], linkData: Array[DependencyLink])
 
 object DependencyGraph {
-  implicit val rw: RW[DependencyGraph] = macroRW
-  implicit val rwNode: RW[DependencyNode] = macroRW
-  implicit val rwLink: RW[DependencyLink] = macroRW
+  implicit val rw: RW[DependencyGraph]              = macroRW
+  implicit val rwNode: RW[DependencyNode]           = macroRW
+  implicit val rwLink: RW[DependencyLink]           = macroRW
   implicit val rwTypeIdentifier: RW[TypeIdentifier] = macroRW
-  implicit val rwTypeName: RW[TypeName] = macroRW
-  implicit val rwName: RW[Name] = macroRW
+  implicit val rwTypeName: RW[TypeName]             = macroRW
+  implicit val rwName: RW[Name]                     = macroRW
 }
 
 /** Node of a dependency graph, represents some kind of type declaration. */
-case class DependencyNode(identifier: TypeIdentifier,
-                          size: Long, // Size of metadata in bytes
-                          nature: String, // Nature of types, class, interface or enum
-                          transitiveCount: Int, // Sum of all dependant types
-                          extending: Array[TypeIdentifier], // Types that this type extends
-                          implementing: Array[TypeIdentifier], // Types that this type implements
-                          using: Array[TypeIdentifier]) // Other types that this type depends on
+case class DependencyNode(
+  identifier: TypeIdentifier,
+  size: Long,                          // Size of metadata in bytes
+  nature: String,                      // Nature of types, class, interface or enum
+  transitiveCount: Int,                // Sum of all dependant types
+  extending: Array[TypeIdentifier],    // Types that this type extends
+  implementing: Array[TypeIdentifier], // Types that this type implements
+  using: Array[TypeIdentifier]
+) // Other types that this type depends on
 {
   override def equals(that: Any): Boolean = {
     that match {

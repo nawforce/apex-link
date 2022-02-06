@@ -14,7 +14,12 @@
 
 package com.nawforce.apexlink.types.core
 
-import com.nawforce.apexlink.api.{DependentSummary, FieldDependentSummary, MethodDependentSummary, TypeDependentSummary}
+import com.nawforce.apexlink.api.{
+  DependentSummary,
+  FieldDependentSummary,
+  MethodDependentSummary,
+  TypeDependentSummary
+}
 import com.nawforce.apexlink.memory.SkinnyWeakSet
 import com.nawforce.apexlink.types.apex._
 import com.nawforce.apexlink.types.other._
@@ -54,7 +59,7 @@ trait Dependent extends IdentityEquality {
   }
 }
 
-/** Holder of a dependencies,  */
+/** Holder of a dependencies, */
 trait DependencyHolder {
 
   def inTest: Boolean = false

@@ -24,11 +24,14 @@ class TransitiveCollector(org: Org, apexOnly: Boolean) {
   private val packagesByNamespace =
     org.getPackages().map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
 
-  def count(id: TypeIdentifier, ignoring: Array[TypeIdentifier] ): Int = {
-    transitives(id,ignoring).length
+  def count(id: TypeIdentifier, ignoring: Array[TypeIdentifier]): Int = {
+    transitives(id, ignoring).length
   }
 
-  def transitives(id: TypeIdentifier, ignoring: Array[TypeIdentifier] = Array()): Array[TypeIdentifier] = {
+  def transitives(
+    id: TypeIdentifier,
+    ignoring: Array[TypeIdentifier] = Array()
+  ): Array[TypeIdentifier] = {
     val pkg = packagesByNamespace.get(id.namespace.getOrElse(Names.Empty))
 
     val depsSeen = mutable.Set[TypeIdentifier]()

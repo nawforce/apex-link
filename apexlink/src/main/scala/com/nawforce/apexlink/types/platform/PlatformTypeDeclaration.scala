@@ -41,11 +41,11 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   val cls: java.lang.Class[_] = native.asInstanceOf[java.lang.Class[_]]
 
-  override def paths: ArraySeq[PathLike] = PathLike.emptyPaths
+  override def paths: ArraySeq[PathLike]              = PathLike.emptyPaths
   override lazy val moduleDeclaration: Option[Module] = None
 
-  override lazy val name: Name = typeName.name
-  override lazy val typeName: TypeName = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
+  override lazy val name: Name                      = typeName.name
+  override lazy val typeName: TypeName              = PlatformTypeDeclaration.typeNameFromClass(cls, cls)
   override lazy val outerTypeName: Option[TypeName] = outer.map(_.typeName)
   override lazy val nature: Nature = {
     (cls.isEnum, cls.isInterface) match {
@@ -81,13 +81,16 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   }
 
   protected def getInterfaces: ArraySeq[TypeName] =
-    ArraySeq.unsafeWrapArray(cls.getGenericInterfaces.map(i => PlatformTypeDeclaration.typeNameFromType(i, cls)))
+    ArraySeq.unsafeWrapArray(
+      cls.getGenericInterfaces.map(i => PlatformTypeDeclaration.typeNameFromType(i, cls))
+    )
 
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.typeModifiers(cls.getModifiers, nature)
 
   override lazy val constructors: ArraySeq[PlatformConstructor] = {
-    ArraySeq.unsafeWrapArray(cls.getConstructors)
+    ArraySeq
+      .unsafeWrapArray(cls.getConstructors)
       .filterNot(_.isSynthetic)
       .map(c => new PlatformConstructor(c, this))
   }
@@ -95,7 +98,9 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   override lazy val nestedTypes: ArraySeq[TypeDeclaration] = {
     // JVM12 is adding a nested class to enums so we restrict nesting just to classes
     if (nature == CLASS_NATURE) {
-      ArraySeq.unsafeWrapArray(cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this))))
+      ArraySeq.unsafeWrapArray(
+        cls.getClasses.map(nested => new PlatformTypeDeclaration(nested, Some(this)))
+      )
     } else {
       TypeDeclaration.emptyTypeDeclarations
     }
@@ -105,11 +110,13 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
   override lazy val fields: ArraySeq[FieldDeclaration] = getFields
 
-  protected def getFields: ArraySeq[PlatformField] = ArraySeq.unsafeWrapArray(collectFields(cls).values.toArray)
+  protected def getFields: ArraySeq[PlatformField] =
+    ArraySeq.unsafeWrapArray(collectFields(cls).values.toArray)
 
   private def collectFields(
     cls: Class[_],
-    accum: mutable.Map[Name, PlatformField] = mutable.Map()): mutable.Map[Name, PlatformField] = {
+    accum: mutable.Map[Name, PlatformField] = mutable.Map()
+  ): mutable.Map[Name, PlatformField] = {
     if (cls.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage)) {
       cls.getDeclaredFields
         .filterNot(_.isSynthetic)
@@ -134,19 +141,23 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
   override lazy val methods: ArraySeq[MethodDeclaration] = {
     nature match {
       case ENUM_NATURE => PlatformTypeDeclaration.enumMethods(typeName)
-      case _ => getMethods
+      case _           => getMethods
     }
   }
 
   protected def getMethods: ArraySeq[PlatformMethod] = {
     val localMethods =
       cls.getMethods
-        .filter(_.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage))
+        .filter(
+          _.getDeclaringClass.getCanonicalName.startsWith(PlatformTypeDeclaration.platformPackage)
+        )
         .filterNot(_.isSynthetic)
     nature match {
       case ENUM_NATURE =>
-        assert(localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
-          s"Enum $name has locally defined methods which are not supported in platform types")
+        assert(
+          localMethods.forall(m => m.getName == "values" || m.getName == "valueOf"),
+          s"Enum $name has locally defined methods which are not supported in platform types"
+        )
         ArraySeq[PlatformMethod]()
       case _ =>
         ArraySeq.unsafeWrapArray(localMethods.map(m => new PlatformMethod(m, this)))
@@ -160,13 +171,13 @@ class PlatformTypeDeclaration(val native: Any, val outer: Option[PlatformTypeDec
 
 class PlatformField(val field: java.lang.reflect.Field) extends FieldDeclaration {
   override def location: PathLocation = null
-  override lazy val name: Name = Name(decodeName(field.getName))
+  override lazy val name: Name        = Name(decodeName(field.getName))
   override lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(field.getGenericType, field.getDeclaringClass)
   override lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.fieldOrMethodModifiers(field.getModifiers)
-  override lazy val readAccess: Modifier = PUBLIC_MODIFIER
-  override lazy val writeAccess: Modifier = PUBLIC_MODIFIER
+  override lazy val readAccess: Modifier       = PUBLIC_MODIFIER
+  override lazy val writeAccess: Modifier      = PUBLIC_MODIFIER
   override lazy val idTarget: Option[TypeName] = None
 
   def getGenericTypeName: TypeName =
@@ -192,12 +203,16 @@ class PlatformParameter(val parameter: java.lang.reflect.Parameter, val declarin
   override def toString: String = typeName.toString + " " + name.toString
 }
 
-class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaration: PlatformTypeDeclaration)
-    extends ConstructorDeclaration {
+class PlatformConstructor(
+  ctor: java.lang.reflect.Constructor[_],
+  typeDeclaration: PlatformTypeDeclaration
+) extends ConstructorDeclaration {
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.ctorModifiers(ctor.getModifiers)
   lazy val parameters: ArraySeq[ParameterDeclaration] =
-    ArraySeq.unsafeWrapArray(ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass)))
+    ArraySeq.unsafeWrapArray(
+      ctor.getParameters.map(p => new PlatformParameter(p, ctor.getDeclaringClass))
+    )
 
   def getDeclaringClass: Class[_] = ctor.getDeclaringClass
 
@@ -206,18 +221,22 @@ class PlatformConstructor(ctor: java.lang.reflect.Constructor[_], typeDeclaratio
       parameters.map(_.toString).mkString(", ") + ")"
 }
 
-class PlatformMethod(val method: java.lang.reflect.Method, val typeDeclaration: PlatformTypeDeclaration)
-    extends MethodDeclaration {
+class PlatformMethod(
+  val method: java.lang.reflect.Method,
+  val typeDeclaration: PlatformTypeDeclaration
+) extends MethodDeclaration {
   lazy val name: Name = Name(decodeName(method.getName))
   lazy val typeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
   lazy val modifiers: ArraySeq[Modifier] =
     PlatformModifiers.methodModifiers(method.getModifiers, typeDeclaration.nature)
   lazy val parameters: ArraySeq[ParameterDeclaration] = getParameters
-  override val hasBlock: Boolean = false
+  override val hasBlock: Boolean                      = false
 
   def getParameters: ArraySeq[ParameterDeclaration] =
-    ArraySeq.unsafeWrapArray(method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass)))
+    ArraySeq.unsafeWrapArray(
+      method.getParameters.map(p => new PlatformParameter(p, method.getDeclaringClass))
+    )
 
   def getGenericTypeName: TypeName =
     PlatformTypeDeclaration.typeNameFromType(method.getGenericReturnType, method.getDeclaringClass)
@@ -240,7 +259,7 @@ object PlatformTypeDeclaration {
   /* Get a Path that leads to platform classes */
   lazy val platformPackagePath: java.nio.file.Path = {
     val path = "/" + platformPackage.replaceAll("\\.", "/")
-    val uri = classOf[Object$].getResource(path).toURI
+    val uri  = classOf[Object$].getResource(path).toURI
     if (uri.getScheme.equalsIgnoreCase("file")) {
       Paths.get(uri)
     } else {
@@ -283,10 +302,14 @@ object PlatformTypeDeclaration {
         assert(matched.size < 2, s"Found multiple platform type matches for $name")
         matched.map(
           name =>
-            new PlatformTypeDeclaration(classOf[PlatformTypeDeclaration].getClassLoader
-                                          .loadClass(platformPackage + "." + name),
-                                        None))
-      })
+            new PlatformTypeDeclaration(
+              classOf[PlatformTypeDeclaration].getClassLoader
+                .loadClass(platformPackage + "." + name),
+              None
+            )
+        )
+      }
+    )
   }
 
   /* Valid platform class names */
@@ -309,15 +332,21 @@ object PlatformTypeDeclaration {
   /* Index .class files, we have to index to make sure we get natural case sensitive names, but also used
    * to re-map SObject so they appear in Schema namespace.
    */
-  private def indexDir(path: java.nio.file.Path, prefix: DotName, accum: mutable.HashMap[DotName, DotName]): Unit = {
+  private def indexDir(
+    path: java.nio.file.Path,
+    prefix: DotName,
+    accum: mutable.HashMap[DotName, DotName]
+  ): Unit = {
     Files
       .list(path)
       .iterator
       .asScala
       .foreach(entry => {
         val filename = entry.getFileName.toString
-        if (Files.isRegularFile(entry) && filename.endsWith(".class") &&
-            (filename.endsWith("$.class") || !filename.contains('$'))) {
+        if (
+          Files.isRegularFile(entry) && filename.endsWith(".class") &&
+          (filename.endsWith("$.class") || !filename.contains('$'))
+        ) {
           val dotName = prefix.append(Name(filename.dropRight(".class".length)))
           if (dotName.names.head == Names.SObjects) {
             accum.put(DotName(Names.Schema +: dotName.names.tail), dotName)
@@ -332,7 +361,10 @@ object PlatformTypeDeclaration {
   }
 
   /* Create a TypeName from a Java class with null checking */
-  private def typeNameOptional(cls: java.lang.Class[_], contextCls: java.lang.Class[_]): Option[TypeName] = {
+  private def typeNameOptional(
+    cls: java.lang.Class[_],
+    contextCls: java.lang.Class[_]
+  ): Option[TypeName] = {
     cls match {
       case null => None
       case _    => Some(typeNameFromClass(cls, contextCls))
@@ -341,7 +373,7 @@ object PlatformTypeDeclaration {
 
   /* Create a TypeName from a Java Type, handles type variables as well as classes */
   def typeNameFromType(paramTypeNative: Any, contextClsNative: Any): TypeName = {
-    val paramType = paramTypeNative.asInstanceOf[java.lang.reflect.Type]
+    val paramType  = paramTypeNative.asInstanceOf[java.lang.reflect.Type]
     val contextCls = contextClsNative.asInstanceOf[java.lang.Class[_]]
 
     paramType match {
@@ -349,9 +381,11 @@ object PlatformTypeDeclaration {
       case tv: java.lang.reflect.TypeVariable[_] => TypeName(Name(tv.getName))
       case pt: java.lang.reflect.ParameterizedType =>
         val cname = pt.getRawType.getTypeName
-        assert(cname.startsWith(platformPackage),
-               s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
-        val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
+        assert(
+          cname.startsWith(platformPackage),
+          s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}"
+        )
+        val names  = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
         val params = pt.getActualTypeArguments.map(ta => typeNameFromType(ta, contextCls))
         TypeName(ArraySeq.unsafeWrapArray(names)).withParams(ArraySeq.unsafeWrapArray(params))
     }
@@ -366,14 +400,16 @@ object PlatformTypeDeclaration {
       } else if (cname == "void") {
         TypeNames.Void
       } else if (cname.startsWith(platformPackage + ".SObjects")) {
-        val names = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
+        val names  = cname.drop(platformPackage.length + 10).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
         TypeName(ArraySeq.unsafeWrapArray(names :+ Names.Schema))
           .withParams(params.toSeq.map(TypeName(_)))
       } else {
-        assert(cname.startsWith(platformPackage),
-               s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}")
-        val names = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
+        assert(
+          cname.startsWith(platformPackage),
+          s"Reference to non-platform type $cname in ${contextCls.getCanonicalName}"
+        )
+        val names  = cname.drop(platformPackage.length + 1).split('.').map(n => Name(n)).reverse
         val params = cls.getTypeParameters.map(tp => Name(tp.getName))
         TypeName(ArraySeq.unsafeWrapArray(names)).withParams(params.toSeq.map(TypeName(_)))
       }
@@ -385,13 +421,44 @@ object PlatformTypeDeclaration {
 
   /* Standard methods to be exposed on enums */
   private def enumMethods(typeName: TypeName): ArraySeq[MethodDeclaration] =
-    ArraySeq(CustomMethodDeclaration(Location.empty, Name("name"), TypeNames.String, CustomMethodDeclaration.emptyParameters),
-      CustomMethodDeclaration(Location.empty, Name("ordinal"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters),
-      CustomMethodDeclaration(Location.empty, Name("values"), TypeNames.listOf(typeName), CustomMethodDeclaration.emptyParameters, asStatic = true),
-      CustomMethodDeclaration(Location.empty, Name("valueOf"), typeName, ArraySeq(CustomParameterDeclaration(Name("name"), TypeNames.String)), asStatic = true),
-      CustomMethodDeclaration(Location.empty,
+    ArraySeq(
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("name"),
+        TypeNames.String,
+        CustomMethodDeclaration.emptyParameters
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("ordinal"),
+        TypeNames.Integer,
+        CustomMethodDeclaration.emptyParameters
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("values"),
+        TypeNames.listOf(typeName),
+        CustomMethodDeclaration.emptyParameters,
+        asStatic = true
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("valueOf"),
+        typeName,
+        ArraySeq(CustomParameterDeclaration(Name("name"), TypeNames.String)),
+        asStatic = true
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
         Name("equals"),
         TypeNames.Boolean,
-        ArraySeq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))),
-      CustomMethodDeclaration(Location.empty, Name("hashCode"), TypeNames.Integer, CustomMethodDeclaration.emptyParameters))
+        ArraySeq(CustomParameterDeclaration(Name("other"), TypeNames.InternalObject))
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("hashCode"),
+        TypeNames.Integer,
+        CustomMethodDeclaration.emptyParameters
+      )
+    )
 }

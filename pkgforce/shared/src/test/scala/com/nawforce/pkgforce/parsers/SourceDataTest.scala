@@ -20,16 +20,16 @@ class SourceDataTest extends AnyFunSuite {
 
   test("Basic string handling") {
     val sd = SourceData("A basic test string")
-    assert(sd.subdata(2,2).asString.isEmpty)
-    assert(sd.subdata(2,3).asString == "b")
-    assert(sd.subdata(2,7).asString == "basic")
+    assert(sd.subdata(2, 2).asString.isEmpty)
+    assert(sd.subdata(2, 3).asString == "b")
+    assert(sd.subdata(2, 7).asString == "basic")
   }
 
   test("UTF-8 String handling") {
     val sd = SourceData("A UTF-8 \uD83E\uDD26 test string")
-    assert(sd.subdata(8,9).asString == "\uD83E\uDD26")
-    assert(sd.subdata(11,12).asString == "t")
-    assert(sd.subdata(11,15).asString == "test")
-    assert(sd.subdata(6,15).asString == "8 \uD83E\uDD26 test")
+    assert(sd.subdata(8, 9).asString == "\uD83E\uDD26")
+    assert(sd.subdata(11, 12).asString == "t")
+    assert(sd.subdata(11, 15).asString == "test")
+    assert(sd.subdata(6, 15).asString == "8 \uD83E\uDD26 test")
   }
 }

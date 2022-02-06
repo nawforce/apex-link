@@ -27,10 +27,12 @@ import scala.collection.immutable.ArraySeq
 trait SObjectMethods {
   this: TypeDeclaration =>
 
-  def defaultFindMethod(name: Name,
-                        params: ArraySeq[TypeName],
-                        staticContext: Option[Boolean],
-                        verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+  def defaultFindMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     val clone = cloneMethods.get((name, params.length, staticContext.contains(true)))
     if (clone.nonEmpty)
       return Right(clone.get)
@@ -38,23 +40,39 @@ trait SObjectMethods {
   }
 
   private lazy val cloneMethods: Map[(Name, Int, Boolean), MethodDeclaration] = {
-    val preserveId = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
+    val preserveId  = CustomParameterDeclaration(Name("preserveId"), TypeNames.Boolean)
     val isDeepClone = CustomParameterDeclaration(Name("isDeepClone"), TypeNames.Boolean)
     val preserveReadOnlyTimestamps =
       CustomParameterDeclaration(Name("preserveReadOnlyTimestamps"), TypeNames.Boolean)
     val preserveAutonumber =
       CustomParameterDeclaration(Name("preserveAutonumber"), TypeNames.Boolean)
-    Seq(CustomMethodDeclaration(Location.empty, Name("clone"), typeName, CustomMethodDeclaration.emptyParameters),
+    Seq(
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("clone"),
+        typeName,
+        CustomMethodDeclaration.emptyParameters
+      ),
       CustomMethodDeclaration(Location.empty, Name("clone"), typeName, ArraySeq(preserveId)),
-      CustomMethodDeclaration(Location.empty, Name("clone"), typeName, ArraySeq(preserveId, isDeepClone)),
-      CustomMethodDeclaration(Location.empty,
+      CustomMethodDeclaration(
+        Location.empty,
         Name("clone"),
         typeName,
-        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps)),
-      CustomMethodDeclaration(Location.empty,
+        ArraySeq(preserveId, isDeepClone)
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
         Name("clone"),
         typeName,
-        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)))
+        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps)
+      ),
+      CustomMethodDeclaration(
+        Location.empty,
+        Name("clone"),
+        typeName,
+        ArraySeq(preserveId, isDeepClone, preserveReadOnlyTimestamps, preserveAutonumber)
+      )
+    )
       .map(m => ((m.name, m.parameters.length, m.isStatic), m))
       .toMap
   }

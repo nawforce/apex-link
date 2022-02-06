@@ -24,15 +24,15 @@ import scala.collection.immutable.ArraySeq
 
 abstract class CustomField(asStatic: Boolean) extends FieldDeclaration {
   override val modifiers: ArraySeq[Modifier] = CustomField.getModifiers(asStatic)
-  override val readAccess: Modifier = PUBLIC_MODIFIER
-  override val writeAccess: Modifier = PUBLIC_MODIFIER
-  override def isStatic: Boolean = asStatic
-  override def isPrivate: Boolean = false
+  override val readAccess: Modifier          = PUBLIC_MODIFIER
+  override val writeAccess: Modifier         = PUBLIC_MODIFIER
+  override def isStatic: Boolean             = asStatic
+  override def isPrivate: Boolean            = false
 }
 
 object CustomField {
   val standardModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
-  val staticModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  val staticModifiers: ArraySeq[Modifier]   = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
 
   def getModifiers(isStatic: Boolean): ArraySeq[Modifier] = {
     if (isStatic) standardModifiers else standardModifiers
@@ -41,27 +41,29 @@ object CustomField {
   /* TypeNames that may be used in SObjects (see above for when */
   def isSObjectPrimitive(typeName: TypeName): Boolean = {
     typeName match {
-      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal | TypeNames.Integer |
-          TypeNames.Date | TypeNames.Datetime | TypeNames.Time | TypeNames.Blob | TypeNames.Location |
-          TypeNames.Address =>
+      case TypeNames.IdType | TypeNames.String | TypeNames.Boolean | TypeNames.Decimal |
+          TypeNames.Integer | TypeNames.Date | TypeNames.Datetime | TypeNames.Time |
+          TypeNames.Blob | TypeNames.Location | TypeNames.Address =>
         true
       case _ => false
     }
   }
 }
 
-final case class CustomFieldDeclaration(name: Name,
-                                        typeName: TypeName,
-                                        idTarget: Option[TypeName],
-                                        asStatic: Boolean = false)
-    extends CustomField(asStatic) {
+final case class CustomFieldDeclaration(
+  name: Name,
+  typeName: TypeName,
+  idTarget: Option[TypeName],
+  asStatic: Boolean = false
+) extends CustomField(asStatic) {
   override def location: PathLocation = null
 }
 
-final case class LocatableCustomFieldDeclaration(override val location: PathLocation,
-                                                 name: Name,
-                                                 typeName: TypeName,
-                                                 idTarget: Option[TypeName],
-                                                 asStatic: Boolean = false)
-    extends CustomField(asStatic)
+final case class LocatableCustomFieldDeclaration(
+  override val location: PathLocation,
+  name: Name,
+  typeName: TypeName,
+  idTarget: Option[TypeName],
+  asStatic: Boolean = false
+) extends CustomField(asStatic)
     with Locatable {}

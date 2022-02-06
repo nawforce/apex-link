@@ -41,30 +41,39 @@ class VarTest extends AnyFunSuite with TestHelper {
 
   test("Reserved for var") {
     typeDeclaration(
-      "public class Dummy { void func() {for (Integer package=0; package<0; package++){}}}")
+      "public class Dummy { void func() {for (Integer package=0; package<0; package++){}}}"
+    )
     assert(dummyIssues == "Error: line 1 at 47-54: 'package' is a reserved identifier in Apex\n")
   }
 
   test("Reserved for-each var") {
     typeDeclaration(
-      "public class Dummy { void func() {for (Integer package: new List<Integer>{}){}}}")
+      "public class Dummy { void func() {for (Integer package: new List<Integer>{}){}}}"
+    )
     assert(dummyIssues == "Error: line 1 at 47-54: 'package' is a reserved identifier in Apex\n")
   }
 
   test("Duplicate for vars") {
     typeDeclaration(
-      "public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}")
+      "public class Dummy { void func() {for (Integer i=0; i<0; i++){} for(Integer i=0; i<0; i++){} }}"
+    )
     assert(!hasIssues)
   }
 
   test("Shadow local var") {
     typeDeclaration("public class Dummy { String a; void func() {String a;}}")
-    assert(dummyIssues.startsWith("Warning: line 1 at 44-52: Local variable is hiding class field 'a', see"))
+    assert(
+      dummyIssues
+        .startsWith("Warning: line 1 at 44-52: Local variable is hiding class field 'a', see")
+    )
   }
 
   test("Shadow local var, inner class") {
     typeDeclaration("public class Dummy { class Dummy2 {String a; void func() {String a;}}}")
-    assert(dummyIssues.startsWith("Warning: line 1 at 58-66: Local variable is hiding class field 'a', see"))
+    assert(
+      dummyIssues
+        .startsWith("Warning: line 1 at 58-66: Local variable is hiding class field 'a', see")
+    )
   }
 
   test("Shadow local var, not extending") {
@@ -74,7 +83,11 @@ class VarTest extends AnyFunSuite with TestHelper {
 
   test("Shadow local var, extending") {
     typeDeclaration(
-      "public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}")
-    assert(dummyIssues.startsWith("Warning: line 1 at 80-88: Local variable is hiding class field 'a', see "))
+      "public virtual class Dummy {String a; class Dummy2 extends Dummy { void func() {String a;}}}"
+    )
+    assert(
+      dummyIssues
+        .startsWith("Warning: line 1 at 80-88: Local variable is hiding class field 'a', see ")
+    )
   }
 }

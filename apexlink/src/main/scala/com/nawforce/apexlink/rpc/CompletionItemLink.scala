@@ -9,15 +9,15 @@ case class CompletionItemLink(label: String, kind: String, detail: String = null
 
 object CompletionItemLink {
   implicit val rw: RW[CompletionItemLink] = macroRW
-  implicit val rwLocation: RW[Location] = macroRW
+  implicit val rwLocation: RW[Location]   = macroRW
 
   def apply(td: TypeDeclaration): Option[CompletionItemLink] = {
     val detail = td.modifiers.map(_.name).mkString(" ")
     td.nature match {
-      case CLASS_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Class", detail))
+      case CLASS_NATURE     => Some(CompletionItemLink(td.typeName.name.value, "Class", detail))
       case INTERFACE_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Interface", detail))
-      case ENUM_NATURE => Some(CompletionItemLink(td.typeName.name.value, "Enum", detail))
-      case _ => None
+      case ENUM_NATURE      => Some(CompletionItemLink(td.typeName.name.value, "Enum", detail))
+      case _                => None
     }
   }
 
@@ -26,8 +26,11 @@ object CompletionItemLink {
   }
 
   def apply(method: MethodDeclaration): CompletionItemLink = {
-    CompletionItemLink(method.name.toString + "(" + method.parameters.map(_.name.toString()).mkString(", ") + ")",
-      "Method", method.toString)
+    CompletionItemLink(
+      method.name.toString + "(" + method.parameters.map(_.name.toString()).mkString(", ") + ")",
+      "Method",
+      method.toString
+    )
   }
 
 }

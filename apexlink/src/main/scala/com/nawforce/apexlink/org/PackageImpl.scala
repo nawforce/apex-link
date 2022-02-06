@@ -30,8 +30,9 @@ import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 
 class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
-  extends PackageAPI
-    with DefinitionProvider with CompletionProvider {
+    extends PackageAPI
+    with DefinitionProvider
+    with CompletionProvider {
 
   /** Modules used in this package, this will be null during construction. */
   var modules: Array[Module] = _
@@ -40,7 +41,8 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
   private var moduleBuilder = new mutable.ArrayBuffer[Module]()
 
   /** Add a new module to the package, modules must be added in 'deploy order'. Once freezeModules is called no new
-    * modules can be added. */
+    * modules can be added.
+    */
   private[nawforce] def add(module: Module): Unit = {
     assert(moduleBuilder != null)
     moduleBuilder.append(module)
@@ -79,9 +81,11 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
     val ghostedPackages = basePackages
       .groupBy(_.isGhosted)
       .map(kv => (kv._1, kv._2.map(_.namespace.map(_.value).getOrElse("")).sorted.toArray))
-    PackageContext(namespace.map(_.value),
-                   ghostedPackages.getOrElse(true, Array.empty),
-                   ghostedPackages.getOrElse(false, Array.empty))
+    PackageContext(
+      namespace.map(_.value),
+      ghostedPackages.getOrElse(true, Array.empty),
+      ghostedPackages.getOrElse(false, Array.empty)
+    )
   }
 
   /** Set of namespaces used by this package and its base packages. */
@@ -105,55 +109,67 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
   /** Check if a field name is ghosted in this package. */
   def isGhostedFieldName(name: Name): Boolean = {
     EncodedName(name).namespace match {
-      case None => false
+      case None     => false
       case Some(ns) => basePackages.filter(_.isGhosted).exists(_.namespace.contains(ns))
     }
   }
 
   /** Load a class to obtain it's FullDeclaration, issues are not updated, this just returns a temporary version of
-    * the class so that it can be inspected. */
-  protected def loadClass(path: PathLike, source: String)
-  : (Option[(ApexParser, ApexParser.CompilationUnitContext)], Option[ApexFullDeclaration]) = {
+    * the class so that it can be inspected.
+    */
+  protected def loadClass(
+    path: PathLike,
+    source: String
+  ): (Option[(ApexParser, ApexParser.CompilationUnitContext)], Option[ApexFullDeclaration]) = {
     MetadataDocument(path) match {
       case Some(doc: ApexClassDocument) =>
-        getPackageModule(path).map(module => {
-          val existingIssues = org.issueManager.pop(path)
-          val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
-          val result = parser.parseClassReturningParser()
-          try {
-            (Some(result.value),
-              CompilationUnit.construct(parser, module, doc.name, result.value._2).map(_.typeDeclaration))
-          } catch {
-            case ex: Throwable =>
-              LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
-              (None, None)
-          } finally {
-            org.issueManager.push(path, existingIssues)
-          }
-        }).getOrElse((None, None))
+        getPackageModule(path)
+          .map(module => {
+            val existingIssues = org.issueManager.pop(path)
+            val parser         = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
+            val result         = parser.parseClassReturningParser()
+            try {
+              (
+                Some(result.value),
+                CompilationUnit
+                  .construct(parser, module, doc.name, result.value._2)
+                  .map(_.typeDeclaration)
+              )
+            } catch {
+              case ex: Throwable =>
+                LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+                (None, None)
+            } finally {
+              org.issueManager.push(path, existingIssues)
+            }
+          })
+          .getOrElse((None, None))
       case _ => (None, None)
     }
   }
 
-  protected def loadTrigger(path: PathLike, source: String)
-  : (Option[(ApexParser, ApexParser.TriggerUnitContext)], Option[ApexFullDeclaration]) = {
+  protected def loadTrigger(
+    path: PathLike,
+    source: String
+  ): (Option[(ApexParser, ApexParser.TriggerUnitContext)], Option[ApexFullDeclaration]) = {
     MetadataDocument(path) match {
       case Some(doc: ApexTriggerDocument) =>
-        getPackageModule(path).map(module => {
-          val existingIssues = org.issueManager.pop(path)
-          val parser = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
-          val result = parser.parseTriggerReturningParser()
-          try {
-            (Some(result.value),
-              TriggerDeclaration.construct(parser, module, result.value._2))
-          } catch {
-            case ex: Throwable =>
-              LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
-              (None, None)
-          } finally {
-            org.issueManager.push(path, existingIssues)
-          }
-        }).getOrElse((None, None))
+        getPackageModule(path)
+          .map(module => {
+            val existingIssues = org.issueManager.pop(path)
+            val parser         = CodeParser(doc.path, SourceData(source.getBytes(StandardCharsets.UTF_8)))
+            val result         = parser.parseTriggerReturningParser()
+            try {
+              (Some(result.value), TriggerDeclaration.construct(parser, module, result.value._2))
+            } catch {
+              case ex: Throwable =>
+                LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+                (None, None)
+            } finally {
+              org.issueManager.push(path, existingIssues)
+            }
+          })
+          .getOrElse((None, None))
       case _ => (None, None)
     }
   }

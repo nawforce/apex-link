@@ -17,7 +17,12 @@ package com.nawforce.apexlink.types.platform
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
 import com.nawforce.apexlink.finding.{MissingType, TypeError, TypeResolver}
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
-import com.nawforce.apexlink.types.core.{FieldDeclaration, MethodDeclaration, ParameterDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{
+  FieldDeclaration,
+  MethodDeclaration,
+  ParameterDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.PathLocation
@@ -72,15 +77,17 @@ class GenericPlatformTypeDeclaration(_typeName: TypeName, genericDecl: PlatformT
   }
 }
 
-class GenericPlatformField(platformField: PlatformField, _typeDeclaration: GenericPlatformTypeDeclaration)
-    extends FieldDeclaration {
+class GenericPlatformField(
+  platformField: PlatformField,
+  _typeDeclaration: GenericPlatformTypeDeclaration
+) extends FieldDeclaration {
 
-  override def location: PathLocation = null
-  override val name: Name = platformField.name
+  override def location: PathLocation        = null
+  override val name: Name                    = platformField.name
   override val modifiers: ArraySeq[Modifier] = platformField.modifiers
-  override val readAccess: Modifier = platformField.readAccess
-  override val writeAccess: Modifier = platformField.writeAccess
-  override val idTarget: Option[TypeName] = None
+  override val readAccess: Modifier          = platformField.readAccess
+  override val writeAccess: Modifier         = platformField.writeAccess
+  override val idTarget: Option[TypeName]    = None
 
   override lazy val typeName: TypeName = {
     val fieldType = _typeDeclaration.replaceParams(platformField.getGenericTypeName)
@@ -88,10 +95,12 @@ class GenericPlatformField(platformField: PlatformField, _typeDeclaration: Gener
   }
 }
 
-class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: GenericPlatformTypeDeclaration)
-    extends MethodDeclaration {
+class GenericPlatformMethod(
+  platformMethod: PlatformMethod,
+  _typeDeclaration: GenericPlatformTypeDeclaration
+) extends MethodDeclaration {
 
-  override lazy val name: Name = platformMethod.name
+  override lazy val name: Name                    = platformMethod.name
   override lazy val modifiers: ArraySeq[Modifier] = platformMethod.modifiers
 
   override lazy val typeName: TypeName = {
@@ -107,8 +116,10 @@ class GenericPlatformMethod(platformMethod: PlatformMethod, _typeDeclaration: Ge
   override val hasBlock: Boolean = false
 }
 
-class GenericPlatformParameter(platformParameter: PlatformParameter, _typeDeclaration: GenericPlatformTypeDeclaration)
-    extends ParameterDeclaration {
+class GenericPlatformParameter(
+  platformParameter: PlatformParameter,
+  _typeDeclaration: GenericPlatformTypeDeclaration
+) extends ParameterDeclaration {
 
   override lazy val name: Name = platformParameter.name
   override lazy val typeName: TypeName = {
@@ -127,10 +138,14 @@ object GenericPlatformTypeDeclaration {
     // Make sure params are resolvable first
     val params = typeName.params.map(
       pt =>
-        (pt,
-         // Without a 'from' we can only search for platform types, but this is still needed for handling platform types
-         if (from.nonEmpty) TypeResolver(pt, from.get) else PlatformTypes.get(pt, None)))
-    val module = from.flatMap(_.moduleDeclaration)
+        (
+          pt,
+          // Without a 'from' we can only search for platform types, but this is still needed for handling platform types
+          if (from.nonEmpty) TypeResolver(pt, from.get)
+          else PlatformTypes.get(pt, None)
+        )
+    )
+    val module       = from.flatMap(_.moduleDeclaration)
     val failedParams = params.find(_._2.isLeft).filterNot(p => module.exists(_.isGhostedType(p._1)))
     if (failedParams.nonEmpty) {
       return Left(MissingType(failedParams.get._1))
@@ -139,12 +154,16 @@ object GenericPlatformTypeDeclaration {
     // And then create off base type
     val genericDecl = PlatformTypeDeclaration.getDeclaration(typeName.asDotName)
     if (genericDecl.nonEmpty) {
-      val absoluteParamTypes = params.map(p =>
-        p._2 match {
-          case Left(error: TypeError)            => error.typeName
-          case Right(paramType: TypeDeclaration) => paramType.typeName
-      })
-      Right(new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get))
+      val absoluteParamTypes = params.map(
+        p =>
+          p._2 match {
+            case Left(error: TypeError)            => error.typeName
+            case Right(paramType: TypeDeclaration) => paramType.typeName
+          }
+      )
+      Right(
+        new GenericPlatformTypeDeclaration(typeName.withParams(absoluteParamTypes), genericDecl.get)
+      )
     } else {
       Left(MissingType(typeName))
     }

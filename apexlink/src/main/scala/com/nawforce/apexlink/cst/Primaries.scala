@@ -96,20 +96,27 @@ final case class IdPrimary(id: Id) extends Primary {
             if (input.typeDeclaration.isComplete)
               context.missingIdentifier(location, input.typeName, id.name)
             ExprContext.empty
-          })))
+          }))
+      )
   }
 
   private def isVarReference(context: ExpressionVerifyContext): Option[ExprContext] = {
     context
       .isVar(id.name, markUsed = true)
       .map(varTypeAndDefinition => {
-          ExprContext(isStatic = Some(false), Some(varTypeAndDefinition.declaration), varTypeAndDefinition.definition)
+        ExprContext(
+          isStatic = Some(false),
+          Some(varTypeAndDefinition.declaration),
+          varTypeAndDefinition.definition
+        )
       })
   }
 
-  private def isFieldReference(input: ExprContext,
-                               context: ExpressionVerifyContext): Option[ExprContext] = {
-    val td = input.typeDeclaration
+  private def isFieldReference(
+    input: ExprContext,
+    context: ExpressionVerifyContext
+  ): Option[ExprContext] = {
+    val td            = input.typeDeclaration
     val staticContext = Some(true).filter(input.isStatic.contains)
 
     val field = findField(id.name, td, staticContext)
@@ -125,7 +132,8 @@ final case class IdPrimary(id: Id) extends Primary {
           .getOrElse({
             context.missingType(location, field.get.typeName)
             ExprContext.empty
-          }))
+          })
+      )
     } else {
       None
     }
@@ -138,10 +146,12 @@ final case class IdPrimary(id: Id) extends Primary {
     }
   }
 
-  private def findField(name: Name,
-                        td: TypeDeclaration,
-                        staticContext: Option[Boolean]): Option[FieldDeclaration] = {
-    val encodedName = EncodedName(name)
+  private def findField(
+    name: Name,
+    td: TypeDeclaration,
+    staticContext: Option[Boolean]
+  ): Option[FieldDeclaration] = {
+    val encodedName   = EncodedName(name)
     val namespaceName = encodedName.defaultNamespace(td.moduleDeclaration.flatMap(_.namespace))
     td.findField(namespaceName.fullName, staticContext)
       .orElse({
@@ -151,9 +161,11 @@ final case class IdPrimary(id: Id) extends Primary {
       })
   }
 
-  private def isAccessible(td: TypeDeclaration,
-                           field: FieldDeclaration,
-                           staticContext: Option[Boolean]): Boolean = {
+  private def isAccessible(
+    td: TypeDeclaration,
+    field: FieldDeclaration,
+    staticContext: Option[Boolean]
+  ): Boolean = {
     // From static context, we can only use locally defined static fields, but can only test this with Apex
     // defined fields & types.
     (staticContext.contains(true), td, field) match {
@@ -176,7 +188,7 @@ final case class SOQL(boundExpressions: ArraySeq[Expression]) extends Primary {
 
 object SOQL {
   def apply(query: QueryContext): SOQL = {
-    val visitor = new BoundExprVisitor()
+    val visitor     = new BoundExprVisitor()
     val expressions = visitor.visit(query).map(ec => Expression.construct(ec))
     SOQL(expressions)
   }
@@ -195,12 +207,14 @@ class BoundExprVisitor extends ApexParserBaseVisitor[ArraySeq[ExpressionContext]
 
   override protected def aggregateResult(
     aggregate: ArraySeq[ExpressionContext],
-    nextResult: ArraySeq[ExpressionContext]): ArraySeq[ExpressionContext] = {
+    nextResult: ArraySeq[ExpressionContext]
+  ): ArraySeq[ExpressionContext] = {
     aggregate ++ nextResult
   }
 
   override def visitBoundExpression(
-    boundExpressionContext: BoundExpressionContext): ArraySeq[ExpressionContext] = {
+    boundExpressionContext: BoundExpressionContext
+  ): ArraySeq[ExpressionContext] = {
     ArraySeq(boundExpressionContext.expression())
   }
 }

@@ -77,19 +77,22 @@ class IgnoreRuleTest extends AnyFunSuite {
 
   test("A sub-path") {
     assert(
-      IgnoreRule.read("foo/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/bar")))
+      IgnoreRule.read("foo/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/bar"))
+    )
   }
 
   test("A sub-path with wildcard") {
     assert(
-      IgnoreRule.read("foo/*/bar") == Seq(
-        IgnoreRule(dirOnly = false, negation = false, "foo/*/bar")))
+      IgnoreRule
+        .read("foo/*/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/*/bar"))
+    )
   }
 
   test("A sub-path with double wildcard") {
     assert(
-      IgnoreRule.read("foo/**/bar") == Seq(
-        IgnoreRule(dirOnly = false, negation = false, "foo/**/bar")))
+      IgnoreRule
+        .read("foo/**/bar") == Seq(IgnoreRule(dirOnly = false, negation = false, "foo/**/bar"))
+    )
   }
 
   test("Leading /") {

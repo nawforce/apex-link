@@ -43,13 +43,14 @@ case object DecimalLiteral extends Literal {
 }
 
 case object StringLiteral extends Literal {
-  private val boundMatch = ":\\s*[0-9a-zA-Z_]*".r
+  private val boundMatch  = ":\\s*[0-9a-zA-Z_]*".r
   private val boundPrefix = ":\\s*".r
 
   override def getType: TypeDeclaration = PlatformTypes.stringType
 
   def apply(value: String): Literal = {
-    val bound = boundMatch.findAllIn(value)
+    val bound = boundMatch
+      .findAllIn(value)
       .map(v => Name(boundPrefix.replaceFirstIn(v, "")))
       .toSet
     if (bound.nonEmpty)
@@ -65,7 +66,8 @@ final case class BoundStringLiteral(bound: Set[Name]) extends Literal {
   override def verify(context: ExpressionVerifyContext): Unit = {
     bound.foreach(bound => {
       if (context.isVar(bound, markUsed = true).isEmpty) {
-        context.thisType.findField(bound, None)
+        context.thisType
+          .findField(bound, None)
           .map(field => context.addDependency(field))
       }
     })
@@ -103,12 +105,21 @@ object Literal {
     CodeParser
       .toScala(from.IntegerLiteral())
       .map(x => IntegerOrLongLiteral(CodeParser.getText(x)))
-      .orElse(CodeParser.toScala(from.LongLiteral())
-        .map(x => IntegerOrLongLiteral(CodeParser.getText(x))))
-      .orElse(CodeParser.toScala(from.NumberLiteral())
-        .map(x => DoubleOrDecimalLiteral(CodeParser.getText(x))))
-      .orElse(CodeParser.toScala(from.StringLiteral())
-        .map(x => StringLiteral(CodeParser.getText(x))))
+      .orElse(
+        CodeParser
+          .toScala(from.LongLiteral())
+          .map(x => IntegerOrLongLiteral(CodeParser.getText(x)))
+      )
+      .orElse(
+        CodeParser
+          .toScala(from.NumberLiteral())
+          .map(x => DoubleOrDecimalLiteral(CodeParser.getText(x)))
+      )
+      .orElse(
+        CodeParser
+          .toScala(from.StringLiteral())
+          .map(x => StringLiteral(CodeParser.getText(x)))
+      )
       .orElse(CodeParser.toScala(from.BooleanLiteral()).map(_ => BooleanLiteral))
       .getOrElse(NullLiteral)
   }
