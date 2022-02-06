@@ -15,7 +15,11 @@
 package com.nawforce.apexlink.cst
 
 import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
-import com.nawforce.apexparser.ApexParser.{LocalVariableDeclarationContext, VariableDeclaratorContext, VariableDeclaratorsContext}
+import com.nawforce.apexparser.ApexParser.{
+  LocalVariableDeclarationContext,
+  VariableDeclaratorContext,
+  VariableDeclaratorsContext
+}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, ERROR_CATEGORY, Issue, WARNING_CATEGORY}
 import com.nawforce.pkgforce.modifiers.{ApexModifiers, ModifierResults}
 import com.nawforce.pkgforce.names.TypeName
@@ -32,10 +36,21 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
     init.foreach(e => {
       val rhsCtx = e.verify(input, exprContext)
       lhsType.foreach(lhsType => {
-        if (rhsCtx.isDefined && !isAssignable(lhsType.typeName, rhsCtx.typeDeclaration, strict = false, context)) {
-          context.log(Issue(location.path, ERROR_CATEGORY, location.location,
-            s"Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'"
+        if (
+          rhsCtx.isDefined && !isAssignable(
+            lhsType.typeName,
+            rhsCtx.typeDeclaration,
+            strict = false,
+            context
           )
+        ) {
+          context.log(
+            Issue(
+              location.path,
+              ERROR_CATEGORY,
+              location.location,
+              s"Incompatible types in assignment, from '${rhsCtx.typeDeclaration.typeName}' to '${lhsType.typeName}'"
+            )
           )
         }
       })
@@ -51,8 +66,10 @@ final case class VariableDeclarator(typeName: TypeName, id: Id, init: Option[Exp
 }
 
 object VariableDeclarator {
-  def construct(typeName: TypeName,
-                variableDeclarator: VariableDeclaratorContext): VariableDeclarator = {
+  def construct(
+    typeName: TypeName,
+    variableDeclarator: VariableDeclaratorContext
+  ): VariableDeclarator = {
     val init = CodeParser.toScala(variableDeclarator.expression()).map(Expression.construct)
     VariableDeclarator(typeName, Id.construct(variableDeclarator.id()), init)
       .withContext(variableDeclarator)
@@ -70,34 +87,43 @@ final case class VariableDeclarators(declarators: Seq[VariableDeclarator]) exten
 }
 
 object VariableDeclarators {
-  def construct(typeName: TypeName,
-                variableDeclaratorsContext: VariableDeclaratorsContext): VariableDeclarators = {
+  def construct(
+    typeName: TypeName,
+    variableDeclaratorsContext: VariableDeclaratorsContext
+  ): VariableDeclarators = {
     val variableDeclarators: Seq[VariableDeclaratorContext] = {
-      Option(variableDeclaratorsContext).map(variableDeclaratorsContext => {
-        CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
-      }).getOrElse(Seq())
+      Option(variableDeclaratorsContext)
+        .map(variableDeclaratorsContext => {
+          CodeParser.toScala(variableDeclaratorsContext.variableDeclarator())
+        })
+        .getOrElse(Seq())
     }
-    VariableDeclarators(
-      variableDeclarators.map(x => VariableDeclarator.construct(typeName, x)))
+    VariableDeclarators(variableDeclarators.map(x => VariableDeclarator.construct(typeName, x)))
       .withContext(variableDeclaratorsContext)
   }
 }
 
-final case class LocalVariableDeclaration(modifiers: ModifierResults,
-                                          typeName: TypeName,
-                                          variableDeclarators: VariableDeclarators)
-    extends CST {
+final case class LocalVariableDeclaration(
+  modifiers: ModifierResults,
+  typeName: TypeName,
+  variableDeclarators: VariableDeclarators
+) extends CST {
   def verify(context: BlockVerifyContext): Unit = {
 
     variableDeclarators.declarators.foreach(vd => {
       context.thisType.findField(vd.id.name, None).foreach {
         case field: ApexFieldDeclaration =>
-          context.log(new Issue(location.path,
-                                new Diagnostic(
-                                  WARNING_CATEGORY,
-                                  location.location,
-                                  s"Local variable is hiding class field '${vd.id.name}', see " +
-                                    s"${field.location.toString}")))
+          context.log(
+            new Issue(
+              location.path,
+              new Diagnostic(
+                WARNING_CATEGORY,
+                location.location,
+                s"Local variable is hiding class field '${vd.id.name}', see " +
+                  s"${field.location.toString}"
+              )
+            )
+          )
         case _ => ()
       }
     })
@@ -113,17 +139,22 @@ final case class LocalVariableDeclaration(modifiers: ModifierResults,
 }
 
 object LocalVariableDeclaration {
-  def construct(parser: CodeParser,
-                from: LocalVariableDeclarationContext,
-                isTrigger: Boolean): LocalVariableDeclaration = {
+  def construct(
+    parser: CodeParser,
+    from: LocalVariableDeclarationContext,
+    isTrigger: Boolean
+  ): LocalVariableDeclaration = {
     val typeName = TypeReference.construct(from.typeRef())
     LocalVariableDeclaration(
-      ApexModifiers.localVariableModifiers(parser,
+      ApexModifiers.localVariableModifiers(
+        parser,
         CodeParser.toScala(from.modifier()),
         from,
-        isTrigger),
+        isTrigger
+      ),
       typeName,
-      VariableDeclarators.construct(typeName, from.variableDeclarators()))
+      VariableDeclarators.construct(typeName, from.variableDeclarators())
+    )
       .withContext(from)
   }
 }

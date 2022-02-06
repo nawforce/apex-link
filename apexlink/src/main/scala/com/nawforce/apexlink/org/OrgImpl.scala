@@ -46,7 +46,8 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   val workspace: Workspace = initWorkspace.getOrElse(new Workspace(Seq()))
 
   /** Issues log for all packages in org. This is managed independently as errors may be raised against files
-    * for which there is no natural type representation. */
+    * for which there is no natural type representation.
+    */
   private[nawforce] val issueManager = new IssuesManager
 
   /** Manager for post validation plugins */
@@ -85,7 +86,7 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
       // Fold over leaf layers to create modules of each package with dependency links, assumes everything is in deploy
       // order so dependent layers have been created before being referenced
       packagesAndModules.foldLeft(Map[ModuleLayer, Module]())((acc, packageAndDependent) => {
-        val pkg = packageAndDependent._1
+        val pkg        = packageAndDependent._1
         val dependents = packageAndDependent._2
         dependents.foldLeft(acc)((acc, layer) => {
           val issuesAndIndex = workspace.indexes(layer)
@@ -149,7 +150,9 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   /** Get a array of type identifiers available across all packages. */
   def getTypeIdentifiers(apexOnly: Boolean): Array[TypeIdentifier] = {
     OrgImpl.current.withValue(this) {
-      packages.foldLeft(Array[TypeIdentifier]())((acc, pkg) => acc ++ pkg.getTypeIdentifiers(apexOnly))
+      packages.foldLeft(Array[TypeIdentifier]())(
+        (acc, pkg) => acc ++ pkg.getTypeIdentifiers(apexOnly)
+      )
     }
   }
 
@@ -183,13 +186,26 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
       })
   }
 
-  def getDependencyGraph(identifiers: Array[TypeIdentifier], depth: Integer, apexOnly: Boolean, ignoring: Array[TypeIdentifier]): DependencyGraph = {
+  def getDependencyGraph(
+    identifiers: Array[TypeIdentifier],
+    depth: Integer,
+    apexOnly: Boolean,
+    ignoring: Array[TypeIdentifier]
+  ): DependencyGraph = {
     OrgImpl.current.withValue(this) {
       val depWalker = new DownWalker(this, apexOnly)
       val nodeData = depWalker
         .walk(identifiers, depth, ignoring)
         .map(n => {
-          DependencyNode(n.id, nodeFileSize(n.id), n.nature, n.transitiveCount, n.extending, n.implementing, n.using)
+          DependencyNode(
+            n.id,
+            nodeFileSize(n.id),
+            n.nature,
+            n.transitiveCount,
+            n.extending,
+            n.implementing,
+            n.using
+          )
         })
       val nodeIndex = nodeData.map(_.identifier).zipWithIndex.toMap
 
@@ -200,7 +216,9 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
         def safeLink(nature: String)(identifier: TypeIdentifier): Unit = {
           nodeIndex
             .get(identifier)
-            .foreach(target => if (source != target) linkData += DependencyLink(source, target, nature))
+            .foreach(
+              target => if (source != target) linkData += DependencyLink(source, target, nature)
+            )
         }
 
         n.extending.foreach(safeLink("extends"))
@@ -219,7 +237,12 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   }
 
   /** Locate a definition for a symbol */
-  override def getDefinition(path: String, line: Int, offset: Int, content: String): Array[LocationLink] = {
+  override def getDefinition(
+    path: String,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Array[LocationLink] = {
     if (path == null)
       return Array.empty
 
@@ -231,7 +254,12 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
     }
   }
 
-  override def getCompletionItems(path: String, line: Int, offset: Int, content: String): Array[CompletionItemLink] = {
+  override def getCompletionItems(
+    path: String,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Array[CompletionItemLink] = {
     if (path == null || content == null)
       return Array.empty
 
@@ -244,9 +272,9 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   }
 
   def getDependencyBombs(count: Int): Array[BombScore] = {
-    val maxBombs = Math.max(0, count)
+    val maxBombs   = Math.max(0, count)
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.nonTestClasses.toSeq))
-    val bombs = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
+    val bombs      = mutable.PriorityQueue[BombScore]()(Ordering.by(1000 - _.score))
     allClasses.foreach(cls => {
       if (!cls.inTest) {
         val score = cls.bombScore(allClasses.size)
@@ -261,52 +289,64 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   }
 
   def getTestClassNames(paths: Array[String], findTests: Boolean): Array[String] = {
-    def findPackageIdentifierAndSummary(path: String): Option[(Package, TypeIdentifier, TypeSummary)] = {
+    def findPackageIdentifierAndSummary(
+      path: String
+    ): Option[(Package, TypeIdentifier, TypeSummary)] = {
       packages.view
         .flatMap(pkg => {
           Option(pkg.getTypeOfPath(path))
-            .flatMap(typeId =>
-              Option(pkg.getSummaryOfType(typeId))
-                .map(summary => (pkg, typeId, summary)))
+            .flatMap(
+              typeId =>
+                Option(pkg.getSummaryOfType(typeId))
+                  .map(summary => (pkg, typeId, summary))
+            )
         })
         .headOption
     }
 
-    def findReferencedTestPaths(pkg: Package,
-                                        typeId: TypeIdentifier,
-                                        summary: TypeSummary,
-                                        filterTypeId: TypeIdentifier): Array[String] = {
+    def findReferencedTestPaths(
+      pkg: Package,
+      typeId: TypeIdentifier,
+      summary: TypeSummary,
+      filterTypeId: TypeIdentifier
+    ): Array[String] = {
       if (summary.modifiers.contains(ISTEST_ANNOTATION)) return Array(summary.name)
       if (!findTests) return Array.empty
 
-      Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap { dependentTypeId =>
-        Option(pkg.getSummaryOfType(dependentTypeId)).toArray
-          .filter { dependentSummary =>
-            dependentSummary.modifiers.contains(ISTEST_ANNOTATION)
-          }
-          .filter { _ =>
-            pkg.hasDependency(dependentTypeId, filterTypeId)
-          }
-          .map { dependentSummary =>
-            dependentSummary.name
-          }
+      Option(pkg.getDependencyHolders(typeId, apexOnly = true)).getOrElse(Array.empty).flatMap {
+        dependentTypeId =>
+          Option(pkg.getSummaryOfType(dependentTypeId)).toArray
+            .filter { dependentSummary =>
+              dependentSummary.modifiers.contains(ISTEST_ANNOTATION)
+            }
+            .filter { _ =>
+              pkg.hasDependency(dependentTypeId, filterTypeId)
+            }
+            .map { dependentSummary =>
+              dependentSummary.name
+            }
       }
     }
 
-    def targetsForInterfaces(pkg: Package,
-                             summary: TypeSummary): ArraySeq[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+    def targetsForInterfaces(
+      pkg: Package,
+      summary: TypeSummary
+    ): ArraySeq[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
       summary.interfaces.flatMap { interface =>
         Option(pkg.getTypeIdentifier(interface))
           .flatMap { interfaceTypeId =>
-            val outerTypeId = interfaceTypeId.typeName.outer.map(pkg.getTypeIdentifier).getOrElse(interfaceTypeId)
+            val outerTypeId =
+              interfaceTypeId.typeName.outer.map(pkg.getTypeIdentifier).getOrElse(interfaceTypeId)
             Option(pkg.getSummaryOfType(outerTypeId))
               .map((interfaceTypeId, outerTypeId, _))
           }
       }
     }
 
-    def targetsForSuperclass(pkg: Package,
-                             summary: TypeSummary): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
+    def targetsForSuperclass(
+      pkg: Package,
+      summary: TypeSummary
+    ): Array[(TypeIdentifier, TypeIdentifier, TypeSummary)] = {
       summary.superClass
         .flatMap { tn =>
           Option(pkg.getTypeIdentifier(tn))
@@ -330,7 +370,8 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
           }
           val superClassTargets = targetsForSuperclass(pkg, summary)
 
-          val targets = Seq((typeId, typeId, summary)) ++ interfaces ++ nestedInterfaces ++ superClassTargets
+          val targets =
+            Seq((typeId, typeId, summary)) ++ interfaces ++ nestedInterfaces ++ superClassTargets
 
           targets.flatMap {
             case (actualTypeId, outerTypeId, outerSummary) =>
@@ -345,7 +386,10 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
     def getTypeOfPath(path: String): Option[TypeIdentifier] =
       packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
 
-    def countTransitiveDependencies(typeId: TypeIdentifier, transitiveDependencies: Array[TypeIdentifier]): Int = {
+    def countTransitiveDependencies(
+      typeId: TypeIdentifier,
+      transitiveDependencies: Array[TypeIdentifier]
+    ): Int = {
       transitiveDependencies.count(t => t != typeId)
     }
 
@@ -358,7 +402,8 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
             (typeId, collector.transitives(typeId))
           }
           .map {
-            case (typeId, transitiveDependencies) => (path, countTransitiveDependencies(typeId, transitiveDependencies))
+            case (typeId, transitiveDependencies) =>
+              (path, countTransitiveDependencies(typeId, transitiveDependencies))
           }
       }
   }
@@ -366,9 +411,19 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
   def getAllTestMethods: Array[TestMethod] = {
     val allClasses = packages.flatMap(_.orderedModules.flatMap(_.testClasses.toSeq))
 
-    allClasses.flatMap(c => c.methods
-      .filter(m => m.modifiers.contains(ISTEST_ANNOTATION) || m.modifiers.contains(TEST_METHOD_MODIFIER) )
-      .map(m => TestMethod(c.name.toString(), m.name.toString()))).toSet.toArray
+    allClasses
+      .flatMap(
+        c =>
+          c.methods
+            .filter(
+              m =>
+                m.modifiers.contains(ISTEST_ANNOTATION) || m.modifiers
+                  .contains(TEST_METHOD_MODIFIER)
+            )
+            .map(m => TestMethod(c.name.toString(), m.name.toString()))
+      )
+      .toSet
+      .toArray
   }
 }
 

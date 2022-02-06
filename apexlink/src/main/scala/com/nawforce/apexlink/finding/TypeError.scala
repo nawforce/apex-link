@@ -30,7 +30,8 @@ final case class MissingType(_typeName: TypeName) extends TypeError(_typeName) {
   def asIssue(location: PathLocation): Issue = {
     new Issue(
       location.path,
-      Diagnostic(MISSING_CATEGORY, location.location, s"No type declaration found for '$typeName'"))
+      Diagnostic(MISSING_CATEGORY, location.location, s"No type declaration found for '$typeName'")
+    )
   }
 
   // Protect against old way of using this
@@ -40,10 +41,14 @@ final case class MissingType(_typeName: TypeName) extends TypeError(_typeName) {
 final case class WrongTypeArguments(_typeName: TypeName, expected: Integer)
     extends TypeError(_typeName) {
   def asIssue(location: PathLocation): Issue = {
-    new Issue(location.path,
-              Diagnostic(MISSING_CATEGORY,
-                         location.location,
-                         s"Wrong number of type arguments for '$typeName', expected $expected"))
+    new Issue(
+      location.path,
+      Diagnostic(
+        MISSING_CATEGORY,
+        location.location,
+        s"Wrong number of type arguments for '$typeName', expected $expected"
+      )
+    )
   }
 
   // Protect against old way of using this

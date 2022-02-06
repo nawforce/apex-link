@@ -17,7 +17,10 @@ import com.nawforce.apexlink.cst.AssignableSupport.isAssignable
 import com.nawforce.apexlink.names.TypeNames.TypeNameUtils
 import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration, ApexMethodLike}
-import com.nawforce.apexlink.types.core.MethodDeclaration.{emptyMethodDeclarations, emptyMethodDeclarationsSet}
+import com.nawforce.apexlink.types.core.MethodDeclaration.{
+  emptyMethodDeclarations,
+  emptyMethodDeclarationsSet
+}
 import com.nawforce.apexlink.types.core.{MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{GenericPlatformMethod, PlatformMethod}
 import com.nawforce.apexlink.types.synthetic.CustomMethodDeclaration
@@ -38,11 +41,11 @@ case object NO_MATCH_ERROR extends MethodCallError("No matching method found")
 case object AMBIGUOUS_ERROR extends MethodCallError("Ambiguous method call")
 
 final case class MethodMap(
-                            td: Option[ApexClassDeclaration],
-                            methodsByName: Map[(Name, Int), Array[MethodDeclaration]],
-                            testVisiblePrivateMethods: Set[MethodDeclaration],
-                            errors: List[Issue]
-                          ) {
+  td: Option[ApexClassDeclaration],
+  methodsByName: Map[(Name, Int), Array[MethodDeclaration]],
+  testVisiblePrivateMethods: Set[MethodDeclaration],
+  errors: List[Issue]
+) {
   val deepHash: Int = td.map(_.deepHash).getOrElse(0)
 
   /** Return all available methods */
@@ -61,29 +64,29 @@ final case class MethodMap(
 
   /** Find a method using full rules for disambiguation */
   def findMethod(
-                  name: Name,
-                  params: ArraySeq[TypeName],
-                  staticContext: Option[Boolean],
-                  context: VerifyContext
-                ): Either[String, MethodDeclaration] = {
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    context: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     findMethodCall(name, params, staticContext, context) match {
-      case Left(err) => Left(err.value)
+      case Left(err)     => Left(err.value)
       case Right(method) => Right(method)
     }
   }
 
   private def findMethodCall(
-                              name: Name,
-                              params: ArraySeq[TypeName],
-                              staticContext: Option[Boolean],
-                              context: VerifyContext
-                            ): Either[MethodCallError, MethodDeclaration] = {
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    context: VerifyContext
+  ): Either[MethodCallError, MethodDeclaration] = {
 
     val matches = methodsByName.getOrElse((name, params.length), Array())
 
     // Filter for right static context
     val staticContextMatches = staticContext match {
-      case None => matches
+      case None    => matches
       case Some(x) => matches.filter(m => m.isStatic == x)
     }
 
@@ -106,11 +109,11 @@ final case class MethodMap(
     // If no exact we need to search for possible in two stages, either using strict assignment or lax if
     // we are still short of a possible match
     var found =
-    mostSpecificMatch(strict = true, testMatches, params, context)
-      .getOrElse(
-        mostSpecificMatch(strict = false, testMatches, params, context)
-          .getOrElse(Left(NO_MATCH_ERROR))
-      )
+      mostSpecificMatch(strict = true, testMatches, params, context)
+        .getOrElse(
+          mostSpecificMatch(strict = false, testMatches, params, context)
+            .getOrElse(Left(NO_MATCH_ERROR))
+        )
 
     // If not found locally search super & outer for statics
     if (found == Left(NO_MATCH_ERROR) && !staticContext.contains(false)) {
@@ -125,11 +128,11 @@ final case class MethodMap(
 
   /** Helper for finding static methods on related type declarations */
   private def findStaticMethodOn(
-                                  td: Option[TypeDeclaration],
-                                  name: Name,
-                                  params: ArraySeq[TypeName],
-                                  context: VerifyContext
-                                ): Either[MethodCallError, MethodDeclaration] = {
+    td: Option[TypeDeclaration],
+    name: Name,
+    params: ArraySeq[TypeName],
+    context: VerifyContext
+  ): Either[MethodCallError, MethodDeclaration] = {
     td match {
       case Some(td: ApexClassDeclaration) =>
         td.methodMap.findMethodCall(name, params, Some(true), context)
@@ -142,11 +145,11 @@ final case class MethodMap(
     * outlined in JLS6 15.12.2.5.
     */
   private def mostSpecificMatch(
-                                 strict: Boolean,
-                                 matches: Array[MethodDeclaration],
-                                 params: ArraySeq[TypeName],
-                                 context: VerifyContext
-                               ): Option[Either[MethodCallError, MethodDeclaration]] = {
+    strict: Boolean,
+    matches: Array[MethodDeclaration],
+    params: ArraySeq[TypeName],
+    context: VerifyContext
+  ): Option[Either[MethodCallError, MethodDeclaration]] = {
 
     val assignable = matches.filter(m => {
       val argZip = m.parameters.map(_.typeName).zip(params)
@@ -206,16 +209,16 @@ object MethodMap {
   }
 
   def apply(
-             td: TypeDeclaration,
-             location: Option[PathLocation],
-             superClassMap: MethodMap,
-             newMethods: ArraySeq[MethodDeclaration],
-             outerStaticMethods: ArraySeq[MethodDeclaration],
-             interfaces: ArraySeq[TypeDeclaration]
-           ): MethodMap = {
+    td: TypeDeclaration,
+    location: Option[PathLocation],
+    superClassMap: MethodMap,
+    newMethods: ArraySeq[MethodDeclaration],
+    outerStaticMethods: ArraySeq[MethodDeclaration],
+    interfaces: ArraySeq[TypeDeclaration]
+  ): MethodMap = {
 
     // Create a starting working map from super class map, just removing statics initially
-    var workingMap = new WorkingMap()
+    var workingMap         = new WorkingMap()
     val testVisiblePrivate = mutable.Set[MethodDeclaration]()
     superClassMap.methodsByName.foreach(superMethodGroup => {
       val superMethods = superMethodGroup._2.filterNot(_.isStatic)
@@ -224,13 +227,13 @@ object MethodMap {
     workingMap = workingMap.filterNot(_._2.isEmpty)
 
     // Now build the rest of the map with the new methods
-    val errors = mutable.Buffer[Issue]()
+    val errors                         = mutable.Buffer[Issue]()
     val (staticLocals, instanceLocals) = newMethods.partition(_.isStatic)
 
     // Add instance methods first with validation checks
     instanceLocals.foreach {
       case am: ApexMethodLike => am.resetShadows()
-      case _ =>
+      case _                  =>
     }
     instanceLocals.foreach(
       method => applyInstanceMethod(workingMap, method, td.inTest, td.isComplete, errors)
@@ -243,7 +246,10 @@ object MethodMap {
     workingMap.foreach(keyAndMethodGroup => {
       val methods = keyAndMethodGroup._2.filterNot(method => {
         method.visibility == PRIVATE_MODIFIER && !method.isAbstract &&
-          !(method.isTestVisible || isApexLocalMethod(td, method) || sameFileSuperclassPrivateMethods.contains(method))
+          !(method.isTestVisible || isApexLocalMethod(
+            td,
+            method
+          ) || sameFileSuperclassPrivateMethods.contains(method))
       })
       workingMap.put(keyAndMethodGroup._1, methods)
     })
@@ -309,8 +315,8 @@ object MethodMap {
   }
 
   private def findSameFileSuperclassPrivateMethods(
-                                                    td: TypeDeclaration
-                                                  ): ArraySeq[MethodDeclaration] = {
+    td: TypeDeclaration
+  ): ArraySeq[MethodDeclaration] = {
     if (td.superClass.nonEmpty) {
       val superClass = td.superClassDeclaration
       if (superClass.nonEmpty && superClass.get.paths == td.paths) {
@@ -323,9 +329,9 @@ object MethodMap {
   }
 
   private def mergeInterfaces(
-                               workingMap: WorkingMap,
-                               interfaces: ArraySeq[TypeDeclaration]
-                             ): Unit = {
+    workingMap: WorkingMap,
+    interfaces: ArraySeq[TypeDeclaration]
+  ): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         mergeInterface(workingMap, i)
@@ -340,7 +346,7 @@ object MethodMap {
     interface.methods
       .filterNot(_.isStatic)
       .foreach(method => {
-        val key = (method.name, method.parameters.length)
+        val key     = (method.name, method.parameters.length)
         val methods = workingMap.getOrElse(key, Nil)
 
         val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
@@ -349,20 +355,20 @@ object MethodMap {
         } else {
           matched.get match {
             case am: ApexMethodLike => am.addShadow(method)
-            case _ => ()
+            case _                  => ()
           }
         }
       })
   }
 
   private def checkInterfaces(
-                               from: TypeDeclaration,
-                               location: Option[PathLocation],
-                               isAbstract: Boolean,
-                               workingMap: WorkingMap,
-                               interfaces: ArraySeq[TypeDeclaration],
-                               errors: mutable.Buffer[Issue]
-                             ): Unit = {
+    from: TypeDeclaration,
+    location: Option[PathLocation],
+    isAbstract: Boolean,
+    workingMap: WorkingMap,
+    interfaces: ArraySeq[TypeDeclaration],
+    errors: mutable.Buffer[Issue]
+  ): Unit = {
     interfaces.foreach({
       case i: TypeDeclaration if i.nature == INTERFACE_NATURE =>
         checkInterface(from, location, isAbstract, workingMap, i, errors)
@@ -371,13 +377,13 @@ object MethodMap {
   }
 
   private def checkInterface(
-                              from: TypeDeclaration,
-                              location: Option[PathLocation],
-                              isAbstract: Boolean,
-                              workingMap: WorkingMap,
-                              interface: TypeDeclaration,
-                              errors: mutable.Buffer[Issue]
-                            ): Unit = {
+    from: TypeDeclaration,
+    location: Option[PathLocation],
+    isAbstract: Boolean,
+    workingMap: WorkingMap,
+    interface: TypeDeclaration,
+    errors: mutable.Buffer[Issue]
+  ): Unit = {
     if (interface.isInstanceOf[ApexClassDeclaration] && interface.nature == INTERFACE_NATURE)
       checkInterfaces(
         from,
@@ -391,7 +397,7 @@ object MethodMap {
     interface.methods
       .filterNot(_.isStatic)
       .foreach(method => {
-        val key = (method.name, method.parameters.length)
+        val key     = (method.name, method.parameters.length)
         val methods = workingMap.getOrElse(key, Nil)
         val matched = methods.find(mapMethod => isInterfaceMethod(from, method, mapMethod))
 
@@ -430,14 +436,14 @@ object MethodMap {
         } else {
           matched.get match {
             case am: ApexMethodLike => am.addShadow(method)
-            case _ => ()
+            case _                  => ()
           }
         }
       })
   }
 
   private def applyStaticMethod(workingMap: WorkingMap, method: MethodDeclaration): Unit = {
-    val key = (method.name, method.parameters.length)
+    val key     = (method.name, method.parameters.length)
     val methods = workingMap.getOrElse(key, Nil)
     val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
     if (matched.isEmpty)
@@ -450,24 +456,24 @@ object MethodMap {
     * what we have been able to work out from testing.
     */
   private def applyInstanceMethod(
-                                   workingMap: WorkingMap,
-                                   method: MethodDeclaration,
-                                   isTest: Boolean,
-                                   isComplete: Boolean,
-                                   errors: mutable.Buffer[Issue]
-                                 ): Unit = {
+    workingMap: WorkingMap,
+    method: MethodDeclaration,
+    isTest: Boolean,
+    isComplete: Boolean,
+    errors: mutable.Buffer[Issue]
+  ): Unit = {
     val errorCount = errors.length
-    val key = (method.name, method.parameters.length)
-    val methods = workingMap.getOrElse(key, Nil)
-    val matched = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
+    val key        = (method.name, method.parameters.length)
+    val methods    = workingMap.getOrElse(key, Nil)
+    val matched    = methods.find(mapMethod => areSameMethodsIgnoringReturn(mapMethod, method))
 
     if (matched.nonEmpty) {
       val matchedMethod = matched.get
       lazy val isSpecial = {
         val matchedSignature = matchedMethod.signature.toLowerCase()
         specialOverrideMethodSignatures.contains(matchedSignature) ||
-          (matchedSignature == batchOverrideMethodSignature &&
-            method.typeName.outer.contains(TypeNames.System) && method.typeName.name == XNames.Iterable)
+        (matchedSignature == batchOverrideMethodSignature &&
+        method.typeName.outer.contains(TypeNames.System) && method.typeName.name == XNames.Iterable)
       }
 
       lazy val isPlatformMethod =
@@ -486,19 +492,15 @@ object MethodMap {
             if (method.hasSameParameters(matchedMethod, allowPlatformGenericEquivalence = false))
               setMethodError(
                 method,
-                s"Method '${method.name}' is a duplicate of an existing method at ${
-                  matchedMethod.idLocation
-                    .displayPosition()
-                }",
+                s"Method '${method.name}' is a duplicate of an existing method at ${matchedMethod.idLocation
+                  .displayPosition()}",
                 errors
               )
             else
               setMethodError(
                 method,
-                s"Method '${method.name}' can not use same platform generic interface as existing method at ${
-                  matchedMethod.idLocation
-                    .displayPosition()
-                }",
+                s"Method '${method.name}' can not use same platform generic interface as existing method at ${matchedMethod.idLocation
+                  .displayPosition()}",
                 errors
               )
           case _ => ()
@@ -518,7 +520,7 @@ object MethodMap {
         )
       } else if (
         !method.isVirtualOrOverride && !reallyPrivateMethod && !matchedMethod.isAbstract &&
-          !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod
+        !isInterfaceMethod && !isSpecial && !isTest && !isPlatformMethod
       ) {
         setMethodError(method, s"Method '${method.name}' must use override keyword", errors)
       } else if (
@@ -557,23 +559,23 @@ object MethodMap {
     if (errors.length == errorCount) {
       method match {
         case am: ApexMethodLike => matched.foreach(am.addShadow)
-        case _ => ()
+        case _                  => ()
       }
     }
 
     // Update workingMap with new methods, regardless of if we error on it as probably was meant to be
     matched match {
-      case None => workingMap.put(key, method :: methods)
+      case None          => workingMap.put(key, method :: methods)
       case Some(matched) => workingMap.put(key, method :: methods.filterNot(_ eq matched))
     }
   }
 
   private def setMethodError(
-                              method: MethodDeclaration,
-                              error: String,
-                              errors: mutable.Buffer[Issue],
-                              isWarning: Boolean = false
-                            ): Unit = {
+    method: MethodDeclaration,
+    error: String,
+    errors: mutable.Buffer[Issue],
+    isWarning: Boolean = false
+  ): Unit = {
     method match {
       case am: ApexMethodLike if !isWarning =>
         errors.append(new Issue(am.location.path, Diagnostic(ERROR_CATEGORY, am.idLocation, error)))
@@ -587,7 +589,7 @@ object MethodMap {
   private def areInSameApexFile(m1: MethodDeclaration, m2: MethodDeclaration): Boolean = {
     (m1, m2) match {
       case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.location.path == am2.location.path
-      case _ => false
+      case _                                          => false
     }
   }
 
@@ -598,7 +600,7 @@ object MethodMap {
     (m1, m2) match {
       case (am1: ApexMethodLike, am2: ApexMethodLike) => am1.outerTypeId == am2.outerTypeId
       case (pm1: PlatformMethod, pm2: PlatformMethod) => pm1.typeDeclaration eq pm2.typeDeclaration
-      case _ => false
+      case _                                          => false
     }
   }
 
@@ -607,12 +609,12 @@ object MethodMap {
     * because defining equals in a class will hide the Object equals method if the arguments don't match.
     */
   private def areSameMethodsIgnoringReturn(
-                                            method: MethodDeclaration,
-                                            other: MethodDeclaration
-                                          ): Boolean = {
+    method: MethodDeclaration,
+    other: MethodDeclaration
+  ): Boolean = {
     if (
       method.name == other.name &&
-        method.hasSameParameters(other, allowPlatformGenericEquivalence = true)
+      method.hasSameParameters(other, allowPlatformGenericEquivalence = true)
     )
       true
     else if (isEqualsLike(method) && isEqualsLike(other))
@@ -625,14 +627,14 @@ object MethodMap {
     * to handle to determine this.
     */
   private def isInterfaceMethod(
-                                 from: TypeDeclaration,
-                                 interfaceMethod: MethodDeclaration,
-                                 implMethod: MethodDeclaration
-                               ): Boolean = {
+    from: TypeDeclaration,
+    interfaceMethod: MethodDeclaration,
+    implMethod: MethodDeclaration
+  ): Boolean = {
     if (
       implMethod.name == interfaceMethod.name &&
-        canAssign(interfaceMethod.typeName, implMethod.typeName, from) &&
-        interfaceMethod.fulfillsInterfaceMethodParams(from, implMethod.parameters.map(_.typeName))
+      canAssign(interfaceMethod.typeName, implMethod.typeName, from) &&
+      interfaceMethod.fulfillsInterfaceMethodParams(from, implMethod.parameters.map(_.typeName))
     )
       true
     else if (isEqualsLike(interfaceMethod) && isEqualsLike(implMethod))
@@ -660,22 +662,22 @@ object MethodMap {
 
   private def isEqualsLike(method: MethodDeclaration): Boolean = {
     method.name == XNames.Equals &&
-      method.typeName == TypeNames.Boolean &&
-      !method.isStatic &&
-      method.parameters.length == 1
+    method.typeName == TypeNames.Boolean &&
+    !method.isStatic &&
+    method.parameters.length == 1
   }
 
   private def isDatabaseBatchableStart(method: MethodDeclaration): Boolean = {
     method.name == XNames.Start &&
-      method.typeName == TypeNames.QueryLocator &&
-      !method.isStatic &&
-      method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
+    method.typeName == TypeNames.QueryLocator &&
+    !method.isStatic &&
+    method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
   }
 
   private def isDatabaseBatchableIterable(method: MethodDeclaration): Boolean = {
     method.name == XNames.Start &&
-      (method.typeName.isIterable || method.typeName.isList) &&
-      !method.isStatic &&
-      method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
+    (method.typeName.isIterable || method.typeName.isList) &&
+    !method.isStatic &&
+    method.parameters.length == 1 && method.parameters.head.typeName == TypeNames.BatchableContext
   }
 }

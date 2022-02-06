@@ -103,7 +103,8 @@ class OperationsTest extends AnyFunSuite with TestHelper {
     typeDeclaration("public class Dummy {{Integer a; a |= 22l; }}")
     assert(
       dummyIssues ==
-        "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n")
+        "Error: line 1 at 32-40: Bitwise operation only allowed between Integer, Long & Boolean types, not 'System.Integer' and 'System.Long'\n"
+    )
   }
 
   test("Bitwise Shift in Array Index") {
@@ -128,13 +129,15 @@ class OperationsTest extends AnyFunSuite with TestHelper {
 
   test("Ternary common base") {
     typeDeclaration(
-      "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object c = 2>0 ? a : b;}}")
+      "public virtual class Dummy {class A extends Dummy {} class B extends Dummy {} { A a; B b; Object c = 2>0 ? a : b;}}"
+    )
     assert(!hasIssues)
   }
 
   test("Ternary SObjectType") {
     typeDeclaration(
-      "public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}")
+      "public virtual class Dummy {{ SObjectType a = 2>0 ? Account.SObjectType : Contact.SObjectType;}}"
+    )
     assert(!hasIssues)
   }
 }

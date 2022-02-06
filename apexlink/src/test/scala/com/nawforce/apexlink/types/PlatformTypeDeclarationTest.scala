@@ -30,13 +30,17 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
   test("Bad class not found") {
     assert(
       PlatformTypeDeclaration.get(TypeName(Name("Hello")), None) == Left(
-        MissingType(TypeName(Name("Hello")))))
+        MissingType(TypeName(Name("Hello")))
+      )
+    )
   }
 
   test("Unscoped class not found") {
     assert(
       PlatformTypeDeclaration.get(TypeName(Name("String")), None) == Left(
-        MissingType(TypeName(Name("String")))))
+        MissingType(TypeName(Name("String")))
+      )
+    )
   }
 
   test("Scoped class") {
@@ -132,10 +136,13 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     assert(nested.length == 3)
     assert(
       nested
-        .map(_.name.toString) sameElements Array("BinaryAttachment", "Header", "TextAttachment"))
-    assert(nested.filter(_.modifiers.toSet == Set(PUBLIC_MODIFIER,
-                                                  VIRTUAL_MODIFIER,
-                                                  STATIC_MODIFIER)) sameElements nested)
+        .map(_.name.toString) sameElements Array("BinaryAttachment", "Header", "TextAttachment")
+    )
+    assert(
+      nested.filter(
+        _.modifiers.toSet == Set(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
+      ) sameElements nested
+    )
     assert(nested.filter(_.outerTypeName.get == td.get.typeName) sameElements nested)
   }
 
@@ -157,14 +164,17 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     assert(fields.length == 8)
     assert(
       fields.map(_.name.toString) sameElements
-        Array("city",
+        Array(
+          "city",
           "country",
           "countryCode",
           "geocodeAccuracy",
           "postalCode",
           "state",
           "stateCode",
-          "street"))
+          "street"
+        )
+    )
     assert(fields.filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER)) sameElements fields)
     assert(fields.filter(_.typeName.toString == "System.String") sameElements fields)
   }
@@ -187,12 +197,16 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     assert(constructors.length == 4)
     assert(
       constructors
-        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER)) sameElements constructors)
+        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER)) sameElements constructors
+    )
     assert(constructors.head.toString == "public System.DmlException()")
     assert(constructors(1).toString == "public System.DmlException(System.Exception param1)")
     assert(constructors(2).toString == "public System.DmlException(System.String param1)")
     assert(
-      constructors(3).toString == "public System.DmlException(System.String param1, System.Exception param2)")
+      constructors(
+        3
+      ).toString == "public System.DmlException(System.String param1, System.Exception param2)"
+    )
   }
 
   test("Method access") {
@@ -213,28 +227,34 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     assert(methods.length == 11)
     assert(
       methods.map(_.name.toString) sameElements
-        Array("getCity",
-              "getCountry",
-              "getCountryCode",
-              "getDistance",
-              "getGeocodeAccuracy",
-              "getLatitude",
-              "getLongitude",
-              "getPostalCode",
-              "getState",
-              "getStateCode",
-              "getStreet"))
+        Array(
+          "getCity",
+          "getCountry",
+          "getCountryCode",
+          "getDistance",
+          "getGeocodeAccuracy",
+          "getLatitude",
+          "getLongitude",
+          "getPostalCode",
+          "getState",
+          "getStateCode",
+          "getStreet"
+        )
+    )
     assert(
       methods
-        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
+        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods
+    )
     assert(
       methods
         .filter(_.name.toString == "getCity")
         .head
-        .toString == "public virtual System.String getCity()")
+        .toString == "public virtual System.String getCity()"
+    )
     assert(
       methods.filter(_.name.toString == "getDistance").head.toString ==
-        "public virtual System.Double getDistance(System.Location other, System.String unit)")
+        "public virtual System.Double getDistance(System.Location other, System.String unit)"
+    )
   }
 
   test("Exception") {
@@ -254,24 +274,28 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     val methods = td.get.methods.sortBy(_.name.toString)
     assert(methods.length == 15)
     assert(
-      methods.map(_.name.toString) sameElements Array("getCause",
-                                                      "getDmlFieldNames",
-                                                      "getDmlFields",
-                                                      "getDmlId",
-                                                      "getDmlIndex",
-                                                      "getDmlMessage",
-                                                      "getDmlStatusCode",
-                                                      "getDmlType",
-                                                      "getLineNumber",
-                                                      "getMessage",
-                                                      "getNumDml",
-                                                      "getStackTraceString",
-                                                      "getTypeName",
-                                                      "initCause",
-                                                      "setMessage"))
+      methods.map(_.name.toString) sameElements Array(
+        "getCause",
+        "getDmlFieldNames",
+        "getDmlFields",
+        "getDmlId",
+        "getDmlIndex",
+        "getDmlMessage",
+        "getDmlStatusCode",
+        "getDmlType",
+        "getLineNumber",
+        "getMessage",
+        "getNumDml",
+        "getStackTraceString",
+        "getTypeName",
+        "initCause",
+        "setMessage"
+      )
+    )
     assert(
       methods
-        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods)
+        .filter(_.modifiers == ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)) sameElements methods
+    )
   }
 
   test("Generic class") {
@@ -314,7 +338,9 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
         "public virtual void sort()",
         "public virtual System.String toString()",
         "public virtual System.Boolean equals(System.List<System.String> other)",
-        "public virtual System.Integer hashCode()").sorted.mkString("\n"))
+        "public virtual System.Integer hashCode()"
+      ).sorted.mkString("\n")
+    )
   }
 
   test("Nested Generic class") {
@@ -335,13 +361,15 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
 
     assert(
       td.get.methods.map(_.toString).sorted.mkString("\n") == Seq(
-        "public virtual System.Iterator<System.List<System.String>> iterator()").sorted
-        .mkString("\n"))
+        "public virtual System.Iterator<System.List<System.String>> iterator()"
+      ).sorted
+        .mkString("\n")
+    )
   }
 
   test("Non-generic type") {
     val typeName = TypeName(Name("String"), Seq(TypeNames.Integer), Some(TypeNames.System))
-    val td = PlatformTypeDeclaration.get(typeName, None)
+    val td       = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
       case _                           => assert(true)
@@ -349,9 +377,11 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
   }
 
   test("Too many type params") {
-    val typeName = TypeName(Name("List"),
-                            Seq(TypeName(Names.String), TypeName(Names.String)),
-                            Some(TypeNames.System))
+    val typeName = TypeName(
+      Name("List"),
+      Seq(TypeName(Names.String), TypeName(Names.String)),
+      Some(TypeNames.System)
+    )
     val td = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
@@ -361,7 +391,7 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
 
   test("Too few type params") {
     val typeName = TypeName(Name("List"), Seq(), Some(TypeNames.System))
-    val td = PlatformTypeDeclaration.get(typeName, None)
+    val td       = PlatformTypeDeclaration.get(typeName, None)
     td match {
       case Left(e: WrongTypeArguments) => assert(e.typeName == typeName)
       case _                           => assert(false)
@@ -372,11 +402,12 @@ class PlatformTypeDeclarationTest extends AnyFunSuite with TestHelper {
     val dummy = typeDeclaration("public class Dummy {}")
     val td = PlatformTypeDeclaration.get(
       TypeName(Name("List"), Seq(TypeName(Names.String)), Some(TypeNames.System)),
-      Some(dummy))
+      Some(dummy)
+    )
     assert(td.isRight)
     assert(
-      td.getOrElse(throw new NoSuchElementException).typeName == TypeName(Name("List"),
-                                                                          Seq(TypeNames.String),
-                                                                          Some(TypeNames.System)))
+      td.getOrElse(throw new NoSuchElementException)
+        .typeName == TypeName(Name("List"), Seq(TypeNames.String), Some(TypeNames.System))
+    )
   }
 }

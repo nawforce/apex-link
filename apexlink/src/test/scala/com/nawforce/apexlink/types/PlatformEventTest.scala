@@ -29,8 +29,8 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
          |        <type>${field._2}</type>
          |        ${if (field._3.nonEmpty) s"<referenceTo>${field._3.get}</referenceTo>" else ""}
          |        ${if (field._3.nonEmpty)
-           s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
-         else ""}
+        s"<relationshipName>${field._1.replaceAll("__c$", "")}</relationshipName>"
+      else ""}
          |    </fields>
          |""".stripMargin
     })
@@ -46,32 +46,40 @@ class PlatformEventTest extends AnyFunSuite with TestHelper {
 
   test("Standard field reference") {
     FileSystemHelper.run(
-      Map("Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(org.issues.isEmpty)
+      Map(
+        "Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+        "Dummy.cls"            -> "public class Dummy { {SObjectField a = Foo__e.ReplayId;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.isEmpty)
     }
   }
 
   test("Custom field reference") {
     FileSystemHelper.run(
-      Map("Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(org.issues.isEmpty)
+      Map(
+        "Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+        "Dummy.cls"            -> "public class Dummy { {SObjectField a = Foo__e.Bar__c;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.isEmpty)
     }
   }
 
   test("Invalid field reference") {
     FileSystemHelper.run(
-      Map("Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
-          "Dummy.cls" -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(getMessages(Path("/Dummy.cls")) ==
-          "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n")
+      Map(
+        "Foo__e/Foo__e.object" -> platformEvent("Foo__e", Seq(("Bar__c", "Text", None))),
+        "Dummy.cls"            -> "public class Dummy { {SObjectField a = Foo__e.Baz__c;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(
+        getMessages(Path("/Dummy.cls")) ==
+          "Missing: line 1 at 39-52: Unknown field 'Baz__c' on SObject 'Schema.Foo__e'\n"
+      )
     }
   }
 }

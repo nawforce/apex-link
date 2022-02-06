@@ -27,9 +27,9 @@ class ClassModifierTest extends AnyFunSuite {
 
   def legalClassAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"$modifiers class Dummy {}"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"$modifiers class Dummy {}"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       false
     } else {
@@ -44,9 +44,9 @@ class ClassModifierTest extends AnyFunSuite {
 
   def illegalClassAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"$modifiers class Dummy {}"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"$modifiers class Dummy {}"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       ArraySeq()
     } else {
@@ -59,30 +59,48 @@ class ClassModifierTest extends AnyFunSuite {
     val issues = illegalClassAccess(ArraySeq())
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 7, 1, 12),
-            "Outer classes must be declared either 'global' or 'public'"))))
+            "Outer classes must be declared either 'global' or 'public'"
+          )
+        )
+      )
+    )
   }
 
   test("Private modifier") {
     val issues = illegalClassAccess(ArraySeq(PRIVATE_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          diagnostics.Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 14, 1, 19),
-            "Private modifier is not allowed on outer classes"))))
+            "Private modifier is not allowed on outer classes"
+          )
+        )
+      )
+    )
   }
 
   test("Protected modifier") {
     val issues = illegalClassAccess(ArraySeq(PROTECTED_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          diagnostics.Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 0, 1, 9),
-            "Modifier 'protected' is not supported on classes"))))
+            "Modifier 'protected' is not supported on classes"
+          )
+        )
+      )
+    )
   }
 
   test("Private modifier (isTest)") {
@@ -110,21 +128,27 @@ class ClassModifierTest extends AnyFunSuite {
       illegalClassAccess(ArraySeq(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER, PUBLIC_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          diagnostics.Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 30, 1, 35),
-            "Abstract classes are virtual classes"))))
+            "Abstract classes are virtual classes"
+          )
+        )
+      )
+    )
   }
 
   def innerLegalClassAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers class Bar {} }"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"public class Dummy {$modifiers class Bar {} }"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root  = ApexNode(cp, result.value).get
       val inner = root.children.head
       inner.parseIssues.isEmpty && inner.modifiers == expected
     }
@@ -136,13 +160,13 @@ class ClassModifierTest extends AnyFunSuite {
 
   def innerIllegalClassAccess(use: ArraySeq[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public class Dummy {$modifiers class Bar {} }"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"public class Dummy {$modifiers class Bar {} }"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       ArraySeq()
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root  = ApexNode(cp, result.value).get
       val inner = root.children.head
       inner.parseIssues
     }
@@ -160,10 +184,16 @@ class ClassModifierTest extends AnyFunSuite {
     val issues = innerIllegalClassAccess(ArraySeq(ISTEST_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          diagnostics.Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 34, 1, 37),
-            "isTest can only be used on outer classes"))))
+            "isTest can only be used on outer classes"
+          )
+        )
+      )
+    )
 
   }
 
@@ -184,9 +214,15 @@ class ClassModifierTest extends AnyFunSuite {
       innerIllegalClassAccess(ArraySeq(ABSTRACT_MODIFIER, VIRTUAL_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          diagnostics.Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          diagnostics.Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 43, 1, 46),
-            "Abstract classes are virtual classes"))))
+            "Abstract classes are virtual classes"
+          )
+        )
+      )
+    )
   }
 }

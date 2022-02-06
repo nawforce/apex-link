@@ -54,7 +54,8 @@ trait TypeFinder {
     getNestedType(dotName, from)
       .orElse(
         getFromOuterType(dotName, from)
-          .orElse(getFromSuperType(dotName, from)))
+          .orElse(getFromSuperType(dotName, from))
+      )
   }
 
   private def getNestedType(dotName: DotName, from: TypeDeclaration): Option[TypeDeclaration] = {

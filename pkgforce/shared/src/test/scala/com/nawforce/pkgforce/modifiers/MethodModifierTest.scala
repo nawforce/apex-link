@@ -40,16 +40,16 @@ class MethodModifierTest extends AnyFunSuite {
 
   def legalInterfaceMethodAccess(use: ArraySeq[Modifier], expected: ArraySeq[Modifier]): Boolean = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       false
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root  = ApexNode(cp, result.value).get
       val field = root.children.head
       field.parseIssues.isEmpty &&
-        (field.modifiers == expected)
+      (field.modifiers == expected)
     }
   }
 
@@ -59,13 +59,13 @@ class MethodModifierTest extends AnyFunSuite {
 
   def illegalInterfaceMethodAccess(use: Array[Modifier]): ArraySeq[Issue] = {
     val modifiers = use.map(_.name).mkString(" ")
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
-    val result = cp.parseClass()
+    val path      = Path("Dummy.cls")
+    val cp        = CodeParser(path, SourceData(s"public interface Dummy {$modifiers String func();}"))
+    val result    = cp.parseClass()
     if (result.issues.nonEmpty) {
       ArraySeq()
     } else {
-      val root = ApexNode(cp, result.value).get
+      val root  = ApexNode(cp, result.value).get
       val field = root.children.head
       field.parseIssues
     }
@@ -79,29 +79,47 @@ class MethodModifierTest extends AnyFunSuite {
     val issues = illegalInterfaceMethodAccess(Array(PUBLIC_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 24, 1, 30),
-            "Modifier 'public' is not supported on interface methods"))))
+            "Modifier 'public' is not supported on interface methods"
+          )
+        )
+      )
+    )
   }
 
   test("Interface method virtual modifier") {
     val issues = illegalInterfaceMethodAccess(Array(VIRTUAL_MODIFIER))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 24, 1, 31),
-            "Modifier 'virtual' is not supported on interface methods"))))
+            "Modifier 'virtual' is not supported on interface methods"
+          )
+        )
+      )
+    )
   }
 
   test("Interface method isTest annotation") {
     val issues = illegalInterfaceMethodAccess(Array(ISTEST_ANNOTATION))
     assert(
       issues == Seq[Issue](
-        Issue(Path("Dummy.cls"),
-          Diagnostic(ERROR_CATEGORY,
+        Issue(
+          Path("Dummy.cls"),
+          Diagnostic(
+            ERROR_CATEGORY,
             Location(1, 24, 1, 31),
-            "Annotation '@IsTest' is not supported on interface methods"))))
+            "Annotation '@IsTest' is not supported on interface methods"
+          )
+        )
+      )
+    )
   }
 }

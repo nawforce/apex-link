@@ -39,7 +39,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -57,7 +58,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -74,28 +76,32 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
 
   test("Valid custom object upsert (new component)") {
     withManualFlush {
-      FileSystemHelper.run(Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq()))) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq()))) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          assert(org.issues.isEmpty)
 
-        root.createDirectory("Bar__c")
-        refresh(pkg, root.join("Bar__c").join("Bar__c.object"), customObject("Bar", Seq()))
-        assert(org.flush())
-        assert(org.issues.isEmpty)
-        assert(
-          pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
-        assert(
-          pkg.orderedModules.head.types
-            .contains(TypeName(Name("Bar__c"), Nil, Some(TypeName(Names.Schema)))))
+          root.createDirectory("Bar__c")
+          refresh(pkg, root.join("Bar__c").join("Bar__c.object"), customObject("Bar", Seq()))
+          assert(org.flush())
+          assert(org.issues.isEmpty)
+          assert(
+            pkg.orderedModules.head.types
+              .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+          )
+          assert(
+            pkg.orderedModules.head.types
+              .contains(TypeName(Name("Bar__c"), Nil, Some(TypeName(Names.Schema))))
+          )
       }
     }
   }
@@ -120,7 +126,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -145,7 +152,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -170,7 +178,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__c"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -178,15 +187,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid custom object class dependent") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-            "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__c/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls"            -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__c").join("Foo__c.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n"
+        )
       }
     }
   }
@@ -194,15 +208,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid custom object class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__c/Foo__c.object" -> customObject("Foo", Seq()),
-            "Dummy.cls" -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__c/Foo__c.object" -> customObject("Foo", Seq()),
+          "Dummy.cls"            -> "public class Dummy { {Foo__c a = new Foo__c(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__c'\n"
+        )
 
-        refresh(pkg,
-                root.join("Foo__c").join("Foo__c.object"),
-                customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        refresh(
+          pkg,
+          root.join("Foo__c").join("Foo__c.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
       }
@@ -212,17 +233,24 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Base extended & refreshed") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object" -> customObject("Foo", Seq()),
-            "ext/Foo__c/Foo__c.object" -> customObject("Foo",
-                                                       Seq(("Baz__c", Some("Text"), None)),
-                                                       Set(),
-                                                       Set(),
-                                                       extending = true))) { root: PathLike =>
+        Map(
+          "sfdx-project.json"         -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
+          "base/Foo__c/Foo__c.object" -> customObject("Foo", Seq()),
+          "ext/Foo__c/Foo__c.object" -> customObject(
+            "Foo",
+            Seq(("Baz__c", Some("Text"), None)),
+            Set(),
+            Set(),
+            extending = true
+          )
+        )
+      ) { root: PathLike =>
         val org = createHappyOrg(root)
-        refresh(org.unmanaged,
-                root.join("base").join("Foo__c").join("Foo__c.object"),
-                customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        refresh(
+          org.unmanaged,
+          root.join("base").join("Foo__c").join("Foo__c.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Baz__c"))
@@ -234,13 +262,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Base field extended & refreshed") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq()),
-            "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None))) { root: PathLike =>
+        Map(
+          "sfdx-project.json"                       -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
+          "base/Foo__c/Foo__c.object-meta.xml"      -> customObject("Foo", Seq()),
+          "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None)
+        )
+      ) { root: PathLike =>
         val org = createHappyOrg(root)
-        refresh(org.unmanaged,
-                root.join("base").join("Foo__c").join("Foo__c.object"),
-                customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+        refresh(
+          org.unmanaged,
+          root.join("base").join("Foo__c").join("Foo__c.object"),
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
         assert(unmanagedSObject("Foo__c").get.fields.exists(_.name.value == "Baz__c"))
@@ -252,13 +285,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Base extended & deleted") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-            "ext/Foo__c.object" -> customObject("Foo",
-                                                Seq(("Baz__c", Some("Text"), None)),
-                                                Set(),
-                                                Set(),
-                                                extending = true))) { root: PathLike =>
+        Map(
+          "sfdx-project.json"  -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
+          "base/Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "ext/Foo__c.object" -> customObject(
+            "Foo",
+            Seq(("Baz__c", Some("Text"), None)),
+            Set(),
+            Set(),
+            extending = true
+          )
+        )
+      ) { root: PathLike =>
         val org = createHappyOrg(root)
 
         val basePath = root.join("base").join("Foo__c.object")
@@ -274,9 +312,15 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Base field extended & deleted") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
-            "base/Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-            "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None))) { root: PathLike =>
+        Map(
+          "sfdx-project.json" -> """{"packageDirectories": [{"path": "base"}, {"path": "ext"}]}""",
+          "base/Foo__c/Foo__c.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Bar__c", Some("Text"), None))
+          ),
+          "ext/Foo__c/fields/Baz__c.field-meta.xml" -> customField("Baz__c", "Text", None)
+        )
+      ) { root: PathLike =>
         val org = createHappyOrg(root)
 
         val basePath = root.join("base").join("Foo__c").join("Foo__c.object")
@@ -291,19 +335,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
   test("MDAPI delete") {
     withManualFlush {
-      FileSystemHelper.run(Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+      FileSystemHelper.run(
+        Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__c.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__c.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
-          // which has 6 for RowClause handling
-          assert(startTypes - org.unmanaged.modules.head.types.size == 21)
+        // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
+        // which has 6 for RowClause handling
+        assert(startTypes - org.unmanaged.modules.head.types.size == 21)
       }
     }
   }
@@ -311,19 +356,24 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("SFDX delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Foo__c/Foo__c.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Bar__c", Some("Text"), None))
+          )
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__c").join("Foo__c.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__c").join("Foo__c.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
-          // which has 6 for RowClause handling
-          assert(startTypes - org.unmanaged.modules.head.types.size == 21)
+        // There are 4 primary SObjects with Share, Feed & History, each has 5 supporting internal types except Share
+        // which has 6 for RowClause handling
+        assert(startTypes - org.unmanaged.modules.head.types.size == 21)
       }
     }
   }
@@ -331,18 +381,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("MDAPI lookup dependency delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Bar__c.object" -> customObject("Bar", Seq()),
-            "Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Bar__c")))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Bar__c.object" -> customObject("Bar", Seq()),
+          "Foo__c.object" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Bar__c"))))
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val basePath = root.join("Bar__c.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val basePath = root.join("Bar__c.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(getMessages() ==
-            "/Foo__c.object: Error: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+        assert(
+          getMessages() ==
+            "/Foo__c.object: Error: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n"
+        )
       }
     }
   }
@@ -350,18 +404,25 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("SFDX lookup dependency delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Bar__c/Bar__c.object-meta.xml" -> customObject("Bar", Seq()),
-          "Foo__c/Foo__c.object-meta.xml" -> customObject("Foo", Seq(("Lookup__c", Some("Lookup"), Some("Bar__c")))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Bar__c/Bar__c.object-meta.xml" -> customObject("Bar", Seq()),
+          "Foo__c/Foo__c.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Lookup__c", Some("Lookup"), Some("Bar__c")))
+          )
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val basePath = root.join("Bar__c").join("Bar__c.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val basePath = root.join("Bar__c").join("Bar__c.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(getMessages() ==
-            "/Foo__c/Foo__c.object-meta.xml: Error: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n")
+        assert(
+          getMessages() ==
+            "/Foo__c/Foo__c.object-meta.xml: Error: line 10: Lookup object Schema.Bar__c does not exist for field 'Lookup__c'\n"
+        )
       }
     }
   }
@@ -369,17 +430,19 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Custom metadata upsert") {
     withManualFlush {
       val customObjectMetadata = customObject("Foo", Seq())
-      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          assert(org.issues.isEmpty)
 
-        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata)
-        assert(org.flush())
-        assert(org.issues.isEmpty)
-        assert(
-          pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+          refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata)
+          assert(org.flush())
+          assert(org.issues.isEmpty)
+          assert(
+            pkg.orderedModules.head.types
+              .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema))))
+          )
       }
     }
   }
@@ -397,7 +460,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -405,16 +469,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Custom metadata upsert (changed)") {
     withManualFlush {
       val customObjectMetadata = customObject("Foo", Seq())
-      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("Foo__mdt/Foo__mdt.object" -> customObjectMetadata)) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          assert(org.issues.isEmpty)
 
-        refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata + " ")
-        assert(org.issues.isEmpty)
-        assert(
-          pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+          refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObjectMetadata + " ")
+          assert(org.issues.isEmpty)
+          assert(
+            pkg.orderedModules.head.types
+              .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema))))
+          )
       }
     }
   }
@@ -439,7 +505,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__mdt"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -447,15 +514,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid custom metadata class dependent") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls"                -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__mdt").join("Foo__mdt.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n"
+        )
       }
     }
   }
@@ -463,15 +535,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid custom metadata class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq()),
-          "Dummy.cls" -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__mdt/Foo__mdt.object" -> customObject("Foo", Seq()),
+          "Dummy.cls"                -> "public class Dummy { {Foo__mdt a = new Foo__mdt(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 48-54: Unknown field 'Bar__c' on SObject 'Schema.Foo__mdt'\n"
+        )
 
-        refresh(pkg,
+        refresh(
+          pkg,
           root.join("Foo__mdt").join("Foo__mdt.object"),
-          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
       }
@@ -480,17 +559,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
   test("Custom Metadata MDAPI delete") {
     withManualFlush {
-      FileSystemHelper.run(Map("Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+      FileSystemHelper.run(
+        Map("Foo__mdt.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__mdt.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__mdt.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }
@@ -498,17 +578,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Custom Metadata SFDX delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__mdt/Foo__mdt.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Foo__mdt/Foo__mdt.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Bar__c", Some("Text"), None))
+          )
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__mdt").join("Foo__mdt.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__mdt").join("Foo__mdt.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }
@@ -526,7 +611,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -544,7 +630,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -561,7 +648,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -586,7 +674,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__e"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -594,15 +683,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid platform event class dependent") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__e/Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__e/Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls"            -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__e").join("Foo__e.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n"
+        )
       }
     }
   }
@@ -610,15 +704,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid platform event class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__e/Foo__e.object" -> customObject("Foo", Seq()),
-          "Dummy.cls" -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__e/Foo__e.object" -> customObject("Foo", Seq()),
+          "Dummy.cls"            -> "public class Dummy { {Foo__e a = new Foo__e(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__e'\n"
+        )
 
-        refresh(pkg,
+        refresh(
+          pkg,
           root.join("Foo__e").join("Foo__e.object"),
-          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
       }
@@ -627,17 +728,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
   test("Platform event MDAPI delete") {
     withManualFlush {
-      FileSystemHelper.run(Map("Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+      FileSystemHelper.run(
+        Map("Foo__e.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__e.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__e.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }
@@ -645,17 +747,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Platform event SFDX delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__e/Foo__e.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Foo__e/Foo__e.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Bar__c", Some("Text"), None))
+          )
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__e").join("Foo__e.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__e").join("Foo__e.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }
@@ -673,7 +780,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -691,7 +799,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -708,7 +817,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -733,7 +843,8 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
         assert(
           pkg.orderedModules.head.types
-            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema)))))
+            .contains(TypeName(Name("Foo__b"), Nil, Some(TypeName(Names.Schema))))
+        )
       }
     }
   }
@@ -741,15 +852,20 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid big object class dependent") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__b/Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
-          "Dummy.cls" -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__b/Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))),
+          "Dummy.cls"            -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("Foo__b").join("Foo__b.object"), customObject("Foo", Seq()))
         assert(org.flush())
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n"
+        )
       }
     }
   }
@@ -757,15 +873,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Valid big object class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__b/Foo__b.object" -> customObject("Foo", Seq()),
-          "Dummy.cls" -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}")) { root: PathLike =>
+        Map(
+          "Foo__b/Foo__b.object" -> customObject("Foo", Seq()),
+          "Dummy.cls"            -> "public class Dummy { {Foo__b a = new Foo__b(Bar__c = '');}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 44-50: Unknown field 'Bar__c' on SObject 'Schema.Foo__b'\n"
+        )
 
-        refresh(pkg,
+        refresh(
+          pkg,
           root.join("Foo__b").join("Foo__b.object"),
-          customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+          customObject("Foo", Seq(("Bar__c", Some("Text"), None)))
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
       }
@@ -774,17 +897,18 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
 
   test("Big object MDAPI delete") {
     withManualFlush {
-      FileSystemHelper.run(Map("Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+      FileSystemHelper.run(
+        Map("Foo__b.object" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__b.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__b.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }
@@ -792,17 +916,22 @@ class RefreshSObjectTest extends AnyFunSuite with TestHelper {
   test("Big object SFDX delete") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("Foo__b/Foo__b.object-meta.xml" -> customObject("Foo", Seq(("Bar__c", Some("Text"), None))))) {
-        root: PathLike =>
-          val org = createHappyOrg(root)
+        Map(
+          "Foo__b/Foo__b.object-meta.xml" -> customObject(
+            "Foo",
+            Seq(("Bar__c", Some("Text"), None))
+          )
+        )
+      ) { root: PathLike =>
+        val org = createHappyOrg(root)
 
-          val startTypes = org.unmanaged.modules.head.types.size
-          val basePath = root.join("Foo__b").join("Foo__b.object")
-          basePath.delete()
-          org.unmanaged.refresh(basePath)
-          assert(org.flush())
+        val startTypes = org.unmanaged.modules.head.types.size
+        val basePath   = root.join("Foo__b").join("Foo__b.object")
+        basePath.delete()
+        org.unmanaged.refresh(basePath)
+        assert(org.flush())
 
-          assert(startTypes - org.unmanaged.modules.head.types.size == 1)
+        assert(startTypes - org.unmanaged.modules.head.types.size == 1)
       }
     }
   }

@@ -59,8 +59,8 @@ class OrgAPITest extends AsyncFunSuite {
     for {
       _ <- orgAPI.setCacheDirectory(Some(testPath.toString))
     } yield {
-      val result: Assertion = assert(
-        Environment.cacheDir.contains(testPath) && ServerOps.getAutoFlush)
+      val result: Assertion =
+        assert(Environment.cacheDir.contains(testPath) && ServerOps.getAutoFlush)
       result.onComplete(_ => {
         Environment.setCacheDirOverride(None)
         testPath.delete()
@@ -78,13 +78,18 @@ class OrgAPITest extends AsyncFunSuite {
       assert(result.error.isEmpty)
       assert(
         issues.issues sameElements Array(
-          Issue(Path("/silly"), Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly"))))
+          Issue(
+            Path("/silly"),
+            Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly")
+          )
+        )
+      )
     }
   }
 
   test("Add package MDAPI directory") {
     val workspace = syntheticDir.join("mdapi-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
@@ -107,7 +112,7 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Add package sfdx directory (absolute)") {
     val workspace = syntheticDir.join("sfdx-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
@@ -130,7 +135,7 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Add package sfdx directory with ns (absolute)") {
     val workspace = syntheticDir.join("sfdx-ns-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
@@ -142,7 +147,7 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Issues") {
     val workspace = syntheticDir.join("sfdx-ns-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
 
     val pkg: Future[Assertion] = orgAPI.open(workspace.toString) map { result =>
       assert(result.error.isEmpty && result.namespaces.sameElements(Array("sfdx_test", "")))
@@ -161,12 +166,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Dependency Graph (zero depth)") {
     val workspace = syntheticDir.join("mdapi-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 0, apexOnly = true, IdentifiersRequest(Array()))
+        depth = 0,
+        apexOnly = true,
+        IdentifiersRequest(Array())
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.length == 1)
@@ -176,67 +184,84 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Dependency Graph (some depth)") {
     val workspace = syntheticDir.join("mdapi-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 1, apexOnly = true, IdentifiersRequest(Array()))
+        depth = 1,
+        apexOnly = true,
+        IdentifiersRequest(Array())
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(
         graph.nodeData sameElements Array(
-          DependencyNode(TypeIdentifier(None, TypeName(Name("Hello"))),
+          DependencyNode(
+            TypeIdentifier(None, TypeName(Name("Hello"))),
             85,
             "class",
             1,
             Array(),
             Array(),
-            Array(TypeIdentifier(None, TypeName(Name("World"))))),
-          DependencyNode(TypeIdentifier(None, TypeName(Name("World"))),
+            Array(TypeIdentifier(None, TypeName(Name("World"))))
+          ),
+          DependencyNode(
+            TypeIdentifier(None, TypeName(Name("World"))),
             71,
             "class",
             0,
             Array(),
             Array(),
-            Array()),
-        ))
+            Array()
+          )
+        )
+      )
       assert(graph.linkData sameElements Array(DependencyLink(0, 1, "uses")))
     }
   }
 
   test("Get Dependency Graph (some depth) with ignored identifiers") {
     val workspace = syntheticDir.join("mdapi-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Hello"))))),
-        depth = 1, apexOnly = true, IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World"))))))
+        depth = 1,
+        apexOnly = true,
+        IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("World")))))
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(
         graph.nodeData sameElements Array(
-          DependencyNode(TypeIdentifier(None, TypeName(Name("Hello"))),
+          DependencyNode(
+            TypeIdentifier(None, TypeName(Name("Hello"))),
             85,
             "class",
             0,
             Array(),
             Array(),
-            Array())
-        ))
+            Array()
+          )
+        )
+      )
       assert(graph.linkData.isEmpty)
     }
   }
 
   test("Get Dependency Graph (bad identifier))") {
     val workspace = syntheticDir.join("mdapi-test")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
       graph <- orgAPI.dependencyGraph(
         IdentifiersRequest(Array(TypeIdentifier(None, TypeName(Name("Dummy"))))),
-        depth = 0, apexOnly = true, IdentifiersRequest(Array()))
+        depth = 0,
+        apexOnly = true,
+        IdentifiersRequest(Array())
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(graph.nodeData.isEmpty)
@@ -246,11 +271,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (with test class)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/HelloTest.cls"), false))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/HelloTest.cls"),
+          false
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.length == 1)
@@ -260,11 +289,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (find test class)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/Hello.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/Hello.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("HelloTest"))
@@ -273,11 +306,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (no test class)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/NoTest.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/NoTest.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.isEmpty)
@@ -286,11 +323,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (indirect to inner interface)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/ServiceImpl.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/ServiceImpl.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("ServiceAPITest"))
@@ -299,11 +340,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (indirect to interface)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/APIImpl.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/APIImpl.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("APITest"))
@@ -312,11 +357,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (indirect to inner implementation)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/InnerServiceImpl.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/InnerServiceImpl.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("ServiceAPITest"))
@@ -325,11 +374,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (service)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/Service.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/Service.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("ServiceAPITest", "ServiceTest"))
@@ -338,11 +391,15 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get Test Class Names (with superclass)") {
     val workspace = syntheticDir.join("test-classes")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      classes <- orgAPI.getTestClassNames(new GetTestClassNamesRequest(
-        Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"), true))
+      classes <- orgAPI.getTestClassNames(
+        new GetTestClassNamesRequest(
+          Array(workspace.toString + "/force-app/main/default/classes/Derived.cls"),
+          true
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(classes.testClassNames.toSet == Set("DerivedTest", "BaseTest", "APITest"))
@@ -351,20 +408,30 @@ class OrgAPITest extends AsyncFunSuite {
 
   test("Get DependencyCounts") {
     val workspace = syntheticDir.join("dependency-counts")
-    val orgAPI = OrgAPI()
+    val orgAPI    = OrgAPI()
     for {
       result <- orgAPI.open(workspace.toString)
-      dependencyCounts <- orgAPI.getDependencyCounts(new GetDependencyCountsRequest(
-        Array(
-          workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
-          workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
-          workspace.toString + "/force-app/main/default/classes/TransDep.cls")))
+      dependencyCounts <- orgAPI.getDependencyCounts(
+        new GetDependencyCountsRequest(
+          Array(
+            workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
+            workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
+            workspace.toString + "/force-app/main/default/classes/TransDep.cls"
+          )
+        )
+      )
     } yield {
       assert(result.error.isEmpty)
       assert(dependencyCounts.counts.length == 3)
-      assert(dependencyCounts.counts.filter(c => c.path.contains("TransDep")).map(_.count).apply(0) == 2)
-      assert(dependencyCounts.counts.filter(c => c.path.contains("SingleDep")).map(_.count).apply(0) == 1)
-      assert(dependencyCounts.counts.filter(c => c.path.contains("NoDeps")).map(_.count).apply(0) == 0)
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("TransDep")).map(_.count).apply(0) == 2
+      )
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("SingleDep")).map(_.count).apply(0) == 1
+      )
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("NoDeps")).map(_.count).apply(0) == 0
+      )
     }
   }
 

@@ -21,7 +21,12 @@ import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.types.core._
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.documents._
-import com.nawforce.pkgforce.modifiers.{GLOBAL_MODIFIER, Modifier, PRIVATE_MODIFIER, STATIC_MODIFIER}
+import com.nawforce.pkgforce.modifiers.{
+  GLOBAL_MODIFIER,
+  Modifier,
+  PRIVATE_MODIFIER,
+  STATIC_MODIFIER
+}
 import com.nawforce.pkgforce.names.{Name, TypeName}
 import com.nawforce.pkgforce.path.{Locatable, PathLike, PathLocation}
 import com.nawforce.pkgforce.stream.{LabelEvent, LabelFileEvent, PackageStream}
@@ -103,11 +108,11 @@ final class LabelDeclaration(
   }
 
   override def gatherDependencies(
-                                   dependsOn: mutable.Set[TypeId],
-                                   apexOnly: Boolean,
-                                   outerTypesOnly: Boolean,
-                                   typeCache: TypeCache
-                                 ): Unit = {
+    dependsOn: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    outerTypesOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     // Labels depend on labels from dependent packages
     if (!apexOnly)
       nestedLabels.foreach(nl => nl.labelTypeId.foreach(dependsOn.add))

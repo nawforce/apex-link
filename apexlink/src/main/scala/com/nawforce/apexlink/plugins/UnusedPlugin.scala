@@ -42,14 +42,25 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
       td.unusedIssues.foreach(td.module.pkg.org.issues.add)
   }
 
-  override def onBlockValidated(block: Block, isStatic: Boolean, context: BlockVerifyContext): Unit = {
+  override def onBlockValidated(
+    block: Block,
+    isStatic: Boolean,
+    context: BlockVerifyContext
+  ): Unit = {
     context.declaredVars
       .filter(v => !context.referencedVars.contains(v._1) && v._2.definition.nonEmpty)
       .foreach(v => {
         val definition = v._2.definition.get
         context.log(
-          new Issue(definition.location.path,
-            Diagnostic(UNUSED_CATEGORY, definition.location.location, s"Unused local variable '${v._1}'")))
+          new Issue(
+            definition.location.path,
+            Diagnostic(
+              UNUSED_CATEGORY,
+              definition.location.location,
+              s"Unused local variable '${v._1}'"
+            )
+          )
+        )
       })
   }
 
@@ -68,36 +79,50 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
           td.unusedFields ++
           td.unusedMethods
 
-      if (!td.hasNonTestHolders && issues.length == td.nestedTypes.length + td.localFields.length + td.localMethods.length) {
+      if (
+        !td.hasNonTestHolders && issues.length == td.nestedTypes.length + td.localFields.length + td.localMethods.length
+      ) {
         val nature = td match {
-          case _: ClassDeclaration => "class"
+          case _: ClassDeclaration     => "class"
           case _: InterfaceDeclaration => "interface"
-          case _: EnumDeclaration => "enum"
-          case _ => "type"
+          case _: EnumDeclaration      => "enum"
+          case _                       => "type"
         }
 
         val suffix =
-          if (td.hasHolders || (issues.nonEmpty && issues.forall(_.diagnostic.message.contains(onlyTestCodeReferenceText))))
+          if (
+            td.hasHolders || (issues.nonEmpty && issues.forall(
+              _.diagnostic.message.contains(onlyTestCodeReferenceText)
+            ))
+          )
             s", $onlyTestCodeReferenceText"
           else
             ""
-        ArraySeq(new Issue(td.location.path, Diagnostic(UNUSED_CATEGORY, td.idLocation, s"Unused $nature '${td.typeName}'$suffix")))
+        ArraySeq(
+          new Issue(
+            td.location.path,
+            Diagnostic(UNUSED_CATEGORY, td.idLocation, s"Unused $nature '${td.typeName}'$suffix")
+          )
+        )
       } else {
         issues
       }
     }
 
     def unusedFields: ArraySeq[Issue] = {
-      td.localFields.filterNot(_.isUsed(td.inTest))
+      td.localFields
+        .filterNot(_.isUsed(td.inTest))
         .map(field => {
           val nature = field.nature match {
-            case FIELD_NATURE => "field"
+            case FIELD_NATURE    => "field"
             case PROPERTY_NATURE => "property"
-            case _ => "field or property"
+            case _               => "field or property"
           }
           val suffix = if (field.hasHolders) s", $onlyTestCodeReferenceText" else ""
-          new Issue(field.location.path,
-            Diagnostic(UNUSED_CATEGORY, field.idLocation, s"Unused $nature '${field.name}'$suffix"))
+          new Issue(
+            field.location.path,
+            Diagnostic(UNUSED_CATEGORY, field.idLocation, s"Unused $nature '${field.name}'$suffix")
+          )
         })
     }
 
@@ -105,18 +130,25 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
       td.localMethods
         .flatMap {
           case am: ApexMethodLike if !am.isUsed(td.module, td.inTest) => Some(am)
-          case _ => None
+          case _                                                      => None
         }
         .map(method => {
           val suffix = if (method.hasHolders) s", $onlyTestCodeReferenceText" else ""
-          new Issue(method.location.path,
-            Diagnostic(UNUSED_CATEGORY, method.idLocation, s"Unused method '${method.signature}'$suffix"))
+          new Issue(
+            method.location.path,
+            Diagnostic(
+              UNUSED_CATEGORY,
+              method.idLocation,
+              s"Unused method '${method.signature}'$suffix"
+            )
+          )
         })
     }
 
     def isPageController: Boolean = {
-      td.getTypeDependencyHolders.toIterable.exists(tid =>
-        tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component)
+      td.getTypeDependencyHolders.toIterable.exists(
+        tid => tid.typeName == TypeNames.Page || tid.typeName == TypeNames.Component
+      )
     }
   }
 
@@ -135,30 +167,53 @@ class UnusedPlugin(td: DependentType) extends Plugin(td) {
     def isUsed(module: Module, inTest: Boolean): Boolean = {
       method.isSynthetic ||
       (if (inTest)
-        method.hasHolders || method.modifiers.exists(excludedTestMethodModifiers.contains)
-      else
-        method.hasNonTestHolders || method.modifiers.exists(excludedMethodModifiers.contains)
-        ) ||
-        method.shadows.exists({
-          case am: ApexMethodLike => am.isUsed(module, inTest)
-          case _: MethodDeclaration => true
-          case _ => false
-        }) ||
-        method.parameters.exists(parameter => module.isGhostedType(parameter.typeName))
+         method.hasHolders || method.modifiers.exists(excludedTestMethodModifiers.contains)
+       else
+         method.hasNonTestHolders || method.modifiers.exists(excludedMethodModifiers.contains)) ||
+      method.shadows.exists({
+        case am: ApexMethodLike   => am.isUsed(module, inTest)
+        case _: MethodDeclaration => true
+        case _                    => false
+      }) ||
+      method.parameters.exists(parameter => module.isGhostedType(parameter.typeName))
     }
   }
 }
 
 object UnusedPlugin {
-  val onlyTestCodeReferenceText = "only referenced by test code, remove or make private @TestVisible"
+  val onlyTestCodeReferenceText =
+    "only referenced by test code, remove or make private @TestVisible"
   val excludedClassModifiers: Set[Modifier] =
-    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
+    Set(
+      TEST_VISIBLE_ANNOTATION,
+      GLOBAL_MODIFIER,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED
+    )
   val excludedMethodModifiers: Set[Modifier] =
-    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, AURA_ENABLED_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION_PMD, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
+    Set(
+      TEST_VISIBLE_ANNOTATION,
+      GLOBAL_MODIFIER,
+      AURA_ENABLED_ANNOTATION,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED
+    )
   val excludedTestMethodModifiers: Set[Modifier] =
-    Set(ISTEST_ANNOTATION, TEST_SETUP_ANNOTATION, TEST_METHOD_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
+    Set(
+      ISTEST_ANNOTATION,
+      TEST_SETUP_ANNOTATION,
+      TEST_METHOD_MODIFIER,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED
+    )
   val excludedFieldModifiers: Set[Modifier] =
-    Set(TEST_VISIBLE_ANNOTATION, GLOBAL_MODIFIER, AURA_ENABLED_ANNOTATION, SUPPRESS_WARNINGS_ANNOTATION_PMD, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
+    Set(
+      TEST_VISIBLE_ANNOTATION,
+      GLOBAL_MODIFIER,
+      AURA_ENABLED_ANNOTATION,
+      SUPPRESS_WARNINGS_ANNOTATION_PMD,
+      SUPPRESS_WARNINGS_ANNOTATION_UNUSED
+    )
   val excludedTestFieldModifiers: Set[Modifier] =
     Set(SUPPRESS_WARNINGS_ANNOTATION_PMD, SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
 }

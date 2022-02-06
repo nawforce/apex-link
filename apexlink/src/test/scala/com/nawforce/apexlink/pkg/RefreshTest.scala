@@ -79,8 +79,11 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Refresh creates missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
-            "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
+        Map(
+          "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {public class Inner {}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
@@ -89,7 +92,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(org.flush())
         assert(
           getMessages(Path("/pkg/Foo.cls"))
-            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n"
+        )
       }
     }
   }
@@ -97,43 +101,52 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Refresh resolves missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}", "pkg/Bar.cls" -> "public class Bar {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          assert(getMessages(Path("/pkg/Foo.cls"))
-            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n")
+        Map(
+          "pkg/Foo.cls" -> "public class Foo {Bar.Inner b;}",
+          "pkg/Bar.cls" -> "public class Bar {}"
+        )
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(
+          getMessages(Path("/pkg/Foo.cls"))
+            == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n"
+        )
 
-          refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
-          assert(org.flush())
-          assert(org.issues.isEmpty)
+        refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
+        assert(org.flush())
+        assert(org.issues.isEmpty)
       }
     }
   }
 
   test("Dependencies created") {
     withManualFlush {
-      FileSystemHelper.run(Map("pkg/Foo.cls" -> "public class Foo {}", "pkg/Bar.cls" -> "public class Bar {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {Bar b;}")
-          assert(org.flush())
-          assert(org.issues.isEmpty)
+      FileSystemHelper.run(
+        Map("pkg/Foo.cls" -> "public class Foo {}", "pkg/Bar.cls" -> "public class Bar {}")
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        refresh(pkg, root.join("pkg/Foo.cls"), "public class Foo {Bar b;}")
+        assert(org.flush())
+        assert(org.issues.isEmpty)
 
-          val fooTypeId =
-            pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
-          val barTypeId =
-            pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.cls")).get.asTypeIdentifier
+        val barTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-          assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
-          assert(
-            pkg
-              .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
-              .sameElements(Array(barTypeId)))
+        assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
+        assert(
+          pkg
+            .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
+            .sameElements(Array(barTypeId))
+        )
 
-          assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
-          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
+        assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+        assert(
+          pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty
+        )
       }
     }
   }
@@ -141,15 +154,18 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Dependencies created cross package") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" ->
-              """{
+        Map(
+          "sfdx-project.json" ->
+            """{
               |"namespace": "pkg2",
               |"packageDirectories": [{"path": "pkg2"}],
               |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
               |}""".stripMargin,
-            "pkg1/Bar.cls" -> "global class Bar {}",
-            "pkg2/Foo.cls" -> "public class Foo {}")) { root: PathLike =>
-        val org = createOrg(root)
+          "pkg1/Bar.cls" -> "global class Bar {}",
+          "pkg2/Foo.cls" -> "public class Foo {}"
+        )
+      ) { root: PathLike =>
+        val org  = createOrg(root)
         val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
         val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
         refresh(pkg2, root.join("pkg2/Foo.cls"), "public class Foo {pkg1.Bar b;}")
@@ -165,10 +181,15 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(
           pkg2
             .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
-            .sameElements(Array(barTypeId)))
+            .sameElements(Array(barTypeId))
+        )
 
-        assert(pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
-        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
+        assert(
+          pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId))
+        )
+        assert(
+          pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty
+        )
       }
     }
   }
@@ -184,20 +205,23 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(org.issues.isEmpty)
 
         assert(org.flush())
-        assert(getMessages(Path("/Dummy.cls"))
-          .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {"))
+        assert(
+          getMessages(Path("/Dummy.cls"))
+            .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {")
+        )
       }
     }
   }
 
   test("Valid trigger refresh") {
     withManualFlush {
-      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
-        assert(org.flush())
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {}")
+          assert(org.flush())
+          assert(org.issues.isEmpty)
       }
     }
   }
@@ -217,12 +241,17 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
   test("Valid trigger refresh with changes") {
     withManualFlush {
-      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
-        val org = createOrg(root)
-        val pkg = org.unmanaged
-        refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {Object a;}")
-        assert(org.flush())
-        assert(org.issues.isEmpty)
+      FileSystemHelper.run(Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) {
+        root: PathLike =>
+          val org = createOrg(root)
+          val pkg = org.unmanaged
+          refresh(
+            pkg,
+            root.join("pkg/Foo.trigger"),
+            "trigger Foo on Account (before insert) {Object a;}"
+          )
+          assert(org.flush())
+          assert(org.issues.isEmpty)
       }
     }
   }
@@ -230,16 +259,21 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Refresh creates trigger missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
-            "pkg/Bar.cls" -> "public class Bar {public class Inner {}}")) { root: PathLike =>
+        Map(
+          "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
+          "pkg/Bar.cls"     -> "public class Bar {public class Inner {}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
-        assert(getMessages(Path("/pkg/Foo.trigger"))
-          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+        assert(
+          getMessages(Path("/pkg/Foo.trigger"))
+            == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n"
+        )
       }
     }
   }
@@ -247,12 +281,17 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Refresh resolves trigger missing") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
-            "pkg/Bar.cls" -> "public class Bar {}")) { root: PathLike =>
+        Map(
+          "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {Bar.Inner b;}",
+          "pkg/Bar.cls"     -> "public class Bar {}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages(Path("/pkg/Foo.trigger"))
-          == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n")
+        assert(
+          getMessages(Path("/pkg/Foo.trigger"))
+            == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n"
+        )
 
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
         assert(org.flush())
@@ -264,26 +303,36 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Trigger dependencies created") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}", "pkg/Bar.cls" -> "public class Bar {}")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          refresh(pkg, root.join("pkg/Foo.trigger"), "trigger Foo on Account (before insert) {Bar b;}")
-          assert(org.flush())
+        Map(
+          "pkg/Foo.trigger" -> "trigger Foo on Account (before insert) {}",
+          "pkg/Bar.cls"     -> "public class Bar {}"
+        )
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        refresh(
+          pkg,
+          root.join("pkg/Foo.trigger"),
+          "trigger Foo on Account (before insert) {Bar b;}"
+        )
+        assert(org.flush())
 
-          val fooTypeId =
-            pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
-          val barTypeId =
-            pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
+        val fooTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Foo.trigger")).get.asTypeIdentifier
+        val barTypeId =
+          pkg.getTypeOfPathInternal(root.join("pkg").join("Bar.cls")).get.asTypeIdentifier
 
-          assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
-          assert(
-            pkg
-              .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
-              .sameElements(Array(barTypeId)))
+        assert(pkg.getDependencyHolders(fooTypeId, apexOnly = false).isEmpty)
+        assert(
+          pkg
+            .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
+            .sameElements(Array(barTypeId))
+        )
 
-          assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
-          assert(pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
+        assert(pkg.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
+        assert(
+          pkg.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty
+        )
       }
     }
   }
@@ -291,18 +340,25 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Trigger dependencies created cross package") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("sfdx-project.json" ->
-              """{
+        Map(
+          "sfdx-project.json" ->
+            """{
           |"namespace": "pkg2",
           |"packageDirectories": [{"path": "pkg2"}],
           |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
           |}""".stripMargin,
-            "pkg1/Bar.cls" -> "global class Bar {}",
-            "pkg2/Foo.trigger" -> "trigger Foo on Account (before insert) {}")) { root: PathLike =>
-        val org = createOrg(root)
+          "pkg1/Bar.cls"     -> "global class Bar {}",
+          "pkg2/Foo.trigger" -> "trigger Foo on Account (before insert) {}"
+        )
+      ) { root: PathLike =>
+        val org  = createOrg(root)
         val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
         val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
-        refresh(pkg2, root.join("pkg2/Foo.trigger"), "trigger Foo on Account (before insert) {pkg1.Bar b;}")
+        refresh(
+          pkg2,
+          root.join("pkg2/Foo.trigger"),
+          "trigger Foo on Account (before insert) {pkg1.Bar b;}"
+        )
         assert(org.flush())
 
         val fooTypeId =
@@ -314,10 +370,15 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(
           pkg2
             .getDependencies(fooTypeId, outerInheritanceOnly = false, apexOnly = false)
-            .sameElements(Array(barTypeId)))
+            .sameElements(Array(barTypeId))
+        )
 
-        assert(pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId)))
-        assert(pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty)
+        assert(
+          pkg1.getDependencyHolders(barTypeId, apexOnly = false).sameElements(Array(fooTypeId))
+        )
+        assert(
+          pkg1.getDependencies(barTypeId, outerInheritanceOnly = false, apexOnly = false).isEmpty
+        )
       }
     }
   }
@@ -325,17 +386,21 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label upsert") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")) {
-        root: PathLike =>
-          val org = createOrg(root)
-          val pkg = org.unmanaged
-          assert(org.issues.isEmpty)
+        Map(
+          "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
+        )
+      ) { root: PathLike =>
+        val org = createOrg(root)
+        val pkg = org.unmanaged
+        assert(org.issues.isEmpty)
 
-          refresh(pkg,
-                  root.join("CustomLabels.labels"),
-                  "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
-          assert(org.flush())
-          assert(org.issues.isEmpty)
+        refresh(
+          pkg,
+          root.join("CustomLabels.labels"),
+          "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
+        )
+        assert(org.flush())
+        assert(org.issues.isEmpty)
       }
     }
   }
@@ -347,9 +412,11 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
-        refresh(pkg,
-                root.join("CustomLabels.labels"),
-                "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        refresh(
+          pkg,
+          root.join("CustomLabels.labels"),
+          "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
+        )
         assert(org.flush())
         assert(org.issues.isEmpty)
       }
@@ -359,22 +426,23 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label upsert (changed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" ->
-          """<?xml version="1.0" encoding="UTF-8"?>
+        Map(
+          "CustomLabels.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
-        refresh(pkg,
-                root.join("CustomLabels.labels"),
-                """<?xml version="1.0" encoding="UTF-8"?>
+        refresh(pkg, root.join("CustomLabels.labels"), """<?xml version="1.0" encoding="UTF-8"?>
             |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
             |    <labels>
             |        <fullName>TestLabel2</fullName>
@@ -393,22 +461,23 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label upsert (alt file)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" ->
-          """<?xml version="1.0" encoding="UTF-8"?>
+        Map(
+          "CustomLabels.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
           |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
           |    <labels>
           |        <fullName>TestLabel</fullName>
           |        <protected>false</protected>
           |    </labels>
           |</CustomLabels>
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
-        refresh(pkg,
-                root.join("Alt.labels"),
-                """<?xml version="1.0" encoding="UTF-8"?>
+        refresh(pkg, root.join("Alt.labels"), """<?xml version="1.0" encoding="UTF-8"?>
             |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
             |    <labels>
             |        <fullName>TestLabel2</fullName>
@@ -428,8 +497,9 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label class dependent") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" ->
-              """<?xml version="1.0" encoding="UTF-8"?>
+        Map(
+          "CustomLabels.labels" ->
+            """<?xml version="1.0" encoding="UTF-8"?>
             |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
             |    <labels>
             |        <fullName>TestLabel</fullName>
@@ -437,16 +507,22 @@ class RefreshTest extends AnyFunSuite with TestHelper {
             |    </labels>
             |</CustomLabels>
             |""".stripMargin,
-            "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+          "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(org.issues.isEmpty)
 
-        refresh(pkg,
-                root.join("CustomLabels.labels"),
-                "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>")
+        refresh(
+          pkg,
+          root.join("CustomLabels.labels"),
+          "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>"
+        )
         assert(org.flush())
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n"
+        )
       }
     }
   }
@@ -454,15 +530,18 @@ class RefreshTest extends AnyFunSuite with TestHelper {
   test("Valid label class dependent (reversed)") {
     withManualFlush {
       FileSystemHelper.run(
-        Map("CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
-            "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel;}}")) { root: PathLike =>
+        Map(
+          "CustomLabels.labels" -> "<CustomLabels xmlns=\"http://soap.sforce.com/2006/04/metadata\"/>",
+          "Dummy.cls"           -> "public class Dummy { {String a = Label.TestLabel;}}"
+        )
+      ) { root: PathLike =>
         val org = createOrg(root)
         val pkg = org.unmanaged
-        assert(getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n")
+        assert(
+          getMessages() == "/Dummy.cls: Missing: line 1 at 33-48: Unknown field or type 'TestLabel' on 'System.Label'\n"
+        )
 
-        refresh(pkg,
-                root.join("CustomLabels.labels"),
-                """<?xml version="1.0" encoding="UTF-8"?>
+        refresh(pkg, root.join("CustomLabels.labels"), """<?xml version="1.0" encoding="UTF-8"?>
             |<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
             |    <labels>
             |        <fullName>TestLabel</fullName>
@@ -529,7 +608,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("Test2.flow-meta.xml"), "")
         assert(org.flush())
-        assert(pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(Name("Test"), Name("Test2")))
+        assert(
+          pkg.orderedModules.head.interviews.nestedTypes.map(_.name).toSet == Set(
+            Name("Test"),
+            Name("Test2")
+          )
+        )
       }
     }
   }
@@ -585,7 +669,12 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         refresh(pkg, root.join("TestPage2.page"), "<apex:page/> ")
         assert(org.flush())
-        assert(pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(Name("TestPage"), Name("TestPage2")))
+        assert(
+          pkg.orderedModules.head.pages.fields.map(_.name).toSet == Set(
+            Name("TestPage"),
+            Name("TestPage2")
+          )
+        )
       }
     }
   }
@@ -643,7 +732,8 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         assert(org.flush())
         assert(
           pkg.orderedModules.head.components.nestedTypes.map(_.name).toSet ==
-            Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter))
+            Set(Name("Test"), Name("Test2"), Names.c, Names.Apex, Names.Chatter)
+        )
       }
     }
   }

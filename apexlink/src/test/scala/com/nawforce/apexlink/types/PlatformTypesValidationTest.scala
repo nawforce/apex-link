@@ -23,19 +23,21 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class PlatformTypesValidationTest extends AnyFunSuite {
 
-  private val generics = Map[String, String]("System.List" -> "System.List<T>",
-                                             "System.Iterator" -> "System.Iterator<T>",
-                                             "System.Map" -> "System.Map<K, V>",
-                                             "System.Set" -> "System.Set<T>",
-                                             "System.Iterable" -> "System.Iterable<T>",
-                                             "Database.Batchable" -> "Database.Batchable<T>",
-                                             "Internal.RecordSet$" -> "Internal.RecordSet$<T>",
-                                             "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
-                                             "Internal.SObjectType$" -> "Internal.SObjectType$<T>",
-                                             "Internal.SObjectTypeFields$" -> "Internal.SObjectTypeFields$<T>",
-                                             "Internal.SObjectTypeFieldSets$" -> "Internal.SObjectTypeFieldSets$<T>",
-                                             "Internal.SObjectFields$" -> "Internal.SObjectFields$<T>",
-                                             "Internal.Trigger$" -> "Internal.Trigger$<T>")
+  private val generics = Map[String, String](
+    "System.List"                     -> "System.List<T>",
+    "System.Iterator"                 -> "System.Iterator<T>",
+    "System.Map"                      -> "System.Map<K, V>",
+    "System.Set"                      -> "System.Set<T>",
+    "System.Iterable"                 -> "System.Iterable<T>",
+    "Database.Batchable"              -> "Database.Batchable<T>",
+    "Internal.RecordSet$"             -> "Internal.RecordSet$<T>",
+    "Internal.DescribeSObjectResult$" -> "Internal.DescribeSObjectResult$<T>",
+    "Internal.SObjectType$"           -> "Internal.SObjectType$<T>",
+    "Internal.SObjectTypeFields$"     -> "Internal.SObjectTypeFields$<T>",
+    "Internal.SObjectTypeFieldSets$"  -> "Internal.SObjectTypeFieldSets$<T>",
+    "Internal.SObjectFields$"         -> "Internal.SObjectFields$<T>",
+    "Internal.Trigger$"               -> "Internal.Trigger$<T>"
+  )
 
   test("Right number of types (should exclude inners)") {
     assert(PlatformTypeDeclaration.classNames.size == 2050)
@@ -66,16 +68,20 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         if (!generics.contains(className.toString)) {
           val typeDeclaration = PlatformTypeDeclaration.get(className.asTypeName(), None)
           assert(typeDeclaration.isRight)
-          validateTypeDeclaration(className,
-                                  typeDeclaration
-                                    .getOrElse(throw new NoSuchElementException)
-                                    .asInstanceOf[PlatformTypeDeclaration])
+          validateTypeDeclaration(
+            className,
+            typeDeclaration
+              .getOrElse(throw new NoSuchElementException)
+              .asInstanceOf[PlatformTypeDeclaration]
+          )
         }
       })
   }
 
-  def validateTypeDeclaration(className: DotName,
-                              typeDeclaration: PlatformTypeDeclaration): Unit = {
+  def validateTypeDeclaration(
+    className: DotName,
+    typeDeclaration: PlatformTypeDeclaration
+  ): Unit = {
     // name & typeName are valid
     assert(typeDeclaration.name.toString == className.lastName.toString)
     className.toString match {
@@ -100,8 +106,8 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       case ENUM_NATURE =>
         assert(typeDeclaration.superClass.isEmpty)
         assert(typeDeclaration.interfaces.isEmpty)
-      case CLASS_NATURE   => ()
-      case _ => assert(false)
+      case CLASS_NATURE => ()
+      case _            => assert(false)
     }
 
     // PlatformModifiers, always public for outer platform classes
@@ -110,7 +116,8 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       if (typeDeclaration.nature == CLASS_NATURE)
         assert(
           typeDeclaration.modifiers.contains(VIRTUAL_MODIFIER) || typeDeclaration.modifiers
-            .contains(ABSTRACT_MODIFIER))
+            .contains(ABSTRACT_MODIFIER)
+        )
     }
 
     // Nested classes
@@ -122,8 +129,11 @@ class PlatformTypesValidationTest extends AnyFunSuite {
       case CLASS_NATURE =>
         typeDeclaration.nestedTypes.foreach(
           nested =>
-            validateTypeDeclaration(className.append(nested.name),
-                                    nested.asInstanceOf[PlatformTypeDeclaration]))
+            validateTypeDeclaration(
+              className.append(nested.name),
+              nested.asInstanceOf[PlatformTypeDeclaration]
+            )
+        )
       case _ => assert(false)
     }
 
@@ -135,7 +145,8 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.fields.nonEmpty)
         assert(
           typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
-            sameElements typeDeclaration.fields)
+            sameElements typeDeclaration.fields
+        )
       case CLASS_NATURE =>
         typeDeclaration.fields.foreach(f => {
           assert(PlatformTypes.get(f.typeName, Some(typeDeclaration)).isRight)

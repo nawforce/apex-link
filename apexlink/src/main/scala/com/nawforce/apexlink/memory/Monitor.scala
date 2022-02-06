@@ -18,7 +18,7 @@ import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.diagnostics.LoggerOps
 
 object Monitor {
-  val map = new SkinnyWeakSet[AnyRef]()
+  val map                                            = new SkinnyWeakSet[AnyRef]()
   var duplicateTypes: SkinnyWeakSet[TypeDeclaration] = _
 
   def push[T <: AnyRef](t: T): Unit = {
@@ -30,16 +30,17 @@ object Monitor {
 
   def reportDuplicateTypes(): Unit = {
     if (ServerOps.getDuplicateObjectMonitoring) {
-      val tdsByName = map.toSet.toArray.collect { case td: TypeDeclaration => (td.typeName, td) }
-      val typeNames = tdsByName.map(_._1)
+      val tdsByName  = map.toSet.toArray.collect { case td: TypeDeclaration => (td.typeName, td) }
+      val typeNames  = tdsByName.map(_._1)
       val duplicates = typeNames.toSeq.groupBy(identity).collect { case (t, Seq(_, _, _*)) => t }
       if (duplicates.nonEmpty) {
         duplicates.foreach(typeName => {
           LoggerOps.debug(s"Duplicate types found for $typeName")
         })
         duplicateTypes = new SkinnyWeakSet[TypeDeclaration]()
-        duplicates.foreach(dup =>
-          tdsByName.filter(_._1 == dup).foreach(x => duplicateTypes.add(x._2)))
+        duplicates.foreach(
+          dup => tdsByName.filter(_._1 == dup).foreach(x => duplicateTypes.add(x._2))
+        )
       }
     }
   }

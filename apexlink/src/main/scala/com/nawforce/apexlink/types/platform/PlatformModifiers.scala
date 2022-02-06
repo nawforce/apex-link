@@ -21,14 +21,17 @@ import java.lang.reflect.{Modifier => JavaModifier}
 import scala.collection.immutable.ArraySeq
 
 object PlatformModifiers {
-  private val modPublic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
-  private val modPublicAbs: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, ABSTRACT_MODIFIER)
+  private val modPublic: ArraySeq[Modifier]        = ArraySeq(PUBLIC_MODIFIER)
+  private val modPublicAbs: ArraySeq[Modifier]     = ArraySeq(PUBLIC_MODIFIER, ABSTRACT_MODIFIER)
   private val modPublicVirtual: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER)
-  private val modPublicStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
-  private val modPublicStaticAbs: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER)
-  private val modPublicVirtualStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicStatic: ArraySeq[Modifier]  = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  private val modPublicStaticAbs: ArraySeq[Modifier] =
+    ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER, ABSTRACT_MODIFIER)
+  private val modPublicVirtualStatic: ArraySeq[Modifier] =
+    ArraySeq(PUBLIC_MODIFIER, VIRTUAL_MODIFIER, STATIC_MODIFIER)
   private val modPublicFinal: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER)
-  private val modPublicFinalStatic: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
+  private val modPublicFinalStatic: ArraySeq[Modifier] =
+    ArraySeq(PUBLIC_MODIFIER, FINAL_MODIFIER, STATIC_MODIFIER)
 
   def typeModifiers(javaBits: Int, nature: Nature): ArraySeq[Modifier] = {
     assert(JavaModifier.isPublic(javaBits))
@@ -39,14 +42,18 @@ object PlatformModifiers {
     assert(!JavaModifier.isNative(javaBits))
     assert(!JavaModifier.isStrict(javaBits))
 
-    getTypeModifier(nature == CLASS_NATURE,
-                    JavaModifier.isStatic(javaBits),
-                    JavaModifier.isAbstract(javaBits))
+    getTypeModifier(
+      nature == CLASS_NATURE,
+      JavaModifier.isStatic(javaBits),
+      JavaModifier.isAbstract(javaBits)
+    )
   }
 
-  private def getTypeModifier(isClass: Boolean,
-                              isStatic: Boolean,
-                              isAbstract: Boolean): ArraySeq[Modifier] = {
+  private def getTypeModifier(
+    isClass: Boolean,
+    isStatic: Boolean,
+    isAbstract: Boolean
+  ): ArraySeq[Modifier] = {
     (isClass, isStatic, isAbstract) match {
       case (true, false, false) => modPublicVirtual
       case (true, true, false)  => modPublicVirtualStatic

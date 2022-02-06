@@ -37,10 +37,16 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.isEmpty)
       assert(
         logger.issues == ArraySeq(
-          Issue(root.join("sfdx-project.json"),
-                Diagnostic(ERROR_CATEGORY,
-                           Location.empty,
-                           "Missing sfdx-project.json file at /sfdx-project.json"))))
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"Missing sfdx-project.json file at ${root.join("sfdx-project.json")}"
+            )
+          )
+        )
+      )
     }
   }
 
@@ -49,11 +55,17 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-                                               diagnostics.Diagnostic(
-                                                 ERROR_CATEGORY,
-                                                 Location.empty,
-                                                 "Failed to parse - ujson.IncompleteParseException: exhausted input"))))
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              "Failed to parse - ujson.IncompleteParseException: exhausted input"
+            )
+          )
+        )
+      )
     }
   }
 
@@ -62,11 +74,17 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-                                               diagnostics.Diagnostic(
-                                                 ERROR_CATEGORY,
-                                                 Location.empty,
-                                                 "Failed to parse - ujson.ParseException: expected \" got ' (line 1, column 3) at index 2"))))
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              "Failed to parse - ujson.ParseException: expected \" got ' (line 1, column 3) at index 2"
+            )
+          )
+        )
+      )
     }
   }
 
@@ -75,11 +93,14 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-          diagnostics.Diagnostic(
-            ERROR_CATEGORY,
-            Location(1, 0),
-            "'packageDirectories' is required"))))
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics
+              .Diagnostic(ERROR_CATEGORY, Location(1, 0), "'packageDirectories' is required")
+          )
+        )
+      )
     }
   }
 
@@ -89,11 +110,17 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         val project = SFDXProject(root, logger)
         assert(project.isEmpty)
         assert(
-          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-            diagnostics.Diagnostic(
-              ERROR_CATEGORY,
-              Location(1, 24),
-              "'packageDirectories' should be an array"))))
+          logger.issues == ArraySeq(
+            Issue(
+              root.join("sfdx-project.json"),
+              diagnostics.Diagnostic(
+                ERROR_CATEGORY,
+                Location(1, 24),
+                "'packageDirectories' should be an array"
+              )
+            )
+          )
+        )
     }
   }
 
@@ -109,69 +136,80 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Single packageDirectory") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.nonEmpty)
-        assert(project.get.packageDirectories.size == 1)
-        val pd = project.get.packageDirectories.head
-        assert(pd.path == root.join("foo"))
-        assert(pd.name.isEmpty)
-        assert(pd.version.isEmpty)
-        assert(pd.dependencies.isEmpty)
+      Map("sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}]}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+      assert(project.get.packageDirectories.size == 1)
+      val pd = project.get.packageDirectories.head
+      assert(pd.path == root.join("foo"))
+      assert(pd.name.isEmpty)
+      assert(pd.version.isEmpty)
+      assert(pd.dependencies.isEmpty)
     }
   }
 
   test("Single packageDirectory, with name & version") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"package\": \"name\", \"versionNumber\": \"1.2.3.NEXT\", \"path\": \"foo\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.nonEmpty)
-        assert(project.get.packageDirectories.size == 1)
-        val pd = project.get.packageDirectories.head
-        assert(pd.path == root.join("foo"))
-        assert(pd.name.contains("name"))
-        assert(pd.version.contains(VersionNumber(1, 2, 3, NextBuild)))
-        assert(pd.dependencies.isEmpty)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{ \"packageDirectories\": [{\"package\": \"name\", \"versionNumber\": \"1.2.3.NEXT\", \"path\": \"foo\"}]}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+      assert(project.get.packageDirectories.size == 1)
+      val pd = project.get.packageDirectories.head
+      assert(pd.path == root.join("foo"))
+      assert(pd.name.contains("name"))
+      assert(pd.version.contains(VersionNumber(1, 2, 3, NextBuild)))
+      assert(pd.dependencies.isEmpty)
     }
   }
 
   test("Single packageDirectory, with dependencies of wrong type") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """
+      Map(
+        "sfdx-project.json" ->
+          """
           |{ "packageDirectories": [
           | {
           |   "path": "foo",
           |   "dependencies": "deps"
           | }
           |]}
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-          diagnostics.Diagnostic(
-            ERROR_CATEGORY,
-            Location(5, 19),
-            "'dependencies' should be an array"))))
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics
+              .Diagnostic(ERROR_CATEGORY, Location(5, 19), "'dependencies' should be an array")
+          )
+        )
+      )
     }
   }
 
   test("Single packageDirectory, with empty dependencies") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """
+      Map(
+        "sfdx-project.json" ->
+          """
           |{ "packageDirectories": [
           | {
           |   "path": "foo",
           |   "dependencies": []
           | }
           |]}
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.nonEmpty)
       assert(project.get.packageDirectories.size == 1)
@@ -181,8 +219,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Single packageDirectory, with some dependency") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """
+      Map(
+        "sfdx-project.json" ->
+          """
           |{ "packageDirectories": [
           | {
           |   "path": "foo",
@@ -192,7 +231,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           |   }]
           | }
           |]}
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.nonEmpty)
       assert(project.get.packageDirectories.size == 1)
@@ -200,14 +241,16 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.get.packageDirectories.head.dependencies.head.name == "myPackage")
       assert(
         project.get.packageDirectories.head.dependencies.head.version
-          .contains(VersionNumber(1, 40, 2, Build(12))))
+          .contains(VersionNumber(1, 40, 2, Build(12)))
+      )
     }
   }
 
   test("Single packageDirectory, with some dependency missing name") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """
+      Map(
+        "sfdx-project.json" ->
+          """
           |{ "packageDirectories": [
           | {
           |   "path": "foo",
@@ -216,15 +259,19 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
           |   }]
           | }
           |]}
-          |""".stripMargin)) { root: PathLike =>
+          |""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
-        logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-          diagnostics.Diagnostic(
-            ERROR_CATEGORY,
-            Location(5, 20),
-            "'package' is required"))))
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(ERROR_CATEGORY, Location(5, 20), "'package' is required")
+          )
+        )
+      )
     }
   }
 
@@ -235,58 +282,70 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(project.isEmpty)
         assert(
           logger.issues == ArraySeq(
-            Issue(root.join("sfdx-project.json"),
-              diagnostics.Diagnostic(ERROR_CATEGORY,
-                Location(1, 25),
-                "'path' is required"))))
+            Issue(
+              root.join("sfdx-project.json"),
+              diagnostics.Diagnostic(ERROR_CATEGORY, Location(1, 25), "'path' is required")
+            )
+          )
+        )
     }
   }
 
   test("Multiple packageDirectories") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}, {\"path\": \"bar\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.nonEmpty)
-        assert(project.get.packageDirectories.size == 2)
-        assert(project.get.packageDirectories.head.path == root.join("foo"))
-        assert(project.get.packageDirectories(1).path == root.join("bar"))
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"foo\"}, {\"path\": \"bar\"}]}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+      assert(project.get.packageDirectories.size == 2)
+      assert(project.get.packageDirectories.head.path == root.join("foo"))
+      assert(project.get.packageDirectories(1).path == root.join("bar"))
 
     }
   }
 
   test("Bad path type") {
-    FileSystemHelper.run(Map("sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": {}}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
-        assert(
-          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-            diagnostics.Diagnostic(
-              ERROR_CATEGORY,
-              Location(1, 34),
-              "'path' should be a string"))))
+    FileSystemHelper.run(
+      Map("sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": {}}]}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(ERROR_CATEGORY, Location(1, 34), "'path' should be a string")
+          )
+        )
+      )
     }
   }
 
   test("Path outside project") {
     FileSystemHelper.run(
-      Map("pkg/sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"/path\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root.join("pkg"), logger)
-        assert(project.nonEmpty)
-        assert(logger.issues.isEmpty)
+      Map("pkg/sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"/path\"}]}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root.join("pkg"), logger)
+      assert(project.nonEmpty)
+      assert(logger.issues.isEmpty)
 
-        // Path are checked during layer construction
-        project.get.layers(logger)
-        assert(
-          logger.issues == ArraySeq(
-            Issue(root.join("pkg").join("sfdx-project.json"),
-                  diagnostics.Diagnostic(
-                    ERROR_CATEGORY,
-                    Location.empty,
-                    "Package directory '/path' is not within the project directory '/pkg'"))))
+      // Path are checked during layer construction
+      project.get.layers(logger)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("pkg").join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"Package directory '${root.join("path")}' is not within the project directory '${root.join("pkg")}'"
+            )
+          )
+        )
+      )
     }
   }
 
@@ -302,68 +361,83 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Invalid namespace json") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"namespace\": {}, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
-        assert(
-          logger.issues == ArraySeq(
-            Issue(root.join("sfdx-project.json"),
-              diagnostics.Diagnostic(ERROR_CATEGORY,
-                Location(1, 14),
-                "'namespace' should be a string"))))
+      Map("sfdx-project.json" -> "{\"namespace\": {}, \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics
+              .Diagnostic(ERROR_CATEGORY, Location(1, 14), "'namespace' should be a string")
+          )
+        )
+      )
     }
   }
 
   test("Empty namespace") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"namespace\": \"\", \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.nonEmpty)
-        assert(project.get.namespace.isEmpty)
+      Map("sfdx-project.json" -> "{\"namespace\": \"\", \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+      assert(project.get.namespace.isEmpty)
     }
   }
 
   test("Whitespace namespace") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"namespace\": \" \", \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
-        assert(
-          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
+      Map("sfdx-project.json" -> "{\"namespace\": \" \", \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location(1, 14),
-              "' ' is not a valid identifier, can only use characters A-Z, a-z, 0-9 or _"))))
+              "' ' is not a valid identifier, can only use characters A-Z, a-z, 0-9 or _"
+            )
+          )
+        )
+      )
     }
   }
 
   test("Invalid namespace") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"namespace\": \"foo__bar\", \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
-        assert(
-          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-                                                 diagnostics.Diagnostic(
-                                                   ERROR_CATEGORY,
-                                                   Location(1, 14),
-                                                   "'foo__bar' is not a valid identifier, can not use '__'"))))
+      Map("sfdx-project.json" -> "{\"namespace\": \"foo__bar\", \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 14),
+              "'foo__bar' is not a valid identifier, can not use '__'"
+            )
+          )
+        )
+      )
     }
   }
 
   test("Valid namespace") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"namespace\": \"ns\", \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.nonEmpty)
-        assert(project.get.namespace.contains(Name("ns")))
+      Map("sfdx-project.json" -> "{\"namespace\": \"ns\", \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.nonEmpty)
+      assert(project.get.namespace.contains(Name("ns")))
     }
   }
 
@@ -379,120 +453,147 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Plugins of wrong type") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"plugins\": \"foo\", \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.isEmpty)
-        assert(
-          logger.issues == ArraySeq(
-            Issue(root.join("sfdx-project.json"),
-                  diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location(1,12),
-                                         "'plugins' should be an object"))))
+      Map("sfdx-project.json" -> "{\"plugins\": \"foo\", \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(ERROR_CATEGORY, Location(1, 12), "'plugins' should be an object")
+          )
+        )
+      )
     }
   }
 
   test("Plugins empty") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" -> "{\"plugins\": {}, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.get.plugins.isEmpty)
+      Map("sfdx-project.json" -> "{\"plugins\": {}, \"packageDirectories\": []}")
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.plugins.isEmpty)
     }
   }
 
   test("Plugins multiple keys") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"foo\": {}, \"bar\": {}}, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.get.plugins.size == 2)
-        assert(project.get.plugins.contains("foo"))
-        assert(project.get.plugins.contains("bar"))
-        assert(project.get.dependencies.isEmpty)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"foo\": {}, \"bar\": {}}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.plugins.size == 2)
+      assert(project.get.plugins.contains("foo"))
+      assert(project.get.plugins.contains("bar"))
+      assert(project.get.dependencies.isEmpty)
     }
   }
 
   test("Empty Dependencies") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": []}, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.get.plugins.size == 1)
-        assert(project.get.plugins.contains("dependencies"))
-        assert(project.get.dependencies.isEmpty)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": []}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.plugins.size == 1)
+      assert(project.get.plugins.contains("dependencies"))
+      assert(project.get.dependencies.isEmpty)
     }
   }
 
   test("Dependencies missing namespace") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{}]}, \"packageDirectories\": [{\"path\": \"foo\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(project.nonEmpty)
-        assert(logger.issues.isEmpty)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{}]}, \"packageDirectories\": [{\"path\": \"foo\"}]}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(project.nonEmpty)
+      assert(logger.issues.isEmpty)
 
-        // Namespace & path are checked during layer construction
-        project.get.layers(logger)
-        assert(
-          logger.issues == ArraySeq(Issue(root.join("sfdx-project.json"),
-                                                 diagnostics.Diagnostic(
-                                                   ERROR_CATEGORY,
-                                                   Location(1, 30),
-                                                   "plugin dependencies must include either a namespace, a path or both"))))
+      // Namespace & path are checked during layer construction
+      project.get.layers(logger)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 30),
+              "plugin dependencies must include either a namespace, a path or both"
+            )
+          )
+        )
+      )
     }
   }
 
   test("Dependencies namespace without path") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\"}] }, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.get.dependencies.nonEmpty)
-        assert(project.get.dependencies.size == 1)
-        assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\"}] }, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.dependencies.nonEmpty)
+      assert(project.get.dependencies.size == 1)
+      assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
     }
   }
 
   test("Dependencies namespace with path") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": []}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
-        assert(project.get.dependencies.nonEmpty)
-        assert(project.get.dependencies.size == 1)
-        assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
-        assert(project.get.dependencies.exists(_.path.contains(root.join("bar"))))
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.dependencies.nonEmpty)
+      assert(project.get.dependencies.size == 1)
+      assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
+      assert(project.get.dependencies.exists(_.path.contains(root.join("bar"))))
     }
   }
 
   test("Dependencies duplicate namespace") {
-    FileSystemHelper.run(Map(
-      "sfdx-project.json" -> "{\"namespace\": \"foo\", \"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": [{\"path\": \"path\"}]}")) {
-      root: PathLike =>
-        val project = SFDXProject(root, logger)
-        assert(logger.issues.isEmpty)
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"namespace\": \"foo\", \"plugins\": {\"dependencies\": [{\"namespace\": \"foo\", \"path\": \"bar\"}] }, \"packageDirectories\": [{\"path\": \"path\"}]}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
 
-        // Duplicate namespace is checked during layer construction
-        project.get.layers(logger)
-        assert(
-          logger.issues == ArraySeq(
-            Issue(root.join("sfdx-project.json"),
-                  diagnostics.Diagnostic(ERROR_CATEGORY,
-                                         Location(1, 50),
-                                         "plugin dependencies must use unique namespaces"))))
+      // Duplicate namespace is checked during layer construction
+      project.get.layers(logger)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 50),
+              "plugin dependencies must use unique namespaces"
+            )
+          )
+        )
+      )
     }
   }
 
   test("Dependencies multiple entries") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
         | "packageDirectories": [],
         | "plugins": {
         |   "dependencies": [
@@ -501,7 +602,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         |     {"namespace": "baz", "path": "pathc"}
         |   ]
         | }
-        |}""".stripMargin)) { root: PathLike =>
+        |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(logger.issues.isEmpty)
       assert(project.get.dependencies.nonEmpty)
@@ -514,11 +617,14 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("sourceApiVersion") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "sourceApiVersion": "Hello",
           | "packageDirectories": []
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.get.sourceApiVersion.contains("Hello"))
     }
@@ -526,31 +632,40 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("sourceApiVersion bad type") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "sourceApiVersion": 23.4,
           | "packageDirectories": []
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
       assert(
         logger.issues == ArraySeq(
-          Issue(root.join("sfdx-project.json"),
-            diagnostics.Diagnostic(ERROR_CATEGORY,
-              Location(2, 21),
-              "'sourceApiVersion' should be a string"))))
+          Issue(
+            root.join("sfdx-project.json"),
+            diagnostics
+              .Diagnostic(ERROR_CATEGORY, Location(2, 21), "'sourceApiVersion' should be a string")
+          )
+        )
+      )
     }
   }
 
   test("max dependency count valid") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [],
           | "plugins": {
           |   "maxDependencyCount": 123
           | }
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.get.maxDependencyCount.contains(123))
     }
@@ -558,13 +673,16 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("max dependency count zero valid") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [],
           | "plugins": {
           |   "maxDependencyCount": 0
           | }
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.get.maxDependencyCount.contains(0))
     }
@@ -572,59 +690,89 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("max dependency count negative invalid") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [],
           | "plugins": {
           |   "maxDependencyCount": -2
           | }
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
-      assert(logger.issues == ArraySeq(
-        Issue(root.join("sfdx-project.json"),
-          Diagnostic(ERROR_CATEGORY,
-            Location(4, 25),
-            "'maxDependencyCount' value '-2' should be a positive integer"))))
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(4, 25),
+              "'maxDependencyCount' value '-2' should be a positive integer"
+            )
+          )
+        )
+      )
 
     }
   }
 
   test("max dependency count too big invalid") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [],
           | "plugins": {
           |   "maxDependencyCount": 2147483648
           | }
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
-      assert(logger.issues == ArraySeq(
-        Issue(root.join("sfdx-project.json"),
-          Diagnostic(ERROR_CATEGORY,
-            Location(4, 25),
-            "'maxDependencyCount' value '2147483648' is not an integer"))))
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(4, 25),
+              "'maxDependencyCount' value '2147483648' is not an integer"
+            )
+          )
+        )
+      )
     }
   }
 
   test("max dependency count not number") {
     FileSystemHelper.run(
-      Map("sfdx-project.json" ->
-        """{
+      Map(
+        "sfdx-project.json" ->
+          """{
           | "packageDirectories": [],
           | "plugins": {
           |   "maxDependencyCount": "foo"
           | }
-          |}""".stripMargin)) { root: PathLike =>
+          |}""".stripMargin
+      )
+    ) { root: PathLike =>
       val project = SFDXProject(root, logger)
       assert(project.isEmpty)
-      assert(logger.issues == ArraySeq(
-        Issue(root.join("sfdx-project.json"),
-          Diagnostic(ERROR_CATEGORY,
-            Location(4, 25),
-            "'maxDependencyCount' value '\"foo\"' should be a positive integer"))))
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(4, 25),
+              "'maxDependencyCount' value '\"foo\"' should be a positive integer"
+            )
+          )
+        )
+      )
     }
   }
 }

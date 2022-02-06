@@ -43,19 +43,21 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
   }
 
   test("Standard object visible") {
-    FileSystemHelper.run(Map(
-      "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")) {
-      root: PathLike =>
-        createHappyOrg(root)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Account;} }")
+    ) { root: PathLike =>
+      createHappyOrg(root)
     }
   }
 
   test("Custom object visible") {
     FileSystemHelper.run(
-      Map("Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
-          "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }")) {
-      root: PathLike =>
-        createHappyOrg(root)
+      Map(
+        "Foo__c.object" -> customObject("Foo", Seq(("Bar__c", "Text", None))),
+        "Dummy.cls"     -> "public class Dummy { {DescribeSObjectResult r = SObjectType.Foo__c;} }"
+      )
+    ) { root: PathLike =>
+      createHappyOrg(root)
     }
   }
 
@@ -68,10 +70,11 @@ class SchemaManagerTest extends AnyFunSuite with TestHelper {
           |"packageDirectories": [{"path": "pkg2"}],
           |"plugins": {"dependencies": [{"namespace": "pkg1"}]}
           |}""".stripMargin,
-        "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(org.issues.isEmpty)
+        "Dummy.cls" -> "public class Dummy { {DescribeSObjectResult r = SObjectType.ghosted__Foo__c;} }"
+      )
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.isEmpty)
     }
   }
 }

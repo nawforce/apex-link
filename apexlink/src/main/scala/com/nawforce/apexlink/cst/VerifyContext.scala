@@ -63,7 +63,11 @@ trait VerifyContext {
   def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext
 
   /** Save some result of a validation for later analysis with local var map */
-  def saveResult(cst: CST, altLocation: Location, vars: Option[mutable.Map[Name, VarTypeAndDefinition]])(op: => ExprContext): ExprContext
+  def saveResult(
+    cst: CST,
+    altLocation: Location,
+    vars: Option[mutable.Map[Name, VarTypeAndDefinition]]
+  )(op: => ExprContext): ExprContext
 
   /** Test if issues are currently being suppressed */
   def suppressIssues: Boolean = parent().exists(_.suppressIssues) || disableIssueDepth != 0
@@ -140,7 +144,11 @@ trait HolderVerifyContext {
   }
 
   /* Find a type and if found log that as a dependency */
-  def getTypeAndAddDependency(typeName: TypeName, from: TypeDeclaration, usingModule: Module): TypeResponse = {
+  def getTypeAndAddDependency(
+    typeName: TypeName,
+    from: TypeDeclaration,
+    usingModule: Module
+  ): TypeResponse = {
     val result =
       getTypeFor(typeName, from) match {
         case Left(err) => Left(err)
@@ -166,13 +174,21 @@ trait HolderVerifyContext {
   }
 }
 
-final case class ValidationResult(cst: CST, result: ExprContext, vars: Option[mutable.Map[Name, VarTypeAndDefinition]])
+final case class ValidationResult(
+  cst: CST,
+  result: ExprContext,
+  vars: Option[mutable.Map[Name, VarTypeAndDefinition]]
+)
 
 class ValidateResultHolder(resultMap: Option[mutable.Map[Location, ValidationResult]]) {
 
   def isSaving: Boolean = resultMap.nonEmpty
 
-  def saveResult(cst: CST, altLocation: Location, vars: Option[mutable.Map[Name, VarTypeAndDefinition]])(op: => ExprContext): ExprContext = {
+  def saveResult(
+    cst: CST,
+    altLocation: Location,
+    vars: Option[mutable.Map[Name, VarTypeAndDefinition]]
+  )(op: => ExprContext): ExprContext = {
     val result = op
     if (resultMap.nonEmpty) {
       resultMap.get.put(altLocation, ValidationResult(cst, result, vars))
@@ -182,10 +198,11 @@ class ValidateResultHolder(resultMap: Option[mutable.Map[Location, ValidationRes
   }
 }
 
-final class TypeVerifyContext(parentContext: Option[VerifyContext],
-                              typeDeclaration: ApexDeclaration,
-                              resultMap: Option[mutable.Map[Location, ValidationResult]])
-    extends ValidateResultHolder(resultMap)
+final class TypeVerifyContext(
+  parentContext: Option[VerifyContext],
+  typeDeclaration: ApexDeclaration,
+  resultMap: Option[mutable.Map[Location, ValidationResult]]
+) extends ValidateResultHolder(resultMap)
     with HolderVerifyContext
     with VerifyContext {
 
@@ -205,7 +222,9 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
     typeCache.getOrElseUpdate((typeName, from), TypeResolver(typeName, from, Some(module)))
 
   override def suppressIssues: Boolean =
-    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(_.suppressIssues)
+    typeDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(
+      _.suppressIssues
+    )
 
   def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext = {
     super.saveResult(cst, altLocation, None)(op)
@@ -217,10 +236,11 @@ final class TypeVerifyContext(parentContext: Option[VerifyContext],
   def typePlugin: Plugin = plugin
 }
 
-final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
-                                         classBodyDeclaration: ClassBodyDeclaration,
-                                         exprMap: Option[mutable.Map[Location, ValidationResult]])
-    extends ValidateResultHolder(exprMap)
+final class BodyDeclarationVerifyContext(
+  parentContext: TypeVerifyContext,
+  classBodyDeclaration: ClassBodyDeclaration,
+  exprMap: Option[mutable.Map[Location, ValidationResult]]
+) extends ValidateResultHolder(exprMap)
     with HolderVerifyContext
     with VerifyContext {
 
@@ -238,7 +258,9 @@ final class BodyDeclarationVerifyContext(parentContext: TypeVerifyContext,
   override def typePlugin: Plugin = parentContext.typePlugin
 
   override def suppressIssues: Boolean =
-    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(_.suppressIssues)
+    classBodyDeclaration.modifiers.contains(SUPPRESS_WARNINGS_ANNOTATION_PMD) || parent().exists(
+      _.suppressIssues
+    )
 
   def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext = {
     super.saveResult(cst, altLocation, None)(op)
@@ -255,7 +277,7 @@ case class VarTypeAndDefinition(declaration: TypeDeclaration, definition: Option
 
 abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyContext {
 
-  private val vars = mutable.Map[Name, VarTypeAndDefinition]()
+  private val vars     = mutable.Map[Name, VarTypeAndDefinition]()
   private val usedVars = mutable.Set[Name]()
 
   override def parent(): Option[VerifyContext] = Some(parentContext)
@@ -303,7 +325,11 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     if (td.isEmpty)
       missingType(definition.location, typeName)
 
-    vars.put(name, td.map(VarTypeAndDefinition(_, Some(definition))).getOrElse(VarTypeAndDefinition(module.any, None)))
+    vars.put(
+      name,
+      td.map(VarTypeAndDefinition(_, Some(definition)))
+        .getOrElse(VarTypeAndDefinition(module.any, None))
+    )
   }
 
   def isStatic: Boolean
@@ -320,7 +346,11 @@ abstract class BlockVerifyContext(parentContext: VerifyContext) extends VerifyCo
     }
   }
 
-  override def saveResult(cst: CST, altLocation: Location, vars: Option[mutable.Map[Name, VarTypeAndDefinition]])(op: => ExprContext): ExprContext = {
+  override def saveResult(
+    cst: CST,
+    altLocation: Location,
+    vars: Option[mutable.Map[Name, VarTypeAndDefinition]]
+  )(op: => ExprContext): ExprContext = {
     parentContext.saveResult(cst, altLocation, vars)(op)
   }
 }
@@ -333,7 +363,8 @@ final class OuterBlockVerifyContext(parentContext: VerifyContext, isStaticContex
   override val isStatic: Boolean = isStaticContext
 }
 
-final class InnerBlockVerifyContext(parentContext: BlockVerifyContext) extends BlockVerifyContext(parentContext) {
+final class InnerBlockVerifyContext(parentContext: BlockVerifyContext)
+    extends BlockVerifyContext(parentContext) {
 
   override def isStatic: Boolean = parentContext.isStatic
 
@@ -368,7 +399,11 @@ final class ExpressionVerifyContext(parentContext: BlockVerifyContext) extends V
 
   override def isSaving: Boolean = parentContext.isSaving
 
-  override def saveResult(cst: CST, altLocation: Location, vars: Option[mutable.Map[Name, VarTypeAndDefinition]])(op: => ExprContext): ExprContext =
+  override def saveResult(
+    cst: CST,
+    altLocation: Location,
+    vars: Option[mutable.Map[Name, VarTypeAndDefinition]]
+  )(op: => ExprContext): ExprContext =
     parentContext.saveResult(cst, altLocation, vars)(op)
 
   override def saveResult(cst: CST, altLocation: Location)(op: => ExprContext): ExprContext =

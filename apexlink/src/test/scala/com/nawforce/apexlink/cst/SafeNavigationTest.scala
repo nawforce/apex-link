@@ -41,12 +41,14 @@ class SafeNavigationTest extends AnyFunSuite with TestHelper {
   test("Static field reference") {
     typeDeclaration("public class Dummy {static String a; { String b = Dummy?.a; }}")
     assert(
-      dummyIssues == "Error: line 1 at 50-58: Safe navigation operator (?.) can not be used on static references\n")
+      dummyIssues == "Error: line 1 at 50-58: Safe navigation operator (?.) can not be used on static references\n"
+    )
   }
 
   test("Static method reference") {
     typeDeclaration("public class Dummy {static String func(){} { String b = Dummy?.func(); }}")
     assert(
-      dummyIssues == "Error: line 1 at 56-69: Safe navigation operator (?.) can not be used on static references\n")
+      dummyIssues == "Error: line 1 at 56-69: Safe navigation operator (?.) can not be used on static references\n"
+    )
   }
 }

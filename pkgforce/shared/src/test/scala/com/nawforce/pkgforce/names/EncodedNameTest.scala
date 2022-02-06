@@ -93,7 +93,8 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName.localName == Name("Custom__Name__mdt"))
     assert(testName.fullName == Name("ns__Custom__Name__mdt"))
     assert(
-      testName.asTypeName == TypeName(Name("Custom__Name__mdt"), Nil, Some(TypeName(Name("ns")))))
+      testName.asTypeName == TypeName(Name("Custom__Name__mdt"), Nil, Some(TypeName(Name("ns"))))
+    )
   }
 
   test("Subfield without namespace") {
@@ -110,7 +111,8 @@ class EncodedNameTest extends AnyFunSuite {
     assert(testName.localName == Name("Field__Subfield__s"))
     assert(testName.fullName == Name("ns__Field__Subfield__s"))
     assert(
-      testName.asTypeName == TypeName(Name("Field__Subfield__s"), Nil, Some(TypeName(Name("ns")))))
+      testName.asTypeName == TypeName(Name("Field__Subfield__s"), Nil, Some(TypeName(Name("ns"))))
+    )
   }
 
   test("Subfield with missing field") {

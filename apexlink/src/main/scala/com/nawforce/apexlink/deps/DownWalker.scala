@@ -25,12 +25,14 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /** Dependency information collected */
-case class NodeData(id: TypeIdentifier,
-                    nature: String,
-                    transitiveCount: Int,
-                    extending: Array[TypeIdentifier],
-                    implementing: Array[TypeIdentifier],
-                    using: Array[TypeIdentifier])
+case class NodeData(
+  id: TypeIdentifier,
+  nature: String,
+  transitiveCount: Int,
+  extending: Array[TypeIdentifier],
+  implementing: Array[TypeIdentifier],
+  using: Array[TypeIdentifier]
+)
 
 /** Downstream dependency walker. Collects information on the dependencies of a type. */
 class DownWalker(org: Org, apexOnly: Boolean) {
@@ -43,13 +45,17 @@ class DownWalker(org: Org, apexOnly: Boolean) {
   /* Collect information on dependencies of the passed identifiers. The walk depth can be limited but the result will
    * always include the root node(s) information as the first 'n' elements of the returned Array.
    */
-  def walk(identifiers: Array[TypeIdentifier], depth: Int, ignoring:Array[TypeIdentifier]): Array[NodeData] = {
+  def walk(
+    identifiers: Array[TypeIdentifier],
+    depth: Int,
+    ignoring: Array[TypeIdentifier]
+  ): Array[NodeData] = {
     val collectedNodes = new ArrayBuffer[NodeData]()
     val collectedIds   = new mutable.HashMap[TypeIdentifier, Int]()
 
     val roots = identifiers
       .filterNot(i => ignoring.contains(i))
-      .flatMap(i => createNode(i,ignoring))
+      .flatMap(i => createNode(i, ignoring))
     collectedNodes.addAll(roots)
     identifiers.foreach(i => collectedIds.addOne(i, 0))
 
@@ -59,11 +65,13 @@ class DownWalker(org: Org, apexOnly: Boolean) {
     collectedNodes.toArray
   }
 
-  private def walkNode(node: NodeData,
-                       collector: ArrayBuffer[NodeData],
-                       collected: mutable.Map[TypeIdentifier,Int],
-                       depth: Int,
-                       ignoring:Array[TypeIdentifier]): Unit = {
+  private def walkNode(
+    node: NodeData,
+    collector: ArrayBuffer[NodeData],
+    collected: mutable.Map[TypeIdentifier, Int],
+    depth: Int,
+    ignoring: Array[TypeIdentifier]
+  ): Unit = {
     if (depth == 0) return
     (node.extending ++ node.implementing ++ node.using)
       .filterNot(n => ignoring.contains(n))
@@ -115,9 +123,10 @@ class DownWalker(org: Org, apexOnly: Boolean) {
               Option(pkg.getDependencies(id, outerInheritanceOnly = false, apexOnly))
             })
             .getOrElse(Array[TypeIdentifier]())
-        val uses = all.filterNot(output.contains)
-                      .filterNot(id => typeId.contains(id))
-                      .filterNot(id => ignoring.contains(id))
+        val uses = all
+          .filterNot(output.contains)
+          .filterNot(id => typeId.contains(id))
+          .filterNot(id => ignoring.contains(id))
         NodeData(
           id,
           td.nature.value,

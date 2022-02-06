@@ -34,61 +34,66 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 sealed abstract class TriggerCase(val name: String)
-case object BEFORE_INSERT extends TriggerCase("before insert")
-case object BEFORE_UPDATE extends TriggerCase("before update")
-case object BEFORE_DELETE extends TriggerCase("before delete")
+case object BEFORE_INSERT   extends TriggerCase("before insert")
+case object BEFORE_UPDATE   extends TriggerCase("before update")
+case object BEFORE_DELETE   extends TriggerCase("before delete")
 case object BEFORE_UNDELETE extends TriggerCase(name = "before undelete")
-case object AFTER_INSERT extends TriggerCase(name = "after insert")
-case object AFTER_UPDATE extends TriggerCase(name = "after update")
-case object AFTER_DELETE extends TriggerCase(name = "after delete")
-case object AFTER_UNDELETE extends TriggerCase(name = "after undelete")
+case object AFTER_INSERT    extends TriggerCase(name = "after insert")
+case object AFTER_UPDATE    extends TriggerCase(name = "after update")
+case object AFTER_DELETE    extends TriggerCase(name = "after delete")
+case object AFTER_UNDELETE  extends TriggerCase(name = "after undelete")
 
-final case class TriggerDeclaration(source: Source,
-                                    module: Module,
-                                    nameId: Id,
-                                    objectNameId: Id,
-                                    typeName: TypeName,
-                                    cases: Seq[TriggerCase],
-                                    block: Option[Block])
-    extends CST
+final case class TriggerDeclaration(
+  source: Source,
+  module: Module,
+  nameId: Id,
+  objectNameId: Id,
+  typeName: TypeName,
+  cases: Seq[TriggerCase],
+  block: Option[Block]
+) extends CST
     with ApexTriggerDeclaration
     with ApexFullDeclaration
     with DependencyHolder {
 
-  override val idLocation: Location = nameId.location.location
-  override lazy val sourceHash: Int = source.hash
+  override val idLocation: Location      = nameId.location.location
+  override lazy val sourceHash: Int      = source.hash
   override def paths: ArraySeq[PathLike] = ArraySeq(location.path)
 
   override val moduleDeclaration: Option[Module] = Some(module)
-  override val name: Name = typeName.name
-  override val outerTypeName: Option[TypeName] = None
-  override val nature: Nature = TRIGGER_NATURE
-  override val modifiers: ArraySeq[Modifier] = ModifierOps.emptyModifiers
-  override val isComplete: Boolean = true
-  override val inTest: Boolean = false
+  override val name: Name                        = typeName.name
+  override val outerTypeName: Option[TypeName]   = None
+  override val nature: Nature                    = TRIGGER_NATURE
+  override val modifiers: ArraySeq[Modifier]     = ModifierOps.emptyModifiers
+  override val isComplete: Boolean               = true
+  override val inTest: Boolean                   = false
 
-  override val superClass: Option[TypeName] = None
-  override val interfaces: ArraySeq[TypeName] = ArraySeq()
+  override val superClass: Option[TypeName]           = None
+  override val interfaces: ArraySeq[TypeName]         = ArraySeq()
   override val nestedTypes: ArraySeq[TypeDeclaration] = TypeDeclaration.emptyTypeDeclarations
 
   override val blocks: ArraySeq[BlockDeclaration] = BlockDeclaration.emptyBlockDeclarations
   override val fields: ArraySeq[FieldDeclaration] = FieldDeclaration.emptyFieldDeclarations
-  override val constructors: ArraySeq[ConstructorDeclaration] = ConstructorDeclaration.emptyConstructorDeclarations
+  override val constructors: ArraySeq[ConstructorDeclaration] =
+    ConstructorDeclaration.emptyConstructorDeclarations
   override val methods: ArraySeq[MethodDeclaration] = MethodDeclaration.emptyMethodDeclarations
 
   private var depends: Option[SkinnySet[Dependent]] = None
-  private val objectTypeName = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
+  private val objectTypeName                        = TypeName(objectNameId.name, Nil, Some(TypeNames.Schema))
 
   override def validate(): Unit = {
     LoggerOps.debugTime(s"Validated ${location.path}") {
       nameId.validate()
 
       val duplicateCases = cases.groupBy(_.name).collect { case (_, Seq(_, y, _*)) => y }
-      duplicateCases.foreach(triggerCase =>
-        OrgImpl.logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'"))
+      duplicateCases.foreach(
+        triggerCase =>
+          OrgImpl
+            .logError(objectNameId.location, s"Duplicate trigger case for '${triggerCase.name}'")
+      )
 
       val context = new TypeVerifyContext(None, this, None)
-      val tdOpt = context.getTypeAndAddDependency(objectTypeName, this)
+      val tdOpt   = context.getTypeAndAddDependency(objectTypeName, this)
 
       tdOpt match {
         case Left(error) =>
@@ -123,13 +128,15 @@ final case class TriggerDeclaration(source: Source,
     depends.map(_.toIterable).getOrElse(Array().toIterable)
   }
 
-  override def gatherDependencies(dependents: mutable.Set[TypeId],
-                                  apexOnly: Boolean,
-                                  outerTypesOnly: Boolean,
-                                  typeCache: TypeCache): Unit = {
+  override def gatherDependencies(
+    dependents: mutable.Set[TypeId],
+    apexOnly: Boolean,
+    outerTypesOnly: Boolean,
+    typeCache: TypeCache
+  ): Unit = {
     depends.foreach(_.toIterable.foreach {
       case ad: ApexClassDeclaration => dependents.add(ad.outerTypeId)
-      case _ => ()
+      case _                        => ()
     })
   }
 
@@ -139,7 +146,8 @@ final case class TriggerDeclaration(source: Source,
   override def updateTypeDependencyHolders(holders: SkinnySet[TypeId]): Unit = {}
 
   override def summary: TypeSummary = {
-    TypeSummary(sourceHash,
+    TypeSummary(
+      sourceHash,
       location.location,
       nameId.location.location,
       name.toString,
@@ -154,21 +162,26 @@ final case class TriggerDeclaration(source: Source,
       ArraySeq(),
       ArraySeq(),
       ArraySeq(),
-      dependencySummary())
+      dependencySummary()
+    )
   }
+
   /** Locate an ApexDeclaration for the passed typeName that was extracted from location. */
-  override def findDeclarationFromSourceReference(searchTerm: String, location: Location): Option[ApexDeclaration] = {
+  override def findDeclarationFromSourceReference(
+    searchTerm: String,
+    location: Location
+  ): Option[ApexDeclaration] = {
     TypeName(searchTerm).toOption match {
       case Some(typeName: TypeName) =>
-        TypeResolver(typeName, this).toOption.collect {case td:ApexClassDeclaration => td}
+        TypeResolver(typeName, this).toOption.collect { case td: ApexClassDeclaration => td }
       case _ => None
     }
   }
 
   override def getValidationMap(line: Int, offset: Int): Map[Location, ValidationResult] = {
-    val resultMap = mutable.Map[Location, ValidationResult]()
+    val resultMap   = mutable.Map[Location, ValidationResult]()
     val typeContext = new TypeVerifyContext(None, this, Some(resultMap))
-    val context = new OuterBlockVerifyContext(typeContext, isStaticContext = false)
+    val context     = new OuterBlockVerifyContext(typeContext, isStaticContext = false)
     context.disableIssueReporting() {
       block.foreach(block => {
         block.verify(context)
@@ -188,21 +201,29 @@ object TriggerDeclaration {
     TriggerDeclaration.construct(parser, module, result.value)
   }
 
-  def construct(parser: CodeParser, module: Module, trigger: TriggerUnitContext): Option[TriggerDeclaration] = {
+  def construct(
+    parser: CodeParser,
+    module: Module,
+    trigger: TriggerUnitContext
+  ): Option[TriggerDeclaration] = {
     CST.sourceContext.withValue(Some(parser.source)) {
-      val ids = CodeParser.toScala(trigger.id()).map(Id.construct)
+      val ids   = CodeParser.toScala(trigger.id()).map(Id.construct)
       val cases = CodeParser.toScala(trigger.triggerCase()).map(constructCase)
       val block = CodeParser
         .toScala(trigger.block())
         .map(block => Block.constructLazy(parser, block, isTrigger = true))
       if (ids.length == 2) {
-        Some(new TriggerDeclaration(parser.source,
-          module,
-          ids.head,
-          ids(1),
-          constructTypeName(module.namespace, ids.head.name),
-          cases,
-          block).withContext(trigger))
+        Some(
+          new TriggerDeclaration(
+            parser.source,
+            module,
+            ids.head,
+            ids(1),
+            constructTypeName(module.namespace, ids.head.name),
+            cases,
+            block
+          ).withContext(trigger)
+        )
       } else {
         None
       }
@@ -247,10 +268,12 @@ final case class TriggerContext(module: Module, baseType: TypeDeclaration)
     baseType.findField(name, staticContext)
   }
 
-  override def findMethod(name: Name,
-                          params: ArraySeq[TypeName],
-                          staticContext: Option[Boolean],
-                          verifyContext: VerifyContext): Either[String, MethodDeclaration] = {
+  override def findMethod(
+    name: Name,
+    params: ArraySeq[TypeName],
+    staticContext: Option[Boolean],
+    verifyContext: VerifyContext
+  ): Either[String, MethodDeclaration] = {
     baseType.findMethod(name, params, staticContext, verifyContext)
   }
 }

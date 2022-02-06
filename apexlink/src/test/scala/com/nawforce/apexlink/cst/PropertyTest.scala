@@ -56,7 +56,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(fields.head.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 49-52: Duplicate field/property: 'foo'\n")
+        "Error: line 1 at 49-52: Duplicate field/property: 'foo'\n"
+    )
   }
 
   test("Property without blocks") {
@@ -65,7 +66,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n")
+        "Error: line 1 at 20-32: Properties must have either a single 'get' and/or a single 'set' block\n"
+    )
   }
 
   test("Property with dual set") {
@@ -74,7 +76,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n")
+        "Error: line 1 at 20-41: Properties must have either a single 'get' and/or a single 'set' block\n"
+    )
   }
 
   test("Property with dual get & a set") {
@@ -82,17 +85,20 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n")
+        "Error: line 1 at 20-46: Properties must have either a single 'get' and/or a single 'set' block\n"
+    )
   }
 
   test("More than one duplicate property reports error on duplicates") {
     val fields = typeDeclaration(
-      "public class Dummy {String foo{get; set;} Integer foo{get; set;} String foo{get; set;}}").fields
+      "public class Dummy {String foo{get; set;} Integer foo{get; set;} String foo{get; set;}}"
+    ).fields
     assert(fields.length == 1)
     assert(fields.head.name == Name("foo"))
     assert(
       dummyIssues ==
-        "Error: line 1 at 50-53: Duplicate field/property: 'foo'\nError: line 1 at 72-75: Duplicate field/property: 'foo'\n")
+        "Error: line 1 at 50-53: Duplicate field/property: 'foo'\nError: line 1 at 72-75: Duplicate field/property: 'foo'\n"
+    )
   }
 
   test("Default property access private") {
@@ -135,7 +141,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 34-37: Enclosing class must be declared global to use global or webservice modifiers\n")
+        "Error: line 1 at 34-37: Enclosing class must be declared global to use global or webservice modifiers\n"
+    )
   }
 
   test("Global property access in global class") {
@@ -163,12 +170,14 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 38-41: Enclosing class must be declared global to use global or webservice modifiers\n")
+        "Error: line 1 at 38-41: Enclosing class must be declared global to use global or webservice modifiers\n"
+    )
   }
 
   test("Webservice property access with get/set modifiers") {
     val property = typeDeclaration(
-      "global class Dummy {webservice String foo{global get; public set;}}").fields.head
+      "global class Dummy {webservice String foo{global get; public set;}}"
+    ).fields.head
     assert(property.modifiers == ArraySeq(GLOBAL_MODIFIER, WEBSERVICE_MODIFIER))
     assert(property.readAccess == GLOBAL_MODIFIER)
     assert(property.writeAccess == PUBLIC_MODIFIER)
@@ -201,7 +210,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == PUBLIC_MODIFIER)
     assert(
       dummyIssues ==
-        "Error: line 1 at 28-56: Setter visibility must be same or less than property\n")
+        "Error: line 1 at 28-56: Setter visibility must be same or less than property\n"
+    )
   }
 
   test("Property getter lower visibility") {
@@ -221,7 +231,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == PRIVATE_MODIFIER)
     assert(
       dummyIssues ==
-        "Error: line 1 at 28-56: Getter visibility must be same or less than property\n")
+        "Error: line 1 at 28-56: Getter visibility must be same or less than property\n"
+    )
   }
 
   test("Static property") {
@@ -242,12 +253,16 @@ class PropertyTest extends AnyFunSuite with TestHelper {
 
   test("Many modifiers property") {
     val property = typeDeclaration(
-      "public class Dummy {protected transient final static String foo{get; set;}}").fields.head
+      "public class Dummy {protected transient final static String foo{get; set;}}"
+    ).fields.head
     assert(
-      property.modifiers == ArraySeq(PROTECTED_MODIFIER,
-                                            TRANSIENT_MODIFIER,
-                                            FINAL_MODIFIER,
-                                            STATIC_MODIFIER))
+      property.modifiers == ArraySeq(
+        PROTECTED_MODIFIER,
+        TRANSIENT_MODIFIER,
+        FINAL_MODIFIER,
+        STATIC_MODIFIER
+      )
+    )
     assert(property.readAccess == PROTECTED_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(!hasIssues)
@@ -261,7 +276,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 47-50: Modifier 'protected' is used more than once\n")
+        "Error: line 1 at 47-50: Modifier 'protected' is used more than once\n"
+    )
   }
 
   test("Mixed access property") {
@@ -272,7 +288,8 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 45-48: Enclosing class must be declared global to use global or webservice modifiers\n")
+        "Error: line 1 at 45-48: Enclosing class must be declared global to use global or webservice modifiers\n"
+    )
   }
 
   test("AuraEnabled property") {
@@ -313,7 +330,9 @@ class PropertyTest extends AnyFunSuite with TestHelper {
 
   test("SuppressWarnings property") {
     val property =
-      typeDeclaration("public class Dummy {@SuppressWarnings('PMD') String foo{get; set;}}").fields.head
+      typeDeclaration(
+        "public class Dummy {@SuppressWarnings('PMD') String foo{get; set;}}"
+      ).fields.head
     assert(property.modifiers == ArraySeq(PRIVATE_MODIFIER, SUPPRESS_WARNINGS_ANNOTATION_PMD))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
@@ -328,17 +347,21 @@ class PropertyTest extends AnyFunSuite with TestHelper {
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-30: Annotation '@TestSetup' is not supported on fields\n")
+        "Error: line 1 at 20-30: Annotation '@TestSetup' is not supported on fields\n"
+    )
   }
 
   test("Duplicate annotation property") {
     val property =
-      typeDeclaration("public class Dummy {@TestVisible @TestVisible String foo{get; set;}}").fields.head
+      typeDeclaration(
+        "public class Dummy {@TestVisible @TestVisible String foo{get; set;}}"
+      ).fields.head
     assert(property.modifiers == ArraySeq(PRIVATE_MODIFIER, TEST_VISIBLE_ANNOTATION))
     assert(property.readAccess == PRIVATE_MODIFIER)
     assert(property.writeAccess == property.readAccess)
     assert(
       dummyIssues ==
-        "Error: line 1 at 53-56: Modifier '@TestVisible' is used more than once\n")
+        "Error: line 1 at 53-56: Modifier '@TestVisible' is used more than once\n"
+    )
   }
 }

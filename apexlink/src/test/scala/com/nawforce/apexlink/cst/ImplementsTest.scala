@@ -23,60 +23,76 @@ class ImplementsTest extends AnyFunSuite with TestHelper {
     assert(typeDeclarations(Map("Dummy.cls" -> "global class Dummy implements A {}")).nonEmpty)
     assert(
       dummyIssues ==
-        "Missing: line 1 at 13-18: No type declaration found for 'A'\n")
+        "Missing: line 1 at 13-18: No type declaration found for 'A'\n"
+    )
   }
 
   test("Missing class second interface") {
     typeDeclarations(
-      Map("Dummy.cls" -> "global class Dummy implements A, B {}",
-          "A.cls" -> "public interface A {}"))
+      Map(
+        "Dummy.cls" -> "global class Dummy implements A, B {}",
+        "A.cls"     -> "public interface A {}"
+      )
+    )
     assert(
       dummyIssues ==
-        "Missing: line 1 at 13-18: No type declaration found for 'B'\n")
+        "Missing: line 1 at 13-18: No type declaration found for 'B'\n"
+    )
   }
 
   test("Class implements class") {
     typeDeclarations(
-      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public class A {}"))
+      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public class A {}")
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 13-18: Type 'A' must be an interface\n")
+        "Error: line 1 at 13-18: Type 'A' must be an interface\n"
+    )
   }
 
   test("Class implements enum") {
     typeDeclarations(
-      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public enum A {}"))
+      Map("Dummy.cls" -> "global class Dummy implements A {}", "A.cls" -> "public enum A {}")
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 13-18: Type 'A' must be an interface\n")
+        "Error: line 1 at 13-18: Type 'A' must be an interface\n"
+    )
   }
 
   test("Interface extends class") {
     typeDeclarations(
-      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public class A {}"))
+      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public class A {}")
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 17-22: Type 'A' must be an interface\n")
+        "Error: line 1 at 17-22: Type 'A' must be an interface\n"
+    )
   }
 
   test("Interface extends enum") {
     typeDeclarations(
-      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public enum A {}"))
+      Map("Dummy.cls" -> "global interface Dummy extends A {}", "A.cls" -> "public enum A {}")
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 17-22: Type 'A' must be an interface\n")
+        "Error: line 1 at 17-22: Type 'A' must be an interface\n"
+    )
   }
 
   test("Class implements Database.Batchable<sObject>") {
     typeDeclarations(
-      Map("Dummy.cls" ->
-        """
+      Map(
+        "Dummy.cls" ->
+          """
           | global class Dummy implements Database.Batchable<sObject> {
           |   Iterable<sObject> start(Database.BatchableContext param1) {}
           |   void execute(Database.BatchableContext param1, List<SObject> param2) {}
           |   void finish(Database.BatchableContext param1) {}
           | }
-          |""".stripMargin))
+          |""".stripMargin
+      )
+    )
     assert(dummyIssues == "")
   }
 }

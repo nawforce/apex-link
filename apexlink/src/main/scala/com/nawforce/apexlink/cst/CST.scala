@@ -85,10 +85,11 @@ object QualifiedName {
   }
 }
 
-final case class Annotation(name: Option[QualifiedName],
-                            elementValuePairs: List[ElementValuePair],
-                            elementValue: Option[ElementValue])
-  extends CST
+final case class Annotation(
+  name: Option[QualifiedName],
+  elementValuePairs: List[ElementValuePair],
+  elementValue: Option[ElementValue]
+) extends CST
 
 object Annotation {
   def construct(annotation: AnnotationContext): Annotation = {
@@ -118,8 +119,8 @@ final case class ArrayInitializerElementValue(arrayInitializer: ElementValueArra
 
 object ElementValue {
   def construct(elementValue: ElementValueContext): Option[ElementValue] = {
-    val expression = CodeParser.toScala(elementValue.expression())
-    val annotation = CodeParser.toScala(elementValue.annotation())
+    val expression       = CodeParser.toScala(elementValue.expression())
+    val annotation       = CodeParser.toScala(elementValue.annotation())
     val arrayInitializer = CodeParser.toScala(elementValue.elementValueArrayInitializer())
 
     if (expression.nonEmpty) {
@@ -127,7 +128,10 @@ object ElementValue {
     } else if (annotation.nonEmpty) {
       Some(AnnotationElementValue(Annotation.construct(annotation.get)).withContext(elementValue))
     } else if (arrayInitializer.nonEmpty) {
-      Some(ArrayInitializerElementValue(ElementValueArrayInitializer.construct(arrayInitializer.get)).withContext(elementValue))
+      Some(
+        ArrayInitializerElementValue(ElementValueArrayInitializer.construct(arrayInitializer.get))
+          .withContext(elementValue)
+      )
     } else {
       None
     }

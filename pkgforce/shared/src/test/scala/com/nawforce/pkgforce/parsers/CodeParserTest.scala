@@ -34,15 +34,15 @@ import org.scalatest.funsuite.AnyFunSuite
 class CodeParserTest extends AnyFunSuite {
 
   test("Class well formed") {
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData("public class Dummy {}"))
+    val path   = Path("Dummy.cls")
+    val cp     = CodeParser(path, SourceData("public class Dummy {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
   }
 
   test("Class with error") {
-    val path = Path("Dummy.cls")
-    val cp = CodeParser(path, SourceData("public class Dummy {"))
+    val path   = Path("Dummy.cls")
+    val cp     = CodeParser(path, SourceData("public class Dummy {"))
     val result = cp.parseClass()
     assert(result.issues.length == 1)
     assert(result.issues.head.diagnostic.location.displayPosition == "line 1 at 20")
@@ -62,8 +62,8 @@ class CodeParserTest extends AnyFunSuite {
   }
 
   test("Class with keyword name") {
-    val path = Path("Network.cls")
-    val cp = CodeParser(path, SourceData("public class Network {}"))
+    val path   = Path("Network.cls")
+    val cp     = CodeParser(path, SourceData("public class Network {}"))
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
   }

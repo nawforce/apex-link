@@ -34,77 +34,111 @@ class TypeNameTest extends AnyFunSuite {
   test("parse basic type names") {
     assert(TypeName.apply("Foo") == Right(TypeName(Name("Foo"))))
     assert(
-      TypeName.apply("Foo.Bar") == Right(TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo"))))))
+      TypeName.apply("Foo.Bar") == Right(TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))
+    )
     assert(
       TypeName.apply("Foo.Bar.Baz") == Right(
-        TypeName(Name("Baz"), Nil, Some(TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo"))))))))
+        TypeName(Name("Baz"), Nil, Some(TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo"))))))
+      )
+    )
   }
 
   test("parse basic generic type names") {
     assert(
-      TypeName.apply("Foo<Bar>") == Right(TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), None)))
+      TypeName.apply("Foo<Bar>") == Right(TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), None))
+    )
     assert(
       TypeName.apply("Baz.Foo<Bar>") == Right(
-        TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), Some(TypeName(Name("Baz"))))))
+        TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), Some(TypeName(Name("Baz"))))
+      )
+    )
     assert(
       TypeName.apply("Foo<Bar>.Baz") == Right(
-        TypeName(Name("Baz"), Nil, Some(TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), None)))))
+        TypeName(Name("Baz"), Nil, Some(TypeName(Name("Foo"), Seq(TypeName(Name("Bar"))), None)))
+      )
+    )
     assert(
       TypeName.apply("Foo<Bar.Baz>") == Right(
-        TypeName(Name("Foo"), Seq(TypeName(Name("Baz"), Nil, Some(TypeName(Name("Bar"))))), None)))
+        TypeName(Name("Foo"), Seq(TypeName(Name("Baz"), Nil, Some(TypeName(Name("Bar"))))), None)
+      )
+    )
     assert(
       TypeName.apply("Foo<Bar,Baz>") == Right(
-        TypeName(Name("Foo"), Seq(TypeName(Name("Bar")), TypeName(Name("Baz"))), None)))
+        TypeName(Name("Foo"), Seq(TypeName(Name("Bar")), TypeName(Name("Baz"))), None)
+      )
+    )
   }
 
   test("parse nested generic type names") {
     assert(
       TypeName.apply("Foo<Bar<Baz>>") == Right(
-        TypeName(Name("Foo"), Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), None)), None)))
+        TypeName(Name("Foo"), Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), None)), None)
+      )
+    )
 
     assert(
       TypeName.apply("Foo<Bar<Baz,Quz>>") == Right(
         TypeName(
           Name("Foo"),
           Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz")), TypeName(Name("Quz"))), None)),
-          None)))
+          None
+        )
+      )
+    )
 
     assert(
       TypeName.apply("Foo<Bar<Baz>,Quz>") == Right(
-        TypeName(Name("Foo"), Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), None), TypeName(Name("Quz"))), None)))
+        TypeName(
+          Name("Foo"),
+          Seq(TypeName(Name("Bar"), Seq(TypeName(Name("Baz"))), None), TypeName(Name("Quz"))),
+          None
+        )
+      )
+    )
   }
 
   test("parse trigger type names") {
-    assert(TypeName.apply("__sfdc_trigger/foo/baz") == Right(TypeName(Name("__sfdc_trigger/foo/baz"))))
+    assert(
+      TypeName.apply("__sfdc_trigger/foo/baz") == Right(TypeName(Name("__sfdc_trigger/foo/baz")))
+    )
     assert(TypeName.apply("__sfdc_trigger/baz") == Right(TypeName(Name("__sfdc_trigger/baz"))))
   }
 
   test("parse bad type names") {
+    assert(TypeName.apply("") == Left("Empty identifier found in type name"))
     assert(
-      TypeName.apply("") == Left("Empty identifier found in type name"))
+      TypeName
+        .apply(" ") == Left("Illegal identifier at ' ': can only use characters A-Z, a-z, 0-9 or _")
+    )
     assert(
-      TypeName.apply(" ") == Left("Illegal identifier at ' ': can only use characters A-Z, a-z, 0-9 or _"))
+      TypeName
+        .apply("__Bar") == Left("Illegal identifier at '__Bar': can not start or end with '_'")
+    )
     assert(
-      TypeName.apply("__Bar") == Left("Illegal identifier at '__Bar': can not start or end with '_'"))
+      TypeName.apply("1Bar") == Left("Illegal identifier at '1Bar': can not start with a digit")
+    )
     assert(
-      TypeName.apply("1Bar") == Left("Illegal identifier at '1Bar': can not start with a digit"))
+      TypeName.apply("Foo ") == Left(
+        "Illegal identifier at 'Foo ': can only use characters A-Z, a-z, 0-9 or _"
+      )
+    )
     assert(
-      TypeName.apply("Foo ") == Left("Illegal identifier at 'Foo ': can only use characters A-Z, a-z, 0-9 or _"))
+      TypeName
+        .apply("Foo.__Bar") == Left("Illegal identifier at '__Bar': can not start or end with '_'")
+    )
     assert(
-      TypeName.apply("Foo.__Bar") == Left("Illegal identifier at '__Bar': can not start or end with '_'"))
+      TypeName
+        .apply("__Bar.Foo") == Left("Illegal identifier at '__Bar': can not start or end with '_'")
+    )
+    assert(TypeName.apply("Foo<Bar") == Left("Unmatched '<' found in 'Foo<Bar'"))
+    assert(TypeName.apply("Foo<") == Left("Unmatched '<' found in 'Foo<'"))
+    assert(TypeName.apply("Foo<<") == Left("Unmatched '<' found in 'Foo<<'"))
+    assert(TypeName.apply("Foo<Bar, Baz") == Left("Unmatched '<' found in 'Foo<Bar, Baz'"))
+    assert(TypeName.apply("Foo<>") == Left("Unmatched '<' found in 'Foo<>'"))
     assert(
-      TypeName.apply("__Bar.Foo") == Left("Illegal identifier at '__Bar': can not start or end with '_'"))
-    assert(
-      TypeName.apply("Foo<Bar") == Left("Unmatched '<' found in 'Foo<Bar'"))
-    assert(
-      TypeName.apply("Foo<") == Left("Unmatched '<' found in 'Foo<'"))
-    assert(
-      TypeName.apply("Foo<<") == Left("Unmatched '<' found in 'Foo<<'"))
-    assert(
-      TypeName.apply("Foo<Bar, Baz") == Left("Unmatched '<' found in 'Foo<Bar, Baz'"))
-    assert(
-      TypeName.apply("Foo<>") == Left("Unmatched '<' found in 'Foo<>'"))
-    assert(
-      TypeName.apply("__sfdc_trigger/baz/") == Left("Illegal identifier at '__sfdc_trigger/baz/': can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"))
+      TypeName.apply("__sfdc_trigger/baz/") == Left(
+        "Illegal identifier at '__sfdc_trigger/baz/': can only be in the format '__sfdc_trigger/namespace/name' or '__sfdc_trigger/name'"
+      )
+    )
   }
 }

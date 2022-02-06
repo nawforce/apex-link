@@ -44,10 +44,11 @@ class CodeParserTest extends AnyFunSuite with BeforeAndAfter with TestHelper {
   }
 
   test("UTF-8 class") {
-    FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")) {
-      root: PathLike =>
-        val org = createOrg(root)
-        assert(org.issues.isEmpty)
+    FileSystemHelper.run(
+      Map("Dummy.cls" -> "public class Dummy {{String a = 'Kimi Räikkönen';}}")
+    ) { root: PathLike =>
+      val org = createOrg(root)
+      assert(org.issues.isEmpty)
     }
   }
 }

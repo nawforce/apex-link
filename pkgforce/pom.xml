@@ -2,15 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>com.github.nawforce</groupId>
   <artifactId>pkgforce_2.13</artifactId>
   <version>2.3.1</version>
   <packaging>jar</packaging>
-
-  <parent>
-    <groupId>com.github.nawforce</groupId>
-    <artifactId>apexlink-parent</artifactId>
-    <version>2.3.1</version>
-  </parent>
 
   <name>pkgforce</name>
   <description>Salesforce Metadata Analysis Library</description>
@@ -203,6 +198,7 @@
               <sources>
                 <source>jvm/src/main/java</source>
                 <source>jvm/src/main/scala</source>
+                <source>ff-apex-outline-parser/shared/src/main/scala</source>
               </sources>
             </configuration>
           </execution>
@@ -386,6 +382,29 @@
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.antipathy</groupId>
+        <artifactId>mvn-scalafmt_2.13</artifactId>
+        <version>1.1.1640084764.9f463a9</version>
+        <configuration>
+          <configLocation>${project.basedir}/.scalafmt.conf</configLocation>
+          <sourceDirectories>
+            <param>${project.basedir}/shared/src/main/scala</param>
+            <param>${project.basedir}/js/src/main/scala</param>
+            <param>${project.basedir}/jvm/src/main/scala</param>
+          </sourceDirectories>
+          <showReformattedOnly>true</showReformattedOnly>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>

@@ -27,32 +27,35 @@ import scala.collection.immutable.ArraySeq
   * ApexVisibleMethodLike so they can be referenced within Apex code and be included in type summary information
   * but otherwise have little in common with the usual ApexMethodLike handling.
   */
-final case class CustomMethodDeclaration(nameLocation: Location,
-                                         name: Name,
-                                         typeName: TypeName,
-                                         parameters: ArraySeq[ParameterDeclaration],
-                                         asStatic: Boolean = false)
-    extends ApexVisibleMethodLike {
+final case class CustomMethodDeclaration(
+  nameLocation: Location,
+  name: Name,
+  typeName: TypeName,
+  parameters: ArraySeq[ParameterDeclaration],
+  asStatic: Boolean = false
+) extends ApexVisibleMethodLike {
 
   override val modifiers: ArraySeq[Modifier] = CustomMethodDeclaration.getModifiers(asStatic)
-  override val hasBlock: Boolean = false
-  override lazy val isStatic: Boolean = asStatic
+  override val hasBlock: Boolean             = false
+  override lazy val isStatic: Boolean        = asStatic
 
   def summary: MethodSummary = {
-    MethodSummary(nameLocation,
-                  nameLocation,
-                  name.toString,
-                  modifiers,
-                  typeName,
-                  parameters.map(_.serialise),
-                  hasBlock = true,
-                  dependencySummary())
+    MethodSummary(
+      nameLocation,
+      nameLocation,
+      name.toString,
+      modifiers,
+      typeName,
+      parameters.map(_.serialise),
+      hasBlock = true,
+      dependencySummary()
+    )
   }
 }
 
 object CustomMethodDeclaration {
-  val standardModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER)
-  val staticModifiers: ArraySeq[Modifier] = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
+  val standardModifiers: ArraySeq[Modifier]           = ArraySeq(PUBLIC_MODIFIER)
+  val staticModifiers: ArraySeq[Modifier]             = ArraySeq(PUBLIC_MODIFIER, STATIC_MODIFIER)
   val emptyParameters: ArraySeq[ParameterDeclaration] = ArraySeq()
 
   def getModifiers(isStatic: Boolean): ArraySeq[Modifier] = {
@@ -60,4 +63,5 @@ object CustomMethodDeclaration {
   }
 }
 
-final case class CustomParameterDeclaration(name: Name, typeName: TypeName) extends ParameterDeclaration
+final case class CustomParameterDeclaration(name: Name, typeName: TypeName)
+    extends ParameterDeclaration

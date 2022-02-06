@@ -37,7 +37,9 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
   test("default uses homedir") {
     val cache = ParsedCache.create(1)
     assert(cache.isRight)
-    assert(cache.getOrElse(throw new NoSuchElementException()).path.parent == Environment.homedir.get)
+    assert(
+      cache.getOrElse(throw new NoSuchElementException()).path.parent == Environment.homedir.get
+    )
   }
 
   test("custom path used") {
@@ -75,7 +77,8 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
     cache.upsert(emptyPackageContext, "", "Foo".getBytes(), "Hello".getBytes())
     assert(cache.get(emptyPackageContext, "", Array()).isEmpty)
     assert(
-      cache.get(emptyPackageContext, "", "Foo".getBytes()).get.sameElements("Hello".getBytes()))
+      cache.get(emptyPackageContext, "", "Foo".getBytes()).get.sameElements("Hello".getBytes())
+    )
   }
 
   test("overwrite entry") {
@@ -95,7 +98,7 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
 
   test("key insert/recover with namespaced packageContext") {
     val packageContext = PackageContext(Some("test"), Array(), Array())
-    val cache = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
+    val cache          = ParsedCache.create(1).getOrElse(throw new NoSuchElementException())
     cache.upsert(packageContext, "Foo", Array(), "Hello".getBytes())
     assert(cache.get(packageContext, "", Array()).isEmpty)
     assert(cache.get(packageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
@@ -109,32 +112,48 @@ class ParsedCacheTest extends AnyFunSuite with BeforeAndAfter {
     assert(cache.get(packageContext, "Foo", Array()).get.sameElements("Hello".getBytes()))
     assert(
       cache
-        .get(PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2")),
-             "Foo",
-             Array())
-        .isEmpty)
+        .get(
+          PackageContext(Some("test"), Array("ghosted1"), Array("analysed1", "analysed2")),
+          "Foo",
+          Array()
+        )
+        .isEmpty
+    )
     assert(
       cache
-        .get(PackageContext(Some("test"),
-                            Array("ghosted2", "ghosted1"),
-                            Array("analysed1", "analysed2")),
-             "Foo",
-             Array())
-        .isEmpty)
+        .get(
+          PackageContext(
+            Some("test"),
+            Array("ghosted2", "ghosted1"),
+            Array("analysed1", "analysed2")
+          ),
+          "Foo",
+          Array()
+        )
+        .isEmpty
+    )
     assert(
       cache
-        .get(PackageContext(Some("test"), Array("ghosted2", "ghosted1"), Array("analysed2")),
-             "Foo",
-             Array())
-        .isEmpty)
+        .get(
+          PackageContext(Some("test"), Array("ghosted2", "ghosted1"), Array("analysed2")),
+          "Foo",
+          Array()
+        )
+        .isEmpty
+    )
     assert(
       cache
-        .get(PackageContext(Some("test"),
-                            Array("ghosted1", "analysed1"),
-                            Array("ghosted1", "analysed2")),
-             "Foo",
-             Array())
-        .isEmpty)
+        .get(
+          PackageContext(
+            Some("test"),
+            Array("ghosted1", "analysed1"),
+            Array("ghosted1", "analysed2")
+          ),
+          "Foo",
+          Array()
+        )
+        .isEmpty
+    )
     assert(cache.get(PackageContext(Some("test"), Array(), Array()), "Foo", Array()).isEmpty)
   }
 }

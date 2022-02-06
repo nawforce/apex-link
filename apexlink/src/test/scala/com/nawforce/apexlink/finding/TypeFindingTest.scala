@@ -36,7 +36,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(TypeName(Name("String")))
           .toOption
           .get
-          .typeName == typeName)
+          .typeName == typeName
+      )
     })
   }
 
@@ -48,7 +49,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(TypeName(Name("STRING")))
           .toOption
           .get
-          .typeName == typeName)
+          .typeName == typeName
+      )
     })
   }
 
@@ -61,7 +63,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(TypeName(Name("Dummy")))
           .toOption
           .get
-          .typeName == td.typeName)
+          .typeName == td.typeName
+      )
     })
   }
 
@@ -74,7 +77,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(TypeName(Name("duMmy")))
           .toOption
           .get
-          .typeName == td.typeName)
+          .typeName == td.typeName
+      )
     })
   }
 
@@ -88,7 +92,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(innerTypeName)
           .toOption
           .get
-          .typeName == innerTypeName)
+          .typeName == innerTypeName
+      )
     })
   }
 
@@ -102,7 +107,8 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
           .findType(innerTypeName)
           .toOption
           .get
-          .typeName == innerTypeName)
+          .typeName == innerTypeName
+      )
     })
   }
 
@@ -116,8 +122,9 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Dummy.cls" -> "global class Dummy {}",
-        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy value;}}",
-      )) { root: PathLike =>
+        "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy value;}}"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
@@ -133,10 +140,15 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Dummy.cls" -> "public class Dummy {}",
-        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy value;}}",
-      )) { root: PathLike =>
+        "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy value;}}"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
-      assert(getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n")
+      assert(
+        getMessages(
+          Path("/pkg2/Use.cls")
+        ) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n"
+      )
     }
   }
 
@@ -150,8 +162,9 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Dummy.cls" -> "global class Dummy {class Inner {}}",
-        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy.Inner value;}}",
-      )) { root: PathLike =>
+        "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy.Inner value;}}"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }
@@ -167,19 +180,25 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
             |"plugins": {"dependencies": [{"namespace": "pkg1", "path": "pkg1"}]}
             |}""".stripMargin,
         "pkg1/Dummy.cls" -> "public class Dummy {class Inner {}}",
-        "pkg2/Use.cls" -> "global class Use { {pkg1.Dummy.Inner value;}}",
-      )) { root: PathLike =>
+        "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy.Inner value;}}"
+      )
+    ) { root: PathLike =>
       val org = createOrg(root)
-      assert(getMessages(Path("/pkg2/Use.cls")) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n")
+      assert(
+        getMessages(
+          Path("/pkg2/Use.cls")
+        ) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n"
+      )
     }
   }
 
   test("Inner type reference resolves") {
     FileSystemHelper.run(
       Map(
-        "pkg1/Dummy.cls" -> "public class Dummy { public class Target {} {Target.TargetInner.func();} }",
-        "pkg2/Target.cls" -> "public class Target { public class TargetInner {} public static void func() {}}",
-      )) { root: PathLike =>
+        "pkg1/Dummy.cls"  -> "public class Dummy { public class Target {} {Target.TargetInner.func();} }",
+        "pkg2/Target.cls" -> "public class Target { public class TargetInner {} public static void func() {}}"
+      )
+    ) { root: PathLike =>
       createOrg(root)
       assert(!hasIssues)
     }

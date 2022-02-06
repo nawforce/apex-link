@@ -25,9 +25,9 @@ import scala.collection.mutable
 case class RefreshRequest(pkg: PackageImpl, path: PathLike)
 
 class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
-  protected val lock = new ReentrantLock(true)
+  protected val lock         = new ReentrantLock(true)
   protected val refreshQueue = new mutable.Queue[RefreshRequest]()
-  private var expired = false
+  private var expired        = false
 
   def isDirty: Boolean = {
     lock.synchronized { refreshQueue.nonEmpty }
@@ -72,7 +72,9 @@ class Flusher(org: OrgImpl, parsedCache: Option[ParsedCache]) {
 
 }
 
-class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache]) extends Flusher(org, parsedCache) with Runnable {
+class CacheFlusher(org: OrgImpl, parsedCache: Option[ParsedCache])
+    extends Flusher(org, parsedCache)
+    with Runnable {
 
   private val t = new Thread(this)
   t.setDaemon(true)

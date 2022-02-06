@@ -39,29 +39,34 @@ class EnumModifierTest extends AnyFunSuite with TestHelper {
     assert(typeDeclaration("protected enum Dummy {}").modifiers.isEmpty)
     assert(
       dummyIssues ==
-        "Error: line 1 at 0-9: Modifier 'protected' is not supported on enums\n")
+        "Error: line 1 at 0-9: Modifier 'protected' is not supported on enums\n"
+    )
   }
 
   test("Private outer") {
     assert(typeDeclaration("private enum Dummy {}").modifiers.isEmpty)
     assert(
       dummyIssues ==
-        "Error: line 1 at 13-18: Private modifier is not allowed on outer enums\n")
+        "Error: line 1 at 13-18: Private modifier is not allowed on outer enums\n"
+    )
   }
 
   test("No modifier class") {
     assert(typeDeclaration("enum Dummy {}").modifiers sameElements Array(PUBLIC_MODIFIER))
     assert(
       dummyIssues ==
-        "Error: line 1 at 5-10: Outer enums must be declared either 'global' or 'public'\n")
+        "Error: line 1 at 5-10: Outer enums must be declared either 'global' or 'public'\n"
+    )
   }
 
   test("Illegal modifier") {
     assert(
-      typeDeclaration("global static enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER))
+      typeDeclaration("global static enum Dummy {}").modifiers sameElements Array(GLOBAL_MODIFIER)
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 7-13: Modifier 'static' is not supported on enums\n")
+        "Error: line 1 at 7-13: Modifier 'static' is not supported on enums\n"
+    )
   }
 
   test("Deprecated annotation") {
@@ -92,32 +97,42 @@ class EnumModifierTest extends AnyFunSuite with TestHelper {
     val modifiers =
       typeDeclaration("@SuppressWarnings('PMD') public @TestVisible class Dummy {}").modifiers
     assert(
-      modifiers.toSet == Set(PUBLIC_MODIFIER,
-                             SUPPRESS_WARNINGS_ANNOTATION_PMD,
-                             TEST_VISIBLE_ANNOTATION))
+      modifiers.toSet == Set(
+        PUBLIC_MODIFIER,
+        SUPPRESS_WARNINGS_ANNOTATION_PMD,
+        TEST_VISIBLE_ANNOTATION
+      )
+    )
     assert(dummyIssues.isEmpty)
   }
 
   test("Global inner") {
     assert(
       typeDeclarationInner("global class Dummy {global enum Inner{}}").modifiers sameElements Array(
-        GLOBAL_MODIFIER))
+        GLOBAL_MODIFIER
+      )
+    )
     assert(dummyIssues.isEmpty)
   }
 
   test("Global inner of public outer") {
     assert(
       typeDeclarationInner("public class Dummy {global enum Inner{}}").modifiers sameElements Array(
-        GLOBAL_MODIFIER))
+        GLOBAL_MODIFIER
+      )
+    )
     assert(
       dummyIssues ==
-        "Error: line 1 at 32-37: Enclosing class must be declared global to use global or webservice modifiers\n")
+        "Error: line 1 at 32-37: Enclosing class must be declared global to use global or webservice modifiers\n"
+    )
   }
 
   test("Public inner") {
     assert(
       typeDeclarationInner("public class Dummy {public enum Inner{}}").modifiers sameElements Array(
-        PUBLIC_MODIFIER))
+        PUBLIC_MODIFIER
+      )
+    )
     assert(dummyIssues.isEmpty)
   }
 
@@ -125,13 +140,16 @@ class EnumModifierTest extends AnyFunSuite with TestHelper {
     assert(typeDeclarationInner("public class Dummy {protected enum Inner{}}").modifiers.isEmpty)
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-29: Modifier 'protected' is not supported on enums\n")
+        "Error: line 1 at 20-29: Modifier 'protected' is not supported on enums\n"
+    )
   }
 
   test("Private inner") {
     assert(
-      typeDeclarationInner("public class Dummy {private enum Inner{}}").modifiers sameElements Array(
-        PRIVATE_MODIFIER))
+      typeDeclarationInner(
+        "public class Dummy {private enum Inner{}}"
+      ).modifiers sameElements Array(PRIVATE_MODIFIER)
+    )
     assert(dummyIssues.isEmpty)
   }
 
@@ -144,6 +162,7 @@ class EnumModifierTest extends AnyFunSuite with TestHelper {
     assert(typeDeclarationInner("global class Dummy {static enum Inner{}}").modifiers.isEmpty)
     assert(
       dummyIssues ==
-        "Error: line 1 at 20-26: Modifier 'static' is not supported on enums\n")
+        "Error: line 1 at 20-26: Modifier 'static' is not supported on enums\n"
+    )
   }
 }

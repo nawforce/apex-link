@@ -24,48 +24,106 @@ import com.nawforce.runtime.parsers.CodeParser
 object IssueOps {
 
   def illegalIdentifier(location: PathLocation, name: Name, error: String): Issue =
-    Issue(location.path,
-          Diagnostic(ERROR_CATEGORY, location.location, s"'$name' is not legal identifier in Apex, identifiers $error"))
+    Issue(
+      location.path,
+      Diagnostic(
+        ERROR_CATEGORY,
+        location.location,
+        s"'$name' is not legal identifier in Apex, identifiers $error"
+      )
+    )
 
   def reservedIdentifier(location: PathLocation, name: Name): Issue =
-    Issue(location.path, Diagnostic(ERROR_CATEGORY, location.location, s"'$name' is a reserved identifier in Apex"))
+    Issue(
+      location.path,
+      Diagnostic(ERROR_CATEGORY, location.location, s"'$name' is a reserved identifier in Apex")
+    )
 
   def noTypeDeclaration(location: PathLocation, typeName: TypeName): Issue =
-    Issue(location.path, Diagnostic(MISSING_CATEGORY, location.location, s"No type declaration found for '$typeName'"))
+    Issue(
+      location.path,
+      Diagnostic(MISSING_CATEGORY, location.location, s"No type declaration found for '$typeName'")
+    )
 
   def noVariableOrType(location: PathLocation, name: Name, typeName: TypeName): Issue =
-    Issue(location.path,
-          Diagnostic(MISSING_CATEGORY, location.location, s"No variable or type found for '$name' on '$typeName'"))
+    Issue(
+      location.path,
+      Diagnostic(
+        MISSING_CATEGORY,
+        location.location,
+        s"No variable or type found for '$name' on '$typeName'"
+      )
+    )
 
   def unknownFieldOnSObject(location: PathLocation, name: Name, typeName: TypeName): Issue =
-    Issue(location.path,
-          Diagnostic(MISSING_CATEGORY, location.location, s"Unknown field '$name' on SObject '$typeName'"))
+    Issue(
+      location.path,
+      Diagnostic(
+        MISSING_CATEGORY,
+        location.location,
+        s"Unknown field '$name' on SObject '$typeName'"
+      )
+    )
 
   def unknownFieldOrType(location: PathLocation, name: Name, typeName: TypeName): Issue =
-    Issue(location.path,
-          Diagnostic(MISSING_CATEGORY, location.location, s"Unknown field or type '$name' on '$typeName'"))
-
-  def unexpectedAnnotationOnClass(location: PathLocation, context: ApexParser.QualifiedNameContext): Issue =
-    Issue(location.path,
-      Diagnostic(ERROR_CATEGORY,
+    Issue(
+      location.path,
+      Diagnostic(
+        MISSING_CATEGORY,
         location.location,
-        s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration"))
+        s"Unknown field or type '$name' on '$typeName'"
+      )
+    )
+
+  def unexpectedAnnotationOnClass(
+    location: PathLocation,
+    context: ApexParser.QualifiedNameContext
+  ): Issue =
+    Issue(
+      location.path,
+      Diagnostic(
+        ERROR_CATEGORY,
+        location.location,
+        s"Unexpected annotation '${CodeParser.getText(context)}' on class declaration"
+      )
+    )
 
   def extendingUnknownSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
-    Issue(location.path,
-      Diagnostic(ERROR_CATEGORY, location.location, s"SObject is extending an unknown SObject, '$sobjectPath'"))
+    Issue(
+      location.path,
+      Diagnostic(
+        ERROR_CATEGORY,
+        location.location,
+        s"SObject is extending an unknown SObject, '$sobjectPath'"
+      )
+    )
   }
 
-  def extendingOverNamespace(location: PathLocation, nature: SObjectNature, baseNS: Name, extendingNS: Name): Issue = {
-    Issue(location.path,
-      Diagnostic(ERROR_CATEGORY, location.location, s"${nature} can not be extended in namespace '$extendingNS' when defined in namespace '$baseNS'"))
+  def extendingOverNamespace(
+    location: PathLocation,
+    nature: SObjectNature,
+    baseNS: Name,
+    extendingNS: Name
+  ): Issue = {
+    Issue(
+      location.path,
+      Diagnostic(
+        ERROR_CATEGORY,
+        location.location,
+        s"${nature} can not be extended in namespace '$extendingNS' when defined in namespace '$baseNS'"
+      )
+    )
   }
 
   def redefiningSObject(location: PathLocation, sobjectPath: PathLike): Issue = {
-    Issue(location.path,
-      Diagnostic(WARNING_CATEGORY,
+    Issue(
+      location.path,
+      Diagnostic(
+        WARNING_CATEGORY,
         location.location,
-        s"SObject appears to be re-defining an SObject that already exists, remove the 'label' field if it is extending an existing SObject,'$sobjectPath'"))
+        s"SObject appears to be re-defining an SObject that already exists, remove the 'label' field if it is extending an existing SObject,'$sobjectPath'"
+      )
+    )
   }
 
 }

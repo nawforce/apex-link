@@ -7,7 +7,9 @@ class VariablesTest extends AnyFunSuite with TestHelper {
 
   test("Boolean variable declaration") {
     typeDeclaration("public class Dummy { {Boolean b = 1;} }")
-    assert(dummyIssues == "Error: line 1 at 30-35: Incompatible types in assignment, from 'System.Integer' to 'System.Boolean'\n")
+    assert(
+      dummyIssues == "Error: line 1 at 30-35: Incompatible types in assignment, from 'System.Integer' to 'System.Boolean'\n"
+    )
   }
 
   test("Database.QueryLocator variable declaration") {

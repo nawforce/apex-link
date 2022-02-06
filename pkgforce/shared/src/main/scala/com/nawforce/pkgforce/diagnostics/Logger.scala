@@ -54,14 +54,12 @@ object LoggerOps {
 
   /** Set debug logging level from name, one of none, info, debug or trace */
   def setLoggingLevel(level: String): Integer = {
-    setLoggingLevel(
-      level.toLowerCase match {
-        case "none" => LoggerOps.NO_LOGGING
-        case "info" => LoggerOps.INFO_LOGGING
-        case "debug" => LoggerOps.DEBUG_LOGGING
-        case "trace" => LoggerOps.TRACE_LOGGING
-      }
-    )
+    setLoggingLevel(level.toLowerCase match {
+      case "none"  => LoggerOps.NO_LOGGING
+      case "info"  => LoggerOps.INFO_LOGGING
+      case "debug" => LoggerOps.DEBUG_LOGGING
+      case "trace" => LoggerOps.TRACE_LOGGING
+    })
   }
 
   /** Override the default logger */

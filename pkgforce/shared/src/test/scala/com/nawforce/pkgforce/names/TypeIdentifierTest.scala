@@ -32,39 +32,90 @@ import org.scalatest.funsuite.AnyFunSuite
 class TypeIdentifierTest extends AnyFunSuite {
 
   test("parse triggers type names") {
-    assert(TypeIdentifier.apply("__sfdc_trigger/Foo") === Right(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))))
-    assert(TypeIdentifier.apply("__sfdc_trigger/ns/Foo") === Right(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/ns/Foo")))))
+    assert(
+      TypeIdentifier.apply("__sfdc_trigger/Foo") === Right(
+        TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))
+      )
+    )
+    assert(
+      TypeIdentifier.apply("__sfdc_trigger/ns/Foo") === Right(
+        TypeIdentifier(None, TypeName(Name("__sfdc_trigger/ns/Foo")))
+      )
+    )
   }
 
   test("parse type name") {
     assert(TypeIdentifier.apply("Foo") == Right(TypeIdentifier(None, TypeName(Name("Foo")))))
-    assert(TypeIdentifier.apply("Foo.Bar") == Right(TypeIdentifier(None, TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))))
+    assert(
+      TypeIdentifier.apply("Foo.Bar") == Right(
+        TypeIdentifier(None, TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))
+      )
+    )
   }
 
   test("parse type name with namespace") {
-    assert(TypeIdentifier.apply("Foo [n]") == Right(TypeIdentifier(Some(Name("n")), TypeName(Name("Foo")))))
-    assert(TypeIdentifier.apply("Foo.Bar [ns]") == Right(TypeIdentifier(Some(Name("ns")), TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))))
-    assert(TypeIdentifier.apply("Foo (n)") == Right(TypeIdentifier(Some(Name("n")), TypeName(Name("Foo"), Nil, Some(TypeName(Name("n")))))))
-    assert(TypeIdentifier.apply("Foo.Bar (ns)") == Right(TypeIdentifier(Some(Name("ns")), TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo"), Nil, Some(TypeName(Name("ns")))))))))
+    assert(
+      TypeIdentifier
+        .apply("Foo [n]") == Right(TypeIdentifier(Some(Name("n")), TypeName(Name("Foo"))))
+    )
+    assert(
+      TypeIdentifier.apply("Foo.Bar [ns]") == Right(
+        TypeIdentifier(Some(Name("ns")), TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo")))))
+      )
+    )
+    assert(
+      TypeIdentifier.apply("Foo (n)") == Right(
+        TypeIdentifier(Some(Name("n")), TypeName(Name("Foo"), Nil, Some(TypeName(Name("n")))))
+      )
+    )
+    assert(
+      TypeIdentifier.apply("Foo.Bar (ns)") == Right(
+        TypeIdentifier(
+          Some(Name("ns")),
+          TypeName(Name("Bar"), Nil, Some(TypeName(Name("Foo"), Nil, Some(TypeName(Name("ns"))))))
+        )
+      )
+    )
   }
 
   test("parse bad type name") {
     assert(TypeIdentifier.apply("") == Left("Empty identifier found in type name"))
     assert(TypeIdentifier.apply(" ") == Left("Empty identifier found in type name"))
     assert(TypeIdentifier.apply("  ") == Left("Empty identifier found in type name"))
-    assert(TypeIdentifier.apply("Foo__") == Left("Illegal identifier at 'Foo__': can not start or end with '_'"))
+    assert(
+      TypeIdentifier
+        .apply("Foo__") == Left("Illegal identifier at 'Foo__': can not start or end with '_'")
+    )
   }
 
   test("parse bad namespace") {
     assert(TypeIdentifier.apply("Foo ") == Left("Expecting brackets around namespace in 'Foo '"))
     assert(TypeIdentifier.apply("Foo (") == Left("Expecting brackets around namespace in 'Foo ('"))
-    assert(TypeIdentifier.apply("Foo ()") == Left("Expecting brackets around namespace in 'Foo ()'"))
-    assert(TypeIdentifier.apply("Foo ( )") == Left("Illegal namespace ' ': can only use characters A-Z, a-z, 0-9 or _"))
-    assert(TypeIdentifier.apply("Foo (ns_)") == Left("Illegal namespace 'ns_': can not start or end with '_'"))
+    assert(
+      TypeIdentifier.apply("Foo ()") == Left("Expecting brackets around namespace in 'Foo ()'")
+    )
+    assert(
+      TypeIdentifier.apply("Foo ( )") == Left(
+        "Illegal namespace ' ': can only use characters A-Z, a-z, 0-9 or _"
+      )
+    )
+    assert(
+      TypeIdentifier
+        .apply("Foo (ns_)") == Left("Illegal namespace 'ns_': can not start or end with '_'")
+    )
     assert(TypeIdentifier.apply("Foo [") == Left("Expecting brackets around namespace in 'Foo ['"))
-    assert(TypeIdentifier.apply("Foo []") == Left("Expecting brackets around namespace in 'Foo []'"))
-    assert(TypeIdentifier.apply("Foo [ ]") == Left("Illegal namespace ' ': can only use characters A-Z, a-z, 0-9 or _"))
-    assert(TypeIdentifier.apply("Foo [ns_]") == Left("Illegal namespace 'ns_': can not start or end with '_'"))
+    assert(
+      TypeIdentifier.apply("Foo []") == Left("Expecting brackets around namespace in 'Foo []'")
+    )
+    assert(
+      TypeIdentifier.apply("Foo [ ]") == Left(
+        "Illegal namespace ' ': can only use characters A-Z, a-z, 0-9 or _"
+      )
+    )
+    assert(
+      TypeIdentifier
+        .apply("Foo [ns_]") == Left("Illegal namespace 'ns_': can not start or end with '_'")
+    )
   }
 
   test("toString") {

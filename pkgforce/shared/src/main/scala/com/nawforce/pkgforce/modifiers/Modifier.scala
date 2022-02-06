@@ -22,10 +22,10 @@ import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
 import scala.collection.compat.immutable.ArraySeq
 
 sealed abstract class Modifier(
-                                final val name: String,
-                                val order: Integer = 0,
-                                val methodOrder: Integer = 0
-                              ) {
+  final val name: String,
+  val order: Integer = 0,
+  val methodOrder: Integer = 0
+) {
   override def toString: String = name
 }
 
@@ -155,11 +155,12 @@ object ModifierOps {
     if (name.startsWith("@suppresswarnings")) {
       val trimmed = value.trim
       if (trimmed.length > 2 && trimmed.head == '\'' && trimmed.last == '\'') {
-        val parts = trimmed.substring(1, trimmed.length - 1).trim.split(",").map(_.trim.toLowerCase())
+        val parts =
+          trimmed.substring(1, trimmed.length - 1).trim.split(",").map(_.trim.toLowerCase())
         parts.flatMap {
-          case "pmd" => Some(SUPPRESS_WARNINGS_ANNOTATION_PMD)
+          case "pmd"    => Some(SUPPRESS_WARNINGS_ANNOTATION_PMD)
           case "unused" => Some(SUPPRESS_WARNINGS_ANNOTATION_UNUSED)
-          case _ => None
+          case _        => None
         }
       } else {
         Array.empty
@@ -261,12 +262,15 @@ object ApexModifiers {
     modifierContexts.flatMap(modifierContext => {
       val annotation = CodeParser.toScala(modifierContext.annotation())
       val modifiers =
-        annotation.map(
-          a => ModifierOps("@" + CodeParser.getText(a.qualifiedName()).toLowerCase,
-            CodeParser.toScala(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse(""))
-        ).getOrElse(
-          ModifierOps(CodeParser.getText(modifierContext).toLowerCase, "")
-        )
+        annotation
+          .map(
+            a =>
+              ModifierOps(
+                "@" + CodeParser.getText(a.qualifiedName()).toLowerCase,
+                CodeParser.toScala(a.elementValue()).map(ev => CodeParser.getText(ev)).getOrElse("")
+              )
+          )
+          .getOrElse(ModifierOps(CodeParser.getText(modifierContext).toLowerCase, ""))
 
       val allowable = modifiers.partition(allow.contains)
       if (allowable._2.nonEmpty) {

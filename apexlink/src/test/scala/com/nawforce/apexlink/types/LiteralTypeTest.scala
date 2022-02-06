@@ -68,21 +68,31 @@ class LiteralTypeTest extends AnyFunSuite with Matchers {
   }
 
   test("Bound string literal") {
-    val aSet = Set(Name("a"))
-    val abSet = Set(Name("a"), Name("b"))
-    val abcSet = Set(Name("a"), Name("b"), Name("c"))
+    val aSet        = Set(Name("a"))
+    val abSet       = Set(Name("a"), Name("b"))
+    val abcSet      = Set(Name("a"), Name("b"), Name("c"))
     val abJoinedSet = Set(Name("ab"))
-    val mixedSet = Set(Name("1a2b3"))
+    val mixedSet    = Set(Name("1a2b3"))
     typeLiteral("':a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
     typeLiteral("' :a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
     typeLiteral("': a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
     typeLiteral("':a '") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
-    typeLiteral("'  :  a  '") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
-    typeLiteral("':ab'") should matchPattern { case BoundStringLiteral(bound) if bound == abJoinedSet => }
+    typeLiteral("'  :  a  '") should matchPattern {
+      case BoundStringLiteral(bound) if bound == aSet =>
+    }
+    typeLiteral("':ab'") should matchPattern {
+      case BoundStringLiteral(bound) if bound == abJoinedSet =>
+    }
     typeLiteral("':a b'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
     typeLiteral("'b:a'") should matchPattern { case BoundStringLiteral(bound) if bound == aSet => }
-    typeLiteral("':1a2b3'") should matchPattern { case BoundStringLiteral(bound) if bound == mixedSet => }
-    typeLiteral("':a:b'") should matchPattern { case BoundStringLiteral(bound) if bound == abSet => }
-    typeLiteral("':a :b :c'") should matchPattern { case BoundStringLiteral(bound) if bound == abcSet => }
+    typeLiteral("':1a2b3'") should matchPattern {
+      case BoundStringLiteral(bound) if bound == mixedSet =>
+    }
+    typeLiteral("':a:b'") should matchPattern {
+      case BoundStringLiteral(bound) if bound == abSet =>
+    }
+    typeLiteral("':a :b :c'") should matchPattern {
+      case BoundStringLiteral(bound) if bound == abcSet =>
+    }
   }
 }
