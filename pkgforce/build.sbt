@@ -44,23 +44,29 @@ lazy val buildNPM = Def.task {
   (Compile / fastOptJS).value
   (Compile / fullOptJS).value
 
-  val targetDir = file("js/target/scala-2.13").toPath
-  val srcDir = file("js/npm/src").toPath
-  copy(targetDir.resolve("pkgforce-opt.js"), srcDir.resolve("pkgforce.js"), REPLACE_EXISTING)
+  val jsDir = file("js")
+  val targetDir = jsDir / "target" / "scala-2.13"
+  val optSource = targetDir / "pkgforce-opt.js"
+  val optTarget = jsDir / "npm" / "src" / "pkgforce.js"
+  copy(optSource.toPath, optTarget.toPath, REPLACE_EXISTING)
 
   // Install modules in NPM
   import scala.language.postfixOps
   import scala.sys.process._
 
-  val npmDir = file("js/npm").toPath
-  Process("npm i --production", npmDir.toFile) !
+  val npmDir = jsDir / "npm"
+  val shell: Seq[String] = if (sys.props("os.name").contains("Windows")) Seq("cmd", "/c") else Seq("bash", "-c")
+  Process(shell :+ "npm i --production", npmDir) !
 
   // Update NPM README.md
-  copy(file("README.md").toPath, file("js/npm/README.md").toPath, REPLACE_EXISTING)
+  val readMeTarget = npmDir / "README.md"
+  copy(file("README.md").toPath, readMeTarget.toPath, REPLACE_EXISTING)
 
   // Update target with NPM modules (for testing)
-  copy(npmDir.resolve("package.json"), targetDir.resolve("package.json"), REPLACE_EXISTING)
-  Process("npm i", targetDir.toFile) !
+  val packageJSONSource = npmDir / "package.json"
+  val packageJSONTarget = targetDir / "package.json"
+  copy(packageJSONSource.toPath, packageJSONTarget.toPath, REPLACE_EXISTING)
+  Process(shell :+ "npm i", targetDir) !
 }
 
 lazy val buildJVM = Def.task {

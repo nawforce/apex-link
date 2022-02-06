@@ -40,6 +40,15 @@ class PathTest extends AnyFunSuite {
     }
   }
 
+  def stripDrive(path: PathLike): String = {
+    val asString = path.toString
+    if (asString.matches("^[A-Z]:.+")) {
+      asString.substring(2)
+    } else {
+      asString
+    }
+  }
+
   test("root node is a root node") {
     FileSystemHelper.run(Map[String, String]()) { root: PathLike =>
       assert(root.basename == "")
@@ -49,7 +58,7 @@ class PathTest extends AnyFunSuite {
       assert(root.isDirectory)
       assert(!root.isFile)
       assert(root.size == 0)
-      assert(root.toString == "/")
+      assert(stripDrive(root) == "/")
     }
   }
 
@@ -63,7 +72,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 0)
-      assert(file.toString == "/Empty.txt")
+      assert(stripDrive(file) == "/Empty.txt")
     }
   }
 
@@ -77,7 +86,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 5)
-      assert(file.toString == "/Something.txt")
+      assert(stripDrive(file) == "/Something.txt")
     }
   }
 
@@ -92,7 +101,7 @@ class PathTest extends AnyFunSuite {
       assert(dir.isDirectory)
       assert(!dir.isFile)
       assert(dir.size == 0)
-      assert(dir.toString == "/Bar")
+      assert(stripDrive(dir) == "/Bar")
 
       assert(file.basename == "Something.txt")
       assert(file.parent.parent == root)
@@ -101,7 +110,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 5)
-      assert(file.toString == "/Bar/Something.txt")
+      assert(stripDrive(file) == "/Bar/Something.txt")
     }
   }
 
@@ -140,7 +149,8 @@ class PathTest extends AnyFunSuite {
     FileSystemHelper.run(Map[String, String]("Bar" -> "Hello")) { root: PathLike =>
       assert(
         root.createDirectory("Bar").swap.getOrElse(throw new NoSuchElementException()) ==
-          "Can not create directory '/Bar', file already exists")
+          s"Can not create directory '${root.join("Bar")}', file already exists"
+      )
     }
   }
 

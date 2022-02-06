@@ -20,6 +20,6 @@ import org.scalatest.funsuite.AnyFunSuite
 class LoggerTest extends AnyFunSuite with BeforeAndAfter {
   test("exception logger to string") {
     val ex = new Exception("Hello")
-    assert(LoggerOps.exceptionMessage(ex).startsWith("java.lang.Exception: Hello\n"))
+    assert(LoggerOps.exceptionMessage(ex).startsWith("java.lang.Exception: Hello"))
   }
 }

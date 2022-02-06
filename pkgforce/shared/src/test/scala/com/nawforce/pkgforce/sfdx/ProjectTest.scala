@@ -37,10 +37,16 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.isEmpty)
       assert(
         logger.issues == ArraySeq(
-          Issue(root.join("sfdx-project.json"),
-                Diagnostic(ERROR_CATEGORY,
-                           Location.empty,
-                           "Missing sfdx-project.json file at /sfdx-project.json"))))
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"Missing sfdx-project.json file at ${root.join("sfdx-project.json")}"
+            )
+          )
+        )
+      )
     }
   }
 
@@ -278,15 +284,20 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
         assert(project.nonEmpty)
         assert(logger.issues.isEmpty)
 
-        // Path are checked during layer construction
-        project.get.layers(logger)
-        assert(
-          logger.issues == ArraySeq(
-            Issue(root.join("pkg").join("sfdx-project.json"),
-                  diagnostics.Diagnostic(
-                    ERROR_CATEGORY,
-                    Location.empty,
-                    "Package directory '/path' is not within the project directory '/pkg'"))))
+      // Path are checked during layer construction
+      project.get.layers(logger)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("pkg").join("sfdx-project.json"),
+            diagnostics.Diagnostic(
+              ERROR_CATEGORY,
+              Location.empty,
+              s"Package directory '${root.join("path")}' is not within the project directory '${root.join("pkg")}'"
+            )
+          )
+        )
+      )
     }
   }
 

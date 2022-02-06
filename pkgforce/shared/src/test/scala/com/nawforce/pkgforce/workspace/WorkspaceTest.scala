@@ -59,8 +59,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
         assert(issuesAndWS.value.nonEmpty)
         issuesAndWS.value.get.events.toList should matchPattern {
           case List(
-          IssuesEvent(ArraySeq(Issue(Path("/pkg/CustomLabels.labels"),
-          Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
+                IssuesEvent(
+                  ArraySeq(Issue(labelsFile, Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))
+                )
+              ) if labelsFile == root.join("pkg").join("CustomLabels.labels") =>
         }
     }
   }
@@ -79,14 +81,17 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
 
       issuesAndWS.value.get.events.toList should matchPattern {
-        case List(LabelEvent(PathLocation(Path("/pkg/CustomLabels.labels"), Location(3, 0, 3, 0)),
-        Name("TestLabel1"),
-        false),
-        LabelEvent(PathLocation(Path("/pkg/CustomLabels.labels"), Location(4, 0, 4, 0)),
-        Name("TestLabel2"),
-        true),
-        LabelFileEvent(SourceInfo(PathLocation(labelsPath, Location.all), _)))
-          if labelsPath == root.join("pkg").join("CustomLabels.labels") =>
+        case List(
+              LabelEvent(
+                PathLocation(labelsPath1, Location(3, 0, 3, 0)),
+                Name("TestLabel1"),
+                false
+              ),
+              LabelEvent(PathLocation(labelsPath2, Location(4, 0, 4, 0)), Name("TestLabel2"), true),
+              LabelFileEvent(SourceInfo(PathLocation(labelsPath3, Location.all), _))
+            )
+            if labelsPath1 == root.join("pkg").join("CustomLabels.labels") &&
+              labelsPath2 == labelsPath1 && labelsPath3 == labelsPath1 =>
       }
     }
   }
@@ -289,12 +294,19 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            IssuesEvent(
-              ArraySeq(
-              Issue(Path("/pkg/MyComponent.component"),
-              Diagnostic(SYNTAX_CATEGORY,
-              Location(2, 0, 2, 0),
-              "no viable alternative at input '<apex:component'"))))) =>
+              IssuesEvent(
+                ArraySeq(
+                  Issue(
+                    componentFile,
+                    Diagnostic(
+                      SYNTAX_CATEGORY,
+                      Location(2, 0, 2, 0),
+                      "no viable alternative at input '<apex:component'"
+                    )
+                  )
+                )
+              )
+            ) if componentFile == root.join("pkg").join("MyComponent.component") =>
       }
     }
   }
@@ -309,12 +321,19 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-            IssuesEvent(
-              ArraySeq(
-              Issue(Path("/pkg/MyComponent.component"),
-              Diagnostic(ERROR_CATEGORY,
-              Location(1, 0, 2, 5),
-              "Root element must be 'apex:component'"))))) =>
+              IssuesEvent(
+                ArraySeq(
+                  Issue(
+                    componentFile,
+                    Diagnostic(
+                      ERROR_CATEGORY,
+                      Location(1, 0, 2, 5),
+                      "Root element must be 'apex:component'"
+                    )
+                  )
+                )
+              )
+            ) if componentFile == root.join("pkg").join("MyComponent.component") =>
       }
     }
   }
@@ -344,8 +363,10 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       assert(issuesAndWS.value.nonEmpty)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-        IssuesEvent(ArraySeq(Issue(Path("/pkg/MyObject.object"),
-        Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _))))) =>
+              IssuesEvent(
+                ArraySeq(Issue(objectPath, Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))
+              )
+            ) if objectPath == root.join("pkg").join("MyObject.object") =>
       }
     }
   }
@@ -402,10 +423,14 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val location = PathLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-        SObjectEvent(sourceInfo, path, false, None, None),
-        IssuesEvent(ArraySeq(
-        Issue(Path("/pkg/MyObject.object"), Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
-            if sourceInfo.get.location == location && path == reportingPath =>
+              SObjectEvent(sourceInfo, path, false, None, None),
+              IssuesEvent(
+                ArraySeq(Issue(objectPath, Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))
+              )
+            )
+            if sourceInfo.get.location == location && path == reportingPath && objectPath == root
+              .join("pkg")
+              .join("MyObject.object") =>
       }
     }
   }
@@ -443,10 +468,14 @@ class WorkspaceTest extends AnyFunSuite with Matchers {
       val location = PathLocation(reportingPath, Location.all)
       issuesAndWS.value.get.events.toList should matchPattern {
         case List(
-        SObjectEvent(sourceInfo, path, false, None, None),
-        IssuesEvent(ArraySeq(
-        Issue(Path("/pkg/MyObject.object"), Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))))
-            if sourceInfo.get.location == location && path == reportingPath =>
+              SObjectEvent(sourceInfo, path, false, None, None),
+              IssuesEvent(
+                ArraySeq(Issue(objectPath, Diagnostic(ERROR_CATEGORY, Location(1, _, 1, _), _)))
+              )
+            )
+            if sourceInfo.get.location == location && path == reportingPath && objectPath == root
+              .join("pkg")
+              .join("MyObject.object") =>
       }
     }
   }
