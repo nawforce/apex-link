@@ -83,7 +83,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
   }
 
   test("Custom Inner type") {
-    val td = typeDeclaration("public class Dummy {class Inner {}}")
+    typeDeclaration("public class Dummy {class Inner {}}")
     assert(!hasIssues)
     withOrg(org => {
       val innerTypeName = TypeName(Name("Inner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -98,7 +98,7 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
   }
 
   test("Custom Inner type (Wrong case)") {
-    val td = typeDeclaration("public class Dummy {class Inner {}}")
+    typeDeclaration("public class Dummy {class Inner {}}")
     assert(!hasIssues)
     withOrg(org => {
       val innerTypeName = TypeName(Name("iNner"), Nil, Some(TypeName(Name("Dummy"))))
@@ -143,11 +143,10 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
         "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy value;}}"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
-        getMessages(
-          Path("/pkg2/Use.cls")
-        ) == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n"
+        getMessages(root.join("pkg2").join("Use.cls"))
+          == "Missing: line 1 at 31-36: No type declaration found for 'pkg1.Dummy'\n"
       )
     }
   }
@@ -183,10 +182,10 @@ class TypeFindingTest extends AnyFunSuite with TestHelper {
         "pkg2/Use.cls"   -> "global class Use { {pkg1.Dummy.Inner value;}}"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
         getMessages(
-          Path("/pkg2/Use.cls")
+          root.join("pkg2").join("Use.cls")
         ) == "Missing: line 1 at 37-42: No type declaration found for 'pkg1.Dummy.Inner'\n"
       )
     }

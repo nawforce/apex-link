@@ -24,7 +24,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             |private interface MyPrivateInner{};
             |}""".stripMargin
       val offset      = content.split('\n').head.length - 1
-      val completions = org.getCompletionItems(path.toString, line = 1, offset, content)
+      val completions = org.getCompletionItemsInternal(path, line = 1, offset, content)
       assert(completions.exists(_.kind == "Keyword"))
       assert(
         completions
@@ -74,7 +74,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
             |private interface MyPrivateInner{};
             |}""".stripMargin
       val offset      = content.split('\n').head.length - 1
-      val completions = org.getCompletionItems(path.toString, line = 1, offset, content)
+      val completions = org.getCompletionItemsInternal(path, line = 1, offset, content)
       assert(completions.exists(_.kind == "Keyword"))
       assert(
         completions
@@ -129,7 +129,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Completion { public Completion() {String a = new Dummy().m"
       assert(
         org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItemsInternal(path, line = 1, offset = content.length, content)
           .toSet ==
           Set(
             CompletionItemLink(
@@ -166,7 +166,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Completion { public Completion() {String a = Dummy.m"
       assert(
         org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItemsInternal(path, line = 1, offset = content.length, content)
           .toSet ==
           Set(
             CompletionItemLink(
@@ -203,7 +203,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Completion { public Completion() {Dummy a; if ( a.m"
       assert(
         org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItemsInternal(path, line = 1, offset = content.length, content)
           .toSet ==
           Set(
             CompletionItemLink(
@@ -240,7 +240,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "public class Completion { public Completion() {String a = new Dummy()."
       assert(
         org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItemsInternal(path, line = 1, offset = content.length, content)
           .toSet ==
           Set(
             CompletionItemLink("methodA()", "Method", "public System.String methodA()"),
@@ -268,7 +268,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val org = createOrg(root)
       assert(
         org
-          .getCompletionItems(root.join("Dummy.cls").toString, line = 1, offset = 0, "")
+          .getCompletionItemsInternal(root.join("Dummy.cls"), line = 1, offset = 0, "")
           .map(_.label)
           sameElements Array(
             "abstract",
@@ -300,8 +300,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "class Dummy e"
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.cls").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.cls"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -318,8 +318,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
         val testSrc = "class Dummy extends F"
         assert(
           org
-            .getCompletionItems(
-              root.join("Dummy.cls").toString,
+            .getCompletionItemsInternal(
+              root.join("Dummy.cls"),
               line = 1,
               offset = testSrc.length,
               testSrc
@@ -335,8 +335,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "class Dummy { {Boolean abc; abc."
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.cls").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.cls"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -373,8 +373,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "class Dummy { public Boolean func() {func()."
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.cls").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.cls"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -411,8 +411,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = ""
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -428,8 +428,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "trigger Dummy "
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -445,8 +445,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "trigger Dummy on Account( "
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -462,8 +462,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "trigger Dummy on Account(before "
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -479,8 +479,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "trigger Dummy on Account(before insert) { Boolean testVar = false; te"
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -496,8 +496,8 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val testSrc = "trigger Dummy on Account(before insert){Trigger."
       assert(
         org
-          .getCompletionItems(
-            root.join("Dummy.trigger").toString,
+          .getCompletionItemsInternal(
+            root.join("Dummy.trigger"),
             line = 1,
             offset = testSrc.length,
             testSrc
@@ -555,7 +555,7 @@ class CompletionProviderTest extends AnyFunSuite with TestHelper {
       val content = "trigger Completion on Account(before insert) { Dummy.m"
       assert(
         org
-          .getCompletionItems(path.toString, line = 1, offset = content.length, content)
+          .getCompletionItemsInternal(path, line = 1, offset = content.length, content)
           .toSet ==
           Set(
             CompletionItemLink(

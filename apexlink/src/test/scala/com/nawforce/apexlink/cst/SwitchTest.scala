@@ -23,9 +23,9 @@ class SwitchTest extends AnyFunSuite with TestHelper {
   test("Empty switch") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy {{switch on 'A' {}}}")) {
       root: PathLike =>
-        val org = createOrg(root)
+        createOrg(root)
         assert(
-          dummyIssues ==
+          getMessages(root.join("Dummy.cls")) ==
             "Syntax: line 1 at 36: mismatched input '}' expecting 'when'\nSyntax: line 1 at 38: extraneous input '}' expecting <EOF>\n"
         )
     }

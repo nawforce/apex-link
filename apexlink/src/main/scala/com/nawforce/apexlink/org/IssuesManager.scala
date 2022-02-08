@@ -66,19 +66,27 @@ class IssuesManager extends IssuesCollection with IssueLogger {
   }
 
   override def ignoreUpdatedIssues(path: String): Unit = {
-    hasChanged.remove(Path(path))
+    ignoreUpdatedIssuesInternal(Path(path))
+  }
+
+  def ignoreUpdatedIssuesInternal(path: PathLike): Unit = {
+    hasChanged.remove(path)
   }
 
   override def issuesForFile(path: String): Array[APIIssue] = {
-    issuesForFileInternal(path).toArray
+    issuesForFileInternal(Path(path)).toArray
   }
 
-  def issuesForFileInternal(path: String): Seq[Issue] = {
-    hasChanged.remove(Path(path))
-    log.getOrElse(Path(path), Nil).sorted(Issue.ordering)
+  def issuesForFileInternal(path: PathLike): Seq[Issue] = {
+    hasChanged.remove(path)
+    log.getOrElse(path, Nil).sorted(Issue.ordering)
   }
 
   override def issuesForFileLocation(path: String, location: IssueLocation): Array[APIIssue] = {
+    issuesForFileLocationInternal(Path(path), location)
+  }
+
+  def issuesForFileLocationInternal(path: PathLike, location: IssueLocation): Array[APIIssue] = {
     val loc = Location(
       location.startLineNumber(),
       location.startCharOffset(),
@@ -86,7 +94,7 @@ class IssuesManager extends IssuesCollection with IssueLogger {
       location.endCharOffset()
     )
     log
-      .getOrElse(Path(path), Nil)
+      .getOrElse(path, Nil)
       .filter(issue => loc.contains(issue.diagnostic.location))
       .toArray[APIIssue]
   }
@@ -96,11 +104,13 @@ class IssuesManager extends IssuesCollection with IssueLogger {
     includeWarnings: Boolean,
     maxIssuesPerFile: Int
   ): Array[APIIssue] = {
-    issuesForFilesInternal(paths, includeWarnings, maxIssuesPerFile).toArray
+    val internalPaths: Array[PathLike] =
+      Option(paths).map(paths => paths.map(Path.apply(_).asInstanceOf[PathLike])).orNull
+    issuesForFilesInternal(internalPaths, includeWarnings, maxIssuesPerFile).toArray
   }
 
   def issuesForFilesInternal(
-    paths: Array[String],
+    paths: Array[PathLike],
     includeWarnings: Boolean,
     maxIssuesPerFile: Int
   ): Seq[Issue] = {
@@ -108,7 +118,7 @@ class IssuesManager extends IssuesCollection with IssueLogger {
       if (paths == null || paths.isEmpty)
         log.keys.toSeq.sortBy(_.toString)
       else
-        paths.map(p => Path(p)).toIterable
+        paths.toIterable
 
     val buffer = mutable.ArrayBuffer[Issue]()
     files.foreach(file => {

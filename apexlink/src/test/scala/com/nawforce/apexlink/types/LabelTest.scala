@@ -169,9 +169,9 @@ class LabelTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {String a = Label.TestLabel2;} }"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
-        getMessages(Path("/Dummy.cls")) ==
+        getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 33-49: Unknown field or type 'TestLabel2' on 'System.Label'\n"
       )
     }
@@ -195,9 +195,9 @@ class LabelTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {String a = laBel.TestLaBel2;} }"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
-        getMessages(Path("/Dummy.cls")) ==
+        getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 33-49: Unknown field or type 'TestLaBel2' on 'System.Label'\n"
       )
     }
@@ -293,7 +293,7 @@ class LabelTest extends AnyFunSuite with TestHelper {
       val pkg1 = org.packagesByNamespace(Some(Name("pkg1")))
       val pkg2 = org.packagesByNamespace(Some(Name("pkg2")))
       assert(
-        getMessages(Path("/pkg2/Dummy.cls")) ==
+        getMessages(root.join("pkg2").join("Dummy.cls")) ==
           "Missing: line 1 at 33-53: Unknown field or type 'TestLabel' on 'System.Label.pkg1'\n"
       )
 
