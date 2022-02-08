@@ -91,7 +91,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
         assert(
-          getMessages(Path("/pkg/Foo.cls"))
+          getMessages(root.join("pkg").join("Foo.cls"))
             == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n"
         )
       }
@@ -109,7 +109,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(
-          getMessages(Path("/pkg/Foo.cls"))
+          getMessages((root.join("pkg").join("Foo.cls")))
             == "Missing: line 1 at 28-29: No type declaration found for 'Bar.Inner'\n"
         )
 
@@ -206,7 +206,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
 
         assert(org.flush())
         assert(
-          getMessages(Path("/Dummy.cls"))
+          getMessages(root.join("Dummy.cls"))
             .startsWith("Syntax: line 1 at 20: mismatched input '<EOF>' expecting {")
         )
       }
@@ -271,7 +271,7 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {}")
         assert(org.flush())
         assert(
-          getMessages(Path("/pkg/Foo.trigger"))
+          getMessages(root.join("pkg").join("Foo.trigger"))
             == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n"
         )
       }
@@ -289,11 +289,11 @@ class RefreshTest extends AnyFunSuite with TestHelper {
         val org = createOrg(root)
         val pkg = org.unmanaged
         assert(
-          getMessages(Path("/pkg/Foo.trigger"))
+          getMessages(root.join("pkg").join("Foo.trigger"))
             == "Missing: line 1 at 50-51: No type declaration found for 'Bar.Inner'\n"
         )
 
-        refresh(pkg, root.join("pkg/Bar.cls"), "public class Bar {public class Inner {}}")
+        refresh(pkg, root.join("pkg").join("Bar.cls"), "public class Bar {public class Inner {}}")
         assert(org.flush())
         assert(org.issues.isEmpty)
       }

@@ -57,10 +57,10 @@ class InterviewTest extends AnyFunSuite with TestHelper {
   test("Missing flow") {
     FileSystemHelper.run(Map("Dummy.cls" -> "public class Dummy { {Flow.Interview.Test;} }")) {
       root: PathLike =>
-        val org = createOrg(root)
+        createOrg(root)
         // TODO: This should be a missing issue
         assert(
-          getMessages(Path("/Dummy.cls")) ==
+          getMessages(root.join("Dummy.cls")) ==
             "Missing: line 1 at 22-41: Unknown field or type 'Test' on 'Flow.Interview'\n"
         )
     }
@@ -174,9 +174,9 @@ class InterviewTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy { {Flow.Interview i = new Flow.Interview.Test(new Map<String, Object>());} }"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
-        getMessages(Path("/Dummy.cls")) ==
+        getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 45-64: No type declaration found for 'Flow.Interview.Test'\n"
       )
     }

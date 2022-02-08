@@ -46,7 +46,11 @@ trait PackageAPI extends Package {
   }
 
   override def isPackagePath(path: String): Boolean = {
-    getPackageModule(Path(path)).nonEmpty
+    isPackagePathInternal(Path(path))
+  }
+
+  def isPackagePathInternal(path: PathLike): Boolean = {
+    getPackageModule(path).nonEmpty
   }
 
   override def getTypeIdentifier(typeName: TypeName): TypeIdentifier = {

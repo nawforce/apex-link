@@ -260,13 +260,22 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
     offset: Int,
     content: String
   ): Array[CompletionItemLink] = {
+    getCompletionItemsInternal(Path(path), line, offset, content)
+  }
+
+  def getCompletionItemsInternal(
+    path: PathLike,
+    line: Int,
+    offset: Int,
+    content: String
+  ): Array[CompletionItemLink] = {
     if (path == null || content == null)
       return Array.empty
 
     OrgImpl.current.withValue(this) {
       packages
-        .find(_.isPackagePath(path))
-        .map(_.getCompletionItems(Path(path), line, offset, content))
+        .find(_.isPackagePathInternal(path))
+        .map(_.getCompletionItems(path, line, offset, content))
         .getOrElse(Array.empty)
     }
   }

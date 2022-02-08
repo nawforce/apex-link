@@ -25,7 +25,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class UnusedTest extends AnyFunSuite with TestHelper {
 
   def orgIssuesFor(org: OrgImpl, path: PathLike): String = {
-    val messages = org.issueManager.issuesForFile(path.toString).map(_.asString()).mkString("\n")
+    val messages = org.issueManager.issuesForFileInternal(path).map(_.asString()).mkString("\n")
     if (messages.nonEmpty) messages + "\n" else ""
   }
 

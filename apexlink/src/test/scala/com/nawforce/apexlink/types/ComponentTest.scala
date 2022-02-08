@@ -27,7 +27,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.component" -> "")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        getMessages(Path("/Test.component")) ==
+        getMessages(root.join("Test.component")) ==
           "Syntax: line 1: mismatched input '<EOF>' expecting {COMMENT, PI_START, '<', '<script', WS_NL}\n"
       )
     }
@@ -37,7 +37,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
     FileSystemHelper.run(Map("Test.component" -> "<foo/>")) { root: PathLike =>
       val org = createOrg(root)
       assert(
-        getMessages(Path("/Test.component")) ==
+        getMessages(root.join("Test.component")) ==
           "Error: line 1 at 0-11: Root element must be 'apex:component'\n"
       )
     }
@@ -60,7 +60,7 @@ class ComponentTest extends AnyFunSuite with TestHelper {
       root: PathLike =>
         val org = createOrg(root)
         assert(
-          getMessages(Path("/Dummy.cls")) ==
+          getMessages(root.join("Dummy.cls")) ==
             "Missing: line 1 at 22-36: Unknown field or type 'Test' on 'Component'\n"
         )
     }

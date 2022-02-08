@@ -29,15 +29,16 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
   test("Is package file") {
     FileSystemHelper.run(Map("pkg/Dummy.cls" -> "public class Dummy {}")) { root: PathLike =>
-      val org = createOrg(root.join("pkg"))
-      val pkg = org.unmanaged
-      assert(pkg.isPackagePath(root.join("pkg/Dummy.cls").toString))
-      assert(pkg.isPackagePath(root.join("pkg/something/Dummy.cls").toString))
-      assert(pkg.isPackagePath(root.join("pkg/Dummy2.cls").toString))
-      assert(pkg.isPackagePath(root.join("pkg/Dummy2.labels").toString))
-      assert(pkg.isPackagePath(root.join("pkg/Dummy2.labels-meta.xml").toString))
-      assert(!pkg.isPackagePath(root.join("pkg/Dummy.cls2").toString))
-      assert(!pkg.isPackagePath(root.join("Dummy.cls").toString))
+      val org    = createOrg(root.join("pkg"))
+      val pkg    = org.unmanaged
+      val pkgDir = root.join("pkg")
+      assert(pkg.isPackagePathInternal(pkgDir.join("Dummy.cls")))
+      assert(pkg.isPackagePathInternal(pkgDir.join("something/Dummy.cls")))
+      assert(pkg.isPackagePathInternal(pkgDir.join("Dummy2.cls")))
+      assert(pkg.isPackagePathInternal(pkgDir.join("Dummy2.labels")))
+      assert(pkg.isPackagePathInternal(pkgDir.join("Dummy2.labels-meta.xml")))
+      assert(!pkg.isPackagePathInternal(pkgDir.join("Dummy.cls2")))
+      assert(!pkg.isPackagePathInternal(root.join("Dummy.cls")))
     }
   }
 
@@ -938,7 +939,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
 
       assert(
         org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Dummy")))) ==
-          PathLocation(Path("/classes/Dummy.cls"), Location(1, 13, 1, 18))
+          PathLocation(root.join("classes").join("Dummy.cls"), Location(1, 13, 1, 18))
       )
     }
   }
@@ -970,7 +971,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             TypeName(Name("Dummy"), Nil, Some(TypeName(Name("test"))))
           )
         ) ==
-          PathLocation(Path("/test/Dummy.cls"), Location(1, 13, 1, 18))
+          PathLocation(root.join("test").join("Dummy.cls"), Location(1, 13, 1, 18))
       )
     }
   }
@@ -1009,7 +1010,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
             )
           )
         ) ==
-          PathLocation(Path("/test/Dummy.cls"), Location(1, 26, 1, 31))
+          PathLocation(root.join("test").join("Dummy.cls"), Location(1, 26, 1, 31))
       )
     }
   }
@@ -1024,7 +1025,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
       assert(org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("Foo")))) == null)
       assert(
         org.getIdentifierLocation(TypeIdentifier(None, TypeName(Name("__sfdc_trigger/Foo")))) ==
-          PathLocation(Path("/triggers/Foo.trigger"), Location(1, 8, 1, 11))
+          PathLocation(root.join("triggers").join("Foo.trigger"), Location(1, 8, 1, 11))
       )
     }
   }
@@ -1056,7 +1057,7 @@ class PackageAPITest extends AnyFunSuite with TestHelper {
         org.getIdentifierLocation(
           TypeIdentifier(Some(Name("test")), TypeName(Name("__sfdc_trigger/test/Foo")))
         ) ==
-          PathLocation(Path("/test/Foo.trigger"), Location(1, 8, 1, 11))
+          PathLocation(root.join("test").join("Foo.trigger"), Location(1, 8, 1, 11))
       )
     }
   }

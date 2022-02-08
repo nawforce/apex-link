@@ -52,9 +52,9 @@ class PageTest extends AnyFunSuite with TestHelper {
         "Dummy.cls"     -> "public class Dummy { {PageReference a = Page.AnotherPage;} }"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
-        getMessages(Path("/Dummy.cls")) ==
+        getMessages(root.join("Dummy.cls")) ==
           "Missing: line 1 at 40-56: Unknown field or type 'AnotherPage' on 'Page'\n"
       )
     }
@@ -97,7 +97,7 @@ class PageTest extends AnyFunSuite with TestHelper {
 
   test("Missing controller") {
     FileSystemHelper.run(Map("Test.page" -> "<apex:page controller='Dummy'/>")) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
         getMessages(root.join("Test.page")) ==
           "Missing: line 1 at 11-29: No type declaration found for 'Dummy'\n"
@@ -112,7 +112,7 @@ class PageTest extends AnyFunSuite with TestHelper {
         "Dummy.cls" -> "public class Dummy {}"
       )
     ) { root: PathLike =>
-      val org = createOrg(root)
+      createOrg(root)
       assert(
         getMessages(root.join("Test.page")) ==
           "Missing: line 1 at 30-52: No type declaration found for 'Extension'\n"

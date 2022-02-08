@@ -76,12 +76,11 @@ class OrgAPITest extends AsyncFunSuite {
       issues <- orgAPI.getIssues(includeWarnings = false, maxIssuesPerFile = 0)
     } yield {
       assert(result.error.isEmpty)
+
+      val path = Path("/silly")
       assert(
         issues.issues sameElements Array(
-          Issue(
-            Path("/silly"),
-            Diagnostic(ERROR_CATEGORY, Location.empty, "No directory at /silly")
-          )
+          Issue(path, Diagnostic(ERROR_CATEGORY, Location.empty, s"No directory at ${path}"))
         )
       )
     }
