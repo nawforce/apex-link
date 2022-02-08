@@ -18,6 +18,11 @@ jobs:
         distribution: adopt
         java-version: 8
         cache: "maven"
+        
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.2
+      with:
+        maven-version: 3.8.1        
 
     - name: runforce-checkout
       uses: actions/checkout@v2
