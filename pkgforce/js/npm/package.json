@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "antlr4ts": "0.5.0-alpha.4",
-    "apex-parser": "2.11.0",
+    "apex-parser": "2.12.1",
     "vf-parser": "1.0.0",
     "@xmldom/xmldom": "0.7.5"
   },
