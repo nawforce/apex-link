@@ -135,7 +135,7 @@ object GetTestClassNamesResult {
   implicit val rw: RW[GetTestClassNamesResult] = macroRW
 }
 
-case class GetDependencyCountsRequest(paths: Array[String])
+case class GetDependencyCountsRequest(paths: Array[String], excludeTestClasses: Boolean)
 
 object GetDependencyCountsRequest {
   implicit val rw: RW[GetDependencyCountsRequest] = macroRW
