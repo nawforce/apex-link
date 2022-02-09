@@ -350,7 +350,7 @@ case class GetDependencyCounts(
       promise.success(
         GetDependencyCountsResult(
           orgImpl
-            .getDependencyCounts(request.paths)
+            .getDependencyCounts(request.paths, request.excludeTestClasses)
             .map(c => DependencyCount(c._1, c._2))
         )
       )

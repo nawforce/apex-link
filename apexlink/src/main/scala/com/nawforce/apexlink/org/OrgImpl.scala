@@ -390,10 +390,23 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
     }.distinct
   }
 
-  def getDependencyCounts(paths: Array[String]): Array[(String, Int)] = {
+  def getDependencyCounts(
+    paths: Array[String],
+    excludeTestClasses: Boolean
+  ): Array[(String, Int)] = {
 
-    def getTypeOfPath(path: String): Option[TypeIdentifier] =
-      packages.view.flatMap(pkg => Option(pkg.getTypeOfPath(path))).headOption
+    def getTypeAndSummaryOfPath(path: String): Option[(TypeIdentifier, TypeSummary)] =
+      packages.view
+        .flatMap(
+          pkg =>
+            Option(pkg.getTypeOfPath(path))
+              .flatMap(
+                typeId =>
+                  Option(pkg.getSummaryOfType(typeId))
+                    .flatMap(summary => Option(typeId, summary))
+              )
+        )
+        .headOption
 
     def countTransitiveDependencies(
       typeId: TypeIdentifier,
@@ -406,9 +419,13 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
 
     paths
       .flatMap { path =>
-        getTypeOfPath(path)
-          .map { typeId =>
-            (typeId, collector.transitives(typeId))
+        getTypeAndSummaryOfPath(path)
+          .filter {
+            case (_, summary) =>
+              !excludeTestClasses || !summary.modifiers.contains(ISTEST_ANNOTATION)
+          }
+          .map {
+            case (typeId, _) => (typeId, collector.transitives(typeId))
           }
           .map {
             case (typeId, transitiveDependencies) =>

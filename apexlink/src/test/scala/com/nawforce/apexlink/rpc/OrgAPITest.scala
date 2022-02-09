@@ -415,8 +415,44 @@ class OrgAPITest extends AsyncFunSuite {
           Array(
             workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
             workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
-            workspace.toString + "/force-app/main/default/classes/TransDep.cls"
-          )
+            workspace.toString + "/force-app/main/default/classes/TransDep.cls",
+            workspace.toString + "/force-app/main/default/classes/TestDep.cls"
+          ),
+          false
+        )
+      )
+    } yield {
+      assert(result.error.isEmpty)
+      assert(dependencyCounts.counts.length == 4)
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("TestDep")).map(_.count).apply(0) == 2
+      )
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("TransDep")).map(_.count).apply(0) == 2
+      )
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("SingleDep")).map(_.count).apply(0) == 1
+      )
+      assert(
+        dependencyCounts.counts.filter(c => c.path.contains("NoDeps")).map(_.count).apply(0) == 0
+      )
+    }
+  }
+
+  test("Get DependencyCounts (exclude tests)") {
+    val workspace = syntheticDir.join("dependency-counts")
+    val orgAPI    = OrgAPI()
+    for {
+      result <- orgAPI.open(workspace.toString)
+      dependencyCounts <- orgAPI.getDependencyCounts(
+        new GetDependencyCountsRequest(
+          Array(
+            workspace.toString + "/force-app/main/default/classes/NoDeps.cls",
+            workspace.toString + "/force-app/main/default/classes/SingleDep.cls",
+            workspace.toString + "/force-app/main/default/classes/TransDep.cls",
+            workspace.toString + "/force-app/main/default/classes/TestDep.cls"
+          ),
+          true
         )
       )
     } yield {
