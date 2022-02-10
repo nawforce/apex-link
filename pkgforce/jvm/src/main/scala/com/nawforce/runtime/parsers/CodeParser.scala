@@ -17,7 +17,7 @@ import com.nawforce.apexparser.{ApexLexer, ApexParser, CaseInsensitiveInputStrea
 import com.nawforce.pkgforce.diagnostics.IssuesAnd
 import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.CodeParser.ParserRuleContext
-import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 
 import java.io.ByteArrayInputStream
 import java.util
@@ -120,7 +120,9 @@ object CodeParser {
 
   def clearCaches(): Unit = {
     val lexer = new ApexLexer(
-      new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]()))
+      new CaseInsensitiveInputStream(
+        CharStreams.fromStream(new ByteArrayInputStream(Array[Byte]()))
+      )
     )
     val parser = new ApexParser(new CommonTokenStream(lexer))
     lexer.clearCache()

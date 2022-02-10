@@ -17,7 +17,7 @@ import com.nawforce.apexparser.CaseInsensitiveInputStream
 import com.nawforce.pkgforce.diagnostics.IssuesAnd
 import com.nawforce.pkgforce.path.{PathLike, PathLocation}
 import com.nawforce.runtime.parsers.PageParser.ParserRuleContext
-import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.antlr.v4.runtime.tree.ParseTree
 
 import java.io.ByteArrayInputStream
@@ -71,7 +71,11 @@ object PageParser {
   }
 
   def clearCaches(): Unit = {
-    val lexer  = new VFLexer(new CaseInsensitiveInputStream(new ByteArrayInputStream(Array[Byte]())))
+    val lexer = new VFLexer(
+      new CaseInsensitiveInputStream(
+        CharStreams.fromStream(new ByteArrayInputStream(Array[Byte]()))
+      )
+    )
     val parser = new VFParser(new CommonTokenStream(lexer))
     lexer.clearCache()
     parser.clearCache()
