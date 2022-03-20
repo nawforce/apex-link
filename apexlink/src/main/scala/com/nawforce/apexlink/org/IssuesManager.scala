@@ -61,6 +61,15 @@ class IssuesManager extends IssuesCollection with IssueLogger {
       log.put(path, issues)
   }
 
+  def replaceUnusedIssues(path: PathLike, issues: Seq[diagnostics.Issue]): Unit = {
+    hasChanged.add(path)
+    val newIssues = log(path).filterNot(_.diagnostic.category == UNUSED_CATEGORY) ++ issues
+    if (newIssues.isEmpty)
+      log.remove(path)
+    else
+      log.put(path, newIssues)
+  }
+
   override def hasUpdatedIssues: Array[String] = {
     hasChanged.map(_.toString).toArray
   }

@@ -47,7 +47,9 @@ final case class EncodedName(name: Name, ext: Option[Name], namespace: Option[Na
 }
 
 object EncodedName {
-  private val extensions = Set("c", "r", "e", "b", "mdt", "share", "history", "feed")
+  private final val extensions = Set("c", "r", "e", "b", "mdt", "share", "history", "feed")
+
+  private final val underscoreSplit = "__".r
 
   def apply(name: Name): EncodedName = {
     apply(name.value)
@@ -75,7 +77,7 @@ object EncodedName {
   }
 
   private def nameSplit(name: String): Seq[String] = {
-    var parts = name.split("__")
+    var parts = underscoreSplit.split(name)
 
     // Collapse subfield name into the ext
     if (parts.length > 1 && parts.last.equalsIgnoreCase("s"))

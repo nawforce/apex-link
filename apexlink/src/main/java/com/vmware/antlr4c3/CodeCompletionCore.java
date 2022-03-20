@@ -5,16 +5,12 @@
  *
  * See LICENSE file for more info.
  */
+/*
+ * This file has modifications, see KJJ comments.
+ */
 package com.vmware.antlr4c3;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -141,7 +137,7 @@ public class CodeCompletionCore {
    * Optionally you can pass in a parser rule context which limits the ATN walk to only that or called rules. This can significantly
    * speed up the retrieval process but might miss some candidates (if they are outside of the given context).
    */
-  public CandidatesCollection collectCandidates(int caretTokenIndex, ParserRuleContext context) {
+  public CandidatesCollection collectCandidates(int caretTokenIndex, ParserRuleContext context, int maxStates) {
     this.shortcutMap.clear();
     this.candidates.rules.clear();
     this.candidates.tokens.clear();
@@ -152,20 +148,29 @@ public class CodeCompletionCore {
 
     int currentIndex = tokenStream.index();
     tokenStream.seek(this.tokenStartIndex);
-    this.tokens = new LinkedList<>();
-    int offset = 1;
+    this.tokens = new ArrayList<>(tokenStream.size());
+    int offset = 0;
     while (true) {
+      /* KJJ: Optimised loop, the original use of CommonTokenStream.LT(...) was very slow for large inputs */
+      Token token = tokenStream.get(offset++);
+      if (token.getChannel() == 0) {
+        this.tokens.add(token);
+        if (token.getTokenIndex() >= caretTokenIndex || token.getType() == Token.EOF) {
+          break;
+        }
+      }
+      /* KJJ: Original code, with offset starting at 1
       Token token = tokenStream.LT(offset++);
       this.tokens.add(token);
       if (token.getTokenIndex() >= caretTokenIndex || token.getType() == Token.EOF) {
         break;
-      }
+      }*/
     }
     tokenStream.seek(currentIndex);
 
     LinkedList<Integer> callStack = new LinkedList<>();
     int startRule = context != null ? context.getRuleIndex() : 0;
-    this.processRule(this.atn.ruleToStartState[startRule], 0, callStack, "\n");
+    this.processRule(this.atn.ruleToStartState[startRule], 0, callStack, "\n", maxStates);
 
     tokenStream.seek(currentIndex);
 
@@ -384,7 +389,7 @@ public class CodeCompletionCore {
    * The result can be empty in case we hit only non-epsilon transitions that didn't match the current input or if we
    * hit the caret position.
    */
-  private Set<Integer> processRule(ATNState startState, int tokenIndex, LinkedList<Integer> callStack, String indentation) {
+  private Set<Integer> processRule(ATNState startState, int tokenIndex, LinkedList<Integer> callStack, String indentation, int maxStates) {
 
     // Start with rule specific handling before going into the ATN walk.
 
@@ -493,6 +498,11 @@ public class CodeCompletionCore {
       currentEntry = statePipeline.removeLast();
       ++this.statesProcessed;
 
+      /* KJJ: Protection against run away processing */
+      if (this.statesProcessed > maxStates) {
+        break;
+      }
+
       currentSymbol = this.tokens.get(currentEntry.tokenIndex).getType();
 
       boolean atCaret = currentEntry.tokenIndex >= this.tokens.size() - 1;
@@ -522,7 +532,7 @@ public class CodeCompletionCore {
       for (Transition transition : transitions) {
         switch (transition.getSerializationType()) {
           case Transition.RULE: {
-            Set<Integer> endStatus = this.processRule(transition.target, currentEntry.tokenIndex, callStack, indentation);
+            Set<Integer> endStatus = this.processRule(transition.target, currentEntry.tokenIndex, callStack, indentation, maxStates);
             for (Integer position : endStatus) {
               statePipeline.addLast(new PipelineEntry(((RuleTransition) transition).followState, position));
             }

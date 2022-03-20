@@ -25,7 +25,7 @@ trait WorkspaceConfig {
 class MDAPIWorkspaceConfig(namespace: Option[Name], paths: Seq[PathLike]) extends WorkspaceConfig {
 
   override def layers(logger: IssueLogger): Seq[NamespaceLayer] =
-    Seq(NamespaceLayer(namespace, paths.map(path => ModuleLayer(path, path, Seq())).toList))
+    Seq(NamespaceLayer(namespace, paths.map(path => ModuleLayer(path, ".", Seq())).toList))
 
   override def toString: String =
     s"MDAPIWorkspace(namespace=$namespace, paths=${paths.map(_.toString).mkString(", ")})"

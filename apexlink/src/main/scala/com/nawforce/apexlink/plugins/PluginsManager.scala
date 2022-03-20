@@ -13,26 +13,44 @@
  */
 package com.nawforce.apexlink.plugins
 
-import com.nawforce.apexlink.plugins.PluginsManager.{activePlugins, plugins}
+import com.nawforce.apexlink.plugins.PluginsManager.activePlugins
 import com.nawforce.apexlink.types.core.DependentType
-import com.nawforce.pkgforce.names.TypeName
 
 import java.lang.reflect.Constructor
 import scala.collection.mutable
 
+/** Manage the lifecycle of plugins. Uses a create/close model to allow block analysis close in time to normal
+  * validation to limit GC costs while also supporting type level analysis after all types have been validated.
+  * Plugins may dynamically add additional types for analysis as part of the close handling.
+  */
 class PluginsManager {
   private val availablePlugins = activePlugins()
-  private val livePlugins      = new mutable.HashMap[TypeName, Plugin]()
+  private val livePlugins      = new mutable.HashMap[DependentType, Option[Plugin]]()
 
+  /** Create a new plugin dispatcher for a DependentType. */
   def createPlugin(td: DependentType): Plugin = {
     val plugin = PluginDispatcher(td, availablePlugins)
-    livePlugins.put(td.typeName, plugin)
+    livePlugins.put(td, Some(plugin))
     plugin
   }
 
+  /** Close all open plugins. */
   def closePlugins(): Unit = {
-    livePlugins.values.foreach(_.onTypeValidated())
-    livePlugins.clear()
+    val toClose = livePlugins.filter(_._2.nonEmpty)
+    toClose.keys.foreach(dt => livePlugins.put(dt, None))
+
+    val additional = toClose.flatMap(_._2.get.onTypeValidated())
+    additional.foreach(td => {
+      if (!livePlugins.contains(td)) {
+        livePlugins.put(td, Some(PluginDispatcher(td, availablePlugins)))
+      }
+    })
+
+    if (livePlugins.exists(_._2.nonEmpty)) {
+      closePlugins()
+    } else {
+      livePlugins.clear()
+    }
   }
 }
 

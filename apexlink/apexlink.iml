@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="CheckStyle-IDEA-Module">
-    <option name="configuration">
-      <map />
-    </option>
-  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
@@ -20,7 +15,7 @@
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parallel-collections_2.13:1.0.0" level="project" />
     <orderEntry type="module" module-name="pkgforce_2.13" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.13:1.3.0" level="project" />
-    <orderEntry type="library" name="Maven: com.github.nawforce:apex-parser:2.11.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.nawforce:apex-parser:2.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.8-1" level="project" />
     <orderEntry type="library" name="Maven: com.github.nawforce:runforce:53.1.2" level="project" />
     <orderEntry type="library" name="Maven: com.github.nawforce:scala-json-rpc_2.13:1.0.1" level="project" />
@@ -52,6 +47,5 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-js:scalajs-stubs_2.13:1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.jimfs:jimfs:1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.guava:guava:18.0" level="project" />
-    <orderEntry type="library" name="scala-sdk-2.13.3" level="application" />
   </component>
 </module>
