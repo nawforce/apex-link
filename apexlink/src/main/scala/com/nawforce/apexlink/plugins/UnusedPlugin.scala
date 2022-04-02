@@ -18,28 +18,45 @@ import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.org.Module
 import com.nawforce.apexlink.plugins.UnusedPlugin._
 import com.nawforce.apexlink.types.apex.{ApexFieldLike, ApexMethodLike, FullDeclaration}
-import com.nawforce.apexlink.types.core.{DependentType, MethodDeclaration}
+import com.nawforce.apexlink.types.core.{
+  Dependent,
+  DependentType,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.pkgforce.diagnostics.{Diagnostic, Issue, UNUSED_CATEGORY}
 import com.nawforce.pkgforce.modifiers._
 import com.nawforce.pkgforce.parsers.{FIELD_NATURE, PROPERTY_NATURE}
 
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 
 class UnusedPlugin(td: DependentType) extends Plugin(td) {
 
-  override def onClassValidated(td: ClassDeclaration): Unit = {
-    if (td.outerTypeName.isEmpty)
-      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
-  }
+  override def onClassValidated(td: ClassDeclaration): Seq[DependentType] = reportUnused(td)
 
-  override def onEnumValidated(td: EnumDeclaration): Unit = {
-    if (td.outerTypeName.isEmpty)
-      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
-  }
+  override def onEnumValidated(td: EnumDeclaration): Seq[DependentType] = reportUnused(td)
 
-  override def onInterfaceValidated(td: InterfaceDeclaration): Unit = {
-    if (td.outerTypeName.isEmpty)
-      td.unusedIssues.foreach(td.module.pkg.org.issues.add)
+  override def onInterfaceValidated(td: InterfaceDeclaration): Seq[DependentType] = reportUnused(td)
+
+  private def reportUnused(td: FullDeclaration): Seq[DependentType] = {
+    if (td.outerTypeName.isEmpty) {
+      // We don't want to overwrite unused within blocks
+      val localUnused = td.module.pkg.org.issues
+        .issuesForFileInternal(td.paths.head)
+        .filter(_.diagnostic.message.startsWith("Unused local variable"))
+      td.module.pkg.org.issues.replaceUnusedIssues(td.paths.head, td.unusedIssues ++ localUnused)
+
+      val dependents = mutable.Set[Dependent]()
+      td.collectDependencies(dependents)
+      dependents
+        .collect { case td: TypeDeclaration => td }
+        .map(_.outermostTypeDeclaration)
+        .collect { case dt: DependentType => dt }
+        .toSeq
+    } else {
+      Seq.empty
+    }
   }
 
   override def onBlockValidated(

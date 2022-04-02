@@ -21,8 +21,8 @@ import java.lang.reflect.Constructor
 
 class PluginDispatcher(td: DependentType, plugins: Seq[Plugin]) extends Plugin(td) {
 
-  override def onTypeValidated(): Unit = {
-    plugins.foreach(_.onTypeValidated())
+  override def onTypeValidated(): Seq[DependentType] = {
+    plugins.flatMap(_.onTypeValidated())
   }
 
   override def onBlockValidated(

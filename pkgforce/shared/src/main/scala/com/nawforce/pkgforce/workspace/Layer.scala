@@ -40,7 +40,14 @@ case class NamespaceLayer(namespace: Option[Name], layers: Seq[ModuleLayer]) ext
 /** A package layer encompasses a packageDirectory from sfdx-project.json or a 1GP style MDAPI metadata directory. The
   * dependencies should only reference layers defined within the same NamespaceLayer.
   */
-case class ModuleLayer(projectPath: PathLike, path: PathLike, dependencies: Seq[ModuleLayer]) {
+case class ModuleLayer(
+  projectPath: PathLike,
+  relativePath: String,
+  dependencies: Seq[ModuleLayer]
+) {
+
+  val path: PathLike = projectPath.join(relativePath)
+
   def index(namespace: Option[Name]): IssuesAnd[DocumentIndex] = {
     val logger = new CatchingLogger
     val index  = DocumentIndex(logger, namespace, projectPath, path)

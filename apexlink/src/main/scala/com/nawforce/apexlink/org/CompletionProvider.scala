@@ -15,6 +15,7 @@ package com.nawforce.apexlink.org
 
 import com.nawforce.apexlink.cst._
 import com.nawforce.apexlink.org.CompletionProvider.{
+  MAX_STATES,
   emptyCompletions,
   ignoredTokens,
   preferredRules
@@ -83,7 +84,7 @@ trait CompletionProvider {
     val tokenAndIndex =
       findTokenAndIndex(parserAndCU._1, line, adjustedOffset, offset != adjustedOffset)
     val core       = new CodeCompletionCore(parserAndCU._1, preferredRules.asJava, ignoredTokens.asJava)
-    val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2)
+    val candidates = core.collectCandidates(tokenAndIndex._2, parserAndCU._2, MAX_STATES)
 
     // Generate a list of possible keyword matches
     val keywords = candidates.tokens.asScala
@@ -317,9 +318,13 @@ trait CompletionProvider {
 }
 
 object CompletionProvider {
-  val emptyCompletions: Array[CompletionItemLink] = Array[CompletionItemLink]()
+  /* This limits how many states can be traversed during code completion, it provides a safeguard against run away
+   * analysis but needs to be large enough for long files. */
+  final val MAX_STATES: Int = 10000000
 
-  val ignoredTokens: Set[Integer] = Set[Integer](
+  final val emptyCompletions: Array[CompletionItemLink] = Array[CompletionItemLink]()
+
+  final val ignoredTokens: Set[Integer] = Set[Integer](
     ApexLexer.LPAREN,
     ApexLexer.RPAREN,
     ApexLexer.LBRACE,
@@ -369,5 +374,6 @@ object CompletionProvider {
     ApexLexer.ATSIGN,
     ApexLexer.INSTANCEOF
   )
-  val preferredRules: Set[Integer] = Set[Integer](ApexParser.RULE_typeRef, ApexParser.RULE_primary)
+  final val preferredRules: Set[Integer] =
+    Set[Integer](ApexParser.RULE_typeRef, ApexParser.RULE_primary)
 }

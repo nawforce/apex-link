@@ -19,14 +19,10 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{
-  BasicTypeDeclaration,
-  FieldDeclaration,
-  MethodDeclaration,
-  TypeDeclaration
-}
+import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
+import com.nawforce.pkgforce.modifiers.Modifier
 import com.nawforce.pkgforce.names.{EncodedName, Name, Names, TypeName}
 import com.nawforce.pkgforce.path.PathLike
 
@@ -156,6 +152,9 @@ final case class SObjectTypeImpl(sobjectName: Name, sobjectFields: SObjectFields
       TypeNames.sObjectType$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))
     ) {
 
+  // Expose as global for cross-package access
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
+
   private lazy val fieldField = CustomFieldDeclaration(
     Names.Fields,
     TypeNames.sObjectFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema))),
@@ -198,6 +197,9 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
       module,
       TypeNames.sObjectTypeFields$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))
     ) {
+
+  // Expose as global for cross-package access
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
 
   private lazy val sobjectFields: Map[Name, FieldDeclaration] = {
     TypeResolver(TypeName(sobjectName), module).toOption match {
@@ -263,6 +265,9 @@ final case class SObjectTypeFields(sobjectName: Name, module: Module)
 final case class SObjectFields(baseType: TypeName, module: Module)
     extends BasicTypeDeclaration(PathLike.emptyPaths, module, TypeNames.sObjectFields$(baseType)) {
 
+  // Expose as global for cross-package access
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
+
   // Extend SObjectField for when used as return type for lookup SObjectField
   override val superClass: Option[TypeName] = Some(TypeNames.SObjectField)
   override lazy val superClassDeclaration: Option[TypeDeclaration] = Some(
@@ -321,6 +326,9 @@ final case class SObjectTypeFieldSets(sobjectName: Name, module: Module)
       TypeNames.sObjectTypeFieldSets$(TypeName(sobjectName, Nil, Some(TypeNames.Schema)))
     ) {
 
+  // Expose as global for cross-package access
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
+
   // Cache of discovered fieldSets
   private lazy val sobjectFieldSets: Map[Name, FieldDeclaration] = {
     TypeResolver(TypeName(sobjectName), module).toOption match {
@@ -368,6 +376,9 @@ final case class SObjectFieldRowCause(sobjectName: Name, module: Module)
     ) {
 
   assert(sobjectName.value.endsWith("Share"))
+
+  // Expose as global for cross-package access
+  override val modifiers: ArraySeq[Modifier] = SObjectDeclaration.globalModifiers
 
   // Cache of discovered sharing reasons
   private lazy val sharingReasonFields: Map[Name, FieldDeclaration] = {

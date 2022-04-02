@@ -143,7 +143,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.nonEmpty)
       assert(project.get.packageDirectories.size == 1)
       val pd = project.get.packageDirectories.head
-      assert(pd.path == root.join("foo"))
+      assert(pd.relativePath == "foo")
       assert(pd.name.isEmpty)
       assert(pd.version.isEmpty)
       assert(pd.dependencies.isEmpty)
@@ -161,7 +161,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.nonEmpty)
       assert(project.get.packageDirectories.size == 1)
       val pd = project.get.packageDirectories.head
-      assert(pd.path == root.join("foo"))
+      assert(pd.relativePath == "foo")
       assert(pd.name.contains("name"))
       assert(pd.version.contains(VersionNumber(1, 2, 3, NextBuild)))
       assert(pd.dependencies.isEmpty)
@@ -301,8 +301,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(logger.issues.isEmpty)
       assert(project.nonEmpty)
       assert(project.get.packageDirectories.size == 2)
-      assert(project.get.packageDirectories.head.path == root.join("foo"))
-      assert(project.get.packageDirectories(1).path == root.join("bar"))
+      assert(project.get.packageDirectories.head.relativePath == "foo")
+      assert(project.get.packageDirectories(1).relativePath == "bar")
 
     }
   }
@@ -581,7 +581,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location(1, 50),
-              "plugin dependencies must use unique namespaces"
+              "plugin additionalNamespaces/dependencies must use unique namespaces"
             )
           )
         )
@@ -775,4 +775,182 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       )
     }
   }
+
+  test("Empty unpackagedMetadata") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"unpackagedMetadata\": []}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.plugins.size == 1)
+      assert(project.get.plugins.contains("unpackagedMetadata"))
+      assert(project.get.unpackagedMetadata.isEmpty)
+    }
+  }
+
+  test("unpackagedMetadata not an array") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"unpackagedMetadata\": 42}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(ERROR_CATEGORY, Location(1, 35), "'unpackagedMetadata' should be an array")
+          )
+        )
+      )
+    }
+  }
+
+  test("unpackagedMetadata single path") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"unpackagedMetadata\": [\"path\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+
+      assert(project.get.unpackagedMetadata.size == 1)
+      val pd = project.get.unpackagedMetadata.head
+      assert(pd.relativePath == "path")
+      assert(pd.name.isEmpty)
+      assert(pd.version.isEmpty)
+      assert(pd.dependencies.isEmpty)
+    }
+  }
+
+  test("unpackagedMetadata multiple paths") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"unpackagedMetadata\": [\"path1\", \"path2\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+
+      assert(project.get.unpackagedMetadata.size == 2)
+      val pd1 = project.get.unpackagedMetadata.head
+      assert(pd1.relativePath == "path1")
+      val pd2 = project.get.unpackagedMetadata(1)
+      assert(pd2.relativePath == "path2")
+    }
+  }
+
+  test("unpackagedMetadata bad path element") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"unpackagedMetadata\": [\"path1\", 10]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 45),
+              "'unpackagedMetadata' entries should all be strings"
+            )
+          )
+        )
+      )
+    }
+  }
+
+  test("Empty additionalNamespaces") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": []}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+      assert(project.get.plugins.size == 1)
+      assert(project.get.plugins.contains("additionalNamespaces"))
+      assert(project.get.additionalNamespaces.isEmpty)
+    }
+  }
+
+  test("additionalNamespaces not an array") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": 42}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(ERROR_CATEGORY, Location(1, 37), "'additionalNamespaces' should be an array")
+          )
+        )
+      )
+    }
+  }
+
+  test("additionalNamespaces single ns") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": [\"ns\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+
+      assert(project.get.additionalNamespaces == Set(Some(Name("ns"))))
+    }
+  }
+
+  test("additionalNamespaces multiple ns") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": [\"ns1\", \"unmanaged\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+      assert(logger.issues.isEmpty)
+
+      assert(project.get.additionalNamespaces == Set(Some(Name("ns1")), None))
+    }
+  }
+
+  test("additionalNamespaces bad path element") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": [\"ns\", 10]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 44),
+              "'additionalNamespaces' entries should all be strings"
+            )
+          )
+        )
+      )
+    }
+  }
+
 }

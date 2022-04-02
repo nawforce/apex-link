@@ -17,7 +17,6 @@ import com.nawforce.pkgforce.path.{Location, PathLike}
 import ujson.Value
 
 case class PackageDirectory(
-  path: PathLike,
   relativePath: String,
   location: Location,
   name: Option[String],
@@ -38,7 +37,6 @@ object PackageDirectory {
     val relativePath = value.stringValue(config, "path")
 
     new PackageDirectory(
-      projectPath.join(relativePath),
       relativePath,
       location,
       value.optStringValue(config, "package"),
@@ -60,4 +58,33 @@ object PackageDirectory {
       }
     )
   }
+
+  def fromUnpackagedMetadata(
+    projectPath: PathLike,
+    config: ValueWithPositions,
+    value: Value.Value
+  ): PackageDirectory = {
+    val location = config
+      .lineAndOffsetOf(value)
+      .map(lineAndOffset => Location(lineAndOffset._1, lineAndOffset._2))
+      .getOrElse(Location.empty)
+
+    val relativePath = value match {
+      case ujson.Str(value) => Some(value)
+      case _ =>
+        config
+          .lineAndOffsetOf(value)
+          .map(
+            lineAndOffset =>
+              throw SFDXProjectError(
+                lineAndOffset,
+                "'unpackagedMetadata' entries should all be strings"
+              )
+          )
+        None
+    }
+
+    new PackageDirectory(relativePath.get, location, None, None, Seq())
+  }
+
 }
