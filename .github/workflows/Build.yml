@@ -286,9 +286,6 @@ jobs:
     - name: Automated-Testing-for-Force
       run: java -cp "apexlink/target/dependency/*:apexlink/target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Automated-Testing-for-Force/Automated-Testing-for-Force
 
-    - name: Batch-Entry-for-Salesforce
-      run: java -cp "apexlink/target/dependency/*:apexlink/target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce
-
     - name: CustomMetadataLoader
       run: java -cp "apexlink/target/dependency/*:apexlink/target/apexlink.jar" com.nawforce.apexlink.ApexLink -verbose samples/CustomMetadataLoader/CustomMetadataLoader
 
