@@ -19,7 +19,12 @@ import com.nawforce.apexlink.finding.TypeResolver
 import com.nawforce.apexlink.names.TypeNames
 import com.nawforce.apexlink.names.TypeNames._
 import com.nawforce.apexlink.org.Module
-import com.nawforce.apexlink.types.core.{BasicTypeDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
+import com.nawforce.apexlink.types.core.{
+  BasicTypeDeclaration,
+  FieldDeclaration,
+  MethodDeclaration,
+  TypeDeclaration
+}
 import com.nawforce.apexlink.types.platform.{PlatformTypeDeclaration, PlatformTypes}
 import com.nawforce.apexlink.types.synthetic.{CustomFieldDeclaration, CustomMethodDeclaration}
 import com.nawforce.pkgforce.modifiers.Modifier
