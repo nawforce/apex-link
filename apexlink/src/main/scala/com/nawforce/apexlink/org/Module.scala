@@ -48,6 +48,8 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
 
   def namespaces: Set[Name] = pkg.namespaces
 
+  val isGulped: Boolean = pkg.isGulped
+
   private[nawforce] var types = mutable.Map[TypeName, TypeDeclaration]()
   private val schemaManager   = SchemaSObjectType(this)
 

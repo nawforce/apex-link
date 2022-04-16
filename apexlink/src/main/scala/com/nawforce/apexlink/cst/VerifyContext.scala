@@ -85,7 +85,7 @@ trait VerifyContext {
   }
 
   def missingType(location: PathLocation, typeName: TypeName): Unit = {
-    if (!module.isGhostedType(typeName) && !suppressIssues)
+    if (!module.isGulped && !module.isGhostedType(typeName) && !suppressIssues)
       OrgImpl.log(IssueOps.noTypeDeclaration(location, typeName))
   }
 

@@ -34,6 +34,7 @@ case class VersionedPackageLayer(version: Option[VersionNumber], packageLayer: M
 
 class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
   private val projectFile = projectPath.join("sfdx-project.json")
+  private val localLogger = new CatchingLogger
 
   val sourceApiVersion: Option[String] =
     try {
@@ -193,19 +194,27 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
           .getOrElse(None)
         None
       case Right(path) if ns != namespace =>
-        Some(NamespaceLayer(ns, Seq(ModuleLayer(projectPath, path, Seq()))))
+        Some(NamespaceLayer(ns, isGulped = true, Seq(ModuleLayer(projectPath, path, Seq()))))
       case Right(_) => None
     }
   })
 
   private val extendedPackageDirectories = packageDirectories ++ unpackagedMetadata
 
+  private val externalPackages =
+    dependencies.flatMap(dependent => packageDependentLayers(localLogger, dependent))
+
   def metadataGlobs: Seq[String] = {
     val glob = MetadataDocument.extensionsGlob
-    extendedPackageDirectories.map(directory => s"${directory.relativePath}/**/*.$glob")
+    (extendedPackageDirectories.map(packageDirectory => packageDirectory.relativePath) ++
+      externalPackages.flatMap(_.layers.map(layer => layer.pathRelativeTo(projectPath))) ++
+      additionalNamespaces.map(gulpPath).map(pathParts => pathParts.mkString("/")))
+      .map(prefix => s"$prefix/**/*.$glob")
   }
 
   def layers(logger: IssueLogger): Seq[NamespaceLayer] = {
+    logger.logAll(localLogger.issues)
+
     if (packageDirectories.isEmpty) {
       config
         .lineAndOffsetOf(config.root("packageDirectories"))
@@ -237,13 +246,10 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
       else
         Seq()
 
-    val localPackage = NamespaceLayer(namespace, gulpLocalModule ++ localModules)
+    val localPackage = NamespaceLayer(namespace, isGulped = false, gulpLocalModule ++ localModules)
 
     if (!validatePackagePathsLocal(localPackage.layers, logger))
       return Seq.empty
-
-    val externalPackages =
-      dependencies.flatMap(dependent => packageDependentLayers(logger, dependent))
 
     val layers = externalPackages ++ gulpPackages :+ localPackage
 
@@ -313,7 +319,7 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
     logger: IssueLogger,
     dependent: PackageDependent
   ): Seq[NamespaceLayer] = {
-    (dependent.namespace.nonEmpty, dependent.path.nonEmpty) match {
+    (dependent.namespace.nonEmpty, dependent.relativePath.nonEmpty) match {
       case (false, false) =>
         logger.log(
           Issue(
@@ -327,13 +333,17 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
         )
         Seq.empty
       case (true, false) =>
-        Seq(NamespaceLayer(dependent.namespace, Nil))
+        Seq(NamespaceLayer(dependent.namespace, isGulped = false, Nil))
       case (true, true) =>
         Seq(
-          NamespaceLayer(dependent.namespace, Seq(ModuleLayer(dependent.path.get, ".", Seq.empty)))
+          NamespaceLayer(
+            dependent.namespace,
+            isGulped = false,
+            Seq(ModuleLayer(projectPath.join(dependent.relativePath.get), ".", Seq.empty))
+          )
         )
       case (false, true) =>
-        SFDXProject(dependent.path.get, logger)
+        SFDXProject(projectPath.join(dependent.relativePath.get), logger)
           .map(project => {
             project.layers(logger)
           })

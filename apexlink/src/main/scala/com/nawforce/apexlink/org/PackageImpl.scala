@@ -29,7 +29,7 @@ import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 
-class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
+class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val isGulped: Boolean, val basePackages: Seq[PackageImpl])
     extends PackageAPI
     with DefinitionProvider
     with CompletionProvider {

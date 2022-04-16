@@ -77,7 +77,7 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
       // The workspace layers form a deploy ordering, so each is dependent on all previously created
       val packagesAndModules =
         workspace.layers.foldLeft(Seq[(PackageImpl, Seq[ModuleLayer])]())((acc, pkgLayer) => {
-          val pkg = new PackageImpl(this, pkgLayer.namespace, acc.map(_._1))
+          val pkg = new PackageImpl(this, pkgLayer.namespace, pkgLayer.isGulped, acc.map(_._1))
           acc :+ (pkg, pkgLayer.layers)
         })
 
@@ -101,7 +101,7 @@ class OrgImpl(val path: PathLike, initWorkspace: Option[Workspace]) extends Org 
       // If no unmanaged, create it
       val unmanaged =
         if (packages.isEmpty || packages.lastOption.exists(_.namespace.nonEmpty))
-          Seq(new PackageImpl(this, None, packages))
+          Seq(new PackageImpl(this, None, false, packages))
         else
           Seq.empty
 

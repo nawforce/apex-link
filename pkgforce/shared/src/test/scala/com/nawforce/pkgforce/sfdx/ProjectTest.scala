@@ -559,7 +559,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(project.get.dependencies.nonEmpty)
       assert(project.get.dependencies.size == 1)
       assert(project.get.dependencies.exists(_.namespace.contains(Name("foo"))))
-      assert(project.get.dependencies.exists(_.path.contains(root.join("bar"))))
+      assert(project.get.dependencies.exists(_.relativePath.contains("bar")))
     }
   }
 
@@ -609,9 +609,9 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       assert(logger.issues.isEmpty)
       assert(project.get.dependencies.nonEmpty)
       assert(project.get.dependencies.size == 3)
-      assert(project.get.dependencies.head.path.contains(root.join("patha")))
-      assert(project.get.dependencies(1).path.isEmpty)
-      assert(project.get.dependencies(2).path.contains(root.join("pathc")))
+      assert(project.get.dependencies.head.relativePath.contains("patha"))
+      assert(project.get.dependencies(1).relativePath.isEmpty)
+      assert(project.get.dependencies(2).relativePath.contains("pathc"))
     }
   }
 

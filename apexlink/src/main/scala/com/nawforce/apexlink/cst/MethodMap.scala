@@ -418,7 +418,7 @@ object MethodMap {
               method :: methods
                 .filterNot(_.hasSameSignature(method, allowPlatformGenericEquivalence = true))
             )
-          } else if (!hasGhostedMethods) {
+          } else if (!module.isGulped && !hasGhostedMethods) {
             location.foreach(
               l =>
                 errors.append(
