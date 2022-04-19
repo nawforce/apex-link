@@ -24,22 +24,3 @@ case class TypeId(module: Module, typeName: TypeName) {
 
   override def toString: String = asTypeIdentifier.toString
 }
-
-object TypeId {
-  def apply(module: Module, typeIdentifier: TypeIdentifier): Option[TypeId] = {
-    // Quick test if module is the right one
-    val typeName = typeIdentifier.typeName
-    if (typeIdentifier.namespace == module.namespace)
-      return Some(new TypeId(module, typeName))
-
-    // Fallback to searching for the right module
-    module.pkg.org.packagesByNamespace
-      .get(typeIdentifier.namespace)
-      .flatMap(pkg => pkg.orderedModules.find(_.findModuleType(typeName).nonEmpty))
-      .map(module => TypeId(module, typeName))
-      .orElse({
-        assert(false)
-        None
-      })
-  }
-}
