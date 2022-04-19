@@ -253,9 +253,6 @@
 [submodule "samples/Automated-Testing-for-Force/Automated-Testing-for-Force"]
 	path = samples/Automated-Testing-for-Force/Automated-Testing-for-Force
 	url = https://github.com/mbotos/Automated-Testing-for-Force.com.git
-[submodule "samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce"]
-	path = samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce
-	url = https://github.com/SalesforceFoundation/Batch-Entry-for-Salesforce.com.git
 [submodule "samples/Cumulus/Cumulus"]
 	path = samples/Cumulus/Cumulus
 	url = https://github.com/SalesforceFoundation/Cumulus.git
