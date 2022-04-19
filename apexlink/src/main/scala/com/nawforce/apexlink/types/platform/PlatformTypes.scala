@@ -16,7 +16,7 @@ package com.nawforce.apexlink.types.platform
 
 import com.nawforce.apexlink.finding.MissingType
 import com.nawforce.apexlink.finding.TypeResolver.TypeResponse
-import com.nawforce.apexlink.names.TypeNames
+import com.nawforce.apexlink.names.{TypeNames, XNames}
 import com.nawforce.apexlink.names.TypeNames.{TypeNameUtils, ambiguousAliasMap}
 import com.nawforce.apexlink.types.core.TypeDeclaration
 import com.nawforce.pkgforce.names.TypeName
@@ -100,11 +100,12 @@ object PlatformTypes {
         .orElse(findOuterOrNestedPlatformType(localTypeName.wrap(TypeNames.System)))
     }
 
+    val aliasedTypeName = typeAliasMap.getOrElse(typeName, typeName)
     val response =
-      if (typeName.isNonGeneric) {
-        typeCache.getOrElseUpdate(typeName, findType(typeAliasMap.getOrElse(typeName, typeName)))
+      if (aliasedTypeName.isNonGeneric) {
+        typeCache.getOrElseUpdate(typeName, findType(aliasedTypeName))
       } else {
-        findType(typeAliasMap.getOrElse(typeName, typeName))
+        findType(aliasedTypeName)
       }
 
     response match {
@@ -126,6 +127,7 @@ object PlatformTypes {
 
   private val typeAliasMap: Map[TypeName, TypeName] = Map(
     TypeNames.Object                 -> TypeNames.InternalObject,
-    TypeNames.ApexPagesPageReference -> TypeNames.PageReference
+    TypeNames.ApexPagesPageReference -> TypeNames.PageReference,
+    TypeNames.Iterator               -> TypeName(XNames.Iterator, Seq(TypeNames.Any), Some(TypeNames.System))
   ) ++ ambiguousAliasMap
 }

@@ -231,32 +231,11 @@ trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
     val errorLocation = Some(idPathLocation)
     val methods = superClassDeclaration match {
       case Some(at: ApexClassDeclaration) =>
-        MethodMap(
-          this,
-          errorLocation,
-          at.methodMap,
-          localMethods,
-          outerStaticMethods,
-          interfaceDeclarations
-        )
+        MethodMap(this, errorLocation, at.methodMap, localMethods, interfaceDeclarations)
       case Some(td: TypeDeclaration) =>
-        MethodMap(
-          this,
-          errorLocation,
-          MethodMap(td),
-          localMethods,
-          outerStaticMethods,
-          interfaceDeclarations
-        )
+        MethodMap(this, errorLocation, MethodMap(td), localMethods, interfaceDeclarations)
       case _ =>
-        MethodMap(
-          this,
-          errorLocation,
-          MethodMap.empty(),
-          localMethods,
-          outerStaticMethods,
-          interfaceDeclarations
-        )
+        MethodMap(this, errorLocation, MethodMap.empty(), localMethods, interfaceDeclarations)
     }
 
     methods.errors.foreach(OrgImpl.log)
