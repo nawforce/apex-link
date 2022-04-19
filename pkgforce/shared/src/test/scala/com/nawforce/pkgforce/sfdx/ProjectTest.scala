@@ -912,7 +912,10 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(logger.issues.isEmpty)
 
-      assert(project.get.additionalNamespaces == Set(Some(Name("ns"))))
+      assert(project.get.additionalNamespaces sameElements Array(Some(Name("ns"))))
+      val globs = project.get.metadataGlobs
+      assert(globs.length == 1)
+      assert(globs.exists(_.startsWith(".apexlink/gulp/ns/**/")))
     }
   }
 
@@ -925,7 +928,11 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
       val project = SFDXProject(root, logger)
       assert(logger.issues.isEmpty)
 
-      assert(project.get.additionalNamespaces == Set(Some(Name("ns1")), None))
+      assert(project.get.additionalNamespaces sameElements Array(Some(Name("ns1")), None))
+      val globs = project.get.metadataGlobs
+      assert(globs.length == 2)
+      assert(globs.exists(_.startsWith(".apexlink/gulp/ns1/**/")))
+      assert(globs.exists(_.startsWith(".apexlink/gulp/unmanaged/**/")))
     }
   }
 
@@ -946,6 +953,54 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
               ERROR_CATEGORY,
               Location(1, 44),
               "'additionalNamespaces' entries should all be strings"
+            )
+          )
+        )
+      )
+    }
+  }
+
+  test("additionalNamespaces duplicate") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": [\"other\", \"ns\", \"another\", \"ns\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 37),
+              "namespace 'ns' is duplicated in additionalNamespaces'"
+            )
+          )
+        )
+      )
+    }
+  }
+
+  test("additionalNamespaces duplicate (unmanaged)") {
+    FileSystemHelper.run(
+      Map(
+        "sfdx-project.json" -> "{\"plugins\": {\"additionalNamespaces\": [\"other\", \"unmanaged\", \"another\", \"unmanaged\"]}, \"packageDirectories\": []}"
+      )
+    ) { root: PathLike =>
+      val project = SFDXProject(root, logger)
+
+      assert(project.isEmpty)
+      assert(
+        logger.issues == ArraySeq(
+          Issue(
+            root.join("sfdx-project.json"),
+            Diagnostic(
+              ERROR_CATEGORY,
+              Location(1, 37),
+              "namespace 'unmanaged' is duplicated in additionalNamespaces'"
             )
           )
         )

@@ -18,6 +18,7 @@ import com.nawforce.pkgforce.documents.MetadataDocument
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.workspace.{ModuleLayer, NamespaceLayer}
+import com.nawforce.pkgforce.diagnostics.Duplicates.IterableOps
 import ujson.Value
 
 import scala.annotation.tailrec
@@ -121,10 +122,10 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
           .getOrElse(Seq.empty)
     }
 
-  val additionalNamespaces: Set[Option[Name]] =
+  val additionalNamespaces: Array[Option[Name]] =
     plugins.getOrElse("additionalNamespaces", ujson.Arr()) match {
       case value: ujson.Arr =>
-        value.value.toSeq
+        val namespaces = value.value.toSeq
           .flatMap(value => {
             value match {
               case ujson.Str(value) => Some(value)
@@ -145,14 +146,26 @@ class SFDXProject(val projectPath: PathLike, config: ValueWithPositions) {
             case "unmanaged" => None
             case ns          => Some(Name(ns))
           }
-          .toSet
+        val dups = namespaces.duplicates(_.getOrElse("unmanaged"))
+        if (dups.nonEmpty) {
+          config
+            .lineAndOffsetOf(value)
+            .map(
+              lineAndOffset =>
+                throw SFDXProjectError(
+                  lineAndOffset,
+                  s"namespace '${dups.head._1.getOrElse("unmanaged")}' is duplicated in additionalNamespaces'"
+                )
+            )
+        }
+        namespaces.toArray
       case value =>
         config
           .lineAndOffsetOf(value)
           .map(lineAndOffset => {
             throw SFDXProjectError(lineAndOffset, "'additionalNamespaces' should be an array")
           })
-          .getOrElse(Set.empty)
+          .getOrElse(Array.empty)
     }
 
   val maxDependencyCount: Option[Int] = {

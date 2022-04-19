@@ -82,13 +82,17 @@ class PackageImpl(
 
   /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {
+    def toNSString(ns: Option[Name]): String = ns.map(_.value).getOrElse("")
     val ghostedPackages = basePackages
       .groupBy(_.isGhosted)
-      .map(kv => (kv._1, kv._2.map(_.namespace.map(_.value).getOrElse("")).sorted.toArray))
+      .map(kv => (kv._1, kv._2.map(pkg => toNSString(pkg.namespace)).sorted.toArray))
+    val additionalNamespaces =
+      basePackages.filter(_.isGulped).map(pkg => toNSString(pkg.namespace)).toArray
     PackageContext(
       namespace.map(_.value),
       ghostedPackages.getOrElse(true, Array.empty),
-      ghostedPackages.getOrElse(false, Array.empty)
+      ghostedPackages.getOrElse(false, Array.empty),
+      additionalNamespaces
     )
   }
 

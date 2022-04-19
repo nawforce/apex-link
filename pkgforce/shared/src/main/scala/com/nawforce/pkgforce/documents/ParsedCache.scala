@@ -58,14 +58,16 @@ object CacheKey {
 final case class PackageContext(
   namespace: Option[String],
   ghostedPackages: Array[String],
-  analysedPackages: Array[String]
+  analysedPackages: Array[String],
+  additionalNamespaces: Array[String]
 ) {
   override def equals(that: Any): Boolean = {
     that match {
       case other: PackageContext =>
         other.namespace == namespace &&
           other.ghostedPackages.sameElements(ghostedPackages) &&
-          other.analysedPackages.sameElements(analysedPackages)
+          other.analysedPackages.sameElements(analysedPackages) &&
+          other.additionalNamespaces.sameElements(additionalNamespaces)
       case _ => false
     }
   }
