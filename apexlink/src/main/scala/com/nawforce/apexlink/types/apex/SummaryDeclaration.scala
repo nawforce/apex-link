@@ -25,7 +25,7 @@ import com.nawforce.apexlink.types.schema.SObjectDeclaration
 import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.Modifier
-import com.nawforce.pkgforce.names.{Name, Names, TypeName}
+import com.nawforce.pkgforce.names.{Name, Names, TypeIdentifier, TypeName}
 import com.nawforce.pkgforce.parsers.Nature
 import com.nawforce.pkgforce.path.{Location, PathLike, PathLocation}
 import upickle.default._
@@ -71,7 +71,7 @@ object DependentValidation {
         .orElse(typeId.typeName.outer.flatMap(findDependentType(_, typeId.module, typeCache)))
     }
 
-    TypeId(module, dependent.typeId).flatMap(typeId => {
+    convertToTypeId(module, dependent.typeId).flatMap(typeId => {
       findSummaryType(typeId)
         .filter({
           case d: SummaryDeclaration   => d.sourceHash == dependent.sourceHash
@@ -121,7 +121,7 @@ object DependentValidation {
     module: Module,
     typeCache: TypeCache
   ): Option[TypeDeclaration] = {
-    TypeId(module, dependent.typeId).flatMap(typeId => {
+    convertToTypeId(module, dependent.typeId).flatMap(typeId => {
       findDependentType(typeId.typeName, typeId.module, typeCache)
     })
   }
@@ -134,7 +134,7 @@ object DependentValidation {
   ): Option[FieldDeclaration] = {
     val name = Name(dependent.name)
 
-    TypeId(module, dependent.typeId).flatMap(typeId => {
+    convertToTypeId(module, dependent.typeId).flatMap(typeId => {
       findExactDependentType(typeId.typeName, typeId.module, typeCache)
         .flatMap(_.fields.find(_.name == name))
     })
@@ -148,7 +148,7 @@ object DependentValidation {
   ): Option[MethodDeclaration] = {
     val name = Name(dependent.name)
 
-    TypeId(module, dependent.typeId).flatMap(typeId => {
+    convertToTypeId(module, dependent.typeId).flatMap(typeId => {
       findExactDependentType(typeId.typeName, typeId.module, typeCache)
         .flatMap {
           case td: ApexClassDeclaration =>
@@ -197,6 +197,18 @@ object DependentValidation {
       case Right(_)                       => None
     }
   }
+
+  private def convertToTypeId(module: Module, typeIdentifier: TypeIdentifier): Option[TypeId] = {
+    // If in package of this module shortcut to current module
+    val typeName = typeIdentifier.typeName
+    if (typeIdentifier.namespace == module.namespace)
+      return Some(TypeId(module, typeName))
+
+    // Otherwise use top module of the package with correct namespace
+    val pkg = module.pkg.org.packagesByNamespace.get(typeIdentifier.namespace)
+    pkg.flatMap(_.orderedModules.headOption).map(TypeId(_, typeName))
+  }
+
 }
 
 /** Common dependency handling for Summary elements */

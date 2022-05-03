@@ -173,7 +173,7 @@ abstract class FullDeclaration(
     interfaces.foreach(interface => {
       val td = context.getTypeAndAddDependency(interface, context.thisType).toOption
       if (td.isEmpty) {
-        if (!context.module.isGhostedType(interface))
+        if (!context.module.isGulped && !context.module.isGhostedType(interface))
           context.missingType(id.location, interface)
       } else if (td.get.nature != INTERFACE_NATURE)
         OrgImpl.logError(id.location, s"Type '${interface.toString}' must be an interface")

@@ -46,6 +46,7 @@ object TypeNames extends InternCache[TypeName] {
   lazy val Blob: TypeName     = TypeName(Names.Blob, Nil, Some(TypeNames.System)).intern
   lazy val Location: TypeName = TypeName(Names.Location, Nil, Some(TypeNames.System)).intern
   lazy val Address: TypeName  = TypeName(Names.Address, Nil, Some(TypeNames.System)).intern
+  lazy val Iterator: TypeName = TypeName(XNames.Iterator, Nil, Some(TypeNames.System)).intern
 
   lazy val IdType: TypeName   = TypeName(Names.Id, Nil, Some(TypeNames.System)).intern
   lazy val TypeType: TypeName = TypeName(Names.Type, Nil, Some(TypeNames.System)).intern
@@ -135,7 +136,7 @@ object TypeNames extends InternCache[TypeName] {
   def recordSetOf(typeName: TypeName): TypeName =
     TypeName(Names.RecordSet$, Seq(typeName), Some(TypeNames.Internal)).intern
 
-  val standardShareNames = Set(
+  val standardShareNames: Set[String] = Set(
     "AccountShare",
     "AssetShare",
     "AuthorizationFormConsentShare",
@@ -392,6 +393,16 @@ object TypeNames extends InternCache[TypeName] {
       typeName.name == XNames.Iterable && typeName.outer.contains(
         TypeNames.System
       ) && typeName.params.size == 1
+
+    def isIterator: Boolean =
+      typeName.name == XNames.Iterator && typeName.outer.contains(
+        TypeNames.System
+      ) && typeName.params.size == 1
+
+    def isAnyIterator: Boolean =
+      typeName.name == XNames.Iterator && typeName.outer.contains(
+        TypeNames.System
+      ) && typeName.params.size == 1 && typeName.params.head == TypeNames.Any
 
     def isNonGeneric: Boolean =
       typeName.params.isEmpty && typeName.outer.forall(_.isNonGeneric)

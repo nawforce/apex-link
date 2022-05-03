@@ -30,7 +30,8 @@ sealed trait Layer
   * where only knowledge of a namespace is provided. In a 1GP package each layer will depend on its predecessor, with
   * 2GP the layer dependencies are declared.
   */
-case class NamespaceLayer(namespace: Option[Name], layers: Seq[ModuleLayer]) extends Layer {
+case class NamespaceLayer(namespace: Option[Name], isGulped: Boolean, layers: Seq[ModuleLayer])
+    extends Layer {
   def indexes: Map[ModuleLayer, IssuesAnd[DocumentIndex]] =
     layers.foldLeft(Map[ModuleLayer, IssuesAnd[DocumentIndex]]())(
       (acc, layer) => acc + (layer -> layer.index(namespace))
@@ -47,6 +48,10 @@ case class ModuleLayer(
 ) {
 
   val path: PathLike = projectPath.join(relativePath)
+
+  def pathRelativeTo(root: PathLike): String = {
+    path.toString.substring(root.toString.length)
+  }
 
   def index(namespace: Option[Name]): IssuesAnd[DocumentIndex] = {
     val logger = new CatchingLogger

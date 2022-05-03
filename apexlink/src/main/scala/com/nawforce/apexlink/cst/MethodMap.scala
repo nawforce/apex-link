@@ -213,7 +213,6 @@ object MethodMap {
     location: Option[PathLocation],
     superClassMap: MethodMap,
     newMethods: ArraySeq[MethodDeclaration],
-    outerStaticMethods: ArraySeq[MethodDeclaration],
     interfaces: ArraySeq[TypeDeclaration]
   ): MethodMap = {
 
@@ -418,7 +417,7 @@ object MethodMap {
               method :: methods
                 .filterNot(_.hasSameSignature(method, allowPlatformGenericEquivalence = true))
             )
-          } else if (!hasGhostedMethods) {
+          } else if (!module.isGulped && !hasGhostedMethods) {
             location.foreach(
               l =>
                 errors.append(
@@ -505,7 +504,12 @@ object MethodMap {
               )
           case _ => ()
         }
-      } else if (matchedMethod.typeName != method.typeName && !reallyPrivateMethod && !isSpecial) {
+      } else if (
+        !areSameReturnType(
+          matchedMethod.typeName,
+          method.typeName
+        ) && !reallyPrivateMethod && !isSpecial
+      ) {
         setMethodError(
           method,
           s"Method '${method.name}' has wrong return type to override, should be '${matched.get.typeName}'",
@@ -568,6 +572,11 @@ object MethodMap {
       case None          => workingMap.put(key, method :: methods)
       case Some(matched) => workingMap.put(key, method :: methods.filterNot(_ eq matched))
     }
+  }
+
+  private def areSameReturnType(matchedTypeName: TypeName, methodTypeName: TypeName): Boolean = {
+    (matchedTypeName == methodTypeName) ||
+    (matchedTypeName.isAnyIterator && methodTypeName.isIterator)
   }
 
   private def setMethodError(

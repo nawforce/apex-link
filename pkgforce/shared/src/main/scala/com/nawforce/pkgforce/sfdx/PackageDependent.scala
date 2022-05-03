@@ -37,7 +37,6 @@ case class PackageDependent(projectPath: PathLike, config: ValueWithPositions, v
       case None     => None
     }
 
-  val path: Option[PathLike] =
-    value.optStringValue(config, "path").map(p => projectPath.join(p))
+  val relativePath: Option[String] = value.optStringValue(config, "path")
 
 }

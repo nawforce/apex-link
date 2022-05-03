@@ -47,7 +47,7 @@ class VFContainer(module: Module, event: VFEvent) extends DependencyHolder {
       val controllerType = DotName(controller.value.value).asTypeName()
       TypeResolver(controllerType, module) match {
         case Left(_) =>
-          if (!module.isGhostedType(controllerType)) {
+          if (!module.isGulped && !module.isGhostedType(controllerType)) {
             OrgImpl.log(
               IssueOps.noTypeDeclaration(
                 PathLocation(event.sourceInfo.location.path, controller.location),

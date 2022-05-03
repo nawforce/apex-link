@@ -29,8 +29,12 @@ import com.nawforce.runtime.parsers.{CodeParser, SourceData}
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 
-class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackages: Seq[PackageImpl])
-    extends PackageAPI
+class PackageImpl(
+  val org: OrgImpl,
+  val namespace: Option[Name],
+  val isGulped: Boolean,
+  val basePackages: Seq[PackageImpl]
+) extends PackageAPI
     with DefinitionProvider
     with CompletionProvider {
 
@@ -78,13 +82,17 @@ class PackageImpl(val org: OrgImpl, val namespace: Option[Name], val basePackage
 
   /** Get summary of package context containing namespace & base package namespace information. */
   def packageContext: PackageContext = {
+    def toNSString(ns: Option[Name]): String = ns.map(_.value).getOrElse("")
     val ghostedPackages = basePackages
       .groupBy(_.isGhosted)
-      .map(kv => (kv._1, kv._2.map(_.namespace.map(_.value).getOrElse("")).sorted.toArray))
+      .map(kv => (kv._1, kv._2.map(pkg => toNSString(pkg.namespace)).sorted.toArray))
+    val additionalNamespaces =
+      basePackages.filter(_.isGulped).map(pkg => toNSString(pkg.namespace)).toArray
     PackageContext(
       namespace.map(_.value),
       ghostedPackages.getOrElse(true, Array.empty),
-      ghostedPackages.getOrElse(false, Array.empty)
+      ghostedPackages.getOrElse(false, Array.empty),
+      additionalNamespaces
     )
   }
 
