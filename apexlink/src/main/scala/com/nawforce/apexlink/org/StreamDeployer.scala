@@ -131,7 +131,7 @@ class StreamDeployer(
   /** Parse a collection of Apex classes, insert them and validate them. */
   private def parseAndValidateClasses(docs: ArraySeq[ClassDocument]): Unit = {
     LoggerOps.debugTime(s"Parsed ${docs.length} classes", docs.nonEmpty) {
-      val classTypes = docs
+      val decls = docs
         .flatMap(
           doc =>
             doc.path.readSourceData() match {
@@ -149,7 +149,14 @@ class StreamDeployer(
         )
 
       // Validate the classes, this must be last due to mutual dependence
-      classTypes.foreach(_.validate())
+      decls.foreach { decl =>
+        try {
+          decl.validate()
+        } catch {
+          case ex: Throwable =>
+            module.log(decl.paths.head, "Validation failed", ex)
+        }
+      }
     }
   }
 

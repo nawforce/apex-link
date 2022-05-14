@@ -326,7 +326,7 @@ object FullDeclaration {
         CompilationUnit.construct(parser, module, doc.name, result.value).map(_.typeDeclaration)
       } catch {
         case ex: Throwable =>
-          LoggerOps.info(s"CST construction failed for ${doc.path}", ex)
+          module.log(doc.path, "CST construction failed", ex)
           None
       }
     } else {
