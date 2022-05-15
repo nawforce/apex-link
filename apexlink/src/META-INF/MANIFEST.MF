@@ -5,7 +5,7 @@ Class-Path:
   apex-parser-2.13.0.jar
   geny_2.13-0.6.2.jar
   pkgforce_2.13-2.3.3.jar
-  runforce-53.1.2.jar
+  runforce-55.0.0.jar
   scala-collection-compat_2.13-2.1.4.jar
   scala-json-rpc-upickle-json-serializer_2.13-1.0.1.jar
   scala-json-rpc_2.13-1.0.1.jar
