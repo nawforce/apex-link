@@ -28,13 +28,15 @@ import com.nawforce.apexlink.types.core.{DependentType, TypeDeclaration, TypeId}
 import com.nawforce.apexlink.types.other._
 import com.nawforce.apexlink.types.platform.PlatformTypes
 import com.nawforce.apexlink.types.schema.{SObjectDeclaration, SchemaSObjectType}
+import com.nawforce.pkgforce.diagnostics.{ERROR_CATEGORY, Issue}
 import com.nawforce.pkgforce.documents._
 import com.nawforce.pkgforce.modifiers.GLOBAL_MODIFIER
 import com.nawforce.pkgforce.names.{EncodedName, Name, TypeIdentifier, TypeName}
-import com.nawforce.pkgforce.path.PathLike
+import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.pkgforce.stream._
 import com.nawforce.runtime.parsers.SourceData
 
+import java.io.{PrintWriter, StringWriter}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
@@ -446,4 +448,17 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
       case Right(data) => Some(data)
     }
   }
+
+  def log(issue: Issue): Unit = {
+    pkg.org.issueManager.log(issue)
+  }
+
+  def log(path: PathLike, message: String, ex: Throwable): Unit = {
+    val writer = new StringWriter
+    writer.append(message)
+    writer.append(": ")
+    ex.printStackTrace(new PrintWriter(writer))
+    log(Issue(path, ERROR_CATEGORY, Location.empty, writer.toString))
+  }
+
 }
