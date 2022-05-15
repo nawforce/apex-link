@@ -25,16 +25,6 @@ jobs:
       with:
         maven-version: 3.8.1
 
-    - name: runforce-checkout
-      uses: actions/checkout@v2
-      with:
-        repository: nawforce/runforce
-        path: './runforce'
-
-    - name: runforce-compile
-      working-directory: './runforce'
-      run: mvn -B install -D gpg.skip
-
     - name: Build with Maven
       run: |
         mvn --version
