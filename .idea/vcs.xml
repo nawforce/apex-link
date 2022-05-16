@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Angular/Angular" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Apex-Opensource-Library/Apex-Opensource-Library" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Apex-XML-Serializer/Apex-XML-Serializer" vcs="Git" />
@@ -9,7 +9,6 @@
     <mapping directory="$PROJECT_DIR$/samples/ApexTestKit/ApexTestKit" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/ApexTriggerHandler/ApexTriggerHandler" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Automated-Testing-for-Force/Automated-Testing-for-Force" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/samples/Batch-Entry-for-Salesforce/Batch-Entry-for-Salesforce" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/ConnectApiHelper/ConnectApiHelper" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/samples/Cumulus/Cumulus" vcs="Git" />

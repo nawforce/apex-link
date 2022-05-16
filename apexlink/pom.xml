@@ -85,7 +85,7 @@
     <dependency>
       <groupId>com.github.nawforce</groupId>
       <artifactId>runforce</artifactId>
-      <version>55.0.0</version>
+      <version>55.1.0</version>
     </dependency>
 
     <dependency>
