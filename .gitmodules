@@ -130,9 +130,6 @@
 [submodule "samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework"]
 	path = samples/Centralized-Salesforce-Dev-Framework/Centralized-Salesforce-Dev-Framework
 	url = https://github.com/scottbcovert/Centralized-Salesforce-Dev-Framework.git
-[submodule "samples/aws-sdk/aws-sdk"]
-	path = samples/aws-sdk/aws-sdk
-	url = https://github.com/bigassforce/aws-sdk.git
 [submodule "samples/eventlogging/eventlogging"]
 	path = samples/eventlogging/eventlogging
 	url = https://github.com/afawcett/eventlogging.git
