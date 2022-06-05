@@ -52,6 +52,12 @@ object Environment {
   def setCacheDirOverride(value: Option[Option[PathLike]]): Unit = {
     cacheDirOverride = value
   }
+
+  def isWindows: Boolean = {
+    // It's win32 even on Win64
+    Process.platform == "win32"
+  }
+
 }
 
 @js.native

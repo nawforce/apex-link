@@ -181,12 +181,7 @@ final class Path private (path: String) extends PathLike {
   }
 
   override lazy val toString: String = {
-    val value = io.scalajs.nodejs.path.Path.format(pathObject)
-    if (Path.separator == "\\") {
-      value.replace('\\', '/')
-    } else {
-      value
-    }
+    io.scalajs.nodejs.path.Path.format(pathObject)
   }
 }
 

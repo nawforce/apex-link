@@ -29,6 +29,7 @@ package com.nawforce.pkgforce.documents
 
 import com.nawforce.pkgforce.path._
 import com.nawforce.runtime.FileSystemHelper
+import com.nawforce.runtime.platform.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class PathTest extends AnyFunSuite {
@@ -58,7 +59,7 @@ class PathTest extends AnyFunSuite {
       assert(root.isDirectory)
       assert(!root.isFile)
       assert(root.size == 0)
-      assert(stripDrive(root) == "/")
+      assert(stripDrive(root) == Path.separator)
     }
   }
 
@@ -72,7 +73,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 0)
-      assert(stripDrive(file) == "/Empty.txt")
+      assert(stripDrive(file) == s"${Path.separator}Empty.txt")
     }
   }
 
@@ -86,7 +87,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 5)
-      assert(stripDrive(file) == "/Something.txt")
+      assert(stripDrive(file) == s"${Path.separator}Something.txt")
     }
   }
 
@@ -101,7 +102,7 @@ class PathTest extends AnyFunSuite {
       assert(dir.isDirectory)
       assert(!dir.isFile)
       assert(dir.size == 0)
-      assert(stripDrive(dir) == "/Bar")
+      assert(stripDrive(dir) == s"${Path.separator}Bar")
 
       assert(file.basename == "Something.txt")
       assert(file.parent.parent == root)
@@ -110,7 +111,7 @@ class PathTest extends AnyFunSuite {
       assert(!file.isDirectory)
       assert(file.isFile)
       assert(file.size == 5)
-      assert(stripDrive(file) == "/Bar/Something.txt")
+      assert(stripDrive(file) == s"${Path.separator}Bar${Path.separator}Something.txt")
     }
   }
 

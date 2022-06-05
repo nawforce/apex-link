@@ -18,6 +18,7 @@ import com.nawforce.pkgforce.diagnostics._
 import com.nawforce.pkgforce.names.Name
 import com.nawforce.pkgforce.path.{Location, PathLike}
 import com.nawforce.runtime.FileSystemHelper
+import com.nawforce.runtime.platform.Environment
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -326,7 +327,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
   test("Path outside project") {
     FileSystemHelper.run(
-      Map("pkg/sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"/path\"}]}")
+      Map("pkg/sfdx-project.json" -> "{ \"packageDirectories\": [{\"path\": \"../../somewhere\"}]}")
     ) { root: PathLike =>
       val project = SFDXProject(root.join("pkg"), logger)
       assert(project.nonEmpty)
@@ -334,6 +335,8 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
 
       // Path are checked during layer construction
       project.get.layers(logger)
+
+      val pathPrefix = if (Environment.isWindows) "C:\\" else "/"
       assert(
         logger.issues == ArraySeq(
           Issue(
@@ -341,7 +344,7 @@ class ProjectTest extends AnyFunSuite with BeforeAndAfter {
             diagnostics.Diagnostic(
               ERROR_CATEGORY,
               Location.empty,
-              s"Package directory '${root.join("path")}' is not within the project directory '${root.join("pkg")}'"
+              s"Package directory '${pathPrefix}somewhere' is not within the project directory '${pathPrefix}pkg'"
             )
           )
         )

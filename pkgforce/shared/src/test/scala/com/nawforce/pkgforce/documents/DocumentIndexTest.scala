@@ -13,15 +13,12 @@
  */
 package com.nawforce.pkgforce.documents
 
-import com.nawforce.pkgforce.diagnostics
-import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY, Issue}
+import com.nawforce.pkgforce.diagnostics.{CatchingLogger, ERROR_CATEGORY}
 import com.nawforce.pkgforce.names.Name
-import com.nawforce.pkgforce.path.{Location, PathLike}
+import com.nawforce.pkgforce.path.PathLike
 import com.nawforce.runtime.FileSystemHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
-
-import scala.collection.immutable.ArraySeq
 
 class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
 
@@ -92,7 +89,7 @@ class DocumentIndexTest extends AnyFunSuite with BeforeAndAfter {
   test("multiple classes found") {
     FileSystemHelper.run(
       Map[String, String](
-        "pkg/Foo.cls"      -> "public class Foo {}",
+        "/pkg/Foo.cls"     -> "public class Foo {}",
         "/pkg/bar/Bar.cls" -> "public class Bar {}"
       )
     ) { root: PathLike =>
