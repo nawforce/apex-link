@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Main-Class: com.nawforce.apexlink.ApexLink
-Class-Path: 
+Class-Path:
   antlr4-runtime-4.8-1.jar
-  apex-parser-2.13.0.jar
+  apex-parser-2.14.0.jar
   geny_2.13-0.6.2.jar
   pkgforce_2.13-2.3.5.jar
   runforce-55.4.0.jar
