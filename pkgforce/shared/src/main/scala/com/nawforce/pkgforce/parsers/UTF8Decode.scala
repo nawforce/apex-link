@@ -13,8 +13,10 @@
  */
 package com.nawforce.pkgforce.parsers
 
-import java.nio.charset.StandardCharsets
-
+/* Utilities for helping find character positions in UTF-8 byte arrays. Character positions can be ambiguous as they
+ * have commonly be used to refer to UTF-16 positions rather than Unicode code points. This code assumes the latter
+ * model to match ANTLR CharStream handling of positions.
+ */
 object UTF8Decode {
 
   def isASCII(buffer: Array[Byte], offset: Int, length: Int): Boolean = {
@@ -32,13 +34,8 @@ object UTF8Decode {
     var remaining = charCount
     var at        = offset
     while (remaining > 0) {
-      val charLength = sequenceLength(buffer(at))
-      if (charLength == 1) {
-        remaining -= 1
-      } else {
-        remaining -= new String(buffer, at, charLength, StandardCharsets.UTF_8).length
-      }
-      at += charLength
+      at += sequenceLength(buffer(at))
+      remaining -= 1
     }
     at
   }
