@@ -26,10 +26,20 @@ class SourceDataTest extends AnyFunSuite {
   }
 
   test("UTF-8 String handling") {
+    // Single char, two byte UTF-8, 1 Unicode code point
+    val sd = SourceData("A UTF-8 \u00E9 test string")
+    assert(sd.subdata(8, 9).asString == "\u00E9")
+    assert(sd.subdata(10, 11).asString == "t")
+    assert(sd.subdata(10, 14).asString == "test")
+    assert(sd.subdata(6, 14).asString == "8 \u00E9 test")
+  }
+
+  test("UTF-8 String handling (surrogate pair)") {
+    // Two UTF-16 chars, four byte UTF-8, should be handled as 1 Unicode code point for ANTLR CharSource compat
     val sd = SourceData("A UTF-8 \uD83E\uDD26 test string")
     assert(sd.subdata(8, 9).asString == "\uD83E\uDD26")
-    assert(sd.subdata(11, 12).asString == "t")
-    assert(sd.subdata(11, 15).asString == "test")
-    assert(sd.subdata(6, 15).asString == "8 \uD83E\uDD26 test")
+    assert(sd.subdata(10, 11).asString == "t")
+    assert(sd.subdata(10, 14).asString == "test")
+    assert(sd.subdata(6, 14).asString == "8 \uD83E\uDD26 test")
   }
 }

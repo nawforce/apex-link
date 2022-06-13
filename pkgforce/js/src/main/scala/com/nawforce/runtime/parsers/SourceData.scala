@@ -17,6 +17,7 @@ package com.nawforce.runtime.parsers
 import com.nawforce.apexparser.CaseInsensitiveInputStream
 import com.nawforce.pkgforce.parsers.UTF8Decode
 import com.nawforce.runtime.SourceBlob
+import com.nawforce.runtime.parsers.antlr.CharStreams
 
 import java.nio.charset.StandardCharsets
 import scala.util.hashing.MurmurHash3
@@ -47,7 +48,7 @@ final case class SourceData(
   }
 
   def asInsensitiveStream: CaseInsensitiveInputStream = {
-    new CaseInsensitiveInputStream(null, new String(source, offset, length))
+    new CaseInsensitiveInputStream(CharStreams.fromString(new String(source, offset, length)))
   }
 
   def asUTF8: Array[Byte] = {

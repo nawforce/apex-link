@@ -67,4 +67,15 @@ class CodeParserTest extends AnyFunSuite {
     val result = cp.parseClass()
     assert(result.issues.isEmpty)
   }
+
+  test("Class with error & surrogate pair") {
+    val path   = Path("Dummy.cls")
+    val cp     = CodeParser(path, SourceData("public class Dummy {String a = '\uD83E\uDD26'"))
+    val result = cp.parseClass()
+    assert(result.issues.length == 1)
+    // The surrogate pair should only count as 1 unicode code point
+    assert(result.issues.head.diagnostic.location.displayPosition == "line 1 at 34")
+    assert(result.issues.head.diagnostic.message.startsWith("mismatched input '<EOF>' expecting {"))
+  }
+
 }

@@ -13,13 +13,11 @@
  */
 package com.nawforce.apexparser
 
-import com.nawforce.runtime.parsers.antlr.ANTLRInputStream
+import com.nawforce.runtime.parsers.antlr.CharStream
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
 @JSImport("apex-parser", "CaseInsensitiveInputStream")
-class CaseInsensitiveInputStream(inputPath: Any, data: String) extends ANTLRInputStream {
-  val path: Any = js.native
-}
+class CaseInsensitiveInputStream(src: CharStream) extends CharStream {}
