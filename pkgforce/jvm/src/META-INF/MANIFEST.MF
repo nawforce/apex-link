@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Class-Path:
+Class-Path: 
   antlr4-runtime-4.8-1.jar
   apex-parser-2.14.0.jar
   geny_2.13-0.6.2.jar
