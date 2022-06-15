@@ -17,5 +17,5 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "ApexLexer")
+@JSImport("@apexdevtools/apex-parser", "ApexLexer")
 class ApexLexer(stream: CaseInsensitiveInputStream) extends js.Object {}

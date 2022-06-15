@@ -20,7 +20,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "ApexParser")
+@JSImport("@apexdevtools/apex-parser", "ApexParser")
 class ApexParser(tokens: CommonTokenStream) extends js.Object {
 
   def removeErrorListeners(): Unit                = js.native
@@ -38,7 +38,7 @@ class ApexParser(tokens: CommonTokenStream) extends js.Object {
 object ApexParser {
 
   @js.native
-  @JSImport("apex-parser", "TriggerUnitContext")
+  @JSImport("@apexdevtools/apex-parser", "TriggerUnitContext")
   class TriggerUnitContext extends ParserRuleContext {
     def id(): js.Array[IdContext]                   = js.native
     def triggerCase(): js.Array[TriggerCaseContext] = js.native
@@ -46,7 +46,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "TriggerCaseContext")
+  @JSImport("@apexdevtools/apex-parser", "TriggerCaseContext")
   class TriggerCaseContext extends ParserRuleContext {
     def BEFORE(): js.UndefOr[TerminalNode]   = js.native
     def AFTER(): js.UndefOr[TerminalNode]    = js.native
@@ -57,33 +57,33 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "CompilationUnitContext")
+  @JSImport("@apexdevtools/apex-parser", "CompilationUnitContext")
   class CompilationUnitContext extends ParserRuleContext {
     def typeDeclaration(): TypeDeclarationContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "IdContext")
+  @JSImport("@apexdevtools/apex-parser", "IdContext")
   class IdContext extends ParserRuleContext
 
   @js.native
-  @JSImport("apex-parser", "AnyIdContext")
+  @JSImport("@apexdevtools/apex-parser", "AnyIdContext")
   class AnyIdContext extends ParserRuleContext
 
   @js.native
-  @JSImport("apex-parser", "BlockContext")
+  @JSImport("@apexdevtools/apex-parser", "BlockContext")
   class BlockContext extends ParserRuleContext {
     def statement(): js.Array[StatementContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "QualifiedNameContext")
+  @JSImport("@apexdevtools/apex-parser", "QualifiedNameContext")
   class QualifiedNameContext extends ParserRuleContext {
     def id(): js.Array[IdContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "AnnotationContext")
+  @JSImport("@apexdevtools/apex-parser", "AnnotationContext")
   class AnnotationContext extends ParserRuleContext {
     def elementValue(): js.UndefOr[ElementValueContext]           = js.native
     def elementValuePairs(): js.UndefOr[ElementValuePairsContext] = js.native
@@ -91,7 +91,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ElementValueContext")
+  @JSImport("@apexdevtools/apex-parser", "ElementValueContext")
   class ElementValueContext extends ParserRuleContext {
     def expression(): js.UndefOr[ExpressionContext]                                     = js.native
     def annotation(): js.UndefOr[AnnotationContext]                                     = js.native
@@ -99,30 +99,30 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ElementValuePairsContext")
+  @JSImport("@apexdevtools/apex-parser", "ElementValuePairsContext")
   class ElementValuePairsContext extends ParserRuleContext {
     def elementValuePair(): js.Array[ElementValuePairContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "ExpressionContext")
   class ExpressionContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "ElementValueArrayInitializerContext")
+  @JSImport("@apexdevtools/apex-parser", "ElementValueArrayInitializerContext")
   class ElementValueArrayInitializerContext extends ParserRuleContext {
     def elementValue(): js.Array[ElementValueContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ElementValuePairContext")
+  @JSImport("@apexdevtools/apex-parser", "ElementValuePairContext")
   class ElementValuePairContext extends ParserRuleContext {
     def id(): IdContext                     = js.native
     def elementValue(): ElementValueContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "LiteralContext")
+  @JSImport("@apexdevtools/apex-parser", "LiteralContext")
   class LiteralContext extends ParserRuleContext {
     def IntegerLiteral(): js.UndefOr[TerminalNode] = js.native
     def NumberLiteral(): js.UndefOr[TerminalNode]  = js.native
@@ -132,7 +132,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ModifierContext")
+  @JSImport("@apexdevtools/apex-parser", "ModifierContext")
   class ModifierContext extends ParserRuleContext {
     def annotation(): js.UndefOr[AnnotationContext] = js.native
     def GLOBAL(): js.UndefOr[TerminalNode]          = js.native
@@ -154,66 +154,66 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "PrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "PrimaryContext")
   class PrimaryContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "SubPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "SubPrimaryContext")
   class SubPrimaryContext extends PrimaryContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ThisPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "ThisPrimaryContext")
   class ThisPrimaryContext extends PrimaryContext {}
 
   @js.native
-  @JSImport("apex-parser", "SuperPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "SuperPrimaryContext")
   class SuperPrimaryContext extends PrimaryContext {}
 
   @js.native
-  @JSImport("apex-parser", "LiteralPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "LiteralPrimaryContext")
   class LiteralPrimaryContext extends PrimaryContext {
     def literal(): LiteralContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TypeRefPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeRefPrimaryContext")
   class TypeRefPrimaryContext extends PrimaryContext {
     def typeRef(): TypeRefContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "IdPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "IdPrimaryContext")
   class IdPrimaryContext extends PrimaryContext {
     def id(): IdContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "SoqlPrimaryContext")
+  @JSImport("@apexdevtools/apex-parser", "SoqlPrimaryContext")
   class SoqlPrimaryContext extends PrimaryContext {}
 
   @js.native
-  @JSImport("apex-parser", "TypeRefContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeRefContext")
   class TypeRefContext extends PrimaryContext {
     def arraySubscripts(): ArraySubscriptsContext = js.native
     def typeName(): js.Array[TypeNameContext]     = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TypeArgumentsContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeArgumentsContext")
   class TypeArgumentsContext extends PrimaryContext {
     def typeList(): TypeListContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TypeListContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeListContext")
   class TypeListContext extends PrimaryContext {
     def typeRef(): js.Array[TypeRefContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TypeNameContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeNameContext")
   class TypeNameContext extends PrimaryContext {
     def id(): IdContext                                   = js.native
     def LIST(): js.UndefOr[TerminalNode]                  = js.native
@@ -223,11 +223,11 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ArraySubscriptsContext")
+  @JSImport("@apexdevtools/apex-parser", "ArraySubscriptsContext")
   class ArraySubscriptsContext extends PrimaryContext {}
 
   @js.native
-  @JSImport("apex-parser", "PropertyDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "PropertyDeclarationContext")
   class PropertyDeclarationContext extends PrimaryContext {
     def typeRef(): TypeRefContext                       = js.native
     def id(): IdContext                                 = js.native
@@ -235,7 +235,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "PropertyBlockContext")
+  @JSImport("@apexdevtools/apex-parser", "PropertyBlockContext")
   class PropertyBlockContext extends ParserRuleContext {
     def getter(): js.UndefOr[GetterContext]   = js.native
     def setter(): js.UndefOr[SetterContext]   = js.native
@@ -243,32 +243,32 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "GetterContext")
+  @JSImport("@apexdevtools/apex-parser", "GetterContext")
   class GetterContext extends ParserRuleContext {
     def block(): js.UndefOr[BlockContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "GetterContext")
+  @JSImport("@apexdevtools/apex-parser", "GetterContext")
   class SetterContext extends ParserRuleContext {
     def block(): js.UndefOr[BlockContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "CreatedNameContext")
+  @JSImport("@apexdevtools/apex-parser", "CreatedNameContext")
   class CreatedNameContext extends ParserRuleContext {
     def idCreatedNamePair(): js.Array[IdCreatedNamePairContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "IdCreatedNamePairContext")
+  @JSImport("@apexdevtools/apex-parser", "IdCreatedNamePairContext")
   class IdCreatedNamePairContext extends ParserRuleContext {
     def anyId(): AnyIdContext                   = js.native
     def typeList(): js.UndefOr[TypeListContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "CreatorContext")
+  @JSImport("@apexdevtools/apex-parser", "CreatorContext")
   class CreatorContext extends ParserRuleContext {
     def createdName(): CreatedNameContext                       = js.native
     def noRest(): js.UndefOr[NoRestContext]                     = js.native
@@ -279,67 +279,67 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "NoRestContext")
+  @JSImport("@apexdevtools/apex-parser", "NoRestContext")
   class NoRestContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "ClassCreatorRestContext")
+  @JSImport("@apexdevtools/apex-parser", "ClassCreatorRestContext")
   class ClassCreatorRestContext extends ParserRuleContext {
     def arguments(): ArgumentsContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ArrayCreatorRestContext")
+  @JSImport("@apexdevtools/apex-parser", "ArrayCreatorRestContext")
   class ArrayCreatorRestContext extends ParserRuleContext {
     def expression(): js.UndefOr[ExpressionContext]             = js.native
     def arrayInitializer(): js.UndefOr[ArrayInitializerContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ArrayInitializerContext")
+  @JSImport("@apexdevtools/apex-parser", "ArrayInitializerContext")
   class ArrayInitializerContext extends ParserRuleContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "MapCreatorRestContext")
+  @JSImport("@apexdevtools/apex-parser", "MapCreatorRestContext")
   class MapCreatorRestContext extends ParserRuleContext {
     def mapCreatorRestPair(): js.Array[MapCreatorRestPairContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "MapCreatorRestPairContext")
+  @JSImport("@apexdevtools/apex-parser", "MapCreatorRestPairContext")
   class MapCreatorRestPairContext extends ParserRuleContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "SetCreatorRestContext")
+  @JSImport("@apexdevtools/apex-parser", "SetCreatorRestContext")
   class SetCreatorRestContext extends ParserRuleContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ArgumentsContext")
+  @JSImport("@apexdevtools/apex-parser", "ArgumentsContext")
   class ArgumentsContext extends ParserRuleContext {
     def expressionList(): js.UndefOr[ExpressionListContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "VariableDeclaratorsContext")
+  @JSImport("@apexdevtools/apex-parser", "VariableDeclaratorsContext")
   class VariableDeclaratorsContext extends ParserRuleContext {
     def variableDeclarator(): js.Array[VariableDeclaratorContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "VariableDeclaratorContext")
+  @JSImport("@apexdevtools/apex-parser", "VariableDeclaratorContext")
   class VariableDeclaratorContext extends ParserRuleContext {
     def id(): IdContext                             = js.native
     def expression(): js.UndefOr[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "LocalVariableDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "LocalVariableDeclarationContext")
   class LocalVariableDeclarationContext extends ParserRuleContext {
     def typeRef(): TypeRefContext                         = js.native
     def variableDeclarators(): VariableDeclaratorsContext = js.native
@@ -347,7 +347,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "MethodCallContext")
+  @JSImport("@apexdevtools/apex-parser", "MethodCallContext")
   class MethodCallContext extends ExpressionContext {
     def id(): js.UndefOr[IdContext]                         = js.native
     def THIS(): js.UndefOr[TerminalNode]                    = js.native
@@ -355,20 +355,20 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "MethodCallContext")
+  @JSImport("@apexdevtools/apex-parser", "MethodCallContext")
   class DotMethodCallContext extends ExpressionContext {
     def anyId(): AnyIdContext                               = js.native
     def expressionList(): js.UndefOr[ExpressionListContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ExpressionListContext")
+  @JSImport("@apexdevtools/apex-parser", "ExpressionListContext")
   class ExpressionListContext extends ParserRuleContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "DotExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "DotExpressionContext")
   class DotExpressionContext extends ExpressionContext {
     def expression(): ExpressionContext                   = js.native
     def anyId(): js.UndefOr[AnyIdContext]                 = js.native
@@ -376,32 +376,32 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "MethodCallExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "MethodCallExpressionContext")
   class MethodCallExpressionContext extends ExpressionContext {
     def methodCall(): MethodCallContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "NewExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "NewExpressionContext")
   class NewExpressionContext extends ExpressionContext {
     def creator(): CreatorContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ArrayExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "ArrayExpressionContext")
   class ArrayExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "CastExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "CastExpressionContext")
   class CastExpressionContext extends ExpressionContext {
     def typeRef(): TypeRefContext       = js.native
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "PostOpExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "PostOpExpressionContext")
   class PostOpExpressionContext extends ExpressionContext {
     def expression(): ExpressionContext = js.native
     def INC(): js.UndefOr[TerminalNode] = js.native
@@ -409,7 +409,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "PreOpExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "PreOpExpressionContext")
   class PreOpExpressionContext extends ExpressionContext {
     def expression(): ExpressionContext = js.native
     def ADD(): js.UndefOr[TerminalNode] = js.native
@@ -419,7 +419,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "NegExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "NegExpressionContext")
   class NegExpressionContext extends ExpressionContext {
     def expression(): ExpressionContext   = js.native
     def BANG(): js.UndefOr[TerminalNode]  = js.native
@@ -427,7 +427,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "Arth1ExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "Arth1ExpressionContext")
   class Arth1ExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
     def DIV(): js.UndefOr[TerminalNode]           = js.native
@@ -436,7 +436,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "Arth2ExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "Arth2ExpressionContext")
   class Arth2ExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
     def ADD(): js.UndefOr[TerminalNode]           = js.native
@@ -444,7 +444,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "BitExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "BitExpressionContext")
   class BitExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
     def GT(): js.Array[TerminalNode]              = js.native
@@ -452,7 +452,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "CmpExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "CmpExpressionContext")
   class CmpExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
     def GT(): js.UndefOr[TerminalNode]            = js.native
@@ -461,14 +461,14 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "InstanceOfExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "InstanceOfExpressionContext")
   class InstanceOfExpressionContext extends ExpressionContext {
     def expression(): ExpressionContext = js.native
     def typeRef(): TypeRefContext       = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "EqualityExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "EqualityExpressionContext")
   class EqualityExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext]  = js.native
     def EQUAL(): js.UndefOr[TerminalNode]          = js.native
@@ -479,43 +479,43 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "BitAndExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "BitAndExpressionContext")
   class BitAndExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "BitNotExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "BitNotExpressionContext")
   class BitNotExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "BitOrExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "BitOrExpressionContext")
   class BitOrExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "LogAndExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "LogAndExpressionContext")
   class LogAndExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "LogOrExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "LogOrExpressionContext")
   class LogOrExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "CondExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "CondExpressionContext")
   class CondExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "AssignExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "AssignExpressionContext")
   class AssignExpressionContext extends ExpressionContext {
     def expression(): js.Array[ExpressionContext]  = js.native
     def ADD_ASSIGN(): js.UndefOr[TerminalNode]     = js.native
@@ -533,13 +533,13 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "PrimaryExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "PrimaryExpressionContext")
   class PrimaryExpressionContext extends ExpressionContext {
     def primary(): PrimaryContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "StatementContext")
+  @JSImport("@apexdevtools/apex-parser", "StatementContext")
   class StatementContext extends ParserRuleContext {
     def block(): js.UndefOr[BlockContext]                         = js.native
     def ifStatement(): js.UndefOr[IfStatementContext]             = js.native
@@ -565,27 +565,27 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "IfStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "IfStatementContext")
   class IfStatementContext extends ParserRuleContext {
     def parExpression(): ParExpressionContext   = js.native
     def statement(): js.Array[StatementContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ParExpressionContext")
+  @JSImport("@apexdevtools/apex-parser", "ParExpressionContext")
   class ParExpressionContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "WhenControlContext")
+  @JSImport("@apexdevtools/apex-parser", "WhenControlContext")
   class WhenControlContext extends ParserRuleContext {
     def whenValue(): js.UndefOr[WhenValueContext] = js.native
     def block(): BlockContext                     = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "WhenLiteralContext")
+  @JSImport("@apexdevtools/apex-parser", "WhenLiteralContext")
   class WhenLiteralContext extends ParserRuleContext {
     def id(): js.UndefOr[IdContext]                = js.native
     def StringLiteral(): js.UndefOr[TerminalNode]  = js.native
@@ -595,7 +595,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "WhenValueContext")
+  @JSImport("@apexdevtools/apex-parser", "WhenValueContext")
   class WhenValueContext extends ParserRuleContext {
     def whenLiteral(): js.Array[WhenLiteralContext] = js.native
     def id(): js.Array[IdContext]                   = js.native
@@ -603,21 +603,21 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "SwitchStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "SwitchStatementContext")
   class SwitchStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext             = js.native
     def whenControl(): js.Array[WhenControlContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ForStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "ForStatementContext")
   class ForStatementContext extends ParserRuleContext {
     def forControl(): ForControlContext = js.native
     def statement(): StatementContext   = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ForControlContext")
+  @JSImport("@apexdevtools/apex-parser", "ForControlContext")
   class ForControlContext extends ParserRuleContext {
     def enhancedForControl(): js.UndefOr[EnhancedForControlContext] = js.native
     def forInit(): js.UndefOr[ForInitContext]                       = js.native
@@ -626,7 +626,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "EnhancedForControlContext")
+  @JSImport("@apexdevtools/apex-parser", "EnhancedForControlContext")
   class EnhancedForControlContext extends ParserRuleContext {
     def typeRef(): TypeRefContext             = js.native
     def id(): IdContext                       = js.native
@@ -635,34 +635,34 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ForInitContext")
+  @JSImport("@apexdevtools/apex-parser", "ForInitContext")
   class ForInitContext extends ParserRuleContext {
     def localVariableDeclaration(): js.UndefOr[LocalVariableDeclarationContext] = js.native
     def expressionList(): js.UndefOr[ExpressionListContext]                     = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ForUpdateContext")
+  @JSImport("@apexdevtools/apex-parser", "ForUpdateContext")
   class ForUpdateContext extends ParserRuleContext {
     def expressionList(): ExpressionListContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "WhileStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "WhileStatementContext")
   class WhileStatementContext extends ParserRuleContext {
     def parExpression(): ParExpressionContext = js.native
     def statement(): StatementContext         = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "DoWhileStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "DoWhileStatementContext")
   class DoWhileStatementContext extends ParserRuleContext {
     def statement(): StatementContext         = js.native
     def parExpression(): ParExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TryStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "TryStatementContext")
   class TryStatementContext extends ParserRuleContext {
     def block(): BlockContext                           = js.native
     def finallyBlock(): js.UndefOr[FinallyBlockContext] = js.native
@@ -670,13 +670,13 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "FinallyBlockContext")
+  @JSImport("@apexdevtools/apex-parser", "FinallyBlockContext")
   class FinallyBlockContext extends ParserRuleContext {
     def block(): BlockContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "CatchClauseContext")
+  @JSImport("@apexdevtools/apex-parser", "CatchClauseContext")
   class CatchClauseContext extends ParserRuleContext {
     def qualifiedName(): QualifiedNameContext = js.native
     def id(): IdContext                       = js.native
@@ -685,83 +685,83 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ReturnStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "ReturnStatementContext")
   class ReturnStatementContext extends ParserRuleContext {
     def expression(): js.UndefOr[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ThrowStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "ThrowStatementContext")
   class ThrowStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ContinueStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "ContinueStatementContext")
   class ContinueStatementContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "BreakStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "BreakStatementContext")
   class BreakStatementContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "InsertStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "InsertStatementContext")
   class InsertStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "UpdateStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "UpdateStatementContext")
   class UpdateStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "DeleteStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "DeleteStatementContext")
   class DeleteStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "UndeleteStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "UndeleteStatementContext")
   class UndeleteStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "UpsertStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "UpsertStatementContext")
   class UpsertStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext                   = js.native
     def qualifiedName(): js.UndefOr[QualifiedNameContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "MergeStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "MergeStatementContext")
   class MergeStatementContext extends ParserRuleContext {
     def expression(): js.Array[ExpressionContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "RunAsStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "RunAsStatementContext")
   class RunAsStatementContext extends ParserRuleContext {
     def expressionList(): js.UndefOr[ExpressionListContext] = js.native
     def block(): js.UndefOr[BlockContext]                   = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ExpressionStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "ExpressionStatementContext")
   class ExpressionStatementContext extends ParserRuleContext {
     def expression(): ExpressionContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "LocalVariableDeclarationStatementContext")
+  @JSImport("@apexdevtools/apex-parser", "LocalVariableDeclarationStatementContext")
   class LocalVariableDeclarationStatementContext extends ParserRuleContext {
     def localVariableDeclaration(): LocalVariableDeclarationContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "MemberDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "MemberDeclarationContext")
   class MemberDeclarationContext extends ParserRuleContext {
     def methodDeclaration(): js.UndefOr[MethodDeclarationContext]           = js.native
     def fieldDeclaration(): js.UndefOr[FieldDeclarationContext]             = js.native
@@ -773,7 +773,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "InterfaceDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "InterfaceDeclarationContext")
   class InterfaceDeclarationContext extends ParserRuleContext {
     def id(): IdContext                         = js.native
     def interfaceBody(): InterfaceBodyContext   = js.native
@@ -781,7 +781,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "ClassDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "ClassDeclarationContext")
   class ClassDeclarationContext extends ParserRuleContext {
     def id(): IdContext                         = js.native
     def classBody(): ClassBodyContext           = js.native
@@ -790,14 +790,14 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "EnumDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "EnumDeclarationContext")
   class EnumDeclarationContext extends ParserRuleContext {
     def id(): IdContext                                   = js.native
     def enumConstants(): js.UndefOr[EnumConstantsContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "MethodDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "MethodDeclarationContext")
   class MethodDeclarationContext extends ParserRuleContext {
     def id(): IdContext                             = js.native
     def formalParameters(): FormalParametersContext = js.native
@@ -807,7 +807,7 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "InterfaceMethodDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "InterfaceMethodDeclarationContext")
   class InterfaceMethodDeclarationContext extends ParserRuleContext {
     def id(): IdContext                             = js.native
     def formalParameters(): FormalParametersContext = js.native
@@ -816,14 +816,14 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "FieldDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "FieldDeclarationContext")
   class FieldDeclarationContext extends ParserRuleContext {
     def typeRef(): TypeRefContext                         = js.native
     def variableDeclarators(): VariableDeclaratorsContext = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ConstructorDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "ConstructorDeclarationContext")
   class ConstructorDeclarationContext extends ParserRuleContext {
     def qualifiedName(): QualifiedNameContext       = js.native
     def formalParameters(): FormalParametersContext = js.native
@@ -831,13 +831,13 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "FormalParameterListContext")
+  @JSImport("@apexdevtools/apex-parser", "FormalParameterListContext")
   class FormalParameterListContext extends ParserRuleContext {
     def formalParameter(): js.Array[FormalParameterContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "FormalParameterContext")
+  @JSImport("@apexdevtools/apex-parser", "FormalParameterContext")
   class FormalParameterContext extends ParserRuleContext {
     def typeRef(): TypeRefContext             = js.native
     def id(): IdContext                       = js.native
@@ -845,25 +845,25 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "FormalParametersContext")
+  @JSImport("@apexdevtools/apex-parser", "FormalParametersContext")
   class FormalParametersContext extends ParserRuleContext {
     def formalParameterList(): js.UndefOr[FormalParameterListContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "InterfaceBodyContext")
+  @JSImport("@apexdevtools/apex-parser", "InterfaceBodyContext")
   class InterfaceBodyContext extends ParserRuleContext {
     def interfaceMethodDeclaration(): js.Array[InterfaceMethodDeclarationContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ClassBodyContext")
+  @JSImport("@apexdevtools/apex-parser", "ClassBodyContext")
   class ClassBodyContext extends ParserRuleContext {
     def classBodyDeclaration(): js.Array[ClassBodyDeclarationContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "ClassBodyDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "ClassBodyDeclarationContext")
   class ClassBodyDeclarationContext extends ParserRuleContext {
     def block(): js.UndefOr[BlockContext]                         = js.native
     def STATIC(): js.UndefOr[TerminalNode]                        = js.native
@@ -872,13 +872,13 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "EnumConstantsContext")
+  @JSImport("@apexdevtools/apex-parser", "EnumConstantsContext")
   class EnumConstantsContext extends ParserRuleContext {
     def id(): js.Array[IdContext] = js.native
   }
 
   @js.native
-  @JSImport("apex-parser", "TypeDeclarationContext")
+  @JSImport("@apexdevtools/apex-parser", "TypeDeclarationContext")
   class TypeDeclarationContext extends ParserRuleContext {
     def classDeclaration(): js.UndefOr[ClassDeclarationContext]         = js.native
     def modifier(): js.Array[ModifierContext]                           = js.native
@@ -887,11 +887,11 @@ object ApexParser {
   }
 
   @js.native
-  @JSImport("apex-parser", "QueryContext")
+  @JSImport("@apexdevtools/apex-parser", "QueryContext")
   class QueryContext extends ParserRuleContext {}
 
   @js.native
-  @JSImport("apex-parser", "SoslLiteralContext")
+  @JSImport("@apexdevtools/apex-parser", "SoslLiteralContext")
   class SoslLiteralContext extends ParserRuleContext {}
 
 }
