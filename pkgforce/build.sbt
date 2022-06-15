@@ -93,7 +93,7 @@ lazy val pkgforce = crossProject(JSPlatform, JVMPlatform).in(file(".")).
     build := buildJVM.value,
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0",
-    libraryDependencies += "com.github.nawforce" % "apex-parser" % "2.14.0",
+    libraryDependencies += "io.github.apex-dev-tools" % "apex-parser" % "3.0.0",
     libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8-1",
     libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1" % Test
   ).

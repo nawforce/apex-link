@@ -19,5 +19,5 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("apex-parser", "CaseInsensitiveInputStream")
+@JSImport("@apexdevtools/apex-parser", "CaseInsensitiveInputStream")
 class CaseInsensitiveInputStream(src: CharStream) extends CharStream {}
