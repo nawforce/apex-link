@@ -40,7 +40,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
   )
 
   test("Right number of types (should exclude inners)") {
-    assert(PlatformTypeDeclaration.classNames.size == 2091)
+    assert(PlatformTypeDeclaration.classNames.size == 2112)
   }
 
   test("SObject type is visible") {
@@ -145,7 +145,7 @@ class PlatformTypesValidationTest extends AnyFunSuite {
         assert(typeDeclaration.fields.nonEmpty)
         assert(
           typeDeclaration.fields.filter(_.typeName.toString == typeDeclaration.typeName.toString)
-            sameElements typeDeclaration.fields
+            == typeDeclaration.fields
         )
       case CLASS_NATURE =>
         typeDeclaration.fields.foreach(f => {
