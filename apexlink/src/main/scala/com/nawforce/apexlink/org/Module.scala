@@ -247,6 +247,13 @@ class Module(val pkg: PackageImpl, val index: DocumentIndex, dependents: Seq[Mod
           )
           .headOption
       )
+
+    nextModule.flatMap(next => next.findPackageType(typeName, from, next.pkg == pkg))
+  }
+
+  /* Find next module in search order */
+  def nextModule: Option[Module] = {
+    baseModules.headOption.orElse(basePackages.headOption.flatMap(_.firstModule))
   }
 
   /** Find a type just in this module. */
