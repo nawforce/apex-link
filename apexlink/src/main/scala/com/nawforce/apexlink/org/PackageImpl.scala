@@ -64,6 +64,12 @@ class PackageImpl(
   /** Package modules in reverse deploy order, note ghost packages have no modules. */
   lazy val orderedModules: Seq[Module] = modules.reverse.toSeq
 
+  /* Find first module in search order (may not be in this package) */
+  def firstModule: Option[Module] = {
+    orderedModules.headOption
+      .orElse(basePackages.headOption.flatMap(_.firstModule))
+  }
+
   /** Is this a ghost package, aka it has no modules. */
   lazy val isGhosted: Boolean = {
     modules.isEmpty
