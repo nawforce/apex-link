@@ -2,7 +2,7 @@ import sbt.Keys.libraryDependencies
 import sbt.url
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-ThisBuild / version := "2.3.6"
+ThisBuild / version := "2.3.7"
 ThisBuild / isSnapshot := false
 
 ThisBuild / scalaVersion := "2.13.3"
