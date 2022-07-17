@@ -113,9 +113,12 @@ trait ApexFieldLike extends FieldDeclaration with IdLocatable {
 }
 
 /** Apex defined types core features, be they full or summary style */
-trait ApexDeclaration extends DependentType with IdLocatable {
+trait ApexDeclaration extends DependentType with DependencyHolder with IdLocatable {
   val sourceHash: Int
   val module: Module
+
+  /** Override to resolve conflict, TypeDeclaration & DependencyHolder both default false */
+  override val inTest: Boolean = false
 
   def summary: TypeSummary
 }
@@ -133,14 +136,11 @@ trait ApexFullDeclaration extends ApexDeclaration {
 trait ApexTriggerDeclaration extends ApexDeclaration
 
 /** Apex defined classes, interfaces, enum of either full or summary type */
-trait ApexClassDeclaration extends ApexDeclaration with DependencyHolder {
+trait ApexClassDeclaration extends ApexDeclaration {
   val localFields: ArraySeq[ApexFieldLike]
   val localMethods: ArraySeq[ApexMethodLike]
 
   override def nestedTypes: ArraySeq[ApexClassDeclaration]
-
-  /** Override to resolve conflict, TypeDeclaration & DependencyHolder both default false */
-  override val inTest: Boolean = false
 
   /** Override to handle request to flush the type to passed cache if dirty */
   def flush(pc: ParsedCache, context: PackageContext): Unit

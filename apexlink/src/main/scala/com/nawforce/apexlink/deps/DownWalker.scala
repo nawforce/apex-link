@@ -18,7 +18,7 @@ import com.nawforce.apexlink.api.Org
 import com.nawforce.apexlink.org.OrgImpl
 import com.nawforce.apexlink.types.apex.{ApexClassDeclaration, ApexDeclaration}
 import com.nawforce.apexlink.types.core.DependencyHolder
-import com.nawforce.pkgforce.names.{Name, TypeIdentifier}
+import com.nawforce.pkgforce.names.TypeIdentifier
 import com.nawforce.pkgforce.parsers.{CLASS_NATURE, INTERFACE_NATURE}
 
 import scala.collection.mutable
@@ -36,9 +36,6 @@ case class NodeData(
 
 /** Downstream dependency walker. Collects information on the dependencies of a type. */
 class DownWalker(org: Org, apexOnly: Boolean) {
-
-  private val packagesByNamespace =
-    org.getPackages().map(pkg => (Name(pkg.getNamespaces(false).head), pkg)).toMap
 
   private val transitiveCollector = new TransitiveCollector(org, apexOnly)
 
@@ -97,44 +94,59 @@ class DownWalker(org: Org, apexOnly: Boolean) {
   private def createNode(id: TypeIdentifier, ignoring: Array[TypeIdentifier]): Option[NodeData] = {
     org
       .asInstanceOf[OrgImpl]
-      .findTypeIdentifier(id)
-      .filter(td => !apexOnly || td.isInstanceOf[ApexDeclaration])
-      .collect { case td: DependencyHolder => td }
-      .map(td => {
-        val pkg    = td.moduleDeclaration.map(_.pkg)
-        val typeId = pkg.map(pkg => TypeIdentifier(pkg.namespace, td.typeName))
-
-        val inherits =
-          td.dependencies()
-            .flatMap({
-              case dt: ApexClassDeclaration => Some(dt.nature, dt.outerTypeId.asTypeIdentifier)
-              case _                        => None
-            })
-            .filterNot(d => typeId.contains(d._2))
-            .filterNot(d => ignoring.contains(d._2))
-            .toSet
-        val extending    = inherits.filter(id => id._1 == CLASS_NATURE).map(_._2)
-        val implementing = inherits.filter(id => id._1 == INTERFACE_NATURE).map(_._2)
-        val output       = extending ++ implementing
-
-        val all =
-          pkg
-            .flatMap(pkg => {
-              Option(pkg.getDependencies(id, outerInheritanceOnly = false, apexOnly))
-            })
-            .getOrElse(Array[TypeIdentifier]())
-        val uses = all
-          .filterNot(output.contains)
-          .filterNot(id => typeId.contains(id))
-          .filterNot(id => ignoring.contains(id))
-        NodeData(
-          id,
-          td.nature.value,
-          transitiveCollector.count(id, ignoring),
-          extending.toArray,
-          implementing.toArray,
-          uses
+      .findTypeIdentifier(id) match {
+      case Some(td: ApexDeclaration)               => Some(createApexNode(td, ignoring))
+      case Some(td: DependencyHolder) if !apexOnly =>
+        // Treat non-apex as a pseudo-leaf by not collecting further
+        Some(
+          NodeData(
+            id,
+            td.nature.value,
+            transitiveCollector.count(id, ignoring),
+            Array.empty,
+            Array.empty,
+            Array.empty
+          )
         )
-      })
+      case _ => None
+    }
+  }
+
+  private def createApexNode(td: ApexDeclaration, ignoring: Array[TypeIdentifier]): NodeData = {
+    val pkg = td.moduleDeclaration.map(_.pkg)
+    val id  = td.typeId.asTypeIdentifier
+
+    val inherits = {
+      td.dependencies()
+        .flatMap({
+          case dt: ApexClassDeclaration => Some(dt.nature, dt.outerTypeId.asTypeIdentifier)
+          case _                        => None
+        })
+        .filterNot(d => id == d._2)
+        .filterNot(d => ignoring.contains(d._2))
+        .toSet
+    }
+    val extending    = inherits.filter(id => id._1 == CLASS_NATURE).map(_._2)
+    val implementing = inherits.filter(id => id._1 == INTERFACE_NATURE).map(_._2)
+    val output       = extending ++ implementing
+
+    val all =
+      pkg
+        .flatMap(pkg => {
+          Option(pkg.getDependencies(id, outerInheritanceOnly = false, apexOnly))
+        })
+        .getOrElse(Array[TypeIdentifier]())
+    val uses = all
+      .filterNot(output.contains)
+      .filterNot(_ == id)
+      .filterNot(ignoring.contains)
+    NodeData(
+      id,
+      td.nature.value,
+      transitiveCollector.count(id, ignoring),
+      extending.toArray,
+      implementing.toArray,
+      uses
+    )
   }
 }
