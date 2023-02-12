@@ -1,6 +1,6 @@
 # Archived
 
-This repo has moved to a new home and so is not being update here anymore, the new location will be announced shortly. 
+This repo has moved to a new home and so is not being updated anymore, the new location will be announced shortly. 
 
 
 ## apex-link
