@@ -1,3 +1,8 @@
+# Archived
+
+This repo has moved to a new home and so is not being update here anymore, the new location will be announced shortly. 
+
+
 ## apex-link
 
 This is a static analysis library for Salesforce metadata. It mostly focuses on Apex classes but also handles other types of metadata if they are relevant to understanding Apex code, such as custom objects. The library is used by the VSCode extension [apex-assist](https://github.com/nawforce/apex-assist), [PMD](https://pmd.github.io/) and various proprietry tools. Metadata support utilities such Apex & Visualforce parsing are provided by the pkgforce module. If you are interested in Apex or Visualforce parsing on node for your own tools see [apex-parser](https://github.com/nawforce/apex-parser) and [vf-parser](https://github.com/nawforce/vf-parser). 
